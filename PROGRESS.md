@@ -217,6 +217,67 @@ a swap that does not happen.
 
 ---
 
-## Milestone 4 — Level pipeline
+## Milestone 4 — Level pipeline ✅
+
+- **Levels are Tiled maps.** `src/levels/maps/*.tmj`, discovered by a glob, so
+  §11's "adding a level means adding a file, never editing game code" is
+  literally true — drop a `.tmj` in the folder and it is in the game. The three
+  greybox levels were converted rather than retyped: they only ever imported
+  types, so they compiled standalone and were run through the same exporter,
+  which means zero transcription risk.
+- **Maps are authored as object layers** (`solids` and `entities`), which needs
+  no tileset image while terrain is still rectangles. A tile layer slots in
+  alongside when real art arrives.
+- **`npm run build:maps`** regenerates maps from `tools/levels/*.mjs`. That
+  exists because a staircase or a ladder of widening gaps is clearer as a loop
+  than as a hundred hand-placed objects. Once you start editing a map in Tiled,
+  stop regenerating it.
+- **A world map** showing all sixteen levels from §6 as a journey, with locked
+  worlds greyed, a marker for where you are, and the kiddush table filling up.
+  Levels that do not exist yet say "not built yet" rather than pretending to be
+  locked — the shape of the game should be visible before it is finished.
+- **Progression and unlocking**: a level opens when the one before it is
+  finished, which makes §6's "beating a boss unlocks the next world" fall out
+  for free.
+- **Auto-save to `localStorage`** after every completed level and nowhere else
+  (§7). Storing what §7 asks for: levels completed, kiddush items, lives,
+  coins, character last used. Every failure mode — storage disabled, quota
+  full, a save from an older shape — lands on a fresh game rather than an
+  exception.
+- **1-1 Thirteenth Avenue** and **1-2 The Scaffolding**, built as real levels.
+
+### Verified in the browser
+
+All five maps parse from `.tmj`. Entering 1-1 from the map, finishing it,
+returning, and finding 1-2 unlocked all work; the save survives a full page
+reload and the marker comes back on 1-2. An autopilot that walks right and
+jumps at edges **finishes 1-1** with one death.
+
+The same autopilot fails 1-1 when told to run, and that is worth recording
+because it is *not* a level problem: it only jumps once it is already against a
+wall, so it runs flat into the awning at tile 38, loses all 150 px/s of
+momentum, and never gets it back before the next gap. A person jumps earlier,
+and running clears more ground than walking, not less.
+
+### A design constraint worth knowing
+
+**A walking jump clears three tiles, and that is the hard limit.** 1-1 was
+originally built with three-tile gaps and the autopilot died on them
+repeatedly; they are all two tiles now. Three tiles is a gap to spend
+deliberately, with a run-up, not the default spacing. This is the cost of the
+snappier jump from the last round, and it is the right trade — but level design
+has to respect it.
+
+### Deferred
+
+- 1-3 and 1-4 need the stroller chase and the Pigeon King, which is Milestone 6.
+- 1-2's falling pipes and rats are World 1 content and arrive with Milestone 6;
+  the climb and the fire escapes are there and waiting for them.
+- Awnings are platforms, not bounce pads — bouncing is World 1 terrain (M6).
+- Lives are stored in the save but not spent; the 100-coin extra life is M5.
+
+---
+
+## Milestone 5 — Full power-up set
 
 Not started.

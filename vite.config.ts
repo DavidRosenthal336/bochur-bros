@@ -1,6 +1,26 @@
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vite';
 
+/**
+ * Lets `.tmj` be imported like JSON.
+ *
+ * `.tmj` is Tiled's own extension for a JSON map, and keeping it means the map
+ * files open in Tiled by double-clicking. Vite only knows `.json`, so without
+ * this it tries to parse a map as JavaScript.
+ */
+function tiledMaps(): Plugin {
+  return {
+    name: 'tiled-maps',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!id.endsWith('.tmj')) return null;
+      return { code: `export default ${code.trim()};`, map: null };
+    },
+  };
+}
+
 export default defineConfig({
+  plugins: [tiledMaps()],
   base: './',
   server: {
     host: true,

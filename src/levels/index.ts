@@ -1,25 +1,24 @@
 import type { LevelDef } from './LevelDef';
-import { CORE_LOOP_LEVEL } from './coreLoopLevel';
-import { SWAP_LEVEL } from './swapLevel';
-import { TEST_LEVEL } from './testLevel';
+import { levelFromTiled } from './tiled/loadTiled';
+import type { TiledMap } from './tiled/TiledTypes';
 
 /**
- * Every level the game knows about.
+ * Every level the game knows about, discovered from the map files.
  *
- * Milestone 4 replaces this hand-written map with Tiled files discovered at
- * build time; until then it is the one place a level gets registered.
+ * §11: "Adding a level means adding a file, never editing game code." Dropping
+ * a `.tmj` into `src/levels/maps/` is the whole procedure — this glob picks it
+ * up at build time and its filename becomes its key.
  */
-export const LEVELS: Record<string, LevelDef> = {
-  [SWAP_LEVEL.key]: SWAP_LEVEL,
-  [CORE_LOOP_LEVEL.key]: CORE_LOOP_LEVEL,
-  [TEST_LEVEL.key]: TEST_LEVEL,
-};
+const mapModules = import.meta.glob<TiledMap>('./maps/*.tmj', { eager: true, import: 'default' });
 
-/** The order F3 cycles through, for playtesting. */
-export const LEVEL_ORDER: readonly string[] = [
-  SWAP_LEVEL.key,
-  CORE_LOOP_LEVEL.key,
-  TEST_LEVEL.key,
-];
+export const LEVELS: Record<string, LevelDef> = Object.fromEntries(
+  Object.entries(mapModules).map(([path, map]) => {
+    const key = path.replace(/^.*\//, '').replace(/\.tmj$/, '');
+    return [key, levelFromTiled(key, map)];
+  }),
+);
 
-export const DEFAULT_LEVEL = SWAP_LEVEL.key;
+/** Levels that are not part of the game proper: instruments and test beds. */
+export const GREYBOX_LEVELS: readonly string[] = ['gym', 'core-loop', 'chavrusa'];
+
+export const DEFAULT_LEVEL = '1-1';

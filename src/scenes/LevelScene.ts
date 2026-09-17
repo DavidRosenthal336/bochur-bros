@@ -11,7 +11,9 @@ import { Coin, PowerUpPickup } from '../entities/Pickup';
 import { Player } from '../entities/Player';
 import { KeyboardInput } from '../input/KeyboardInput';
 import type { LevelDef, SolidKind } from '../levels/LevelDef';
-import { DEFAULT_LEVEL, LEVELS, LEVEL_ORDER } from '../levels';
+import { DEFAULT_LEVEL, GREYBOX_LEVELS, LEVELS } from '../levels';
+import { findLevel } from '../levels/catalog';
+import { completeLevel as recordCompletion, loadSave, writeSave } from '../systems/SaveGame';
 import { PowerState } from '../systems/PowerState';
 import { solidTextureKey } from '../util/textures';
 import { DebugOverlay } from './DebugOverlay';
@@ -27,6 +29,10 @@ const SOLID_COLORS: Record<SolidKind, number> = {
 
 export interface LevelSceneData {
   readonly levelKey?: string;
+  /** The catalog id ("1-1") this play belongs to. Absent for greybox levels. */
+  readonly levelId?: string;
+  /** True when this is an instrument rather than part of the game. */
+  readonly greybox?: boolean;
   /** Carried across a death, so the coin total is not lost with the life. */
   readonly coins?: number;
   /** The checkpoint to come back to, in pixels. Omitted means the level start. */
@@ -67,6 +73,9 @@ export class LevelScene extends Phaser.Scene {
   private carriedRespawn: { x: number; y: number } | null = null;
   /** §7 stores "character last used", so a death does not silently swap you back. */
   private carriedCharacter: CharacterId = DEFAULT_CHARACTER;
+  /** Which catalog entry this play counts towards, if any. */
+  private levelId: string | undefined;
+  private greybox = false;
 
   constructor() {
     super(SceneKey.Level);
@@ -81,6 +90,8 @@ export class LevelScene extends Phaser.Scene {
         ? { x: data.respawnX, y: data.respawnY }
         : null;
     this.carriedCharacter = data.character ?? DEFAULT_CHARACTER;
+    this.levelId = data.levelId;
+    this.greybox = data.greybox ?? GREYBOX_LEVELS.includes(key);
     this.state = 'playing';
   }
 
@@ -130,6 +141,10 @@ export class LevelScene extends Phaser.Scene {
       this.state === 'complete' ? this.restartFromStart() : this.restartFromCheckpoint(),
     );
     this.keyboard?.on('keydown-F3', () => this.cycleLevel());
+    this.keyboard?.on('keydown-ESC', () => this.toWorldMap());
+    this.keyboard?.on('keydown-SPACE', () => {
+      if (this.state === 'complete' && !this.greybox) this.toWorldMap();
+    });
   }
 
   override update(_time: number, delta: number): void {
@@ -438,11 +453,31 @@ export class LevelScene extends Phaser.Scene {
     this.time.delayedCall(GAMEPLAY.deathPauseMs, () => this.restartFromCheckpoint());
   }
 
+  /**
+   * Reached the goal.
+   *
+   * §7: auto-save after every completed level, to localStorage, with no manual
+   * save anywhere. That happens here and nowhere else.
+   */
   private completeLevel(): void {
     if (this.state !== 'playing') return;
     this.state = 'complete';
     this.player.setControllable(false);
-    this.hud.showBanner('L\'CHAIM!\nR to play again');
+
+    if (this.levelId) {
+      const entry = findLevel(this.levelId);
+      const save = recordCompletion(loadSave(), this.levelId);
+      writeSave({
+        ...save,
+        coins: save.coins + this.coinCount,
+        character: this.player.character,
+      });
+      this.hud.showBanner(
+        entry?.isBoss === true ? 'YOU GOT IT BACK!\nSPACE for the map' : "L'CHAIM!\nSPACE for the map",
+      );
+    } else {
+      this.hud.showBanner("L'CHAIM!\nR to play again");
+    }
   }
 
   /**
@@ -469,10 +504,15 @@ export class LevelScene extends Phaser.Scene {
     this.scene.restart({ levelKey: this.level.key } satisfies LevelSceneData);
   }
 
+  /** F3 cycles the greybox instruments, which are not part of the game proper. */
   private cycleLevel(): void {
-    const index = LEVEL_ORDER.indexOf(this.level.key);
-    const next = LEVEL_ORDER[(index + 1) % LEVEL_ORDER.length]!;
-    this.scene.restart({ levelKey: next } satisfies LevelSceneData);
+    const index = GREYBOX_LEVELS.indexOf(this.level.key);
+    const next = GREYBOX_LEVELS[(index + 1) % GREYBOX_LEVELS.length]!;
+    this.scene.restart({ levelKey: next, greybox: true } satisfies LevelSceneData);
+  }
+
+  private toWorldMap(): void {
+    this.scene.start(SceneKey.WorldMap);
   }
 
   // -------------------------------------------------------------------------

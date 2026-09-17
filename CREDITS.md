@@ -22,6 +22,10 @@ to this repository.
 | [Vite](https://vite.dev) | MIT |
 | [TypeScript](https://www.typescriptlang.org) | Apache-2.0 |
 
+Levels are authored in [Tiled](https://www.mapeditor.org) (GPL-2.0), which is a
+tool rather than a dependency — nothing from it ships in the game, only the
+`.tmj` files it reads and writes.
+
 ## A note on the movement figures
 
 Mendy's speeds, accelerations and jump gravities are taken from published

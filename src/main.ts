@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { PHYSICS_FPS, VIEW_HEIGHT, VIEW_WIDTH } from './config/Tuning';
 import { BootScene } from './scenes/BootScene';
 import { LevelScene } from './scenes/LevelScene';
+import { WorldMapScene } from './scenes/WorldMapScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -31,13 +32,17 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, LevelScene],
+  scene: [BootScene, WorldMapScene, LevelScene],
 };
 
 const game = new Phaser.Game(config);
 
 if (import.meta.env.DEV) {
-  // Handy during tuning: `__game.scene.getScene('TestLevel').player` in the
-  // browser console lets you poke at the live character. Dev builds only.
+  // Handy during tuning: `__game.scene.getScene('Level').player` in the browser
+  // console lets you poke at the live character, and `__levels` shows what the
+  // map files parsed into. Dev builds only.
   (window as unknown as { __game: Phaser.Game }).__game = game;
+  void import('./levels').then(({ LEVELS }) => {
+    (window as unknown as { __levels: unknown }).__levels = LEVELS;
+  });
 }
