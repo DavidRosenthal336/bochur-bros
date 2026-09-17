@@ -2,8 +2,16 @@ import Phaser from 'phaser';
 import { GAMEPLAY, TILE } from '../config/Tuning';
 import { solidTextureKey } from '../util/textures';
 
-/** What a block does when the player headbutts it from underneath. */
-export type BlockKind = 'mystery' | 'brick';
+/**
+ * What a block does when it is hit.
+ *
+ *  mystery     gives up its contents once, from below
+ *  brick       shatters from below, but only for a tier that breaks blocks
+ *  reinforced  shatters from below, but only for a character strong enough —
+ *              Mendy cannot break one in any form (§4)
+ *  weak        a floor, broken from ABOVE by a ground pound (§4)
+ */
+export type BlockKind = 'mystery' | 'brick' | 'reinforced' | 'weak';
 
 /** What comes out of a mystery box. */
 export type BlockContents = 'coin' | 'cholent';
@@ -11,6 +19,8 @@ export type BlockContents = 'coin' | 'cholent';
 const COLORS: Record<BlockKind, number> = {
   mystery: 0xe0a33e,
   brick: 0x9c6144,
+  reinforced: 0x707a8c,
+  weak: 0x7a6a52,
 };
 
 const SPENT_COLOR = 0x5a5f78;
@@ -61,7 +71,22 @@ export class Block extends Phaser.Physics.Arcade.Sprite {
    * then goes inert; a brick shatters for a big player and merely rattles for
    * a small one.
    */
-  hitFromBelow(playerBreaksBlocks: boolean): 'contents' | 'broken' | 'bump' {
+  hitFromBelow(playerBreaksBlocks: boolean, playerBreaksReinforced: boolean): 'contents' | 'broken' | 'bump' {
+    if (this.kind === 'weak') {
+      // A weak floor ignores anything from underneath; it only gives way from above.
+      this.bump();
+      return 'bump';
+    }
+
+    if (this.kind === 'reinforced') {
+      if (playerBreaksReinforced) {
+        this.shatter();
+        return 'broken';
+      }
+      this.bump();
+      return 'bump';
+    }
+
     if (this.kind === 'brick') {
       if (playerBreaksBlocks) {
         this.shatter();
@@ -100,6 +125,16 @@ export class Block extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  /**
+   * Slammed from above. Only a weak floor cares, and only for a character with
+   * the ground pound — which is Berel and nobody else.
+   */
+  hitFromAbove(playerGroundPounds: boolean): 'broken' | 'ignored' {
+    if (this.kind !== 'weak' || !playerGroundPounds) return 'ignored';
+    this.shatter();
+    return 'broken';
+  }
+
   private shatter(): void {
     const body = this.staticBody;
     body.enable = false;
@@ -112,7 +147,7 @@ export class Block extends Phaser.Physics.Arcade.Sprite {
       [1, 1],
     ] as const) {
       const chunk = this.scene.add
-        .rectangle(this.x + dx * 3, this.y + dy * 3, 6, 6, COLORS.brick)
+        .rectangle(this.x + dx * 3, this.y + dy * 3, 6, 6, COLORS[this.kind])
         .setDepth(4);
       this.scene.tweens.add({
         targets: chunk,

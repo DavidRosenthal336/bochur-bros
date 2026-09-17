@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import type { CharacterStats, JumpBracket } from '../config/Tuning';
-import { GAMEPLAY, TIERS } from '../config/Tuning';
+import type { CharacterAbilities, CharacterId, CharacterStats, JumpBracket } from '../config/Tuning';
+import { CHARACTERS, GAMEPLAY, TIERS } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from '../input/InputState';
 import { NEUTRAL_INPUT } from '../input/InputState';
@@ -19,6 +19,8 @@ export interface PlayerDebugInfo {
   /** Is the run button held? */
   readonly running: boolean;
   readonly tier: PowerTier;
+  readonly character: CharacterId;
+  readonly groundPounding: boolean;
   /** Peak height above the launch point for the most recent jump, in pixels. */
   readonly lastJumpHeight: number;
   /** Horizontal ground covered by the most recent completed jump, in pixels. */
@@ -38,7 +40,15 @@ export interface PlayerDebugInfo {
  * a matter of pointing this class at a different stat block.
  */
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private stats: CharacterStats;
+  /**
+   * Who is currently on screen.
+   *
+   * §11 is explicit that the swap "swaps the controlled entity... Not two
+   * entities", so there is exactly one Player for the whole game and this field
+   * is the swap. Position, velocity and power-up tier are shared for free
+   * because they were never duplicated in the first place.
+   */
+  private characterId: CharacterId;
 
   /** Milliseconds of ledge grace still available. Refilled while grounded. */
   private coyoteMs = 0;
@@ -55,6 +65,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private facing: -1 | 1 = 1;
   /** Ducking. Shrinks the body; standing up again waits for headroom. */
   private crouching = false;
+  /** Slamming downward. Berel only; ends on landing. */
+  private groundPounding = false;
   /** Was the run button held this frame? Debug readout only. */
   private running = false;
   /** Current power-up tier. Owned by the scene's PowerState; mirrored here for size. */
@@ -70,9 +82,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private lastJumpHeight = 0;
   private lastJumpDistance = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, stats: CharacterStats) {
+  constructor(scene: Phaser.Scene, x: number, y: number, characterId: CharacterId) {
+    const stats = CHARACTERS[characterId];
     super(scene, x, y, solidTextureKey(scene, stats.bodyWidth, stats.bodyHeight));
-    this.stats = stats;
+    this.characterId = characterId;
     this.bracket = stats.jumpBrackets[0]!;
 
     scene.add.existing(this);
@@ -96,6 +109,64 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     body.setCollideWorldBounds(true);
 
     this.nose = scene.add.rectangle(x, y, 4, 4, 0xffffff, 0.9).setDepth(11);
+  }
+
+  /** The active character's numbers. */
+  get stats(): CharacterStats {
+    return CHARACTERS[this.characterId];
+  }
+
+  get character(): CharacterId {
+    return this.characterId;
+  }
+
+  get abilities(): CharacterAbilities {
+    return this.stats.abilities;
+  }
+
+  /**
+   * Put the other character in this one's place.
+   *
+   * Instant, free and unlimited (§4). The only thing that can refuse it is
+   * geometry: Berel's body is larger than Mendy's, so swapping inside a tight
+   * space would leave him embedded in a wall. That case is turned down rather
+   * than resolved, because being quietly shoved through a floor is worse than
+   * a swap that does not happen.
+   */
+  setCharacter(next: CharacterId): boolean {
+    if (next === this.characterId) return false;
+    if (!this.fitsAs(next)) return false;
+
+    this.characterId = next;
+    this.bracket = this.stats.jumpBrackets[0]!;
+    // Crouching is per-stance, not per-character; drop it and let the next
+    // frame's input re-apply it if the button is still held.
+    this.crouching = false;
+    this.applyBodyHeight();
+    this.updateAppearance(this.isGrounded);
+    return true;
+  }
+
+  /** Would the other character's body fit where this one is standing? */
+  private fitsAs(next: CharacterId): boolean {
+    const stats = CHARACTERS[next];
+    const tier = TIERS[this.tier];
+    const width = Math.round(stats.bodyWidth * tier.widthScale);
+    const height = Math.round(stats.bodyHeight * tier.heightScale);
+
+    const grownUp = height - this.currentHeight(false);
+    const grownSide = (width - this.tierWidth) / 2;
+    if (grownUp <= 0 && grownSide <= 0) return true;
+
+    const blockers = this.scene.physics.overlapRect(
+      this.x - width / 2 + 1,
+      this.y - height,
+      width - 2,
+      height - 2,
+      false,
+      true,
+    );
+    return blockers.length === 0;
   }
 
   /** The arcade body, narrowed. Phaser types `body` loosely on GameObjects. */
@@ -123,12 +194,59 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // frame's movement. Measure first, while it is freshest.
     this.measure(grounded);
 
+    this.updateGroundPound(grounded, input);
+    if (this.groundPounding) {
+      this.updateAppearance(grounded);
+      return;
+    }
+
     this.updateTimers(delta, grounded, input);
     this.updateCrouch(grounded, input);
     this.updateHorizontal(dt, grounded, input);
     this.updateJump(grounded, input);
     this.limitFallSpeed();
     this.updateAppearance(grounded);
+  }
+
+  /**
+   * Berel's ground pound (§4): press down in the air and he drops like a
+   * fridge, which is what breaks a weak floor. Steering is suspended for the
+   * duration, so it commits you.
+   */
+  private updateGroundPound(grounded: boolean, input: InputState): void {
+    if (this.groundPounding) {
+      if (grounded) {
+        this.groundPounding = false;
+        this.scene.cameras.main.shake(140, 0.008);
+      }
+      return;
+    }
+
+    if (!this.stats.abilities.groundPound) return;
+    if (grounded || input.moveY <= 0) return;
+
+    this.groundPounding = true;
+    this.rising = false;
+    this.jumpActive = false;
+    const body = this.physicsBody;
+    body.setVelocity(0, this.stats.groundPoundSpeed);
+    body.setGravityY(this.bracket.fallGravity);
+  }
+
+  get isGroundPounding(): boolean {
+    return this.groundPounding;
+  }
+
+  /**
+   * Shoved sideways by a wind zone. Ignored outright by a character who is
+   * immune (§4), which is the whole point of a wind corridor.
+   */
+  applyWind(force: number, dt: number): void {
+    if (this.stats.abilities.immuneToWind) return;
+    const body = this.physicsBody;
+    const drifted = body.velocity.x + force * dt;
+    const limit = this.stats.walkSpeed + GAMEPLAY.windMaxDrift;
+    body.setVelocityX(Phaser.Math.Clamp(drifted, -limit, limit));
   }
 
   /** Terminal velocity, applied downward only. */
@@ -392,6 +510,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.lastJumpHeight = 0;
     this.lastJumpDistance = 0;
     this.crouching = false;
+    this.groundPounding = false;
     this.controllable = true;
     this.physicsBody.checkCollision.none = false;
     this.applyBodyHeight();
@@ -410,6 +529,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       crouching: this.crouching,
       running: this.running,
       tier: this.tier,
+      character: this.characterId,
+      groundPounding: this.groundPounding,
       lastJumpHeight: this.lastJumpHeight,
       lastJumpDistance: this.lastJumpDistance,
     };

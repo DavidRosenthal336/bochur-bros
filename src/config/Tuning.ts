@@ -91,9 +91,31 @@ function jumpArc(
   };
 }
 
+/**
+ * What one character can do that the other cannot (§4).
+ *
+ * These are the whole reason the swap exists: Mendy reaches what Berel cannot,
+ * and Berel moves what Mendy cannot. Level design is supposed to ask for both
+ * regularly, so every one of these has an obstacle built around it.
+ */
+export interface CharacterAbilities {
+  /** Smashes reinforced blocks, which Mendy cannot break in any form. */
+  readonly breaksReinforced: boolean;
+  /** Shoves crates that Mendy cannot budge. */
+  readonly pushesCrates: boolean;
+  /** Can slam down hard enough to go through a weak floor. */
+  readonly groundPound: boolean;
+  /** Leaf blowers and the Meah Shearim hamsin do not move him. */
+  readonly immuneToWind: boolean;
+}
+
 export interface CharacterStats {
   /** Display name, for debug output. */
   readonly label: string;
+  /** What this character can do that the other cannot. */
+  readonly abilities: CharacterAbilities;
+  /** Downward velocity of a ground pound, px/s. Ignored without the ability. */
+  readonly groundPoundSpeed: number;
   /** Top speed with the run button up, px/s. */
   readonly walkSpeed: number;
   /** Top speed with the run button held, px/s. */
@@ -139,6 +161,13 @@ export interface CharacterStats {
  */
 export const MENDY: CharacterStats = {
   label: 'Mendy',
+  abilities: {
+    breaksReinforced: false,
+    pushesCrates: false,
+    groundPound: false,
+    immuneToWind: false,
+  },
+  groundPoundSpeed: 0,
   walkSpeed: 90, // [SMB] 1.5 px/frame
   runSpeed: 150, // [SMB] 2.5 px/frame
   walkAcceleration: 133, // [SMB] 0.0369 px/frame^2 — a slow, deliberate build-up
@@ -175,12 +204,19 @@ export const MENDY: CharacterStats = {
 /**
  * Berel — heavy and strong. Lower jump, slower top speed, heavier fall.
  *
- * NOT PLAYABLE YET. Berel arrives in Milestone 3 along with the swap mechanic.
- * His numbers are the same model as Mendy's, shifted: roughly a fifth slower,
- * three tiles of standing jump against Mendy's four, and a harder fall.
+ * The same model as Mendy's, shifted: roughly a fifth slower, three tiles of
+ * standing jump against Mendy's four, and a harder fall. The gap matters — it
+ * is what makes a ledge or a long jump into a "this one needs Mendy" moment.
  */
 export const BEREL: CharacterStats = {
   label: 'Berel',
+  abilities: {
+    breaksReinforced: true,
+    pushesCrates: true,
+    groundPound: true,
+    immuneToWind: true,
+  },
+  groundPoundSpeed: 700,
   walkSpeed: 75,
   runSpeed: 120,
   walkAcceleration: 110,
@@ -203,6 +239,17 @@ export const BEREL: CharacterStats = {
   crouchSpeed: 38,
   color: 0xe07a5f,
 };
+
+/** Which characters exist, and the key each is known by. */
+export type CharacterId = 'mendy' | 'berel';
+
+export const CHARACTERS: Record<CharacterId, CharacterStats> = {
+  mendy: MENDY,
+  berel: BEREL,
+};
+
+/** Mendy is the default (§4). */
+export const DEFAULT_CHARACTER: CharacterId = 'mendy';
 
 /** Camera behaviour. [ADDED] — the spec only says "camera follows". */
 export const CAMERA = {
@@ -280,4 +327,10 @@ export const GAMEPLAY = {
   pickupSpeed: 45,
   /** How high a collected coin floats before fading, px. */
   coinPopHeight: 18,
+  /** How fast a pushed crate moves, px/s. */
+  cratePushSpeed: 45,
+  /** Sideways push from a wind zone, px/s^2. */
+  windForce: 620,
+  /** The most wind can carry you against your own walking, px/s. */
+  windMaxDrift: 170,
 } as const;

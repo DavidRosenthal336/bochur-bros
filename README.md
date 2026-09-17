@@ -29,15 +29,30 @@ presses until something inside it has been clicked. The start card says so.
 
 | | |
 |---|---|
+| Tab or C | Swap brothers |
 | Arrows / WASD | Move; hold Down to crouch |
 | Space or Z | Jump — hold for height |
 | Shift or X | Run |
+| Down, airborne | Berel's ground pound |
 | R | Respawn at the last checkpoint |
 | F1 | Toggle the debug readout |
 | F2 | Toggle collision boxes |
-| F3 | Switch between the level and the Gym |
+| F3 | Cycle levels |
 
-`Tab` (swap) and `Esc` (pause) are bound but do nothing yet.
+`Esc` (pause) is bound but does nothing yet.
+
+### What each brother is for
+
+Measured, not guessed:
+
+| | Mendy | Berel |
+|---|---|---|
+| Widest gap, running | 6 tiles | 5 |
+| Tallest ledge, walking | 4 tiles | 3 |
+| Reinforced blocks | never, in any form | breaks them |
+| Crates | cannot budge one | shoves them |
+| Weak floors | — | pounds through |
+| Wind | blown back | ignores it |
 
 Mendy moves on Super Mario Bros.' own figures: 90 px/s walking, 150 running, a
 four-tile standing jump and a five-tile running one. Holding the jump button

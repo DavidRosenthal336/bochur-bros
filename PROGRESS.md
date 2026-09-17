@@ -150,6 +150,73 @@ checkpoint; the goal completes the level; and an autopilot that only knows
 
 ---
 
-## Milestone 3 — Both characters
+## Milestone 3 — Both characters ✅
+
+- **The swap** (`Tab` or `C`). §11 is explicit that it "swaps the controlled
+  entity... Not two entities", so there is exactly one `Player` for the whole
+  game and swapping changes which stat block it reads. Position, momentum and
+  power-up tier are therefore shared for free, because they were never
+  duplicated. Verified: 1 entity in the scene, and x, y, velocity and tier all
+  identical across a swap taken at full running speed.
+- **Berel**, on the same movement model as Mendy, shifted heavier: 75/120 px/s
+  against 90/150, a three-tile standing jump against four.
+- **The four abilities from §4**, each with an obstacle built around it:
+  reinforced blocks, crates, weak floors and wind.
+- **A hazard system** separate from enemies, per §11 — wind acts on a *region*
+  and cannot be defeated, only avoided or ignored.
+- **"The Chavrusa"**, a greybox level where every lettered station is a wall to
+  one brother and a door to the other.
+
+### Verified in the browser: every station gates the right brother
+
+| Station | Mendy | Berel |
+|---|---|---|
+| B  four-tile wall | **passes** | cannot reach |
+| C  six-tile gap | **passes** | cannot reach |
+| D  wind corridor | blown back | **walks through** |
+| E  crate in a doorway | cannot budge it | **shoves it clear** |
+| F  reinforced block | cannot break it, *even as Cholent* (§4) | **breaks it** |
+| G  weak floor | cannot pound | **pounds through** |
+
+Measured reach, which is what makes the gating possible:
+
+| | Mendy | Berel |
+|---|---|---|
+| Widest gap, running | 6 tiles | 5 |
+| Tallest ledge, walking | 4 tiles | 3 |
+
+A swap that would leave the larger body inside a wall is **refused** rather
+than forced — verified with Cholent Mendy (30px) under a 32px ceiling, where
+Cholent Berel (33px) does not fit. Being shoved through a floor is worse than
+a swap that does not happen.
+
+### Design notes worth reading
+
+- **The six-tile gap is deliberately survivable.** Six is Berel's exclusion
+  point *and* Mendy's exact limit, so requiring it would be a pixel-perfect
+  jump. Rather than soften the gate, the gap bottoms out two tiles down and
+  both brothers can climb out — a miss costs a walk back, not a life. Mendy
+  clears it across roughly a ten-pixel window of take-off timing.
+- **Crates are not pushed by Arcade's own push resolution.** Arcade resolves a
+  push by sharing momentum, which collapses for a slow pusher: a crouching
+  Berel leaning on a crate moved it six pixels in four seconds. Contact is now
+  detected by position and the crate is driven directly.
+- **Ducking now moves at half speed for both brothers**, because the crate
+  doorway and the Gym's tunnel both need you to travel while crouched.
+
+### Stubbed or deferred
+
+- Looking up (`W` / Up) is read and ignored.
+- The swap is bound to `Tab` and `C`. §8 says "Tab or S", but `S` is crouch in
+  the WASD scheme — this is the conflict flagged in Milestone 1, now settled
+  in favour of crouch.
+- Cholent's ground-pound stun (§5) is still not built; Berel's ground pound is
+  a separate thing and does not stun.
+- Wind is the only hazard so far. Falling pipes, sprinklers, mowers and the
+  rest arrive with the worlds that need them.
+
+---
+
+## Milestone 4 — Level pipeline
 
 Not started.

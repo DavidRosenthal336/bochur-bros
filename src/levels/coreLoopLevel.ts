@@ -51,8 +51,8 @@ function label(x: number, y: number, text: string): void {
 // Coins, then boxes. Nothing here can hurt you.
 // ---------------------------------------------------------------------------
 ground(0, 22);
-label(2, 14, 'COINS ARE FREE. BOXES GO OVERHEAD.');
-label(2, 15, 'jump up into a box to open it');
+label(2, 15, 'COINS ARE FREE. BOXES GO OVERHEAD.');
+label(2, 16, 'jump up into a box to open it');
 coinRow(6, 18, 3);
 blocks.push({ x: 11, y: 16, kind: 'mystery', contents: 'cholent' });
 blocks.push({ x: 14, y: 16, kind: 'mystery', contents: 'coin' });
@@ -62,7 +62,7 @@ coinRow(17, 17, 2);
 // First pit, first pigeon. Land on it from above; walking into it costs you.
 // ---------------------------------------------------------------------------
 ground(25, 18);
-label(26, 14, 'PIGEONS DIVE. LAND ON TOP OF ONE.');
+label(26, 15, 'PIGEONS DIVE. LAND ON TOP OF ONE.');
 enemies.push({ x: 33, y: 13, kind: 'pigeon' });
 coinRow(28, 18, 3);
 
@@ -71,14 +71,14 @@ blocks.push({ x: 37, y: 15, kind: 'brick' });
 blocks.push({ x: 38, y: 15, kind: 'brick' });
 blocks.push({ x: 39, y: 15, kind: 'brick' });
 coinRow(37, 13, 3);
-label(36, 11, 'CHOLENT BREAKS BRICKS FROM UNDERNEATH');
+label(34, 17, 'CHOLENT BREAKS BRICKS FROM UNDERNEATH');
 
 // ---------------------------------------------------------------------------
 // Checkpoint, a step up, and a second pigeon.
 // ---------------------------------------------------------------------------
 ground(43, 14);
 checkpoints.push({ x: 44, y: FLOOR_TOP });
-label(44, 14, 'CHECKPOINT');
+label(44, 15, 'CHECKPOINT');
 ledge(52, 17, 5);
 enemies.push({ x: 49, y: 12, kind: 'pigeon' });
 coinRow(52, 15, 5);
@@ -100,10 +100,10 @@ coinRow(69, 15, 4);
 // ---------------------------------------------------------------------------
 ground(81, 23);
 checkpoints.push({ x: 84, y: FLOOR_TOP });
-label(84, 14, 'CHECKPOINT');
+label(84, 15, 'CHECKPOINT');
 blocks.push({ x: 90, y: 16, kind: 'mystery', contents: 'cholent' });
 coinRow(93, 18, 4);
-label(96, 14, 'TOUCH THE POST TO FINISH');
+label(96, 15, 'TOUCH THE POST TO FINISH');
 
 const WIDTH = 104;
 

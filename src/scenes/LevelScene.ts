@@ -1,8 +1,12 @@
 import Phaser from 'phaser';
 import { ENEMIES } from '../config/enemies';
-import { CAMERA, FELL_OUT_MARGIN, GAMEPLAY, MENDY, TIERS, TILE } from '../config/Tuning';
+import type { CharacterId } from '../config/Tuning';
+import { CAMERA, DEFAULT_CHARACTER, FELL_OUT_MARGIN, GAMEPLAY, TIERS, TILE } from '../config/Tuning';
 import { Block } from '../entities/Block';
+import { Crate } from '../entities/Crate';
 import { Enemy } from '../entities/Enemy';
+import { WindZone } from '../entities/Hazard';
+import { HAZARDS } from '../config/hazards';
 import { Coin, PowerUpPickup } from '../entities/Pickup';
 import { Player } from '../entities/Player';
 import { KeyboardInput } from '../input/KeyboardInput';
@@ -28,6 +32,8 @@ export interface LevelSceneData {
   /** The checkpoint to come back to, in pixels. Omitted means the level start. */
   readonly respawnX?: number;
   readonly respawnY?: number;
+  /** Who was being controlled when the last life ended. */
+  readonly character?: CharacterId;
 }
 
 /**
@@ -51,12 +57,16 @@ export class LevelScene extends Phaser.Scene {
   private coins!: Phaser.GameObjects.Group;
   private enemies!: Phaser.GameObjects.Group;
   private pickups!: Phaser.GameObjects.Group;
+  private crates!: Phaser.GameObjects.Group;
+  private winds: WindZone[] = [];
 
   private respawnAt = new Phaser.Math.Vector2();
   private coinCount = 0;
   private state: 'playing' | 'dying' | 'complete' = 'playing';
   /** Where the checkpoint was when this attempt started, carried in from the last one. */
   private carriedRespawn: { x: number; y: number } | null = null;
+  /** §7 stores "character last used", so a death does not silently swap you back. */
+  private carriedCharacter: CharacterId = DEFAULT_CHARACTER;
 
   constructor() {
     super(SceneKey.Level);
@@ -70,6 +80,7 @@ export class LevelScene extends Phaser.Scene {
       data.respawnX !== undefined && data.respawnY !== undefined
         ? { x: data.respawnX, y: data.respawnY }
         : null;
+    this.carriedCharacter = data.character ?? DEFAULT_CHARACTER;
     this.state = 'playing';
   }
 
@@ -96,11 +107,13 @@ export class LevelScene extends Phaser.Scene {
       this.carriedRespawn?.x ?? this.level.spawn.x * TILE + TILE / 2,
       this.carriedRespawn?.y ?? this.level.spawn.y * TILE,
     );
-    this.player = new Player(this, this.respawnAt.x, this.respawnAt.y, MENDY);
+    this.player = new Player(this, this.respawnAt.x, this.respawnAt.y, this.carriedCharacter);
 
     this.buildBlocks();
     this.buildCoins();
     this.buildEnemies();
+    this.buildCrates();
+    this.buildHazards();
     this.buildCheckpointsAndGoal();
     this.pickups = this.add.group();
 
@@ -111,6 +124,8 @@ export class LevelScene extends Phaser.Scene {
     this.hud = new Hud(this);
     this.overlay = new DebugOverlay(this, this.player);
 
+    this.applyCharacterToWorld();
+
     this.keyboard?.on('keydown-R', () =>
       this.state === 'complete' ? this.restartFromStart() : this.restartFromCheckpoint(),
     );
@@ -120,7 +135,14 @@ export class LevelScene extends Phaser.Scene {
   override update(_time: number, delta: number): void {
     const step = Math.min(delta, 50);
     this.controls.update();
+
+    if (this.controls.current.swapPressed && this.state === 'playing') {
+      this.swapCharacter();
+    }
+
     this.player.tick(step, this.controls.current);
+    this.applyWind(step / 1000);
+    this.updateCrates();
 
     const now = this.time.now;
     for (const enemy of this.enemies.getChildren() as Enemy[]) {
@@ -131,7 +153,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     this.flashWhileInvulnerable(now);
-    this.hud.update(this.coinCount, this.power.current);
+    this.hud.update(this.coinCount, this.power.current, this.player.character);
     this.overlay.update();
 
     if (
@@ -196,6 +218,31 @@ export class LevelScene extends Phaser.Scene {
     }
   }
 
+  private buildCrates(): void {
+    this.crates = this.add.group();
+    for (const point of this.level.crates ?? []) {
+      this.crates.add(new Crate(this, point.x * TILE + TILE / 2, point.y * TILE));
+    }
+  }
+
+  private buildHazards(): void {
+    this.winds = [];
+    for (const placement of this.level.hazards ?? []) {
+      const config = HAZARDS[placement.kind];
+      this.winds.push(
+        new WindZone(
+          this,
+          placement.x,
+          placement.y,
+          placement.w,
+          placement.h,
+          placement.direction,
+          config,
+        ),
+      );
+    }
+  }
+
   private buildCheckpointsAndGoal(): void {
     for (const point of this.level.checkpoints ?? []) {
       const x = point.x * TILE + TILE / 2;
@@ -226,6 +273,10 @@ export class LevelScene extends Phaser.Scene {
     this.physics.add.collider(this.enemies, this.solids);
     this.physics.add.collider(this.pickups, this.solids);
     this.physics.add.collider(this.pickups, this.blocks);
+    this.physics.add.collider(this.crates, this.solids);
+    this.physics.add.collider(this.crates, this.blocks);
+    this.physics.add.collider(this.crates, this.crates);
+    this.physics.add.collider(this.player, this.crates);
 
     this.physics.add.collider(this.player, this.blocks, (_player, blockObject) => {
       this.onBlockCollision(blockObject as Block);
@@ -249,13 +300,25 @@ export class LevelScene extends Phaser.Scene {
   // Interactions
   // -------------------------------------------------------------------------
 
-  /** A block only responds to being hit from underneath. */
+  /**
+   * Blocks respond to a headbutt from below, and weak floors to a slam from
+   * above. Which of the two applies is decided by where the player is.
+   */
   private onBlockCollision(block: Block): void {
     const body = this.player.physicsBody;
+
+    if (this.player.isGroundPounding && block.y > body.top) {
+      block.hitFromAbove(this.player.abilities.groundPound);
+      return;
+    }
+
     if (!body.blocked.up) return;
     if (block.y > body.top) return;
 
-    const outcome = block.hitFromBelow(this.player.breaksBlocks);
+    const outcome = block.hitFromBelow(
+      this.player.breaksBlocks,
+      this.player.abilities.breaksReinforced,
+    );
     if (outcome !== 'contents') return;
 
     if (block.contents === 'coin') {
@@ -291,6 +354,69 @@ export class LevelScene extends Phaser.Scene {
     }
 
     this.hurtPlayer(enemy.x);
+  }
+
+  /**
+   * Leaning on a crate moves it.
+   *
+   * Contact is tested by position rather than by the collider callback. Two
+   * bodies that are separating and re-touching only report a collision every
+   * few frames, and each of those nudges was being eaten by the crate's drag
+   * before the next one arrived — the crate crawled about a pixel a second.
+   * A small positional tolerance keeps the shove continuous while someone is
+   * actually leaning on it.
+   */
+  private updateCrates(): void {
+    const dir = this.controls.current.moveX;
+    if (dir === 0 || this.state !== 'playing') return;
+
+    const body = this.player.physicsBody;
+    const TOLERANCE = 3;
+
+    for (const crate of this.crates.getChildren() as Crate[]) {
+      if (!crate.canBeShoved) continue;
+      const box = crate.physicsBody;
+
+      const sideBySide = body.bottom > box.top + 2 && body.top < box.bottom - 2;
+      if (!sideBySide) continue;
+
+      const leaningRight = dir > 0 && Math.abs(box.left - body.right) <= TOLERANCE;
+      const leaningLeft = dir < 0 && Math.abs(body.left - box.right) <= TOLERANCE;
+      if (!leaningRight && !leaningLeft) continue;
+
+      crate.shove(dir, GAMEPLAY.cratePushSpeed);
+    }
+  }
+
+  /**
+   * Put the other brother in this one's place. Instant and free (§4); the only
+   * refusal is not having room for the larger body.
+   */
+  private swapCharacter(): void {
+    const next: CharacterId = this.player.character === 'mendy' ? 'berel' : 'mendy';
+    if (!this.player.setCharacter(next)) {
+      this.cameras.main.shake(70, 0.004);
+      return;
+    }
+    this.applyCharacterToWorld();
+    this.cameras.main.flash(60, 180, 200, 255);
+  }
+
+  /** Re-evaluate anything in the level that cares about who is active. */
+  private applyCharacterToWorld(): void {
+    const canPush = this.player.abilities.pushesCrates;
+    for (const crate of this.crates.getChildren() as Crate[]) {
+      crate.setShovable(canPush);
+    }
+  }
+
+  /** Wind acts on a region, so it is checked by position rather than collision. */
+  private applyWind(dt: number): void {
+    if (this.state !== 'playing' || this.winds.length === 0) return;
+    const body = this.player.physicsBody;
+    for (const wind of this.winds) {
+      if (wind.contains(body)) this.player.applyWind(wind.force, dt);
+    }
   }
 
   private hurtPlayer(fromX: number): void {
@@ -334,6 +460,7 @@ export class LevelScene extends Phaser.Scene {
       coins: this.coinCount,
       respawnX: this.respawnAt.x,
       respawnY: this.respawnAt.y,
+      character: this.player.character,
     } satisfies LevelSceneData);
   }
 

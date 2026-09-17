@@ -48,8 +48,8 @@ function label(x: number, y: number, text: string): void {
 // A — FLAT. Acceleration, top speed, stopping distance, pivoting.
 // ---------------------------------------------------------------------------
 ground(0, 34);
-label(2, 14, 'A  FLAT GROUND');
-label(2, 15, 'walk, hold SHIFT or X to run, turn around, stop');
+label(2, 15, 'A  FLAT GROUND');
+label(2, 16, 'walk, hold SHIFT or X to run, turn around, stop');
 
 // ---------------------------------------------------------------------------
 // B — HEIGHT LADDER. Five pillars, each one tile taller than the last.
@@ -57,8 +57,8 @@ label(2, 15, 'walk, hold SHIFT or X to run, turn around, stop');
 // next, so each is a clean measurement of jump height from flat ground.
 // ---------------------------------------------------------------------------
 ground(34, 30);
-label(36, 14, 'B  HOW HIGH?');
-label(36, 15, 'each pillar is 1 tile taller. running gets you one higher.');
+label(36, 15, 'B  HOW HIGH?');
+label(36, 16, 'each pillar is 1 tile taller. running gets you one higher.');
 const PILLAR_HEIGHTS = [2, 3, 4, 5, 6] as const;
 PILLAR_HEIGHTS.forEach((tilesUp, i) => {
   const x = 36 + i * 6;
@@ -71,9 +71,9 @@ PILLAR_HEIGHTS.forEach((tilesUp, i) => {
 // C — GAP LADDER. Gaps widen by exactly one tile at a time. Built in a loop so
 // the widths are exact; a hand-typed ladder with an off-by-one measures nothing.
 // ---------------------------------------------------------------------------
-label(66, 14, 'C  HOW FAR?');
-label(66, 15, 'gaps grow by 1 tile. walking vs running should differ a lot.');
-label(66, 16, 'measured: 3 tiles walking, 6 at a run.');
+label(66, 15, 'C  HOW FAR?');
+label(66, 16, 'gaps grow by 1 tile. walking vs running should differ a lot.');
+label(66, 17, 'measured: 3 tiles walking, 6 at a run.');
 
 let cursor = 64;
 ground(cursor, 8);
@@ -99,8 +99,8 @@ ground(cursor, 6);
 cursor += 6;
 const LEDGE_TOP = 16;
 column(cursor, LEDGE_TOP, 16, 'platform');
-label(cursor, 14, 'D  COYOTE TIME');
-label(cursor, 15, 'run off the edge, then jump a moment too late');
+label(cursor, 15, 'D  COYOTE TIME');
+label(cursor, 16, 'run off the edge, then jump a moment too late');
 cursor += 16;
 // The catch floor sits only 3 tiles down, so a miss is a hop back up.
 solids.push({ x: cursor, y: LEDGE_TOP + 3, w: 5, h: HEIGHT - (LEDGE_TOP + 3), kind: 'ground' });
@@ -115,8 +115,8 @@ cursor += 14;
 // ---------------------------------------------------------------------------
 const STAIR_X = cursor;
 ground(STAIR_X, 34);
-label(STAIR_X, 14, 'E  JUMP BUFFER');
-label(STAIR_X, 15, 'run the stairs; off the top, press jump before you land');
+label(STAIR_X, 15, 'E  JUMP BUFFER');
+label(STAIR_X, 16, 'run the stairs; off the top, press jump before you land');
 for (let i = 0; i < 5; i += 1) {
   pillar(STAIR_X + i * 3, FLOOR_TOP - 1 - i, 3);
 }
@@ -129,8 +129,8 @@ cursor = STAIR_X + 34;
 // instead of sticking or juddering.
 // ---------------------------------------------------------------------------
 ground(cursor, 29);
-label(cursor, 14, 'F  HEAD BONK');
-label(cursor, 15, 'run under the slab, then try to jump under it');
+label(cursor, 15, 'F  HEAD BONK');
+label(cursor, 16, 'run under the slab, then try to jump under it');
 solids.push({ x: cursor + 4, y: FLOOR_TOP - 4, w: 18, h: 2, kind: 'platform' });
 cursor += 29;
 
@@ -141,8 +141,8 @@ cursor += 29;
 // the kind of trade the bigger tiers are supposed to make.
 // ---------------------------------------------------------------------------
 ground(cursor, 26);
-label(cursor, 14, 'G  CROUCH');
-label(cursor, 15, 'hold DOWN to duck through. try it again as Cholent.');
+label(cursor, 15, 'G  CROUCH');
+label(cursor, 16, 'hold DOWN to duck through. try it again as Cholent.');
 solids.push({ x: cursor + 6, y: FLOOR_TOP - 4, w: 14, h: 3, kind: 'platform' });
 cursor += 26;
 
@@ -150,7 +150,7 @@ cursor += 26;
 // H — END. A wall, so you can feel what running into one does.
 // ---------------------------------------------------------------------------
 ground(cursor, 16);
-label(cursor + 2, 14, 'H  END OF THE LINE');
+label(cursor + 2, 15, 'H  END OF THE LINE');
 column(cursor + 14, 8, 2, 'wall');
 const WIDTH = cursor + 16;
 

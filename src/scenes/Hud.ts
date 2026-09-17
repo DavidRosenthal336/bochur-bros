@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { VIEW_WIDTH } from '../config/Tuning';
+import type { CharacterId } from '../config/Tuning';
+import { CHARACTERS } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
 
 /**
@@ -38,8 +40,11 @@ export class Hud {
       .setVisible(false);
   }
 
-  update(coins: number, tier: PowerTier): void {
-    this.text.setText([`TZEDAKAH ${coins}`, tier.toUpperCase()]);
+  update(coins: number, tier: PowerTier, character: CharacterId): void {
+    this.text.setText([
+      `TZEDAKAH ${coins}`,
+      `${CHARACTERS[character].label.toUpperCase()} / ${tier.toUpperCase()}`,
+    ]);
   }
 
   showBanner(message: string): void {
