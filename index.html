@@ -48,10 +48,130 @@
         image-rendering: pixelated;
         image-rendering: crisp-edges;
       }
+
+      /*
+        A start card. Embedded in a page or an iframe, the game does not receive
+        key presses until something inside it has been clicked, so rather than
+        leave a playtester tapping arrow keys at a canvas that ignores them, ask
+        for the click and use the moment to show the controls.
+      */
+      #start {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        padding: 24px;
+        background: rgba(13, 15, 26, 0.92);
+        color: #d7def5;
+        text-align: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: opacity 0.18s ease;
+      }
+      #start.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #start h1 {
+        margin: 0;
+        font-size: clamp(20px, 5vw, 34px);
+        letter-spacing: 0.14em;
+        color: #4ea8de;
+      }
+      #start .sub {
+        margin: -8px 0 0;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        color: #6f7aa8;
+      }
+      #start table {
+        border-collapse: collapse;
+        font-size: clamp(11px, 2.6vw, 14px);
+      }
+      #start td {
+        padding: 3px 12px;
+        text-align: left;
+      }
+      #start td:first-child {
+        color: #8d97c9;
+        text-align: right;
+        white-space: nowrap;
+      }
+      #start .go {
+        margin-top: 4px;
+        padding: 10px 22px;
+        border: 1px solid #4ea8de;
+        border-radius: 4px;
+        color: #4ea8de;
+        font-size: clamp(12px, 3vw, 15px);
+        letter-spacing: 0.1em;
+      }
+      #start .note {
+        max-width: 30em;
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.5;
+        color: #6f7aa8;
+      }
+      /* Touch-only device: there are no on-screen controls until Milestone 7. */
+      #touch-note {
+        display: none;
+      }
+      @media (hover: none) and (pointer: coarse) {
+        #keys,
+        #start .go {
+          display: none;
+        }
+        #touch-note {
+          display: block;
+        }
+      }
     </style>
   </head>
   <body>
     <div id="game"></div>
+
+    <div id="start">
+      <h1>BOCHUR BROS</h1>
+      <p class="sub">MILESTONE 1 &mdash; THE JUMP</p>
+      <table id="keys">
+        <tr><td>Arrows / WASD</td><td>Move</td></tr>
+        <tr><td>Space or Z</td><td>Jump &mdash; hold it down to jump higher</td></tr>
+        <tr><td>Shift</td><td>Run</td></tr>
+        <tr><td>R</td><td>Go back to the start</td></tr>
+        <tr><td>F1 / F2</td><td>Readout / hitboxes</td></tr>
+      </table>
+      <p class="note" id="touch-note">
+        This build is keyboard-only &mdash; on-screen touch controls are
+        Milestone 7. Open it on a computer to play.
+      </p>
+      <div class="go">CLICK HERE TO PLAY</div>
+      <p class="note">
+        Head right. The lettered stations each measure one part of the jump.
+      </p>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      // Dismiss the start card on the first click or key press, and make sure
+      // the game window actually has focus so the keyboard reaches Phaser.
+      (function () {
+        var card = document.getElementById('start');
+        function start() {
+          card.classList.add('hidden');
+          try {
+            window.focus();
+          } catch (e) {
+            /* focus can be refused in a cross-origin frame; the click is enough */
+          }
+          window.removeEventListener('keydown', start);
+        }
+        card.addEventListener('click', start);
+        window.addEventListener('keydown', start);
+      })();
+    </script>
   </body>
 </html>

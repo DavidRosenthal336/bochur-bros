@@ -25,6 +25,10 @@ test level with a camera that follows him. Nothing else exists yet, by design.
   Milestone 4 Tiled loader replaces the source and not the consumer.
 - **Debug overlay** (F1) — live velocity, grounded/coyote/buffer timers, and a
   measured apex and jump distance in both pixels and tiles. F2 draws hitboxes.
+- **Start card** listing the controls, which also collects the click a page
+  needs before the keyboard reaches it.
+- **`npm run build:playtest`** — a flattened, self-contained build for hosting
+  a playable link, so testing a milestone never requires a terminal.
 
 ### Measured, in the browser, at the shipped tuning
 

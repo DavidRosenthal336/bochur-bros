@@ -5,15 +5,25 @@ A 2D side-scrolling platformer. See `BOCHUR_BROS_DESIGN.md` for the design doc.
 **Current state: Milestone 1 — the jump.** One character, one greybox test
 level, a camera that follows. Nothing else, on purpose.
 
-## Running it
+## Playing it
+
+The quickest way is a hosted build — no install, just a link. `npm run
+build:playtest` produces a flattened, self-contained page in `playtest/` that
+can be published anywhere static. It is keyboard-only until Milestone 7 adds
+touch controls, so play it on a computer.
+
+To run it locally instead:
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
+npm run dev      # then open http://localhost:5173
 ```
 
 Other scripts: `npm run build` (typechecks, then bundles to `dist/`),
-`npm run preview`, `npm run typecheck`.
+`npm run build:playtest`, `npm run preview`, `npm run typecheck`.
+
+Click the game once before using the keyboard — a page does not receive key
+presses until something inside it has been clicked. The start card says so.
 
 ## Controls
 
