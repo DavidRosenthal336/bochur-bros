@@ -23,6 +23,11 @@ const SOLID_COLORS: Record<SolidKind, number> = {
 
 export interface LevelSceneData {
   readonly levelKey?: string;
+  /** Carried across a death, so the coin total is not lost with the life. */
+  readonly coins?: number;
+  /** The checkpoint to come back to, in pixels. Omitted means the level start. */
+  readonly respawnX?: number;
+  readonly respawnY?: number;
 }
 
 /**
@@ -50,6 +55,8 @@ export class LevelScene extends Phaser.Scene {
   private respawnAt = new Phaser.Math.Vector2();
   private coinCount = 0;
   private state: 'playing' | 'dying' | 'complete' = 'playing';
+  /** Where the checkpoint was when this attempt started, carried in from the last one. */
+  private carriedRespawn: { x: number; y: number } | null = null;
 
   constructor() {
     super(SceneKey.Level);
@@ -58,7 +65,11 @@ export class LevelScene extends Phaser.Scene {
   init(data: LevelSceneData): void {
     const key = data.levelKey ?? DEFAULT_LEVEL;
     this.level = LEVELS[key] ?? LEVELS[DEFAULT_LEVEL]!;
-    this.coinCount = 0;
+    this.coinCount = data.coins ?? 0;
+    this.carriedRespawn =
+      data.respawnX !== undefined && data.respawnY !== undefined
+        ? { x: data.respawnX, y: data.respawnY }
+        : null;
     this.state = 'playing';
   }
 
@@ -81,7 +92,10 @@ export class LevelScene extends Phaser.Scene {
       this.cameras.main.flash(90, 255, 255, 255);
     });
 
-    this.respawnAt.set(this.level.spawn.x * TILE + TILE / 2, this.level.spawn.y * TILE);
+    this.respawnAt.set(
+      this.carriedRespawn?.x ?? this.level.spawn.x * TILE + TILE / 2,
+      this.carriedRespawn?.y ?? this.level.spawn.y * TILE,
+    );
     this.player = new Player(this, this.respawnAt.x, this.respawnAt.y, MENDY);
 
     this.buildBlocks();
@@ -97,7 +111,9 @@ export class LevelScene extends Phaser.Scene {
     this.hud = new Hud(this);
     this.overlay = new DebugOverlay(this, this.player);
 
-    this.keyboard?.on('keydown-R', () => this.respawn());
+    this.keyboard?.on('keydown-R', () =>
+      this.state === 'complete' ? this.restartFromStart() : this.restartFromCheckpoint(),
+    );
     this.keyboard?.on('keydown-F3', () => this.cycleLevel());
   }
 
@@ -182,13 +198,16 @@ export class LevelScene extends Phaser.Scene {
 
   private buildCheckpointsAndGoal(): void {
     for (const point of this.level.checkpoints ?? []) {
+      const x = point.x * TILE + TILE / 2;
+      // A checkpoint carried in from a previous life shows as already taken.
+      const alreadyTaken = this.respawnAt.x >= x;
       const post = this.add
-        .rectangle(point.x * TILE + TILE / 2, point.y * TILE - 20, 4, 40, 0x6ee7a0, 0.55)
+        .rectangle(x, point.y * TILE - 20, 4, 40, 0x6ee7a0, alreadyTaken ? 1 : 0.55)
         .setDepth(3);
       this.physics.add.existing(post, true);
       this.physics.add.overlap(this.player, post, () => {
-        if (this.respawnAt.x >= post.x) return;
-        this.respawnAt.set(point.x * TILE + TILE / 2, point.y * TILE);
+        if (this.respawnAt.x >= x) return;
+        this.respawnAt.set(x, point.y * TILE);
         post.setFillStyle(0x6ee7a0, 1);
       });
     }
@@ -290,7 +309,7 @@ export class LevelScene extends Phaser.Scene {
     this.state = 'dying';
     this.player.playDeath();
     this.hud.showBanner('OY');
-    this.time.delayedCall(GAMEPLAY.deathPauseMs, () => this.respawn());
+    this.time.delayedCall(GAMEPLAY.deathPauseMs, () => this.restartFromCheckpoint());
   }
 
   private completeLevel(): void {
@@ -300,13 +319,27 @@ export class LevelScene extends Phaser.Scene {
     this.hud.showBanner('L\'CHAIM!\nR to play again');
   }
 
-  private respawn(): void {
-    this.hud.hideBanner();
-    this.state = 'playing';
-    this.power.reset();
-    this.player.respawn(this.respawnAt.x, this.respawnAt.y);
-    this.player.setTier(this.power.current);
-    this.cameras.main.flash(160, 255, 255, 255);
+  /**
+   * Come back from a death.
+   *
+   * The whole level is rebuilt, not just the player moved: an opened mystery
+   * box, a stomped pigeon and a collected coin all come back. Anything else
+   * and a death can strand you — spend the level's only Cholent box, die, and
+   * there is no way to get big again. The coin total and the checkpoint you
+   * reached are the two things that survive.
+   */
+  private restartFromCheckpoint(): void {
+    this.scene.restart({
+      levelKey: this.level.key,
+      coins: this.coinCount,
+      respawnX: this.respawnAt.x,
+      respawnY: this.respawnAt.y,
+    } satisfies LevelSceneData);
+  }
+
+  /** Start the level over from the top, with nothing carried. */
+  private restartFromStart(): void {
+    this.scene.restart({ levelKey: this.level.key } satisfies LevelSceneData);
   }
 
   private cycleLevel(): void {

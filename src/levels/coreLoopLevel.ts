@@ -90,13 +90,15 @@ ground(61, 16);
 enemies.push({ x: 66, y: 13, kind: 'pigeon' });
 enemies.push({ x: 73, y: 15, kind: 'pigeon' });
 coinRow(63, 18, 2);
-ledge(69, 16, 4);
-coinRow(69, 14, 4);
+// Three tiles, not four: four is exactly the height of a standing jump, so it
+// would come down to frame-perfect timing on the main path.
+ledge(69, 17, 4);
+coinRow(69, 15, 4);
 
 // ---------------------------------------------------------------------------
 // Last stretch: checkpoint, one more box, the goal.
 // ---------------------------------------------------------------------------
-ground(82, 22);
+ground(81, 23);
 checkpoints.push({ x: 84, y: FLOOR_TOP });
 label(84, 14, 'CHECKPOINT');
 blocks.push({ x: 90, y: 16, kind: 'mystery', contents: 'cholent' });

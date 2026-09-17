@@ -73,7 +73,7 @@ PILLAR_HEIGHTS.forEach((tilesUp, i) => {
 // ---------------------------------------------------------------------------
 label(66, 14, 'C  HOW FAR?');
 label(66, 15, 'gaps grow by 1 tile. walking vs running should differ a lot.');
-label(66, 16, 'measured: 5 tiles walking, 8 at a run.');
+label(66, 16, 'measured: 3 tiles walking, 6 at a run.');
 
 let cursor = 64;
 ground(cursor, 8);

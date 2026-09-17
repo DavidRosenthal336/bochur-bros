@@ -44,6 +44,17 @@ four-tile standing jump and a five-tile running one. Holding the jump button
 does not add force, it *lowers gravity* — which is why a tap gives you one tile
 and a held button gives you four.
 
+### Two dials worth knowing
+
+Both are in `src/config/Tuning.ts`:
+
+- **`riseSeconds`** in each `jumpArc(...)` line — how long the jump takes to
+  reach the top. Lower it and jumping feels faster *without changing how high
+  it goes*. Raise it and the jump floats.
+- **`VIEW_WIDTH` / `VIEW_HEIGHT`** — how much of the world fits on screen.
+  320x180 shows 20 tiles across. A wider view makes everything read as slower,
+  because the same walking speed has more screen to cross.
+
 ## Tuning the feel
 
 Everything that affects how the character moves lives in one file:

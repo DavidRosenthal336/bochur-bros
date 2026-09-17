@@ -29,6 +29,22 @@ has **not** been edited — say the word and these get folded into it.
    laundry lines in World 4) are things you duck under *and travel through*.
 5. **`S` is still double-booked** in §8 — crouch (via WASD) and swap character.
    `S` is crouch; swap is on `Tab` only. Needs settling before Milestone 3.
+6. **The jump climbs faster than SMB's.** SMB takes 0.53s to the apex. At this
+   game's camera that read as floating, so the rise is 0.44s while the heights
+   stay exactly where they were — 4 tiles standing, 5 running. `riseSeconds` in
+   `jumpArc()` is the dial.
+7. **Terminal fall speed is 620 px/s, not SMB's ~270.** At 270 the limiter was
+   engaging partway down an *ordinary jump* and stretching the descent, which is
+   a bug rather than a style. A terminal velocity should only bite on a long
+   drop.
+8. **The camera shows 20 tiles across, not 24.** The wider view meant the same
+   90 px/s walk had half again as much screen to cross, which made everything
+   read as slow. `VIEW_WIDTH` / `VIEW_HEIGHT` are the dial.
+9. **Dying rebuilds the level.** Reported in playtesting: spend the level's only
+   Cholent box, die, and there was no way to get big again, because the scene
+   kept its state across a respawn. The level is now rebuilt from its data on
+   every death; the coin total and the checkpoint reached are the only things
+   carried over.
 
 ---
 
@@ -77,13 +93,20 @@ Mendy against the figures he is modelled on:
 |---|---|---|
 | Walk top speed | **90 px/s** | 90 |
 | Run top speed | **150 px/s** | 150 |
-| Standing jump | **4 tiles** | 4 |
-| Running jump | **5 tiles** | 5 |
-| Tapped jump | **1.2 tiles** | ~1 |
-| Widest gap, walking | **5 tiles** | — |
-| Widest gap, running | **8 tiles** | — |
+| Standing jump height | **4 tiles** | 4 |
+| Running jump height | **5 tiles** | 5 |
+| Time to the apex | **0.45s** | 0.53 |
+| Airtime, standing jump | **0.70s** | 0.86 |
+| Widest gap, walking | **3 tiles** | — |
+| Widest gap, running | **6 tiles** | — |
 | Tallest ledge, walking | **4 tiles** | 4 |
 | Tallest ledge, running | **5 tiles** | 5 |
+
+The jump climbs 17% faster than SMB's while reaching exactly the same heights.
+The cost is horizontal reach: a shorter airtime covers less ground, so gaps
+that used to be clearable at a walk now need a run. `riseSeconds` in
+`src/config/Tuning.ts` trades one for the other — 0.44 now, 0.53 for SMB's
+exact arc, 0.48 for a middle.
 
 Crouching: Small is 22px standing and 13px ducked; Cholent is 30px and 18px.
 The Gym's one-tile tunnel lets Small duck through and turns Cholent away, which

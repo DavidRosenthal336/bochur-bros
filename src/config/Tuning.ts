@@ -5,9 +5,10 @@
  * yourself editing a number anywhere else in `src/`, that number probably
  * belongs in this file instead.
  *
- * Mendy's movement is modelled directly on Super Mario Bros. (NES), by
- * request. Values marked [SMB] are that game's own figures, converted from
- * pixels-per-frame at 60fps into the pixels-per-second this project works in.
+ * Mendy's movement is modelled on Super Mario Bros. (NES), by request. Values
+ * marked [SMB] are that game's own figures, converted from pixels-per-frame at
+ * 60fps into the pixels-per-second this project works in. Where a playtest
+ * found one of them wrong for this game, it is marked [PLAYTEST] and says so.
  * Values marked [SPEC] come from BOCHUR_BROS_DESIGN.md §11, and [ADDED] marks
  * a knob neither source provides.
  *
@@ -27,13 +28,15 @@ export const TILE = 16;
  * size of the window. 384x216 is exactly 16:9 and exactly 24x13.5 tiles, and
  * it multiplies cleanly to 1920x1080 (x5).
  *
- * Mario's playfield is about 16x13 tiles. The height here matches almost
- * exactly; the extra width is the price of 16:9, and it means you see further
- * ahead than Mario does. If that reads as too zoomed-out, 320x180 gets you to
- * 20 tiles wide and still scales cleanly.
+ * Mario's playfield is about 16x13 tiles. 320x180 gives 20x11.25, which is as
+ * close as 16:9 gets without squashing the vertical. This was 384x216 (24
+ * tiles wide) and everything read as slow, because the same 90 px/s walk has
+ * half again as much screen to cross. **If the game feels too zoomed-in or too
+ * zoomed-out, this is the dial** — 384x216 to pull back, 288x162 to push in.
+ * Both still scale to 1080p without blurring.
  */
-export const VIEW_WIDTH = 384;
-export const VIEW_HEIGHT = 216;
+export const VIEW_WIDTH = 320;
+export const VIEW_HEIGHT = 180;
 
 /** Physics steps per second. Fixed, so the jump feels identical on any display. */
 export const PHYSICS_FPS = 60;
@@ -55,6 +58,37 @@ export interface JumpBracket {
   readonly holdGravity: number;
   /** Gravity once the button is released, or once you start falling. */
   readonly fallGravity: number;
+}
+
+/**
+ * Build a jump bracket from what you actually care about.
+ *
+ * Rather than asking for a launch velocity and two gravities — which are hard
+ * to reason about and easy to get subtly wrong — this takes the three things
+ * you can feel:
+ *
+ *   apexTiles    how high the jump goes, in tiles
+ *   riseSeconds  how long it takes to get to the top
+ *   fallFactor   how much harder it falls than it rose (1 = symmetrical,
+ *                higher = snappier landing, which is most of "not floaty")
+ *
+ * **To make jumping feel faster without changing how high it goes, lower
+ * `riseSeconds`.** The height stays exactly where it was.
+ */
+function jumpArc(
+  upToSpeed: number,
+  apexTiles: number,
+  riseSeconds: number,
+  fallFactor: number,
+): JumpBracket {
+  const apex = apexTiles * TILE;
+  const holdGravity = (2 * apex) / (riseSeconds * riseSeconds);
+  return {
+    upToSpeed,
+    launchVelocity: -(2 * apex) / riseSeconds,
+    holdGravity,
+    fallGravity: holdGravity * fallFactor,
+  };
 }
 
 export interface CharacterStats {
@@ -98,12 +132,10 @@ export interface CharacterStats {
 /**
  * Mendy — light and agile.
  *
- * These are Super Mario Bros.' figures. What they buy you, measured:
- * a standing jump is 4 tiles high, a running jump is 5, and it takes about
- * two thirds of a second of held input to reach either. Tapping the button
- * gives you a single tile. The gap between walking and running is deliberately
- * modest — 90 to 150 px/s — which is the thing that stops a run button from
- * turning levels into a blur.
+ * Horizontal movement is SMB's outright. The jump keeps SMB's heights — 4
+ * tiles standing, 5 at a run — but gets to them faster: SMB takes 0.53s to the
+ * apex, and at this game's wider camera that read as floating. Same height,
+ * shorter climb, harder fall.
  */
 export const MENDY: CharacterStats = {
   label: 'Mendy',
@@ -115,14 +147,18 @@ export const MENDY: CharacterStats = {
   skidDeceleration: 361, // [SMB] 0.1004 px/frame^2 — the screech-turn
   airControl: 1, // [SMB] steering in the air is barely reduced
   airDrag: 0, // [SMB] no friction in the air: momentum is kept
-  maxFallSpeed: 270, // [SMB] 4.5 px/frame
+  // [PLAYTEST] SMB's own figure is about 270 px/s, but at that cap the limiter
+  // was engaging partway down an ordinary jump and stretching the descent —
+  // which is exactly what "floaty" feels like. A terminal velocity should only
+  // ever bite on a long drop, so it now sits above what a normal jump reaches.
+  maxFallSpeed: 620,
   jumpBrackets: [
     // Standing or barely moving: 4 tiles up.
-    { upToSpeed: 60, launchVelocity: -240, holdGravity: 450, fallGravity: 1575 },
-    // Walking: fractionally higher, and a softer landing.
-    { upToSpeed: 139, launchVelocity: -240, holdGravity: 422, fallGravity: 1350 },
-    // At a run: 5 tiles up, and it comes down hard.
-    { upToSpeed: Infinity, launchVelocity: -300, holdGravity: 562, fallGravity: 2025 },
+    jumpArc(60, 4, 0.44, 2.8),
+    // Walking: fractionally higher.
+    jumpArc(139, 4.25, 0.44, 2.8),
+    // At a run: 5 tiles up.
+    jumpArc(Infinity, 5, 0.46, 2.8),
   ],
   coyoteTimeMs: 100, // [SPEC] Mario has none of this; it is a kindness worth keeping
   jumpBufferMs: 120, // [SPEC] likewise
@@ -153,11 +189,11 @@ export const BEREL: CharacterStats = {
   skidDeceleration: 300, // heavier, so he takes longer to turn around
   airControl: 0.75, // "better air control" is Mendy's edge (§4), so Berel's is worse
   airDrag: 0,
-  maxFallSpeed: 330, // heavier fall
+  maxFallSpeed: 620, // heavier fall
   jumpBrackets: [
-    { upToSpeed: 50, launchVelocity: -215, holdGravity: 470, fallGravity: 1750 },
-    { upToSpeed: 115, launchVelocity: -215, holdGravity: 440, fallGravity: 1550 },
-    { upToSpeed: Infinity, launchVelocity: -265, holdGravity: 570, fallGravity: 2150 },
+    jumpArc(50, 3, 0.42, 3.1),
+    jumpArc(115, 3.15, 0.42, 3.1),
+    jumpArc(Infinity, 3.85, 0.44, 3.1),
   ],
   coyoteTimeMs: 100,
   jumpBufferMs: 120,
