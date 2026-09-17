@@ -1,0 +1,20 @@
+{
+  "name": "bochur-bros",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Bochur Bros - a 2D side-scrolling platformer",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}
