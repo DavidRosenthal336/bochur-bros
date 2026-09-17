@@ -22,6 +22,19 @@ to this repository.
 | [Vite](https://vite.dev) | MIT |
 | [TypeScript](https://www.typescriptlang.org) | Apache-2.0 |
 
+## A note on the movement figures
+
+Mendy's speeds, accelerations and jump gravities are taken from published
+figures for Super Mario Bros. (NES), at the developer's request, and are marked
+`[SMB]` in `src/config/Tuning.ts`.
+
+This is a deliberate decision and the design doc allows for it: §2 says "game
+mechanics and genre conventions are not protected and are fine to imitate
+freely". What is being used is a set of numbers describing how fast a character
+moves — not code, not art, not audio, not names. No Nintendo file of any kind
+has been downloaded, referenced, or committed to this repository, and nothing
+in the game is named after anything of theirs.
+
 ## Rules for adding to this file
 
 - Commercial use must be permitted: CC0, CC-BY, or an explicit permissive licence.

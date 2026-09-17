@@ -29,14 +29,20 @@ presses until something inside it has been clicked. The start card says so.
 
 | | |
 |---|---|
-| Arrows / WASD | Move |
+| Arrows / WASD | Move; hold Down to crouch |
 | Space or Z | Jump — hold for height |
-| Shift | Run |
-| R | Respawn at the start |
+| Shift or X | Run |
+| R | Respawn at the last checkpoint |
 | F1 | Toggle the debug readout |
 | F2 | Toggle collision boxes |
+| F3 | Switch between the level and the Gym |
 
-`X` (action), `Tab` (swap) and `Esc` (pause) are bound but do nothing yet.
+`Tab` (swap) and `Esc` (pause) are bound but do nothing yet.
+
+Mendy moves on Super Mario Bros.' own figures: 90 px/s walking, 150 running, a
+four-tile standing jump and a five-tile running one. Holding the jump button
+does not add force, it *lowers gravity* — which is why a tap gives you one tile
+and a held button gives you four.
 
 ## Tuning the feel
 
@@ -56,6 +62,7 @@ measures one property of the jump:
 | **D** | A ledge to run off and jump from late — coyote time |
 | **E** | A staircase and a long drop — jump buffering |
 | **F** | A two-tile-high tunnel — head collisions |
+| **G** | A one-tile tunnel — crouching, and what Cholent cannot fit through |
 
 There are no bottomless pits. Every gap has a floor a short hop below it, so
 missing a jump costs a walk back and nothing else.

@@ -5,80 +5,128 @@ See `BOCHUR_BROS_DESIGN.md` for the design this is being built against.
 
 ---
 
-## Milestone 1 — The jump ✅
+## Decisions that supersede the design doc
 
-Scaffolded, running, and playable. Mendy runs and jumps around one greybox
-test level with a camera that follows him. Nothing else exists yet, by design.
+Playtesting overrules the spec where the two disagree. These are the changes
+made so far, in one place so nothing gets quietly lost. The design doc itself
+has **not** been edited — say the word and these get folded into it.
 
-### Built
-
-- **Project** — Phaser 3.90 + TypeScript 7 + Vite 8. `strict` on, no `any`.
-- **Fixed-timestep physics** (Arcade, 60Hz, `fixedStep: true`) so the jump arc
-  is identical on a 60Hz laptop and a 144Hz monitor.
-- **`src/config/Tuning.ts`** — every number that affects feel, in one file.
-  Spec-sourced values are marked `[SPEC]`, additions are marked `[ADDED]`.
-- **Mendy** — walk/run, acceleration, separate turn-around deceleration,
-  variable jump height, coyote time, jump buffering, head-bonk handling,
-  terminal velocity.
-- **Camera** — lerped follow with a deadzone, clamped to level bounds.
-- **`src/levels/`** — level geometry is *data*, not scene code, so the
-  Milestone 4 Tiled loader replaces the source and not the consumer.
-- **Debug overlay** (F1) — live velocity, grounded/coyote/buffer timers, and a
-  measured apex and jump distance in both pixels and tiles. F2 draws hitboxes.
-- **Start card** listing the controls, which also collects the click a page
-  needs before the keyboard reaches it.
-- **`npm run build:playtest`** — a flattened, self-contained build for hosting
-  a playable link, so testing a milestone never requires a terminal.
-
-### Measured, in the browser, at the shipped tuning
-
-These came out of an automated pass driving the real game loop, not from theory:
-
-| | |
-|---|---|
-| Jump apex, held | **70.8 px** (4.4 tiles) |
-| Jump apex, tapped | **39.2 px** (2.5 tiles) |
-| Walk / run top speed | 160 / 260 px/s (exactly as specced) |
-| Running jump distance | **147 px** (9.2 tiles) |
-| Widest gap cleared, walking | **5 tiles** |
-| Widest gap cleared, running | **9 tiles** |
-| Tallest ledge mounted | **4 tiles** (a 5-tile ledge is out of reach) |
-| Coyote window | fires 3 frames after leaving a ledge, not 9 |
-| Jump buffer | fires on contact when pressed before landing |
-
-### Deviations from the spec, and why
-
-1. **`airControl` and `airDrag` added.** §11's deceleration of 1600 px/s²
-   applied in midair scrubs off horizontal speed so fast that jump arcs stop
-   being arcs. Air acceleration is scaled to 0.7 and air drag to 0.18 of the
-   ground values. Mendy's "better air control" (§4) is now a real number to
-   give Berel a worse one.
-2. **`turnDeceleration` added** (2600). Pivoting shares a rate with coasting to
-   a stop otherwise, and turnarounds feel mushy.
-3. **`maxFallSpeed` added** (800). Uncapped falls reach silly speeds.
-4. **Phaser 3, not 4.** §3 says Phaser 3 and that is what is installed.
-   Phaser 4 is out; if you would rather start there, now is the cheap moment.
-
-### Known conflicts to settle
-
-- **The `S` key is double-booked.** §8 gives `S` to crouch (as part of WASD)
-  *and* to swap character. Currently `S` is crouch and swap is `Tab` only.
-  Needs a decision before Milestone 3.
-
-### Deliberately not built yet
-
-Enemies, boxes, power-ups, coins, death, lives, goals, sound, touch controls,
-Berel, and the swap. All of them belong to later milestones, and every one of
-them would make it harder to tell whether the jump itself is right.
-
-### Stubbed
-
-- `BootScene` loads nothing — it is a placeholder for the real preloader.
-- Crouch and look-up are read from input but ignored.
-- `BEREL` stats exist in `Tuning.ts` but nothing instantiates him.
+1. **Mendy moves on Super Mario Bros.' figures, not §11's.** The starting
+   values in §11 produced a character who walked faster than Mario runs
+   (160 px/s against Mario's 150), which read as "flying through levels". The
+   whole model is now SMB's: 90 px/s walking, 150 running, with a
+   speed-dependent jump. Marked `[SMB]` in `src/config/Tuning.ts`. See
+   CREDITS.md for why copying these particular numbers is fine.
+2. **The variable jump works differently.** §11 says "releasing jump early cuts
+   upward velocity by 50%". Mario instead applies *light gravity while the
+   button is held* and heavy gravity the moment it is released. That one
+   difference is most of what makes a jump feel like Mario's, so it replaces
+   the 50% rule.
+3. **The run button stays**, at Mario's spacing — a 67% lift, not the 160%
+   the spec's numbers implied.
+4. **Ducking lets you move**, at about half walking speed. SMB roots you while
+   crouched, but the design doc's own obstacles (clotheslines in §6 World 3,
+   laundry lines in World 4) are things you duck under *and travel through*.
+5. **`S` is still double-booked** in §8 — crouch (via WASD) and swap character.
+   `S` is crouch; swap is on `Tab` only. Needs settling before Milestone 3.
 
 ---
 
-## Milestone 2 — Core loop
+## Milestone 1 — The jump ✅
+
+Scaffolded, running, playable. Project is Phaser 3.90 + TypeScript 7 + Vite 8,
+`strict` on, no `any`. Physics run on a fixed 60Hz step so the jump arc is
+identical on any display. Every number that affects feel lives in
+`src/config/Tuning.ts` and nowhere else.
+
+Built: Mendy's movement, variable jump, coyote time, jump buffering, crouch
+with a headroom check, camera follow with a deadzone, a debug overlay (F1) that
+reports measured apex and jump distance in tiles, and the Gym — a greybox
+calibration range whose stations each measure one property of the jump.
+
+## Milestone 2 — Core loop ✅
+
+The first version that is a game rather than an instrument.
+
+- **Power-up state machine** (`src/systems/PowerState.ts`). The tier-drop rule
+  §11 asks to keep in one place is in one place: a hit costs exactly one rung,
+  power form → Cholent → Small, and a hit at Small costs a life.
+- **Cholent tier** — visibly bigger, takes the extra hit, breaks bricks from
+  below. Tier sizes are multipliers on a character's own body, so Berel will
+  stay bigger than Mendy at every tier without a second table.
+- **Data-driven enemies** (`src/entities/Enemy.ts`, `src/config/enemies.ts`).
+  §11 asks for one enemy system with configurable behaviours rather than a class
+  per creature, so an enemy is a row in a table. `patrol` and `dive` are
+  implemented; `chase`, `emerge` and `thief` land with the worlds that need them.
+- **Pigeons** that perch, swoop when you come near, and can be stomped mid-swoop.
+- **Mystery boxes and breakable bricks**, hit from underneath, contents driven
+  by level data.
+- **Tzedakah coins** with a counter.
+- **Death and respawn** at the last checkpoint, from a hit at Small or from a
+  pit. Checkpoints are frequent, per §7.
+- **A goal** at the end of the level.
+- **A second greybox level** ("Thirteenth Avenue (greybox)") that teaches the
+  loop in order: coins, then boxes, then a pigeon, then a pit that can kill you.
+  F3 switches between it and the Gym.
+
+### Verified in the browser, driving the real game loop
+
+Mendy against the figures he is modelled on:
+
+| | measured | Super Mario Bros. |
+|---|---|---|
+| Walk top speed | **90 px/s** | 90 |
+| Run top speed | **150 px/s** | 150 |
+| Standing jump | **4 tiles** | 4 |
+| Running jump | **5 tiles** | 5 |
+| Tapped jump | **1.2 tiles** | ~1 |
+| Widest gap, walking | **5 tiles** | — |
+| Widest gap, running | **8 tiles** | — |
+| Tallest ledge, walking | **4 tiles** | 4 |
+| Tallest ledge, running | **5 tiles** | 5 |
+
+Crouching: Small is 22px standing and 13px ducked; Cholent is 30px and 18px.
+The Gym's one-tile tunnel lets Small duck through and turns Cholent away, which
+is the trade the bigger tiers are meant to make.
+
+Core loop checks, all passing: every tier drops exactly one rung on a hit and
+Small dies; a pickup never demotes you; two hits in the same instant cost one
+tier, not two; Cholent breaks bricks and Small cannot; a stomp kills a pigeon
+and bounces the player without costing a tier; walking into one costs Cholent a
+tier and costs Small a life; falling in a pit kills and returns you to the last
+checkpoint; the goal completes the level; and an autopilot that only knows
+"walk right, jump at edges" can finish the level start to end.
+
+### Deviations worth knowing about
+
+- **Invulnerability frames after a hit** (1200ms) are not in the design doc.
+  Without them a single overlap spans several frames and strips every tier at
+  once. [ADDED]
+- **Breakable bricks** are not named in Milestone 2's list, but Cholent's
+  defining ability in §5 is breaking blocks from below, and it needs something
+  to break.
+
+### Deliberately not built yet
+
+- **Cholent's ground-pound stun** (§5: "landing from a height stuns nearby
+  enemies"). Milestone 2's list is the tier and the hit rule; this is the next
+  thing to add to Cholent.
+- **Lives and game over** (§7). Coins count, but the 100-coin extra life is
+  Milestone 5 and there is no game-over screen until there is a title screen.
+- Menorah, Lulav, Peyos — Milestone 5.
+- Berel and the swap — Milestone 3.
+- Touch controls — Milestone 7. The build is keyboard-only and says so.
+
+### Stubbed
+
+- `BootScene` loads nothing — a placeholder for the real preloader.
+- Looking up (`W` / Up) is read from input and ignored.
+- `BEREL` stats exist in `Tuning.ts` but nothing instantiates him.
+- Collecting a Cholent while already Cholent is absorbed and does nothing;
+  Milestone 5 gives boxes the right contents for the tier you are in.
+
+---
+
+## Milestone 3 — Both characters
 
 Not started.

@@ -5,15 +5,20 @@
  * yourself editing a number anywhere else in `src/`, that number probably
  * belongs in this file instead.
  *
- * Values marked [SPEC] come straight from BOCHUR_BROS_DESIGN.md §11.
- * Values marked [ADDED] are not in the spec — they were needed to make the
- * movement feel like a platformer at all. They are tuning knobs, not new
- * mechanics, and you should feel free to move them.
+ * Mendy's movement is modelled directly on Super Mario Bros. (NES), by
+ * request. Values marked [SMB] are that game's own figures, converted from
+ * pixels-per-frame at 60fps into the pixels-per-second this project works in.
+ * Values marked [SPEC] come from BOCHUR_BROS_DESIGN.md §11, and [ADDED] marks
+ * a knob neither source provides.
+ *
+ * Mechanics are not being copied here — speeds and accelerations are facts
+ * about how fast a character moves, and none of Nintendo's code, art, sound,
+ * or naming is used anywhere in this project. See CREDITS.md.
  *
  * Units: pixels and seconds, except where a name ends in `Ms`.
  */
 
-/** Size of one level grid cell, in pixels. All level data is authored in these. */
+/** Size of one level grid cell, in pixels. Same as Mario's, which is why the figures transfer. */
 export const TILE = 16;
 
 /**
@@ -21,6 +26,11 @@ export const TILE = 16;
  * this is the "virtual" screen the game is designed against, not the pixel
  * size of the window. 384x216 is exactly 16:9 and exactly 24x13.5 tiles, and
  * it multiplies cleanly to 1920x1080 (x5).
+ *
+ * Mario's playfield is about 16x13 tiles. The height here matches almost
+ * exactly; the extra width is the price of 16:9, and it means you see further
+ * ahead than Mario does. If that reads as too zoomed-out, 320x180 gets you to
+ * 20 tiles wide and still scales cleanly.
  */
 export const VIEW_WIDTH = 384;
 export const VIEW_HEIGHT = 216;
@@ -28,65 +38,101 @@ export const VIEW_HEIGHT = 216;
 /** Physics steps per second. Fixed, so the jump feels identical on any display. */
 export const PHYSICS_FPS = 60;
 
+/**
+ * One rung of the speed-dependent jump.
+ *
+ * Mario does not have a single jump. The faster he is moving when he leaves
+ * the ground, the higher he goes and the harder he falls — which is why a
+ * running jump clears five blocks and a standing one clears four. Each bracket
+ * describes the jump you get in one speed band.
+ */
+export interface JumpBracket {
+  /** Use this bracket when horizontal speed is at or below this, px/s. */
+  readonly upToSpeed: number;
+  /** Upward velocity at the moment of takeoff, px/s (negative is up). */
+  readonly launchVelocity: number;
+  /** Gravity while the jump button is still held and you are still rising. */
+  readonly holdGravity: number;
+  /** Gravity once the button is released, or once you start falling. */
+  readonly fallGravity: number;
+}
+
 export interface CharacterStats {
   /** Display name, for debug output. */
   readonly label: string;
-  /** Downward acceleration applied to this character, px/s^2. */
-  readonly gravity: number;
-  /** Top horizontal speed with the run button up, px/s. */
+  /** Top speed with the run button up, px/s. */
   readonly walkSpeed: number;
-  /** Top horizontal speed with the run button held, px/s. */
+  /** Top speed with the run button held, px/s. */
   readonly runSpeed: number;
-  /** Instantaneous upward velocity at the moment of a jump, px/s (negative = up). */
-  readonly jumpVelocity: number;
-  /** How fast horizontal speed builds toward the target, px/s^2. */
-  readonly acceleration: number;
-  /** How fast horizontal speed bleeds off with no input, px/s^2. */
-  readonly deceleration: number;
-  /** How fast speed bleeds off when reversing direction, px/s^2. [ADDED] */
-  readonly turnDeceleration: number;
-  /** Multiplier on acceleration while airborne. 1 = full ground control. [ADDED] */
+  /** How fast speed builds toward the walking cap, px/s^2. */
+  readonly walkAcceleration: number;
+  /** How fast speed builds toward the running cap, px/s^2. */
+  readonly runAcceleration: number;
+  /** How fast speed bleeds off with no input on the ground, px/s^2. */
+  readonly friction: number;
+  /** How fast speed bleeds off when you hold the opposite direction, px/s^2. */
+  readonly skidDeceleration: number;
+  /** Multiplier on acceleration while airborne. Mario keeps nearly full control. */
   readonly airControl: number;
-  /** Multiplier on deceleration while airborne with no input. [ADDED] */
+  /** Multiplier on friction while airborne. Mario has none: momentum is kept. */
   readonly airDrag: number;
-  /** Fastest the character may fall, px/s. Without a cap, long drops go silly. [ADDED] */
+  /** Fastest the character may fall, px/s. */
   readonly maxFallSpeed: number;
+  /** Jump brackets, ordered slowest first. The last one catches everything above it. */
+  readonly jumpBrackets: readonly JumpBracket[];
   /** Grace period after walking off a ledge during which a jump still counts, ms. */
   readonly coyoteTimeMs: number;
   /** How early a jump press is remembered and fired on landing, ms. */
   readonly jumpBufferMs: number;
-  /** Upward velocity is multiplied by this when jump is released early. */
-  readonly jumpCutMultiplier: number;
   /** Placeholder body size, in pixels, for the Small tier. */
   readonly bodyWidth: number;
   readonly bodyHeight: number;
+  /** Crouched body height as a fraction of the standing height. */
+  readonly crouchHeightFactor: number;
+  /** Top speed while crouched, px/s. Zero means ducking roots you, as in Mario. */
+  readonly crouchSpeed: number;
   /** Placeholder fill colour. */
   readonly color: number;
 }
 
 /**
- * Mendy — light and agile. Higher jump, faster top speed, better air control.
+ * Mendy — light and agile.
  *
- * With these numbers: apex ~75px (4.7 tiles), airtime ~0.58s, so a full-speed
- * running jump clears roughly 9 tiles of gap. The test level measures both.
+ * These are Super Mario Bros.' figures. What they buy you, measured:
+ * a standing jump is 4 tiles high, a running jump is 5, and it takes about
+ * two thirds of a second of held input to reach either. Tapping the button
+ * gives you a single tile. The gap between walking and running is deliberately
+ * modest — 90 to 150 px/s — which is the thing that stops a run button from
+ * turning levels into a blur.
  */
 export const MENDY: CharacterStats = {
   label: 'Mendy',
-  gravity: 1800, // [SPEC]
-  walkSpeed: 160, // [SPEC]
-  runSpeed: 260, // [SPEC]
-  jumpVelocity: -520, // [SPEC]
-  acceleration: 1200, // [SPEC]
-  deceleration: 1600, // [SPEC]
-  turnDeceleration: 2600, // [ADDED] snappier pivots than a dead stop
-  airControl: 0.7, // [ADDED]
-  airDrag: 0.18, // [ADDED] keep air momentum; platformers feel bad without this
-  maxFallSpeed: 800, // [ADDED]
-  coyoteTimeMs: 100, // [SPEC]
-  jumpBufferMs: 120, // [SPEC]
-  jumpCutMultiplier: 0.5, // [SPEC] "releasing jump early cuts upward velocity by 50%"
+  walkSpeed: 90, // [SMB] 1.5 px/frame
+  runSpeed: 150, // [SMB] 2.5 px/frame
+  walkAcceleration: 133, // [SMB] 0.0369 px/frame^2 — a slow, deliberate build-up
+  runAcceleration: 323, // [SMB] 0.0898 px/frame^2
+  friction: 177, // [SMB] 0.0492 px/frame^2
+  skidDeceleration: 361, // [SMB] 0.1004 px/frame^2 — the screech-turn
+  airControl: 1, // [SMB] steering in the air is barely reduced
+  airDrag: 0, // [SMB] no friction in the air: momentum is kept
+  maxFallSpeed: 270, // [SMB] 4.5 px/frame
+  jumpBrackets: [
+    // Standing or barely moving: 4 tiles up.
+    { upToSpeed: 60, launchVelocity: -240, holdGravity: 450, fallGravity: 1575 },
+    // Walking: fractionally higher, and a softer landing.
+    { upToSpeed: 139, launchVelocity: -240, holdGravity: 422, fallGravity: 1350 },
+    // At a run: 5 tiles up, and it comes down hard.
+    { upToSpeed: Infinity, launchVelocity: -300, holdGravity: 562, fallGravity: 2025 },
+  ],
+  coyoteTimeMs: 100, // [SPEC] Mario has none of this; it is a kindness worth keeping
+  jumpBufferMs: 120, // [SPEC] likewise
   bodyWidth: 14,
   bodyHeight: 22,
+  crouchHeightFactor: 0.6,
+  // SMB roots you while ducking. This does not, because the design doc's own
+  // obstacles — clotheslines in the Catskills (§6), laundry lines strung across
+  // the Meah Shearim alleys — are things you duck under *and travel through*.
+  crouchSpeed: 45,
   color: 0x4ea8de,
 };
 
@@ -94,26 +140,31 @@ export const MENDY: CharacterStats = {
  * Berel — heavy and strong. Lower jump, slower top speed, heavier fall.
  *
  * NOT PLAYABLE YET. Berel arrives in Milestone 3 along with the swap mechanic.
- * His numbers live here now only so the two stat blocks can be compared and
- * tuned side by side; nothing instantiates him.
+ * His numbers are the same model as Mendy's, shifted: roughly a fifth slower,
+ * three tiles of standing jump against Mendy's four, and a harder fall.
  */
 export const BEREL: CharacterStats = {
   label: 'Berel',
-  gravity: 2000, // [SPEC]
-  walkSpeed: 130, // [SPEC]
-  runSpeed: 210, // [SPEC]
-  jumpVelocity: -440, // [SPEC]
-  acceleration: 1200, // [SPEC]
-  deceleration: 1600, // [SPEC]
-  turnDeceleration: 2000, // [ADDED] heavier, so he pivots slower than Mendy
-  airControl: 0.45, // [ADDED] "better air control" is Mendy's edge, so Berel's is worse
-  airDrag: 0.18, // [ADDED]
-  maxFallSpeed: 900, // [ADDED] heavier fall
-  coyoteTimeMs: 100, // [SPEC]
-  jumpBufferMs: 120, // [SPEC]
-  jumpCutMultiplier: 0.5, // [SPEC]
+  walkSpeed: 75,
+  runSpeed: 120,
+  walkAcceleration: 110,
+  runAcceleration: 260,
+  friction: 190,
+  skidDeceleration: 300, // heavier, so he takes longer to turn around
+  airControl: 0.75, // "better air control" is Mendy's edge (§4), so Berel's is worse
+  airDrag: 0,
+  maxFallSpeed: 330, // heavier fall
+  jumpBrackets: [
+    { upToSpeed: 50, launchVelocity: -215, holdGravity: 470, fallGravity: 1750 },
+    { upToSpeed: 115, launchVelocity: -215, holdGravity: 440, fallGravity: 1550 },
+    { upToSpeed: Infinity, launchVelocity: -265, holdGravity: 570, fallGravity: 2150 },
+  ],
+  coyoteTimeMs: 100,
+  jumpBufferMs: 120,
   bodyWidth: 16,
   bodyHeight: 24,
+  crouchHeightFactor: 0.6,
+  crouchSpeed: 38,
   color: 0xe07a5f,
 };
 
@@ -132,3 +183,65 @@ export const CAMERA = {
 
 /** Anything below (world height + this) is treated as "fell out of the level". */
 export const FELL_OUT_MARGIN = 128;
+
+// ---------------------------------------------------------------------------
+// Milestone 2 — the core loop
+// ---------------------------------------------------------------------------
+
+import type { PowerTier } from '../systems/PowerState';
+
+/**
+ * What a power-up tier does to the character wearing it.
+ *
+ * Sizes are multipliers on the character's own Small body rather than absolute
+ * pixels, so Berel stays bigger than Mendy in every tier without a second table.
+ */
+export interface TierStats {
+  /** Body height as a multiple of the character's Small height. */
+  readonly heightScale: number;
+  /** Body width as a multiple of the character's Small width. */
+  readonly widthScale: number;
+  /** Overrides the character's placeholder colour. Undefined keeps it. */
+  readonly tint?: number;
+  /** Can this tier smash a breakable block from below? (§5: Cholent can.) */
+  readonly breaksBlocks: boolean;
+}
+
+export const TIERS: Record<PowerTier, TierStats> = {
+  small: { heightScale: 1, widthScale: 1, breaksBlocks: false },
+  // "Puffs up round and heavy, steam rising." Wider as well as taller.
+  cholent: { heightScale: 1.36, widthScale: 1.15, tint: 0xd98c3f, breaksBlocks: true },
+  // The three power forms are all the same size as Cholent; only Cholent and
+  // Small differ physically. Milestone 5 gives them their behaviours.
+  menorah: { heightScale: 1.36, widthScale: 1.15, tint: 0xf2c14e, breaksBlocks: true },
+  lulav: { heightScale: 1.36, widthScale: 1.15, tint: 0x6a994e, breaksBlocks: true },
+  peyos: { heightScale: 1.36, widthScale: 1.15, tint: 0x9b5de5, breaksBlocks: true },
+};
+
+/** Rules for the core loop that are not about how a character moves. */
+export const GAMEPLAY = {
+  /** Upward velocity given to the player by a successful stomp, px/s. */
+  stompBounce: -260,
+  /** Same, but when the jump button is held at the moment of the stomp. */
+  stompBounceHeld: -330,
+  /** A stomp counts only if the player is falling at least this fast, px/s. */
+  stompMinFallSpeed: 20,
+  /** How far above an enemy's middle the player's feet must be to count as a stomp. */
+  stompFootMargin: 4,
+  /** How long a defeated enemy stays visible, squashed, before vanishing, ms. */
+  enemyDeathMs: 350,
+  /** Knockback applied to the player when hurt, px/s. */
+  hurtKnockbackX: 90,
+  hurtKnockbackY: -180,
+  /** How long the level pauses on death before respawning, ms. */
+  deathPauseMs: 900,
+  /** Upward velocity of the player's death flop, px/s. */
+  deathLaunchY: -320,
+  /** How far a bumped block rises before settling, px. */
+  blockBumpHeight: 6,
+  blockBumpMs: 160,
+  /** Speed a Cholent pickup slides along the ground at, px/s. */
+  pickupSpeed: 45,
+  /** How high a collected coin floats before fading, px. */
+  coinPopHeight: 18,
+} as const;

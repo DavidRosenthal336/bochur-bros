@@ -1,3 +1,6 @@
+import type { BlockContents, BlockKind } from '../entities/Block';
+import type { EnemyKind } from '../config/enemies';
+
 /**
  * The greybox level format.
  *
@@ -30,6 +33,24 @@ export interface LabelDef {
   readonly text: string;
 }
 
+/** A position in tiles. */
+export interface TilePoint {
+  readonly x: number;
+  readonly y: number;
+}
+
+/** A mystery box or a breakable brick, placed on the tile grid. */
+export interface BlockPlacement extends TilePoint {
+  readonly kind: BlockKind;
+  /** Only meaningful for a mystery box. */
+  readonly contents?: BlockContents;
+}
+
+/** An enemy spawn. `kind` is a key into the ENEMIES table. */
+export interface EnemyPlacement extends TilePoint {
+  readonly kind: EnemyKind;
+}
+
 export interface LevelDef {
   readonly key: string;
   readonly name: string;
@@ -40,4 +61,16 @@ export interface LevelDef {
   readonly backgroundColor: number;
   readonly solids: readonly SolidDef[];
   readonly labels: readonly LabelDef[];
+
+  // --- Milestone 2 contents. All optional: the Gym has none of them. ---
+  /** Tzedakah coins. */
+  readonly coins?: readonly TilePoint[];
+  /** Mystery boxes and breakable bricks. */
+  readonly blocks?: readonly BlockPlacement[];
+  /** Enemy spawns. */
+  readonly enemies?: readonly EnemyPlacement[];
+  /** Mid-level checkpoints. §7 asks for these to be generous. */
+  readonly checkpoints?: readonly TilePoint[];
+  /** The end of the level. Without one, the level cannot be completed. */
+  readonly goal?: TilePoint;
 }

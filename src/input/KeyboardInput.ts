@@ -5,10 +5,8 @@ import { NEUTRAL_INPUT } from './InputState';
 /**
  * Keyboard bindings, per BOCHUR_BROS_DESIGN.md §8.
  *
- * Note on a spec collision: §8 assigns `S` to both "crouch" (as part of WASD)
- * and "swap character". Neither is implemented in Milestone 1, so nothing
- * breaks yet, but it needs a decision before Milestone 3. `S` is bound to
- * crouch here and swap is on `Tab` only; see PROGRESS.md.
+ * One departure from §8: it assigns `S` to both "crouch" (as part of WASD) and
+ * "swap character". `S` is crouch here, and swap is on `Tab` only.
  */
 const KEYS = {
   left: ['LEFT', 'A'],
@@ -16,7 +14,7 @@ const KEYS = {
   up: ['UP', 'W'],
   down: ['DOWN', 'S'],
   jump: ['SPACE', 'Z'],
-  run: ['SHIFT'],
+  run: ['SHIFT', 'X'],
   action: ['X'],
   swap: ['TAB'],
   pause: ['ESC'],

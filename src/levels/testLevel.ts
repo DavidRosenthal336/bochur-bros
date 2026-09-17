@@ -49,7 +49,7 @@ function label(x: number, y: number, text: string): void {
 // ---------------------------------------------------------------------------
 ground(0, 34);
 label(2, 14, 'A  FLAT GROUND');
-label(2, 15, 'walk, run (SHIFT), turn around, stop');
+label(2, 15, 'walk, hold SHIFT or X to run, turn around, stop');
 
 // ---------------------------------------------------------------------------
 // B — HEIGHT LADDER. Five pillars, each one tile taller than the last.
@@ -58,7 +58,7 @@ label(2, 15, 'walk, run (SHIFT), turn around, stop');
 // ---------------------------------------------------------------------------
 ground(34, 30);
 label(36, 14, 'B  HOW HIGH?');
-label(36, 15, 'each pillar is 1 tile taller. where do you top out?');
+label(36, 15, 'each pillar is 1 tile taller. running gets you one higher.');
 const PILLAR_HEIGHTS = [2, 3, 4, 5, 6] as const;
 PILLAR_HEIGHTS.forEach((tilesUp, i) => {
   const x = 36 + i * 6;
@@ -73,7 +73,7 @@ PILLAR_HEIGHTS.forEach((tilesUp, i) => {
 // ---------------------------------------------------------------------------
 label(66, 14, 'C  HOW FAR?');
 label(66, 15, 'gaps grow by 1 tile. walking vs running should differ a lot.');
-label(66, 16, 'at the shipped tuning: ~5 walking, ~9 at a run.');
+label(66, 16, 'measured: 5 tiles walking, 8 at a run.');
 
 let cursor = 64;
 ground(cursor, 8);
@@ -135,10 +135,22 @@ solids.push({ x: cursor + 4, y: FLOOR_TOP - 4, w: 18, h: 2, kind: 'platform' });
 cursor += 29;
 
 // ---------------------------------------------------------------------------
-// G — END. A wall, so you can feel what running into one does.
+// G — CROUCH TUNNEL. One tile of clearance. Standing you are 22px tall and it
+// is 16px, so the only way through is ducking. As Cholent you are 18px even
+// crouched, so this stretch is closed to you until you take a hit — which is
+// the kind of trade the bigger tiers are supposed to make.
+// ---------------------------------------------------------------------------
+ground(cursor, 26);
+label(cursor, 14, 'G  CROUCH');
+label(cursor, 15, 'hold DOWN to duck through. try it again as Cholent.');
+solids.push({ x: cursor + 6, y: FLOOR_TOP - 4, w: 14, h: 3, kind: 'platform' });
+cursor += 26;
+
+// ---------------------------------------------------------------------------
+// H — END. A wall, so you can feel what running into one does.
 // ---------------------------------------------------------------------------
 ground(cursor, 16);
-label(cursor + 2, 14, 'G  END OF THE LINE');
+label(cursor + 2, 14, 'H  END OF THE LINE');
 column(cursor + 14, 8, 2, 'wall');
 const WIDTH = cursor + 16;
 

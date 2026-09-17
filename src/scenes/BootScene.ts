@@ -12,6 +12,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.scene.start(SceneKey.TestLevel);
+    this.scene.start(SceneKey.Level);
   }
 }

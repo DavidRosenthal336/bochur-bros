@@ -23,3 +23,22 @@ export function makeSolidTexture(
   graphics.generateTexture(key, width, height);
   graphics.destroy();
 }
+
+/**
+ * A white rectangle of exactly this size, made once and reused, to be tinted
+ * by whatever uses it.
+ *
+ * Sizes get their own textures rather than one texture scaled to fit, because
+ * Arcade Physics multiplies a body's size by its game object's scale. Scaling
+ * the sprite to change its size silently scales the hitbox a second time, and
+ * the collision box drifts away from the thing you can see.
+ */
+export function solidTextureKey(
+  scene: Phaser.Scene,
+  width: number,
+  height: number,
+): string {
+  const key = `solid-${width}x${height}`;
+  makeSolidTexture(scene, key, width, height, 0xffffff);
+  return key;
+}

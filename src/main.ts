@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { PHYSICS_FPS, VIEW_HEIGHT, VIEW_WIDTH } from './config/Tuning';
 import { BootScene } from './scenes/BootScene';
-import { TestLevelScene } from './scenes/TestLevelScene';
+import { LevelScene } from './scenes/LevelScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -31,7 +31,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, TestLevelScene],
+  scene: [BootScene, LevelScene],
 };
 
 const game = new Phaser.Game(config);

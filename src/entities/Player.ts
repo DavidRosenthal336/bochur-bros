@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
-import type { CharacterStats } from '../config/Tuning';
+import type { CharacterStats, JumpBracket } from '../config/Tuning';
+import { GAMEPLAY, TIERS } from '../config/Tuning';
+import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from '../input/InputState';
-import { makeSolidTexture } from '../util/textures';
+import { NEUTRAL_INPUT } from '../input/InputState';
+import { solidTextureKey } from '../util/textures';
 
 /** Everything the debug overlay wants to know, without reaching into privates. */
 export interface PlayerDebugInfo {
@@ -9,10 +12,13 @@ export interface PlayerDebugInfo {
   readonly coyoteMs: number;
   readonly bufferMs: number;
   readonly rising: boolean;
-  readonly jumpCut: boolean;
+  readonly gravity: number;
   readonly velocityX: number;
   readonly velocityY: number;
+  readonly crouching: boolean;
+  /** Is the run button held? */
   readonly running: boolean;
+  readonly tier: PowerTier;
   /** Peak height above the launch point for the most recent jump, in pixels. */
   readonly lastJumpHeight: number;
   /** Horizontal ground covered by the most recent completed jump, in pixels. */
@@ -42,13 +48,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private rising = false;
   /** True from takeoff until the next landing. Scopes the debug measurements. */
   private jumpActive = false;
-  /** True once the current jump has already been cut short by a release. */
-  private jumpCut = false;
-  /** Was the player grounded last frame? Used to detect landings. */
-  private wasGrounded = true;
+  /** The jump bracket the current jump launched in. Fixed for its whole arc. */
+  private bracket: JumpBracket;
 
   /** Which way we are facing. Drives the nose marker; drives sprites later. */
   private facing: -1 | 1 = 1;
+  /** Ducking. Shrinks the body; standing up again waits for headroom. */
+  private crouching = false;
+  /** Was the run button held this frame? Debug readout only. */
+  private running = false;
+  /** Current power-up tier. Owned by the scene's PowerState; mirrored here for size. */
+  private tier: PowerTier = 'small';
+  /** While false, input is ignored — during a death, or a level-complete walk-off. */
+  private controllable = true;
   /** A little wedge showing which way we face, since a rectangle cannot. */
   private readonly nose: Phaser.GameObjects.Rectangle;
 
@@ -59,11 +71,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private lastJumpDistance = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number, stats: CharacterStats) {
-    const textureKey = `player-${stats.label.toLowerCase()}-small`;
-    makeSolidTexture(scene, textureKey, stats.bodyWidth, stats.bodyHeight, 0xffffff);
-
-    super(scene, x, y, textureKey);
+    super(scene, x, y, solidTextureKey(scene, stats.bodyWidth, stats.bodyHeight));
     this.stats = stats;
+    this.bracket = stats.jumpBrackets[0]!;
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -76,8 +86,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     body.setSize(stats.bodyWidth, stats.bodyHeight);
     body.setOffset(0, 0);
     body.setAllowGravity(true);
-    body.setGravityY(stats.gravity);
-    body.setMaxVelocity(10_000, stats.maxFallSpeed);
+    // Note: Arcade's maxVelocity clamps a component in BOTH directions, so it
+    // cannot express a terminal fall speed — it would cap the jump too.
+    // Falling is limited by hand in `tick` instead.
+    body.setMaxVelocity(10_000, 10_000);
+    // Gravity is not a constant here: it is chosen every frame from the jump
+    // bracket and whether the button is still held. See `applyGravity`.
+    body.setGravityY(stats.jumpBrackets[0]!.fallGravity);
     body.setCollideWorldBounds(true);
 
     this.nose = scene.add.rectangle(x, y, 4, 4, 0xffffff, 0.9).setDepth(11);
@@ -98,7 +113,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    *
    * @param delta Milliseconds since the previous frame.
    */
-  tick(delta: number, input: InputState): void {
+  tick(delta: number, rawInput: InputState): void {
+    const input = this.controllable ? rawInput : NEUTRAL_INPUT;
     const dt = delta / 1000;
     const grounded = this.isGrounded;
 
@@ -108,11 +124,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.measure(grounded);
 
     this.updateTimers(delta, grounded, input);
+    this.updateCrouch(grounded, input);
     this.updateHorizontal(dt, grounded, input);
     this.updateJump(grounded, input);
+    this.limitFallSpeed();
     this.updateAppearance(grounded);
+  }
 
-    this.wasGrounded = grounded;
+  /** Terminal velocity, applied downward only. */
+  private limitFallSpeed(): void {
+    const body = this.physicsBody;
+    if (body.velocity.y > this.stats.maxFallSpeed) {
+      body.setVelocityY(this.stats.maxFallSpeed);
+    }
   }
 
   /**
@@ -146,79 +170,213 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Crouching shrinks the body and roots you in place, as it does in Mario.
+   * Standing up is refused while something is directly overhead, so ducking
+   * under a low ceiling cannot wedge you inside it.
+   */
+  private updateCrouch(grounded: boolean, input: InputState): void {
+    const wantsCrouch = grounded && input.moveY > 0;
+    if (wantsCrouch === this.crouching) return;
+    if (!wantsCrouch && !this.hasHeadroom()) return;
+
+    this.crouching = wantsCrouch;
+    this.applyBodyHeight();
+  }
+
+  /** Is there room to stand back up to full height? */
+  private hasHeadroom(): boolean {
+    const full = this.currentHeight(false);
+    const gap = full - this.currentHeight(true);
+    if (gap <= 0) return true;
+
+    const blockers = this.scene.physics.overlapRect(
+      this.x - this.tierWidth / 2 + 1,
+      this.y - full,
+      this.tierWidth - 2,
+      gap,
+      false,
+      true,
+    );
+    return blockers.length === 0;
+  }
+
+  /** Body width at the current tier, in pixels. */
+  private get tierWidth(): number {
+    return Math.round(this.stats.bodyWidth * TIERS[this.tier].widthScale);
+  }
+
+  /** Standing height for the current tier and stance, in pixels. */
+  private currentHeight(crouching: boolean): number {
+    const standing = Math.round(this.stats.bodyHeight * TIERS[this.tier].heightScale);
+    return crouching ? Math.round(standing * this.stats.crouchHeightFactor) : standing;
+  }
+
+  /**
+   * Change power-up tier. The scene's PowerState decides *when*; this only
+   * applies the consequences — a bigger body and a different colour.
+   */
+  setTier(tier: PowerTier): void {
+    if (tier === this.tier) return;
+    this.tier = tier;
+    this.applyBodyHeight();
+    this.updateAppearance(this.isGrounded);
+  }
+
+  /** Can this tier smash a breakable block from below? */
+  get breaksBlocks(): boolean {
+    return TIERS[this.tier].breaksBlocks;
+  }
+
+  /** Bounce off something — a stomped enemy, usually. */
+  bounce(velocityY: number): void {
+    this.physicsBody.setVelocityY(velocityY);
+    this.rising = false;
+    this.jumpActive = false;
+  }
+
+  /** Knocked back by a hit, without dying. */
+  recoil(fromX: number): void {
+    const away = this.x < fromX ? -1 : 1;
+    this.physicsBody.setVelocity(away * GAMEPLAY.hurtKnockbackX, GAMEPLAY.hurtKnockbackY);
+  }
+
+  /** Stop responding to input and flop upward. The scene handles what comes next. */
+  playDeath(): void {
+    this.controllable = false;
+    const body = this.physicsBody;
+    body.setVelocity(0, GAMEPLAY.deathLaunchY);
+    body.checkCollision.none = true;
+    body.setAllowGravity(true);
+    body.setGravityY(1500);
+    this.setTint(0x6b7090);
+  }
+
+  /** Hand control back, e.g. after respawning. */
+  setControllable(controllable: boolean): void {
+    this.controllable = controllable;
+  }
+
+  /**
+   * Resize the sprite and its body, keeping the feet planted.
+   *
+   * This swaps to a texture of exactly the right size rather than scaling one,
+   * so the sprite's scale stays at 1 and the body matches the picture exactly.
+   * Because the origin sits at the feet, a shorter body shrinks from the top —
+   * which is what ducking should look like, and stops a resize from popping the
+   * character up off the floor.
+   */
+  private applyBodyHeight(): void {
+    const width = this.tierWidth;
+    const height = this.currentHeight(this.crouching);
+
+    this.setTexture(solidTextureKey(this.scene, width, height));
+    const body = this.physicsBody;
+    body.setSize(width, height);
+    body.setOffset(0, 0);
+  }
+
+  /**
+   * Mario's horizontal model: a slow build-up to one of two caps, a distinct
+   * and much harsher rate for turning around, and — the part that matters most
+   * — no friction at all in the air, so a jump keeps the speed it launched with.
+   */
   private updateHorizontal(dt: number, grounded: boolean, input: InputState): void {
     const body = this.physicsBody;
-    const dir = input.moveX;
-    const topSpeed = input.run ? this.stats.runSpeed : this.stats.walkSpeed;
+    const running = input.run && !this.crouching;
+    this.running = running;
+    const topSpeed = this.crouching
+      ? this.stats.crouchSpeed
+      : running
+        ? this.stats.runSpeed
+        : this.stats.walkSpeed;
+    // A zero top speed (a character who is rooted while ducking) is expressed
+    // as having no direction at all, so the friction branch below stops them.
+    const dir = topSpeed === 0 ? 0 : input.moveX;
     const vx = body.velocity.x;
 
     if (dir === 0) {
-      // No input: bleed off. Much gentler in the air, so jump arcs stay arcs.
-      const rate = this.stats.deceleration * (grounded ? 1 : this.stats.airDrag);
+      const rate = this.stats.friction * (grounded ? 1 : this.stats.airDrag);
       body.setVelocityX(approach(vx, 0, rate * dt));
       return;
     }
 
     this.facing = dir;
-    const target = dir * topSpeed;
 
     let rate: number;
     if (vx !== 0 && Math.sign(vx) !== dir) {
-      // Pivoting. Deliberately the harshest rate — turnarounds should bite.
-      rate = this.stats.turnDeceleration;
+      // The screech-turn. Much harsher than either accelerating or coasting.
+      rate = this.stats.skidDeceleration;
     } else if (Math.abs(vx) > topSpeed) {
-      // Over the cap, e.g. the run button was just released. Ease down, don't snap.
-      rate = this.stats.deceleration;
+      // Over the cap, e.g. the run button was just released. Coast down to it.
+      rate = this.stats.friction;
     } else {
-      rate = this.stats.acceleration;
+      rate = running ? this.stats.runAcceleration : this.stats.walkAcceleration;
     }
 
     if (!grounded) rate *= this.stats.airControl;
-    body.setVelocityX(approach(vx, target, rate * dt));
+    body.setVelocityX(approach(vx, dir * topSpeed, rate * dt));
   }
 
+  /**
+   * Mario's jump, which is two ideas rather than one.
+   *
+   * First, how high you go depends on how fast you were moving when you left
+   * the ground — the bracket is chosen at takeoff and holds for the whole arc.
+   * Second, holding the button does not add force; it *lowers gravity*. Let go
+   * and the heavy falling gravity takes over immediately and permanently, so
+   * a tap gives you a tile and a held button gives you four. That single
+   * detail is most of what people mean when they say a jump feels like Mario's.
+   */
   private updateJump(grounded: boolean, input: InputState): void {
     const body = this.physicsBody;
 
     // Take off when a remembered press meets available ground (real or coyote).
     if (this.bufferMs > 0 && this.coyoteMs > 0) {
-      body.setVelocityY(this.stats.jumpVelocity);
+      this.bracket = this.bracketFor(Math.abs(body.velocity.x));
+      body.setVelocityY(this.bracket.launchVelocity);
       this.bufferMs = 0;
       this.coyoteMs = 0; // one jump per departure from the ground
       this.rising = true;
       this.jumpActive = true;
-      this.jumpCut = false;
       this.launchY = this.y;
       this.launchX = this.x;
       this.lastJumpHeight = 0;
     }
 
-    // Variable height: letting go early lops 50% off whatever lift is left.
-    if (this.rising && !this.jumpCut && !input.jumpHeld && body.velocity.y < 0) {
-      body.setVelocityY(body.velocity.y * this.stats.jumpCutMultiplier);
-      this.jumpCut = true;
+    // Releasing the button ends the light-gravity phase for good; re-pressing
+    // mid-jump does not get it back.
+    if (!input.jumpHeld || body.velocity.y >= 0 || body.blocked.up) {
+      this.rising = false;
     }
 
-    // A ceiling ends the jump as surely as gravity does.
-    if (body.blocked.up) {
-      this.rising = false;
+    this.applyGravity(grounded);
+  }
+
+  /** Pick the jump bracket for a given horizontal speed. */
+  private bracketFor(speed: number): JumpBracket {
+    for (const bracket of this.stats.jumpBrackets) {
+      if (speed <= bracket.upToSpeed) return bracket;
     }
-    if (body.velocity.y >= 0) {
-      this.rising = false;
-    }
-    if (grounded && !this.wasGrounded) {
-      this.rising = false;
-      this.jumpCut = false;
-    }
+    return this.stats.jumpBrackets[this.stats.jumpBrackets.length - 1]!;
+  }
+
+  /** Light gravity only while rising with the button held; heavy the rest of the time. */
+  private applyGravity(grounded: boolean): void {
+    const bracket = grounded
+      ? this.bracketFor(Math.abs(this.physicsBody.velocity.x))
+      : this.bracket;
+    this.physicsBody.setGravityY(this.rising ? bracket.holdGravity : bracket.fallGravity);
   }
 
   private updateAppearance(grounded: boolean): void {
     // Greybox feedback: a touch brighter in the air so state is readable at a glance.
-    this.setTint(grounded ? this.stats.color : lighten(this.stats.color, 0.35));
+    const base = TIERS[this.tier].tint ?? this.stats.color;
+    this.setTint(grounded ? base : lighten(base, 0.35));
 
     this.nose.setPosition(
-      this.x + this.facing * (this.stats.bodyWidth / 2 - 2),
-      this.y - this.stats.bodyHeight + 6,
+      this.x + this.facing * (this.tierWidth / 2 - 2),
+      this.y - this.currentHeight(this.crouching) + 6,
     );
   }
 
@@ -230,10 +388,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.bufferMs = 0;
     this.rising = false;
     this.jumpActive = false;
-    this.jumpCut = false;
-    this.wasGrounded = true;
+    this.bracket = this.stats.jumpBrackets[0]!;
     this.lastJumpHeight = 0;
     this.lastJumpDistance = 0;
+    this.crouching = false;
+    this.controllable = true;
+    this.physicsBody.checkCollision.none = false;
+    this.applyBodyHeight();
   }
 
   get debugInfo(): PlayerDebugInfo {
@@ -243,10 +404,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       coyoteMs: this.coyoteMs,
       bufferMs: this.bufferMs,
       rising: this.rising,
-      jumpCut: this.jumpCut,
+      gravity: this.physicsBody.gravity.y,
       velocityX: body.velocity.x,
       velocityY: body.velocity.y,
-      running: Math.abs(body.velocity.x) > this.stats.walkSpeed + 1,
+      crouching: this.crouching,
+      running: this.running,
+      tier: this.tier,
       lastJumpHeight: this.lastJumpHeight,
       lastJumpDistance: this.lastJumpDistance,
     };

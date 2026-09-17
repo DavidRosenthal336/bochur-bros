@@ -10,7 +10,9 @@ import { TILE, VIEW_HEIGHT } from '../config/Tuning';
  */
 export class DebugOverlay {
   private readonly text: Phaser.GameObjects.Text;
-  private visible = true;
+  // Off by default: this is a tuning instrument, and it covers a quarter of the
+  // screen. F1 brings it up when you want numbers rather than a game.
+  private visible = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -29,7 +31,8 @@ export class DebugOverlay {
       })
       .setOrigin(0, 1)
       .setScrollFactor(0)
-      .setDepth(1000);
+      .setDepth(1000)
+      .setVisible(false);
 
     const keyboard = scene.input.keyboard;
     keyboard?.on('keydown-F1', () => {
@@ -52,8 +55,9 @@ export class DebugOverlay {
     this.text.setText([
       `fps  ${Math.round(this.scene.game.loop.actualFps)}`,
       `x/y  ${Math.round(this.player.x)} ${Math.round(this.player.y)}`,
-      `vel  ${pad(d.velocityX)} ${pad(d.velocityY)}${d.running ? ' RUN' : ''}`,
-      `st   ${state}${d.jumpCut ? ' cut' : ''}`,
+      `vel  ${pad(d.velocityX)} ${pad(d.velocityY)}${d.crouching ? ' DUCK' : ''}`,
+      `spd  ${Math.abs(Math.round(d.velocityX))}${d.running ? ' RUN' : ''}`,
+      `st   ${state}${d.rising ? ' hold' : ''}  grav ${Math.round(d.gravity)}`,
       `coy  ${Math.round(d.coyoteMs)}ms   buf ${Math.round(d.bufferMs)}ms`,
       `apex ${Math.round(d.lastJumpHeight)}px (${(d.lastJumpHeight / TILE).toFixed(1)} tiles)`,
       `dist ${Math.round(d.lastJumpDistance)}px (${(d.lastJumpDistance / TILE).toFixed(1)} tiles)`,

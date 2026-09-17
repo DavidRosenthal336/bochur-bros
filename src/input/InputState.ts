@@ -8,13 +8,13 @@
 export interface InputState {
   /** -1 left, 0 neutral, +1 right. Both keys down cancels out. */
   readonly moveX: -1 | 0 | 1;
-  /** -1 up, 0 neutral, +1 down. Unused in Milestone 1; crouch/look-up land later. */
+  /** -1 up (look up), 0 neutral, +1 down (crouch). */
   readonly moveY: -1 | 0 | 1;
   /** Jump went down THIS frame. The thing a jump buffer remembers. */
   readonly jumpPressed: boolean;
   /** Jump is currently held. Drives variable jump height and, later, Peyos hover. */
   readonly jumpHeld: boolean;
-  /** Run modifier. */
+  /** Run modifier. Mario's B button: a modest lift in top speed, not a sprint. */
   readonly run: boolean;
   /** Action button — Menorah fire, Lulav swing. Milestone 5. */
   readonly actionPressed: boolean;
