@@ -32,6 +32,15 @@ export interface EnemyConfig {
   readonly dive?: {
     /** How close the player must get, horizontally, to trigger a swoop, px. */
     readonly triggerRange: number;
+    /**
+     * How long it rears up before committing, ms.
+     *
+     * An attack you cannot see coming is not difficulty, it is a coin toss.
+     * The design doc already asks for this for the falling pipes — "a shadow
+     * appears on the ground, then the pipe drops. Telegraphed, then lethal"
+     * (§6) — and the same rule applies to anything that lunges at you.
+     */
+    readonly windUpMs: number;
     /** Speed of the swoop itself, px/s. */
     readonly speed: number;
     /** How fast it climbs back to its perch afterwards, px/s. */
@@ -58,7 +67,10 @@ export const ENEMIES = {
     bodyHeight: 12,
     color: 0x8a8f9e,
     patrolRange: 48,
-    dive: { triggerRange: 120, speed: 105, recoverSpeed: 70, cooldownMs: 1400 },
+    // Measured, with the camera's look-ahead in place: you can see about 160px
+    // in front of you. Triggering at 120 means a pigeon is always on screen
+    // before it reacts — a wind-up you cannot see is not a warning.
+    dive: { triggerRange: 120, windUpMs: 500, speed: 105, recoverSpeed: 70, cooldownMs: 1400 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

@@ -19,8 +19,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private readonly homeX: number;
   private readonly homeY: number;
   private facing: -1 | 1 = -1;
-  private phase: 'patrol' | 'diving' | 'recovering' = 'patrol';
+  private phase: 'patrol' | 'winding' | 'diving' | 'recovering' = 'patrol';
   private nextDiveAllowedAt = 0;
+  /** When the current wind-up finishes and the swoop actually starts. */
+  private diveStartsAt = 0;
+  private tell: Phaser.GameObjects.Rectangle | undefined;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig) {
     super(scene, x, y, solidTextureKey(scene, config.bodyWidth, config.bodyHeight));
@@ -54,6 +57,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   tick(now: number, playerX: number, playerY: number): void {
     if (this.dying) return;
+    if (this.tell) this.tell.setPosition(this.x, this.y - this.config.bodyHeight / 2);
 
     switch (this.config.behavior) {
       case 'patrol':
@@ -94,8 +98,18 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         const near = Math.abs(playerX - this.x) < dive.triggerRange;
         const below = playerY > this.y + 16;
         if (near && below && now >= this.nextDiveAllowedAt) {
+          this.beginWindUp(now, dive.windUpMs, playerX);
+        }
+        break;
+      }
+
+      case 'winding': {
+        // Hold still, rear up, and flash. Whatever it does here has to be
+        // legible from across the screen, because this is the whole warning.
+        body.setVelocity(0, -18);
+        if (now >= this.diveStartsAt) {
+          this.endWindUp();
           this.phase = 'diving';
-          this.facing = playerX < this.x ? -1 : 1;
         }
         break;
       }
@@ -129,6 +143,43 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
+   * Rear up and flash, so the swoop is something you can read and answer.
+   *
+   * The tell is drawn as an outline *around* the enemy rather than a marker
+   * above it: a marker above clips off the top of the screen exactly when the
+   * enemy is perched high, which is precisely when you need to see it.
+   */
+  private beginWindUp(now: number, windUpMs: number, playerX: number): void {
+    this.phase = 'winding';
+    this.diveStartsAt = now + windUpMs;
+    this.facing = playerX < this.x ? -1 : 1;
+
+    this.setTint(0xffe9a8);
+    this.tell = this.scene.add
+      .rectangle(this.x, this.y - this.config.bodyHeight / 2, this.config.bodyWidth + 8, this.config.bodyHeight + 8)
+      .setStrokeStyle(1, 0xffe9a8)
+      .setDepth(9);
+    this.scene.tweens.add({
+      targets: this.tell,
+      scaleX: 1.35,
+      scaleY: 1.35,
+      alpha: 0.2,
+      duration: windUpMs / 2,
+      yoyo: true,
+      repeat: -1,
+    });
+  }
+
+  private endWindUp(): void {
+    this.setTint(this.config.color);
+    if (this.tell) {
+      this.scene.tweens.killTweensOf(this.tell);
+      this.tell.destroy();
+      this.tell = undefined;
+    }
+  }
+
+  /**
    * Take a stomp. Returns true if this finished it off — a goose (§6) takes
    * two, and the first "makes one angrier before it goes down".
    */
@@ -149,6 +200,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   /** Squash flat, then vanish. */
   private defeat(): void {
     this.dying = true;
+    this.endWindUp();
     const body = this.physicsBody;
     body.setVelocity(0, 0);
     body.setAllowGravity(false);
@@ -162,5 +214,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       ease: 'Quad.easeIn',
       onComplete: () => this.destroy(),
     });
+  }
+
+  override destroy(fromScene?: boolean): void {
+    this.endWindUp();
+    super.destroy(fromScene);
   }
 }

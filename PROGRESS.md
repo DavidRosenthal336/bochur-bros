@@ -276,6 +276,40 @@ has to respect it.
 - Awnings are platforms, not bounce pads — bouncing is World 1 terrain (M6).
 - Lives are stored in the save but not spent; the 100-coin extra life is M5.
 
+### Playtest fixes after Milestone 4
+
+Three things came back from playing it, and two were real bugs.
+
+**You could get stuck between platforms in 1-2.** Confirmed and fixed. The
+climb turned around by clamping to the wall, which stacked two platforms almost
+on top of each other and left a six-tile pocket with two tiles of headroom —
+enough to walk into, not enough to jump out of. Turning now reverses *before*
+stepping, so a turn is an ordinary step sideways. Every roofed stretch in 1-2
+is now exactly one tile wide with six tiles of open floor beside it, checked
+programmatically rather than by eye.
+
+**You could not see the pigeons coming.** Also real, and worse than it looked:
+every pigeon in 1-1 was perched *above the top of the screen*. Standing on the
+floor the camera shows from row 14.4 down, and they were on rows 10 to 14 — so
+the first you saw of one was it arriving. Three fixes:
+
+- Perches moved into the band you can actually see.
+- A **wind-up** before the swoop: the pigeon rears up, flashes, and pulses an
+  outline for half a second before committing. §6 already asks for exactly this
+  for the falling pipes ("telegraphed, then lethal") and the rule belongs to
+  anything that lunges.
+- **The camera now leads in the direction you are moving.** Measured: you could
+  only see 122px ahead walking and 114px running, so anything reacting to you
+  from further away did so off screen. It is 157px now either way, and a pigeon
+  triggers at 120px — comfortably inside it. Measured end to end, a pigeon is
+  on screen for half a second before it reacts, then telegraphs for another half
+  before it moves.
+
+**Hit knockback was throwing you into pits.** Not reported, but it fell out of
+moving the pigeons down: at 90 px/s a hit threw you five and a half tiles
+backwards, which over a two-tile pit turned "you lost a tier" into "you lost a
+life". Down to 45, and no pigeon in 1-1 now perches within six tiles of a pit.
+
 ---
 
 ## Milestone 5 — Full power-up set

@@ -262,6 +262,17 @@ export const CAMERA = {
   deadzoneHeight: 72,
   /** Shifts the framing so there is more room above the player than below. */
   offsetY: 16,
+  /**
+   * How far the camera leads, in the direction you are moving, px.
+   *
+   * Without it you can only see about 120px ahead — less at a run, because the
+   * camera trails — and anything that reacts to you at a greater distance than
+   * that does so off screen. Leading the camera buys back the room that makes a
+   * telegraphed attack readable.
+   */
+  lookAhead: 44,
+  /** How fast the lead swings across when you turn around, 0..1 per frame. */
+  lookAheadLerp: 0.045,
 } as const;
 
 /** Anything below (world height + this) is treated as "fell out of the level". */
@@ -313,9 +324,16 @@ export const GAMEPLAY = {
   stompFootMargin: 4,
   /** How long a defeated enemy stays visible, squashed, before vanishing, ms. */
   enemyDeathMs: 350,
-  /** Knockback applied to the player when hurt, px/s. */
-  hurtKnockbackX: 90,
-  hurtKnockbackY: -180,
+  /**
+   * Knockback applied to the player when hurt, px/s.
+   *
+   * Deliberately small. At 90 a hit threw you five and a half tiles backwards,
+   * which over a two-tile pit turned "you lost a tier" into "you lost a life"
+   * — a punishment the hit was never meant to carry. Mario barely moves you at
+   * all on a hit, and that is the right instinct.
+   */
+  hurtKnockbackX: 45,
+  hurtKnockbackY: -150,
   /** How long the level pauses on death before respawning, ms. */
   deathPauseMs: 900,
   /** Upward velocity of the player's death flop, px/s. */

@@ -10,10 +10,19 @@ import { level } from '../level-builder.mjs';
  * content and arrive in Milestone 6; when they do, they go on these same
  * platforms and this level gets its teaching job.
  *
- * The rule the geometry follows: every platform overlaps the one below it, so
- * a missed jump costs you one landing rather than the whole climb. Steps are
- * three tiles apart against a four-tile standing jump, which leaves room to be
- * imprecise.
+ * Two rules the geometry follows:
+ *
+ * Every platform overlaps the one below it by exactly one tile, so a missed
+ * jump usually costs one landing rather than the whole climb — and, because
+ * the overlap is only ever a single tile at the very edge, you can never end
+ * up roofed with nowhere to go. An earlier version turned around by clamping
+ * to the wall, which stacked two platforms almost on top of each other and
+ * left a six-tile pocket with two tiles of headroom: you could walk in, and
+ * then you could not jump out. Turning now reverses *before* stepping, so a
+ * turn is a real step sideways like any other.
+ *
+ * Steps are three tiles apart against a four-tile standing jump, which leaves
+ * room to be imprecise.
  */
 const WIDTH = 40;
 const HEIGHT = 64;
@@ -50,28 +59,26 @@ for (let step = 0; step < 16; step += 1) {
 
   if (step % 2 === 0) L.coinRow(x + 2, row - 2, 3);
 
-  // Pigeons perch above the route and swoop as you come level with them.
-  if (step % 5 === 3) L.enemy(x + 3, row - 4);
+  // Pigeons perch above the route and swoop as you come level with them —
+  // close enough above that they are on screen before they move.
+  if (step % 5 === 3) L.enemy(x + 3, row - 3);
 
   // A box tucked under an overhang, hit from the landing below.
   if (step === 6) L.block(x + 1, row - 4, 'mystery', 'cholent');
   if (step === 11) L.block(x + 2, row - 4, 'mystery', 'coin');
 
   row -= RISE;
+  const next = x + direction * SIDESTEP;
+  if (next < 2 || next + PLATFORM_WIDTH > WIDTH - 2) direction = -direction;
   x += direction * SIDESTEP;
-  if (x + PLATFORM_WIDTH > WIDTH - 2) {
-    direction = -1;
-    x = WIDTH - 2 - PLATFORM_WIDTH;
-  }
-  if (x < 2) {
-    direction = 1;
-    x = 2;
-  }
 }
 
-// The top: a wide landing and the way out.
-L.slab(x - 2, row, 12, 1);
-L.label(x - 1, row - 3, 'TOUCH THE POST');
-L.goalAt(x + 4, row);
+// The top: a wide landing, extended in the direction of travel so that it
+// overlaps the last platform by a single tile like every other step.
+const LANDING_WIDTH = 12;
+const landingX = direction === 1 ? x : x - (LANDING_WIDTH - PLATFORM_WIDTH);
+L.slab(landingX, row, LANDING_WIDTH, 1);
+L.label(landingX + 1, row - 3, 'TOUCH THE POST');
+L.goalAt(landingX + LANDING_WIDTH - 3, row);
 
 export default L.build();

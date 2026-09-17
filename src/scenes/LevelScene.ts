@@ -167,6 +167,7 @@ export class LevelScene extends Phaser.Scene {
       pickup.tick();
     }
 
+    this.updateCameraLookAhead();
     this.flashWhileInvulnerable(now);
     this.hud.update(this.coinCount, this.power.current, this.player.character);
     this.overlay.update();
@@ -518,6 +519,26 @@ export class LevelScene extends Phaser.Scene {
   // -------------------------------------------------------------------------
   // Presentation
   // -------------------------------------------------------------------------
+
+  /**
+   * Lead the camera in the direction of travel.
+   *
+   * Phaser's follow offset is subtracted from the target, so a negative x
+   * shifts the view to the right — which is what shows more of what is coming.
+   * The swing is slow on purpose: a camera that snaps on every turn is worse
+   * than one that never moves.
+   */
+  private updateCameraLookAhead(): void {
+    const vx = this.player.physicsBody.velocity.x;
+    if (Math.abs(vx) < 12) return;
+
+    const camera = this.cameras.main;
+    const target = -Math.sign(vx) * CAMERA.lookAhead;
+    camera.setFollowOffset(
+      Phaser.Math.Linear(camera.followOffset.x, target, CAMERA.lookAheadLerp),
+      CAMERA.offsetY,
+    );
+  }
 
   /** Blink while the post-hit grace period is running, so it is visible. */
   private flashWhileInvulnerable(now: number): void {
