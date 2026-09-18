@@ -563,12 +563,33 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setTexture(art.key, art.frames.idle);
       body.setSize(width, height);
       body.setOffset((art.frameWidth - width) / 2, art.frameHeight - height);
-      return;
+    } else {
+      this.setTexture(placeholderTextureKey(this.scene, width, height));
+      body.setSize(width, height);
+      body.setOffset(0, 0);
     }
 
-    this.setTexture(placeholderTextureKey(this.scene, width, height));
-    body.setSize(width, height);
-    body.setOffset(0, 0);
+    this.plantFeet(width, height);
+  }
+
+  /**
+   * Put the body back where the sprite says it is, after a resize.
+   *
+   * Arcade's `setSize` keeps the body's top-left corner and grows it downward,
+   * so standing up from a crouch moves the *feet* down by the nine pixels the
+   * character just gained instead of raising the head. For a frame the player
+   * is buried in the floor, and a jump started on that frame launches from
+   * nine pixels underground.
+   *
+   * The body's position is recomputed from the sprite on the next physics
+   * step, which is why this only ever lasted one frame and stayed invisible —
+   * but one frame is enough to lose a jump in, and ducking under something and
+   * immediately jumping is exactly what a fight asks you to do.
+   */
+  private plantFeet(width: number, height: number): void {
+    const body = this.physicsBody;
+    body.x = this.x - width / 2;
+    body.y = this.y - height;
   }
 
   /**
