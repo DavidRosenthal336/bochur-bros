@@ -126,7 +126,7 @@ Dense, loud, urban Brooklyn. Grimy, crowded, vertical.
 
 **Levels:**
 - **1-1 — Thirteenth Avenue.** Gentle intro. Pigeons, awnings, first Cholent box, teaches stomping and boxes.
-- **1-2 — The Scaffolding.** Vertical climb. Falling pipes, fire escapes, rats. Teaches telegraphed hazards.
+- **1-2 — The Scaffolding.** Vertical climb, **the screen rises by itself**. Falling pipes, fire escapes, rats. Two forks, each rejoining. Teaches telegraphed hazards.
 - **1-3 — The Stroller.** Auto-scroll chase level, **timed**. The stroller pursues the whole way.
 - **1-4 — The Pigeon King.** Boss.
 
@@ -245,6 +245,8 @@ He never resolves into a stable shape. On defeat he gives up the tequila.
 **Difficulty.** Classic Mario difficulty — fair, learnable, demanding by the later worlds. Not forgiving, not brutal.
 
 **Time limits.** Only on specific levels: **1-3 (stroller chase)**, **3-3 (night level)**, **4-3 (rooftop chase)**. All other levels are untimed.
+
+**Rising levels.** 1-2's camera climbs on its own and never comes back down, and falling off the bottom of the screen costs a life. It is not a clock — there is nothing to run out — but it is the same kind of pressure, so it belongs beside them here. It also climbs faster to keep up with a fast player, so it can never be outrun off the top.
 
 **Secrets.** Keep levels straightforward. No hidden rooms, no secret exits, no branching paths. Reward exploration with visible coins and power-ups, not concealed content.
 

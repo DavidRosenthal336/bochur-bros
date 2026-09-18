@@ -113,6 +113,17 @@ export interface LevelDef {
    * the street he ran down.
    */
   readonly thief?: TilePoint;
+  /**
+   * A climbing level whose camera rises on its own, px/s (1-2).
+   *
+   * The vertical twin of `autoScroll`, and not the same thing with the axis
+   * swapped. Being left behind sideways is survivable — the chase shoves you
+   * along — but there is nothing under a player the screen has left below, so
+   * falling off the bottom is a death. The camera is a ratchet: it climbs on
+   * this timer, climbs faster if the player outruns it, and never comes back
+   * down.
+   */
+  readonly autoScrollUp?: number;
   /** Scroll the level along by itself, px/s. 1-3 is a chase (§6). */
   readonly autoScroll?: number;
   /** Wind and anything else that acts on a region rather than on contact. */

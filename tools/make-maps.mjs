@@ -34,7 +34,11 @@ for (const file of files) {
 
   // A level you can get wedged in is a broken level, so this is an error and
   // not a warning. It has shipped twice; it does not get to ship a third time.
-  const traps = findTraps(def);
+  //
+  // The pit check is the exception, and only for the greybox instruments: the
+  // Peyos gym is where flight is measured, so its holes are deliberately wider
+  // than anything a jump can cross.
+  const traps = findTraps(def, { checkLeaps: !/greybox/i.test(def.name ?? '') });
   if (traps.length) {
     trapped += traps.length;
     console.error(`\nTRAP in ${def.key} — somewhere you can get into and not out of:`);

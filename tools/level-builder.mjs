@@ -12,6 +12,7 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   let boss;
   let thief;
   let autoScroll;
+  let autoScrollUp;
   const solids = [];
   const labels = [];
   const coins = [];
@@ -73,6 +74,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
     thiefAt(x, y = floorTop) { thief = { x, y }; return api; },
     perch(x, y) { perches.push({ x, y }); return api; },
     scrolls(pxPerSecond) { autoScroll = pxPerSecond; return api; },
+    /** A climbing level whose camera rises by itself, px/s. */
+    rises(pxPerSecond) { autoScrollUp = pxPerSecond; return api; },
     label(x, y, text) { labels.push({ x, y, text }); return api; },
     /** Signage. Row 15 is the first row the camera reliably shows. */
     sign(x, lines, firstRow = 15) {
@@ -102,6 +105,7 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         ...(boss ? { boss } : {}),
         ...(thief ? { thief } : {}),
         ...(autoScroll === undefined ? {} : { autoScroll }),
+        ...(autoScrollUp === undefined ? {} : { autoScrollUp }),
         ...(goal ? { goal } : {}),
       };
     },

@@ -136,6 +136,22 @@ export class LevelScene extends Phaser.Scene {
   private secondsLeft: number | undefined;
   /** How far the level has scrolled itself along, px. */
   private autoScrollX = 0;
+  /** Where the rising camera has got to, px. Only ever decreases. */
+  private autoScrollY = 0;
+  /**
+   * When the rising camera's own clock starts, ms.
+   *
+   * A life begins with the player standing still, and without this the screen
+   * is already taking their ground away — measured, standing still at the
+   * start of 1-2 was a death in three and a bit seconds, before anybody has
+   * worked out which way is up. The ratchet still follows a player who moves
+   * immediately; it is only the clock that waits.
+   *
+   * Counted down from the frame delta rather than read off `time.now`, which
+   * is not yet meaningful in `create()` — set from it, the grace expired
+   * before the first frame and the camera rose from the off.
+   */
+  private riseGraceLeft = 0;
   /**
    * How far to move a pursuing hazard along, so it resumes the same distance
    * behind the player as it started. Only ever non-zero on a chase level
@@ -174,6 +190,7 @@ export class LevelScene extends Phaser.Scene {
     this.levelId = data.levelId;
     this.secondsLeft = this.levelId ? findLevel(this.levelId)?.timeLimit : undefined;
     this.autoScrollX = 0;
+    this.autoScrollY = 0;
     this.greybox = data.greybox ?? GREYBOX_LEVELS.includes(key);
     this.prologue = data.prologue ?? key === PROLOGUE_LEVEL;
     this.state = 'playing';
@@ -236,6 +253,25 @@ export class LevelScene extends Phaser.Scene {
       );
     }
     this.hazardOffsetX = this.level.autoScroll ? resumedAt : 0;
+
+    /**
+     * Where the rising camera starts.
+     *
+     * The bottom of the level on a first attempt, and just under the
+     * checkpoint on a resumed life — otherwise the screen restarts at the
+     * ground while the player stands forty tiles up, and the climb they are
+     * standing on scrolls past them before they can move. The same mistake
+     * 1-3's horizontal scroll shipped with.
+     */
+    if (this.level.autoScrollUp) {
+      const lowest = Math.max(0, heightPx - VIEW_HEIGHT);
+      this.autoScrollY = Phaser.Math.Clamp(
+        this.respawnAt.y - VIEW_HEIGHT * CAMERA.risingFollow,
+        0,
+        lowest,
+      );
+      this.riseGraceLeft = CAMERA.riseGraceMs;
+    }
 
     this.buildBlocks();
     this.buildCoins();
@@ -301,6 +337,7 @@ export class LevelScene extends Phaser.Scene {
     this.watchForTheGetaway();
     this.updateClock(delta);
     this.updateAutoScroll(delta);
+    this.updateRisingCamera(delta);
 
     this.watchForLanding();
     this.updateCameraLookAhead();
@@ -845,9 +882,32 @@ export class LevelScene extends Phaser.Scene {
       this.onHazardContact(hazardObject as MovingHazard);
     });
 
-    this.physics.add.collider(this.player, this.bouncers, (_player, padObject) => {
-      this.onBounce(padObject as Phaser.GameObjects.Rectangle);
-    });
+    /**
+     * An awning is something you land on, not something you walk into.
+     *
+     * §6 describes awnings and bags of rubbish as things that launch you when
+     * you land on them, and as a plain collider that is only half true: the pad
+     * is a solid strip a tile above the pavement, so running along the street
+     * into the side of one stops you dead. That is how the Pigeon King's arena
+     * ended up with two walls across the middle of it, and how 1-3's chase
+     * turned into a bot dying forty-five times at the same tile.
+     *
+     * The process callback is the whole fix: the collision only exists for a
+     * player who is coming down onto the pad. From below or from the side there
+     * is nothing there.
+     */
+    this.physics.add.collider(
+      this.player,
+      this.bouncers,
+      (_player, padObject) => {
+        this.onBounce(padObject as Phaser.GameObjects.Rectangle);
+      },
+      (playerObject, padObject) => {
+        const body = (playerObject as Player).body as Phaser.Physics.Arcade.Body;
+        const pad = (padObject as Phaser.GameObjects.Rectangle).body as Phaser.Physics.Arcade.StaticBody;
+        return body.velocity.y > 0 && body.bottom <= pad.top + GAMEPLAY.stompFootMargin + 4;
+      },
+    );
     this.physics.add.collider(this.flames, this.blocks);
     this.physics.add.collider(this.flames, this.crates);
 
@@ -1166,6 +1226,46 @@ export class LevelScene extends Phaser.Scene {
     // scrolled off the back is the chase, not a death.
     const leftEdge = camera.scrollX + 6;
     if (this.player.x < leftEdge) this.player.x = leftEdge;
+  }
+
+  /**
+   * A climb the screen will not wait for (§6, 1-2): the camera rises by itself
+   * and the bottom of the screen is the floor falling away.
+   *
+   * A ratchet, in two senses. It climbs on its own clock, so standing still
+   * loses you the level — but it also climbs to keep up with a player who is
+   * faster than the clock, because a screen that can be outrun from below is a
+   * screen you climb off the top of. And it never descends, so ground you have
+   * already gained is never given back.
+   *
+   * Following has to be driven by hand here. `startFollow` owns both axes and
+   * runs after the scene's update, so anything written to `scrollY` here would
+   * simply be overwritten by the follow a moment later; the horizontal follow
+   * is therefore reimplemented as the lerp it already was.
+   */
+  private updateRisingCamera(delta: number): void {
+    if (!this.level.autoScrollUp || this.state !== 'playing') return;
+
+    const camera = this.cameras.main;
+    const widthPx = this.level.widthInTiles * TILE;
+    const heightPx = this.level.heightInTiles * TILE;
+    const lowest = Math.max(0, heightPx - VIEW_HEIGHT);
+
+    if (this.riseGraceLeft > 0) this.riseGraceLeft -= delta;
+    else this.autoScrollY = Math.max(0, this.autoScrollY - (this.level.autoScrollUp * delta) / 1000);
+
+    // Pulled up by a fast climber, on top of its own clock.
+    const pulled = Phaser.Math.Clamp(this.player.y - VIEW_HEIGHT * CAMERA.risingFollow, 0, lowest);
+    this.autoScrollY = Math.min(this.autoScrollY, pulled);
+
+    const wantX = Phaser.Math.Clamp(this.player.x - VIEW_WIDTH / 2, 0, Math.max(0, widthPx - VIEW_WIDTH));
+    camera.stopFollow();
+    camera.setScroll(Phaser.Math.Linear(camera.scrollX, wantX, CAMERA.lerpX), this.autoScrollY);
+
+    // Left below the screen with nothing under you. There is no shoving a
+    // player upwards the way the horizontal chase shoves them along, so this
+    // is the one place being outpaced is fatal.
+    if (this.player.physicsBody.top > camera.scrollY + VIEW_HEIGHT) this.killPlayer();
   }
 
   private hurtPlayer(fromX: number): void {

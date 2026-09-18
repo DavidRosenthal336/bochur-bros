@@ -159,6 +159,9 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     ...(boss ? { boss } : {}),
     ...(thief ? { thief } : {}),
     ...(readMapString(map, 'autoScroll') ? { autoScroll: Number(readMapString(map, 'autoScroll')) } : {}),
+    ...(readMapString(map, 'autoScrollUp')
+      ? { autoScrollUp: Number(readMapString(map, 'autoScrollUp')) }
+      : {}),
     ...(isBackdropVariant(readMapString(map, 'backdrop'))
       ? { backdrop: readMapString(map, 'backdrop') as BackdropVariant }
       : {}),

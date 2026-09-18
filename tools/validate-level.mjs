@@ -28,6 +28,9 @@ const NO_RUNUP_JUMP = 3;
  */
 const MIN_HEADROOM = 2;
 
+/** The widest pit a walking jump clears. Beyond this it is not a gap, it is a wall. */
+const MAX_GAP = 3;
+
 function buildGrid(def, { includeBlocks = false } = {}) {
   const { widthInTiles: W, heightInTiles: H } = def;
   const grid = Array.from({ length: H }, () => new Uint8Array(W));
@@ -205,11 +208,62 @@ function hasLandingAbove(grid, run, ceiling, W) {
   return false;
 }
 
-export function findTraps(def) {
+/**
+ * Pits too wide to jump.
+ *
+ * A trap is somewhere you can get into and not out of; this is somewhere you
+ * simply fall in, which the trap analysis has nothing to say about because
+ * falling in is what pits are for. What makes one wrong is being wider than
+ * the jump that has to cross it.
+ *
+ * Three tiles is what a walking jump clears at its limit. A four-tile gap
+ * looks like every other gap in the level and is not one, and 1-1 and 1-3
+ * shipped six of them between them — every one introduced by nudging a stretch
+ * of pavement and not re-reading what it left behind.
+ *
+ * A gap with something standable in it at a height you could land on is a
+ * stepping stone rather than a pit, so it is measured from the stone. Blocks
+ * count as ground here, unlike in the trap analysis: a brick you can break is
+ * still a brick you can walk along, and 1-1's plank-covered trench is a floor
+ * until somebody grounds-pounds it.
+ */
+function findLeaps(def) {
+  const W = def.widthInTiles;
+  const H = def.heightInTiles;
+  const grid = buildGrid(def, { includeBlocks: true });
+  const floor = def.groundRow;
+  if (floor === undefined) return [];
+
+  /** Is there anything to land on at column x, at or above the floor? */
+  const standableNear = (x) => {
+    for (let y = floor; y >= Math.max(1, floor - MAX_JUMP); y -= 1) {
+      if (!grid[y][x] && grid[y + 1] && grid[y + 1][x] === 1) return true;
+    }
+    return false;
+  };
+
+  const leaps = [];
+  let gapFrom = -1;
+  for (let x = 0; x <= W; x += 1) {
+    const solid = x < W && standableNear(x);
+    if (!solid && gapFrom < 0) gapFrom = x;
+    if (solid && gapFrom >= 0) {
+      const width = x - gapFrom;
+      // A gap at the very start or end of the map is the edge of the world.
+      if (width > MAX_GAP && gapFrom > 0 && x < W) leaps.push({ from: gapFrom, to: x - 1, width });
+      gapFrom = -1;
+    }
+  }
+  void H;
+  return leaps;
+}
+
+export function findTraps(def, { checkLeaps = true } = {}) {
   const W = def.widthInTiles;
   const H = def.heightInTiles;
   const grid = buildGrid(def);
   const traps = findCrushPockets(def).map((p) => ({ kind: 'pocket', ...p }));
+  if (checkLeaps) traps.push(...findLeaps(def).map((l) => ({ kind: 'leap', ...l })));
   const bouncers = def.bouncers ?? [];
 
   for (const run of floorRuns(grid, W, H)) {
@@ -253,8 +307,11 @@ export function describeTraps(key, traps) {
       t.kind === 'pocket'
         ? `  ${key}: tiles ${t.from}-${t.to} on row ${t.y} have ${t.headroom} tile(s) of headroom — ` +
           `nobody fits, the shortest character is 22px`
-        : `  ${key}: tiles ${t.from}-${t.to} on row ${t.row} (${t.width} wide) — ` +
-          `walls ${t.leftWall} left, ${t.rightWall} right, but only ${t.bestJump} tiles of jump available`,
+        : t.kind === 'leap'
+          ? `  ${key}: nothing to land on across tiles ${t.from}-${t.to} (${t.width} wide) — ` +
+            `a walking jump clears ${MAX_GAP}`
+          : `  ${key}: tiles ${t.from}-${t.to} on row ${t.row} (${t.width} wide) — ` +
+            `walls ${t.leftWall} left, ${t.rightWall} right, but only ${t.bestJump} tiles of jump available`,
     )
     .join('\n');
 }

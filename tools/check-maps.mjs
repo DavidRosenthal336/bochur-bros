@@ -18,6 +18,9 @@ for (const file of files) {
   const def = {
     widthInTiles: map.width,
     heightInTiles: map.height,
+    groundRow: Number(
+      (map.properties ?? []).find((p) => p.name === 'groundRow')?.value ?? Number.NaN,
+    ),
     solids: (solidLayer?.objects ?? []).map((o) => ({
       x: o.x / map.tilewidth,
       y: o.y / map.tileheight,
@@ -34,7 +37,20 @@ for (const file of files) {
       .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight })),
   };
 
-  const traps = findTraps(def);
+  if (!Number.isFinite(def.groundRow)) delete def.groundRow;
+
+  /**
+   * Greybox maps are instruments, not levels.
+   *
+   * The pit check in particular does not apply to them: `powers` is where the
+   * Peyos flight power is measured, so it has deliberate ten-tile holes that
+   * you are meant to fly over and that nothing else in the game would allow.
+   */
+  const isGreybox = String(
+    (map.properties ?? []).find((p) => p.name === 'name')?.value ?? '',
+  ).includes('greybox');
+
+  const traps = findTraps(def, { checkLeaps: !isGreybox });
   const key = file.replace(/\.tmj$/, '');
   if (traps.length) {
     trapped += traps.length;

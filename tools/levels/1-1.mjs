@@ -6,20 +6,49 @@ import { level } from '../level-builder.mjs';
  * "Gentle intro. Pigeons, awnings, first Cholent box, teaches stomping and
  * boxes." (§6)
  *
- * The teaching order is deliberate and each idea gets a safe rehearsal before
- * it is asked for under pressure: coins, then a box, then the Cholent, then a
- * single pigeon on open ground, then a pigeon over a gap, then several at once.
- * Nothing here can kill you until after the first checkpoint.
+ * Rebuilt at half again the length, with the rest of World 1's cast in it.
+ * The old version taught three things and stopped; this one teaches them in
+ * the same order and then spends the back half using them — rats, carts, a
+ * van, falling pipes, and a stretch where the street splits in two.
  *
- * Not yet: awnings bounce in the design doc but bounce pads are World 1 terrain
- * (Milestone 6), so they are platforms for now.
+ * ## What it is still careful about
+ *
+ * **Nothing can kill you before the first checkpoint.** The teaching order is
+ * unchanged: coins, a box, the Cholent, a pigeon on open ground, a pigeon over
+ * a gap, then several at once.
+ *
+ * **Gaps stay at two tiles.** A walking jump clears three at the limit, and
+ * the first level of the game is no place to spend that margin. Three-tile
+ * gaps arrive in 1-3, at speed, on purpose.
+ *
+ * **Pigeons perch on row 16 or lower.** Standing on the pavement the camera
+ * shows row 14.4 down, so a pigeon any higher is a pigeon that arrives without
+ * ever having been on screen, which is not a warning.
+ *
+ * ## What is new
+ *
+ * **The street splits.** Tiles 118 to 158 have an upper route along the
+ * awnings and a lower one along the pavement. The high road pays better and
+ * has further to fall; the low road is flat and has the rats on it. Both come
+ * out at the same place, because a fork you can be stuck on is a trap.
+ *
+ * **A trench under the pavement**, roofed with planks that only give way to a
+ * ground pound — Berel's, and nobody else's (§4). What is down there is a life
+ * and a pile of coins, and there is no way to need it.
+ *
+ * **The hazards get their own paragraphs**: a cart to ride, a van whose roof
+ * is the way past it, and a scaffold that drops pipes. §6 is explicit that the
+ * player "must climb the thing trying to kill them", and 1-1 now says so once
+ * before 1-3 says it three times at speed.
  */
 const FLOOR = 20;
 const HEIGHT = 27;
+const WIDTH = 322;
+
 const L = level({
   key: '1-1',
   name: 'Thirteenth Avenue',
-  width: 210,
+  width: WIDTH,
   height: HEIGHT,
   floorTop: FLOOR,
   background: '0x1b1524',
@@ -43,65 +72,107 @@ L.coinRow(33, 14, 2);
 L.ledge(38, 17, 4);
 L.coinRow(38, 15, 4);
 
-// --- One pigeon, on open ground, with room to miss.
-// Pigeons perch on row 16. Standing on the floor the camera shows rows 14.4
-// down, so anything higher than that is off the top of the screen — which is
-// no warning at all. Perches stay inside the band you can see.
-// ---------------------------------------------------------------------------
-L.ground(50, 27);
+// --- One pigeon, on open ground, with room to miss ---------------------------
+L.ground(50, 28);
 L.enemy(58, 16);
 L.coinRow(55, 18, 3);
 L.checkpoint(64);
 L.sign(53, ['LAND ON TOP OF A PIGEON'], 16);
 
-// --- Awnings: a climb for coins, over solid ground. Falling off costs nothing
-// here on purpose — this is where climbing gets introduced, not tested.
+// --- A cart, and the rule the rest of the world runs on ----------------------
 //
-// They are one tile thick, not solid down to the floor. Built as columns they
-// made two-tile slots between them with five- and seven-tile walls on either
-// side: you could drop in and there was no jump that got you out. A thin
-// awning is also what the design doc describes (§6) — something you land on,
-// not a pillar.
-L.ground(77, 25);
-L.slab(80, 17, 3, 1);
-L.slab(85, 15, 3, 1);
-L.slab(90, 13, 3, 1);
-L.coinRow(90, 11, 3);
-L.enemy(86, 11);
+// §6: the player "must climb the thing trying to kill them". Walking into a
+// cart hurts; standing on it is a ride. It is introduced here, alone, on flat
+// ground with nothing else happening, so that the van at tile 196 and the
+// three in 1-3 are a thing you already know rather than a thing you discover
+// at speed.
+L.ground(80, 32);
+L.sign(81, ['JUMP ON TOP OF IT'], 16);
+L.hazard('cart', 104, FLOOR, -1);
+L.coinRow(86, 18, 5);
+L.block(93, 16, 'mystery', 'lchaim');
 
-// --- The first real gaps. Two tiles: a walk clears three, so two is a gap you
-// can be sloppy about. They widen to three after the next checkpoint.
-L.ground(104, 10);
-L.coinArc(104, 18, 6);
-L.ground(116, 10);
-// This stretch is long enough that being knocked back by a pigeon cannot put
-// you in a pit. The short ledges between pits are deliberately left empty.
-L.ground(128, 15);
-L.enemy(134, 16);
-L.block(133, 16, 'mystery', 'coin');
-L.block(136, 16, 'mystery', 'lchaim');
-L.checkpoint(140);
+// --- The street splits -------------------------------------------------------
+//
+// Upper: awnings, four of them, with the coins and a box on top. Lower: flat
+// pavement with the rats. They rejoin at tile 158.
+L.ground(114, 46);
+L.sign(115, ['TWO WAYS ALONG. BOTH WORK.'], 16);
 
-// --- Pigeons over the gaps now. Still two tiles: a walking jump clears three
-// at the very limit, and the first level of the game is no place to spend it.
-L.ground(145, 13);
-L.enemy(150, 16);
-L.bricks(152, 15, 3);
-L.coinRow(152, 13, 3);
-L.ground(160, 11);
-L.ledge(165, 17, 4);
-L.coinRow(165, 15, 4);
+L.bounce(120, 17, 3);
+L.slab(126, 15, 5, 1);
+L.coinRow(126, 13, 5);
+L.slab(134, 14, 5, 1);
+L.coinRow(134, 12, 5);
+L.enemy(138, 11);
+L.slab(142, 15, 5, 1);
+L.coinRow(142, 13, 5);
+L.block(148, 13, 'mystery', 'lchaim');
+L.slab(150, 16, 4, 1);
 
-// --- Home straight ----------------------------------------------------------
-L.ground(173, 37);
-// The first power form the game hands you, on a long safe straight with two
-// pigeons past it to try it on.
-L.block(180, 16, 'mystery', 'menorah');
-L.label(178, 18, 'MENORAH — PRESS X');
-L.enemy(188, 16);
-L.enemy(196, 17);
-L.coinRow(192, 18, 6);
-L.sign(198, ['TOUCH THE POST'], 16);
-L.goalAt(204);
+for (const x of [124, 137, 150]) L.enemy(x, FLOOR, 'rat');
+L.coinRow(128, 18, 4);
+L.coinRow(144, 18, 4);
+
+L.checkpoint(158);
+
+// --- The trench --------------------------------------------------------------
+//
+// Planks over a hole. They hold up anything that walks on them and give way to
+// a ground pound, so the coins and the life underneath belong to Berel — hold
+// Down in mid-air (§4, §5).
+//
+// Two rows deep, because three is Berel's standing jump exactly and a secret
+// you cannot climb out of is a punishment for finding it.
+// Pavement, hole, pavement. The planks sit AT pavement level rather than a
+// tile above it, so walking over them is walking down the street — a secret
+// you can see is not one.
+L.ground(162, 6);
+L.slab(168, 23, 8, HEIGHT - 23);
+L.ground(176, 8);
+for (let i = 0; i < 8; i += 1) L.block(168 + i, FLOOR, 'weak');
+L.coinRow(169, 22, 6);
+L.block(172, 21, 'mystery', 'lchaim');
+L.sign(163, ['BEREL: DOWN, IN MID-AIR'], 16);
+
+// --- Rats and a second cart --------------------------------------------------
+L.ground(186, 28);
+for (const x of [190, 198, 206]) L.enemy(x, FLOOR, 'rat');
+L.hazard('cart', 210, FLOOR, -1);
+L.bounce(194, 17, 3);
+L.coinRow(194, 14, 3);
+L.block(202, 16, 'mystery', 'coin');
+
+// --- The van -----------------------------------------------------------------
+//
+// It sits still, then lurches (§6). Its roof is a platform, and the gap after
+// it is two tiles, so the roof is the comfortable way across rather than the
+// only way.
+L.ground(216, 24);
+L.hazard('van', 228, FLOOR, -1);
+L.sign(217, ['IT MOVES WHEN IT FEELS LIKE IT'], 16);
+L.coinRow(220, 18, 4);
+L.checkpoint(238);
+
+// --- Scaffolding, and the shadow on the pavement -----------------------------
+L.ground(242, 34);
+L.slab(242, 12, 32, 1);
+for (const x of [248, 255, 262, 268]) L.hazard('pipe', x, 12);
+L.sign(243, ['A SHADOW MEANS A PIPE'], 16);
+L.coinRow(250, 18, 6);
+L.enemy(259, 16);
+L.enemy(266, 16);
+
+// --- The Menorah, and something to use it on ---------------------------------
+L.ground(278, 44);
+L.block(284, 16, 'mystery', 'menorah');
+L.label(282, 18, 'MENORAH — PRESS X');
+L.enemy(292, 16);
+L.enemy(298, 17);
+L.enemy(304, 16);
+for (const x of [296, 302]) L.enemy(x, FLOOR, 'rat');
+L.coinRow(294, 18, 8);
+L.sign(308, ['TOUCH THE POST'], 16);
+L.goalAt(316);
 
 export default L.build();

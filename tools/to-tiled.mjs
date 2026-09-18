@@ -68,6 +68,7 @@ export function levelDefToTiled(def) {
       prop('backgroundColor', '0x' + def.backgroundColor.toString(16).padStart(6, '0')),
       ...(def.groundRow === undefined ? [] : [prop('groundRow', String(def.groundRow))]),
       ...(def.autoScroll === undefined ? [] : [prop('autoScroll', String(def.autoScroll))]),
+      ...(def.autoScrollUp === undefined ? [] : [prop('autoScrollUp', String(def.autoScrollUp))]),
       ...(def.backdrop === undefined ? [] : [prop('backdrop', def.backdrop)]),
     ],
     layers: [

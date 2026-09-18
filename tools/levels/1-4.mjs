@@ -121,6 +121,11 @@ L.perch(50, 12);
  * staircases already answer that: every tread goes from a standstill, for both
  * brothers, so getting back up costs you seconds rather than a run-up. Tiles
  * 12 to 43 are now unbroken floor.
+ *
+ * The engine no longer has that fault — a pad only collides with a player
+ * coming down onto it, which is what §6 describes and what 1-3 needed. The
+ * arena stays empty anyway: "more room to move" was the note this rebuild came
+ * from, and a boss fight is the wrong place to put furniture back.
  */
 
 // One box, out on the open floor where you can line it up. Going into this

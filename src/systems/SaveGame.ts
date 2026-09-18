@@ -1,5 +1,5 @@
 import type { CharacterId } from '../config/Tuning';
-import { DEFAULT_CHARACTER } from '../config/Tuning';
+import { DEFAULT_CHARACTER, GAMEPLAY } from '../config/Tuning';
 import { LEVEL_ORDER, WORLDS, worldOf } from '../levels/catalog';
 
 /**
@@ -37,7 +37,7 @@ export const EMPTY_SAVE: SaveData = {
   version: VERSION,
   completed: [],
   kiddushItems: [],
-  lives: 3,
+  lives: GAMEPLAY.startingLives,
   coins: 0,
   character: DEFAULT_CHARACTER,
   introSeen: false,

@@ -257,6 +257,19 @@ export const CAMERA = {
   lerpX: 0.14,
   /** Vertical follow smoothing. Lower than X so small hops don't rock the view. */
   lerpY: 0.1,
+  /**
+   * On a rising level, how far down the view the player is held, as a fraction
+   * of its height.
+   *
+   * It decides two things at once: how much of the climb above is visible, and
+   * how much floor the rising screen has to eat before it reaches you. At 0.62
+   * the second of those came out at about sixty pixels, which is three seconds
+   * of standing still, and a level that kills you for reading the first sign
+   * is not teaching anything.
+   */
+  risingFollow: 0.56,
+  /** How long a life gets before the rising screen's own clock starts, ms. */
+  riseGraceMs: 2000,
   /** Half-size of the box the player can move in before the camera reacts, px. */
   deadzoneWidth: 48,
   deadzoneHeight: 72,
@@ -384,10 +397,18 @@ export const GAMEPLAY = {
   windMaxDrift: 170,
 
   // --- Milestone 5: lives ---------------------------------------------------
-  /** Lives a new game starts with. */
-  startingLives: 3,
+  /**
+   * Lives a new game starts with.
+   *
+   * Five rather than three. §7 asks for "classic lives with a game over" and
+   * also for checkpoints to be generous, and the second of those is the one
+   * that matters: a game over here costs the walk back to the map and the
+   * level's coins, which is a real penalty without being an evening. Three was
+   * tuned against levels a third of this length.
+   */
+  startingLives: 5,
   /** Tzedakah coins that buy an extra life (§5). The counter resets after. */
-  coinsPerLife: 100,
+  coinsPerLife: 80,
   /** How hard an awning or a bag of rubbish throws you, px/s. */
   bounceVelocity: -420,
 } as const;
