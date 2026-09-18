@@ -10,7 +10,7 @@
  *
  * Run it with `npm run build:playtest`.
  */
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const DIST = 'dist';
@@ -35,7 +35,13 @@ const flattened = [
 await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
 await writeFile(join(OUT, 'index.html'), flattened + '\n');
-await cp(join(DIST, 'assets'), join(OUT, 'assets'), { recursive: true });
+
+// Everything Vite emitted except the page itself: JS chunks, and whatever came
+// from public/ (sprite sheets, and later audio).
+for (const entry of await readdir(DIST, { withFileTypes: true })) {
+  if (entry.name === 'index.html') continue;
+  await cp(join(DIST, entry.name), join(OUT, entry.name), { recursive: true });
+}
 
 console.log(`playtest build ready in ${OUT}/ (${flattened.length} bytes of HTML)`);
 

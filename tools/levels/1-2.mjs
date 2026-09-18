@@ -65,7 +65,9 @@ for (let step = 0; step < 16; step += 1) {
 
   // A box tucked under an overhang, hit from the landing below.
   if (step === 6) L.block(x + 1, row - 4, 'mystery', 'cholent');
-  if (step === 11) L.block(x + 2, row - 4, 'mystery', 'coin');
+  // Peyos in a climbing level: flight turns the back half into a different
+  // problem, which is the point of giving it to you here.
+  if (step === 11) L.block(x + 2, row - 4, 'mystery', 'peyos');
 
   row -= RISE;
   const next = x + direction * SIDESTEP;

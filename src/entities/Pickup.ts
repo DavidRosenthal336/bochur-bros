@@ -4,7 +4,7 @@ import type { PowerTier } from '../systems/PowerState';
 import { solidTextureKey } from '../util/textures';
 
 /** What a pickup gives you when you touch it. */
-export type PickupKind = 'coin' | 'cholent' | 'lchaim';
+export type PickupKind = 'coin' | 'cholent' | 'menorah' | 'lulav' | 'peyos' | 'lchaim';
 
 /**
  * A tzedakah coin. Sits still, waits to be walked into, floats up and fades
@@ -69,12 +69,22 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
  */
 export class PowerUpPickup extends Phaser.Physics.Arcade.Sprite {
   readonly grants: PowerTier;
+  /** A L'chaim gives a life instead of a tier, and does not wander off. */
+  readonly givesLife: boolean;
   private collected = false;
   private facing: -1 | 1 = 1;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, grants: PowerTier, color: number) {
-    super(scene, x, y, solidTextureKey(scene, 14, 14));
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    grants: PowerTier,
+    color: number,
+    givesLife = false,
+  ) {
+    super(scene, x, y, solidTextureKey(scene, givesLife ? 10 : 14, 14));
     this.grants = grants;
+    this.givesLife = givesLife;
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -84,7 +94,7 @@ export class PowerUpPickup extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(6);
 
     const body = this.physicsBody;
-    body.setSize(14, 14);
+    body.setSize(givesLife ? 10 : 14, 14);
     body.setOffset(0, 0);
     body.setAllowGravity(true);
     body.setGravityY(1400);
@@ -99,7 +109,8 @@ export class PowerUpPickup extends Phaser.Physics.Arcade.Sprite {
       ease: 'Quad.easeOut',
       onComplete: () => {
         body.setAllowGravity(true);
-        body.setVelocityX(this.facing * GAMEPLAY.pickupSpeed);
+        // A L'chaim is rare enough that making you chase it would be cruel.
+        if (!givesLife) body.setVelocityX(this.facing * GAMEPLAY.pickupSpeed);
       },
     });
   }

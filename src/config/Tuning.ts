@@ -307,7 +307,9 @@ export const TIERS: Record<PowerTier, TierStats> = {
   cholent: { heightScale: 1.36, widthScale: 1.15, tint: 0xd98c3f, breaksBlocks: true },
   // The three power forms are all the same size as Cholent; only Cholent and
   // Small differ physically. Milestone 5 gives them their behaviours.
-  menorah: { heightScale: 1.36, widthScale: 1.15, tint: 0xf2c14e, breaksBlocks: true },
+  // A deeper amber than the coins and flames, which are both 0xf2c14e-ish: in
+  // greybox a golden character standing among golden coins reads as a big coin.
+  menorah: { heightScale: 1.36, widthScale: 1.15, tint: 0xe0721f, breaksBlocks: true },
   lulav: { heightScale: 1.36, widthScale: 1.15, tint: 0x6a994e, breaksBlocks: true },
   peyos: { heightScale: 1.36, widthScale: 1.15, tint: 0x9b5de5, breaksBlocks: true },
 };
@@ -351,4 +353,67 @@ export const GAMEPLAY = {
   windForce: 620,
   /** The most wind can carry you against your own walking, px/s. */
   windMaxDrift: 170,
+
+  // --- Milestone 5: lives ---------------------------------------------------
+  /** Lives a new game starts with. */
+  startingLives: 3,
+  /** Tzedakah coins that buy an extra life (§5). The counter resets after. */
+  coinsPerLife: 100,
+} as const;
+
+/**
+ * The three power forms (§5). Each has one job and does it differently:
+ * Menorah throws, Lulav swings, Peyos flies.
+ */
+export const POWERS = {
+  menorah: {
+    /** Flames on screen at once. A cap is what stops it trivialising a level. */
+    maxFlames: 2,
+    /** How fast a flame travels, px/s. */
+    speed: 190,
+    /** Gravity on a flame, px/s^2 — it is thrown, not aimed. */
+    gravity: 1000,
+    /** How high it comes off a bounce, 0..1. Enough to keep rolling and hopping. */
+    bounce: 0.72,
+    /** Minimum upward speed off a bounce, so it never flattens out and stops. */
+    minBounce: 210,
+    /** How long a flame lives before guttering out, ms. */
+    lifetimeMs: 2400,
+    /** Gap between shots, ms. */
+    cooldownMs: 260,
+    size: 8,
+    color: 0xffb648,
+  },
+  lulav: {
+    /** How long the swing arc is live, ms. */
+    swingMs: 170,
+    /** Gap between swings, ms. */
+    cooldownMs: 240,
+    /** How far in front of you the arc reaches, px. */
+    reach: 22,
+    /** How tall the arc is, px. */
+    height: 26,
+    /** Sideways speed given to whatever it connects with, px/s. */
+    knockAway: 320,
+    color: 0x6a994e,
+  },
+  peyos: {
+    /** Flight time per takeoff, ms. Refills the moment you land (§5). */
+    durationMs: 1400,
+    /** Vertical speed while flying, px/s (negative climbs). */
+    riseSpeed: -70,
+    /** How sharply flight takes over from falling, px/s^2. */
+    responsiveness: 1500,
+    /** Horizontal control multiplier while flying. */
+    airControl: 1.15,
+  },
+  cholent: {
+    /**
+     * §5: "Landing from a height stuns nearby enemies." Only Cholent does this
+     * — the power forms trade it for their own trick.
+     */
+    stunFallSpeed: 420,
+    stunRadius: 56,
+    stunMs: 2200,
+  },
 } as const;

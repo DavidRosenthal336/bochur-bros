@@ -19,6 +19,6 @@ export const LEVELS: Record<string, LevelDef> = Object.fromEntries(
 );
 
 /** Levels that are not part of the game proper: instruments and test beds. */
-export const GREYBOX_LEVELS: readonly string[] = ['gym', 'core-loop', 'chavrusa'];
+export const GREYBOX_LEVELS: readonly string[] = ['powers', 'gym', 'core-loop', 'chavrusa'];
 
 export const DEFAULT_LEVEL = '1-1';

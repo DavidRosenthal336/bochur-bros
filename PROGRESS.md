@@ -312,6 +312,56 @@ life". Down to 45, and no pigeon in 1-1 now perches within six tiles of a pit.
 
 ---
 
-## Milestone 5 — Full power-up set
+## Milestone 5 — Full power-up set ✅
+
+- **Menorah** — throws flames that bounce and roll along the ground (§5), two
+  on screen at a time. The cap is what stops it trivialising a level.
+- **Lulav** — a short melee arc that kills outright and throws the body
+  sideways. No ammo, but you have to be next to the thing.
+- **Peyos** — hold jump after the top of a jump and keep climbing. Limited per
+  takeoff, refills the instant you land, so the limit is a per-hop budget
+  rather than a resource to hoard. The hat lifts off and hovers above him (§5).
+- **Cholent's landing stun** (§5), which had been outstanding since Milestone 2:
+  land hard enough as Cholent and everything nearby is stunned.
+- **L'chaim 1-ups** and the **100-coin extra life**, with lives shown in the HUD,
+  carried across deaths, and saved.
+- **Game over** at zero lives, which hands you back to the world map.
+- **"The Beis Medrash"**, a greybox range with one station per form and
+  something to use each on.
+
+### Verified in the browser
+
+| | |
+|---|---|
+| Menorah | four of five pigeons killed at range; never more than 2 flames |
+| Lulav | kills a pigeon beside you, nothing 70px away |
+| Peyos | holding jump reaches **10 tiles** against 3.8 without flight |
+| Flight refill | back to the full 1400ms the moment you land |
+| 100 coins | +1 life, counter carries the remainder |
+| Game over | lives reach 0, and the map is one keypress away |
+| Cholent stun | a hard landing beside a pigeon stuns it |
+
+**A real bug, found by measuring:** Peyos flight engaged correctly but he still
+sank, because gravity was left on. At ~2000 px/s² it added more downward speed
+per frame than the thrust removed, so "flight" flew him into the floor. Gravity
+now comes off entirely while flying.
+
+### First art is in
+
+**Mendy's Small form is drawn** — idle, a three-frame run, jump, fall, crouch
+and hurt. `src/config/sprites.ts` is a registry of which forms have art; the
+player uses a sprite where one exists and a rectangle everywhere else, so the
+remaining nineteen sets can land one at a time.
+
+Fixing that up surfaced another real bug: the constructor sized the hitbox by
+hand instead of going through the normal sizing path, so with a frame larger
+than the hitbox the body sat six pixels above the sprite's feet — he was drawn
+sunk into the floor, and the first crouch misbehaved.
+
+See `ART_SPEC.md` for the grid, every hitbox, and how to add the next form.
+
+---
+
+## Milestone 6 — World 1 complete
 
 Not started.

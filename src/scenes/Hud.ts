@@ -40,11 +40,18 @@ export class Hud {
       .setVisible(false);
   }
 
-  update(coins: number, tier: PowerTier, character: CharacterId): void {
+  update(coins: number, tier: PowerTier, character: CharacterId, lives: number): void {
     this.text.setText([
+      `LIVES ${lives}`,
       `TZEDAKAH ${coins}`,
       `${CHARACTERS[character].label.toUpperCase()} / ${tier.toUpperCase()}`,
     ]);
+  }
+
+  /** A quick pulse on the lives line, so an extra life is noticed. */
+  flashLife(): void {
+    this.text.setColor('#8ef2a8');
+    this.text.scene.time.delayedCall(400, () => this.text.setColor('#f2e6c8'));
   }
 
   showBanner(message: string): void {

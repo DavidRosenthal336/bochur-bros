@@ -11,3 +11,5 @@ npm-debug.log*
 .vercel
 .vite
 playtest/
+
+# Sprite sheets are generated from tools/art/generate.py

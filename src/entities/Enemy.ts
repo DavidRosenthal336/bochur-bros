@@ -24,6 +24,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   /** When the current wind-up finishes and the swoop actually starts. */
   private diveStartsAt = 0;
   private tell: Phaser.GameObjects.Rectangle | undefined;
+  /** Frozen until this time. A stunned enemy still collides; it just stops. */
+  private stunnedUntil = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig) {
     super(scene, x, y, solidTextureKey(scene, config.bodyWidth, config.bodyHeight));
@@ -58,6 +60,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   tick(now: number, playerX: number, playerY: number): void {
     if (this.dying) return;
     if (this.tell) this.tell.setPosition(this.x, this.y - this.config.bodyHeight / 2);
+
+    if (now < this.stunnedUntil) {
+      this.physicsBody.setVelocityX(0);
+      if (!this.config.affectedByGravity) this.physicsBody.setVelocityY(0);
+      return;
+    }
 
     switch (this.config.behavior) {
       case 'patrol':
@@ -177,6 +185,46 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.tell.destroy();
       this.tell = undefined;
     }
+  }
+
+  /** Knocked senseless by a Cholent landing nearby (§5). */
+  stun(now: number, durationMs: number): void {
+    if (this.dying) return;
+    this.stunnedUntil = Math.max(this.stunnedUntil, now + durationMs);
+    this.endWindUp();
+    this.phase = 'patrol';
+    this.setTint(0x9aa4c8);
+    this.scene.time.delayedCall(durationMs, () => {
+      if (this.active && !this.dying) this.setTint(this.config.color);
+    });
+  }
+
+  get isStunned(): boolean {
+    return this.scene.time.now < this.stunnedUntil;
+  }
+
+  /**
+   * Hit by something that kills outright — a flame, or a Lulav swing. Unlike a
+   * stomp this ignores the hit count: §5 says the Lulav "hits harder than
+   * fire", and both hit harder than a boot.
+   */
+  knockAway(direction: -1 | 1, speed: number): void {
+    if (this.dying) return;
+    this.dying = true;
+    this.endWindUp();
+
+    const body = this.physicsBody;
+    body.enable = false;
+    this.scene.tweens.add({
+      targets: this,
+      x: this.x + direction * speed * 0.35,
+      y: this.y - 24,
+      angle: direction * 220,
+      alpha: 0,
+      duration: 480,
+      ease: 'Quad.easeOut',
+      onComplete: () => this.destroy(),
+    });
   }
 
   /**

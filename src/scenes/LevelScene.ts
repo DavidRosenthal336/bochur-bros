@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { ENEMIES } from '../config/enemies';
 import type { CharacterId } from '../config/Tuning';
-import { CAMERA, DEFAULT_CHARACTER, FELL_OUT_MARGIN, GAMEPLAY, TIERS, TILE } from '../config/Tuning';
+import { CAMERA, DEFAULT_CHARACTER, FELL_OUT_MARGIN, GAMEPLAY, POWERS, TIERS, TILE } from '../config/Tuning';
 import { Block } from '../entities/Block';
 import { Crate } from '../entities/Crate';
 import { Enemy } from '../entities/Enemy';
 import { WindZone } from '../entities/Hazard';
 import { HAZARDS } from '../config/hazards';
+import { Flame } from '../entities/Flame';
 import { Coin, PowerUpPickup } from '../entities/Pickup';
 import { Player } from '../entities/Player';
 import { KeyboardInput } from '../input/KeyboardInput';
@@ -14,6 +15,7 @@ import type { LevelDef, SolidKind } from '../levels/LevelDef';
 import { DEFAULT_LEVEL, GREYBOX_LEVELS, LEVELS } from '../levels';
 import { findLevel } from '../levels/catalog';
 import { completeLevel as recordCompletion, loadSave, writeSave } from '../systems/SaveGame';
+import type { PowerTier } from '../systems/PowerState';
 import { PowerState } from '../systems/PowerState';
 import { solidTextureKey } from '../util/textures';
 import { DebugOverlay } from './DebugOverlay';
@@ -40,6 +42,8 @@ export interface LevelSceneData {
   readonly respawnY?: number;
   /** Who was being controlled when the last life ended. */
   readonly character?: CharacterId;
+  /** Lives left, carried across a death restart. */
+  readonly lives?: number;
 }
 
 /**
@@ -64,7 +68,11 @@ export class LevelScene extends Phaser.Scene {
   private enemies!: Phaser.GameObjects.Group;
   private pickups!: Phaser.GameObjects.Group;
   private crates!: Phaser.GameObjects.Group;
+  private flames!: Phaser.GameObjects.Group;
   private winds: WindZone[] = [];
+  private lives: number = GAMEPLAY.startingLives;
+  private wasGrounded = true;
+  private lastFallSpeed = 0;
 
   private respawnAt = new Phaser.Math.Vector2();
   private coinCount = 0;
@@ -90,6 +98,7 @@ export class LevelScene extends Phaser.Scene {
         ? { x: data.respawnX, y: data.respawnY }
         : null;
     this.carriedCharacter = data.character ?? DEFAULT_CHARACTER;
+    this.lives = data.lives ?? loadSave().lives;
     this.levelId = data.levelId;
     this.greybox = data.greybox ?? GREYBOX_LEVELS.includes(key);
     this.state = 'playing';
@@ -127,6 +136,7 @@ export class LevelScene extends Phaser.Scene {
     this.buildHazards();
     this.buildCheckpointsAndGoal();
     this.pickups = this.add.group();
+    this.flames = this.add.group();
 
     this.registerCollisions();
     this.setUpCamera(widthPx, heightPx);
@@ -149,6 +159,7 @@ export class LevelScene extends Phaser.Scene {
 
   override update(_time: number, delta: number): void {
     const step = Math.min(delta, 50);
+    const now = this.time.now;
     this.controls.update();
 
     if (this.controls.current.swapPressed && this.state === 'playing') {
@@ -158,8 +169,8 @@ export class LevelScene extends Phaser.Scene {
     this.player.tick(step, this.controls.current);
     this.applyWind(step / 1000);
     this.updateCrates();
+    this.updatePowers(now);
 
-    const now = this.time.now;
     for (const enemy of this.enemies.getChildren() as Enemy[]) {
       if (enemy.isAlive) enemy.tick(now, this.player.x, this.player.y);
     }
@@ -167,9 +178,10 @@ export class LevelScene extends Phaser.Scene {
       pickup.tick();
     }
 
+    this.watchForLanding();
     this.updateCameraLookAhead();
     this.flashWhileInvulnerable(now);
-    this.hud.update(this.coinCount, this.power.current, this.player.character);
+    this.hud.update(this.coinCount, this.power.current, this.player.character, this.lives);
     this.overlay.update();
 
     if (
@@ -292,6 +304,17 @@ export class LevelScene extends Phaser.Scene {
     this.physics.add.collider(this.crates, this.solids);
     this.physics.add.collider(this.crates, this.blocks);
     this.physics.add.collider(this.crates, this.crates);
+    this.physics.add.collider(this.flames, this.solids);
+    this.physics.add.collider(this.flames, this.blocks);
+    this.physics.add.collider(this.flames, this.crates);
+
+    this.physics.add.overlap(this.flames, this.enemies, (flameObject, enemyObject) => {
+      const flame = flameObject as Flame;
+      const enemy = enemyObject as Enemy;
+      if (flame.isSpent || !enemy.isAlive) return;
+      flame.gutter();
+      enemy.knockAway(flame.physicsBody.velocity.x >= 0 ? 1 : -1, POWERS.lulav.knockAway * 0.6);
+    });
     this.physics.add.collider(this.player, this.crates);
 
     this.physics.add.collider(this.player, this.blocks, (_player, blockObject) => {
@@ -299,12 +322,14 @@ export class LevelScene extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.player, this.coins, (_player, coinObject) => {
-      if ((coinObject as Coin).collect()) this.coinCount += 1;
+      if ((coinObject as Coin).collect()) this.collectCoins(1);
     });
 
     this.physics.add.overlap(this.player, this.pickups, (_player, pickupObject) => {
       const pickup = pickupObject as PowerUpPickup;
-      if (pickup.collect()) this.power.grant(pickup.grants);
+      if (!pickup.collect()) return;
+      if (pickup.givesLife) this.grantLife();
+      else this.power.grant(pickup.grants);
     });
 
     this.physics.add.overlap(this.player, this.enemies, (_player, enemyObject) => {
@@ -338,13 +363,19 @@ export class LevelScene extends Phaser.Scene {
     if (outcome !== 'contents') return;
 
     if (block.contents === 'coin') {
-      this.coinCount += 1;
+      this.collectCoins(1);
       this.popCoinFrom(block.x, block.y - TILE);
       return;
     }
 
+    if (block.contents === 'lchaim') {
+      this.pickups.add(new PowerUpPickup(this, block.x, block.y - TILE / 2, 'small', 0xe4f0ff, true));
+      return;
+    }
+
+    const tier = block.contents as PowerTier;
     this.pickups.add(
-      new PowerUpPickup(this, block.x, block.y - TILE / 2, 'cholent', TIERS.cholent.tint!),
+      new PowerUpPickup(this, block.x, block.y - TILE / 2, tier, TIERS[tier].tint ?? 0xffffff),
     );
   }
 
@@ -435,6 +466,84 @@ export class LevelScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Everything the power forms do, once a frame.
+   *
+   * The forms deliberately share no code beyond this dispatch: §5 gives each
+   * one a different job — Menorah throws, Lulav swings, Peyos flies — and
+   * collapsing them into a single "attack" would lose the thing that makes
+   * choosing between them a decision.
+   */
+  private updatePowers(now: number): void {
+    if (this.state !== 'playing') return;
+
+    switch (this.player.takeAction(now, this.controls.current)) {
+      case 'flame':
+        this.fireFlame();
+        break;
+      case 'swing':
+        this.cameras.main.shake(60, 0.002);
+        break;
+      case 'none':
+        break;
+    }
+
+    for (const flame of this.flames.getChildren() as Flame[]) flame.tick();
+    this.applySwing();
+  }
+
+  private fireFlame(): void {
+    const live = (this.flames.getChildren() as Flame[]).filter((flame) => !flame.isSpent);
+    if (live.length >= POWERS.menorah.maxFlames) return;
+
+    const { x, y, direction } = this.player.muzzle;
+    this.flames.add(new Flame(this, x, y, direction));
+  }
+
+  /** The Lulav arc, while it is live, against anything standing in it. */
+  private applySwing(): void {
+    const area = this.player.swingArea;
+    if (!area) return;
+
+    for (const enemy of this.enemies.getChildren() as Enemy[]) {
+      if (!enemy.isAlive) continue;
+      const body = enemy.physicsBody;
+      const box = new Phaser.Geom.Rectangle(body.x, body.y, body.width, body.height);
+      if (!Phaser.Geom.Rectangle.Overlaps(area, box)) continue;
+      enemy.knockAway(this.player.facingDirection, POWERS.lulav.knockAway);
+    }
+  }
+
+  /** §5: a Cholent landing from a height stuns everything nearby. */
+  private applyCholentLandingStun(impactSpeed: number): void {
+    if (this.power.current !== 'cholent') return;
+    if (impactSpeed < POWERS.cholent.stunFallSpeed) return;
+
+    let stunned = 0;
+    for (const enemy of this.enemies.getChildren() as Enemy[]) {
+      if (!enemy.isAlive) continue;
+      if (Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y) >
+        POWERS.cholent.stunRadius) continue;
+      enemy.stun(this.time.now, POWERS.cholent.stunMs);
+      stunned += 1;
+    }
+    if (stunned > 0) this.cameras.main.shake(180, 0.006);
+  }
+
+  /** §5: 100 tzedakah coins buy a life, and the counter starts again. */
+  private collectCoins(amount: number): void {
+    this.coinCount += amount;
+    while (this.coinCount >= GAMEPLAY.coinsPerLife) {
+      this.coinCount -= GAMEPLAY.coinsPerLife;
+      this.grantLife();
+    }
+  }
+
+  private grantLife(): void {
+    this.lives += 1;
+    this.hud.flashLife();
+  }
+
   private hurtPlayer(fromX: number): void {
     const outcome = this.power.takeHit(this.time.now);
     if (outcome === 'ignored') return;
@@ -449,7 +558,17 @@ export class LevelScene extends Phaser.Scene {
   private killPlayer(): void {
     if (this.state !== 'playing') return;
     this.state = 'dying';
+    this.lives -= 1;
     this.player.playDeath();
+
+    if (this.lives <= 0) {
+      this.hud.showBanner('GAME OVER\nSPACE for the map');
+      this.time.delayedCall(GAMEPLAY.deathPauseMs, () => {
+        this.state = 'complete'; // lets SPACE take you back to the map
+      });
+      return;
+    }
+
     this.hud.showBanner('OY');
     this.time.delayedCall(GAMEPLAY.deathPauseMs, () => this.restartFromCheckpoint());
   }
@@ -472,6 +591,7 @@ export class LevelScene extends Phaser.Scene {
         ...save,
         coins: save.coins + this.coinCount,
         character: this.player.character,
+        lives: this.lives,
       });
       this.hud.showBanner(
         entry?.isBoss === true ? 'YOU GOT IT BACK!\nSPACE for the map' : "L'CHAIM!\nSPACE for the map",
@@ -497,6 +617,7 @@ export class LevelScene extends Phaser.Scene {
       respawnX: this.respawnAt.x,
       respawnY: this.respawnAt.y,
       character: this.player.character,
+      lives: this.lives,
     } satisfies LevelSceneData);
   }
 
@@ -519,6 +640,21 @@ export class LevelScene extends Phaser.Scene {
   // -------------------------------------------------------------------------
   // Presentation
   // -------------------------------------------------------------------------
+
+  /**
+   * Watch for the frame the player touches down, and how hard.
+   *
+   * Tracked here rather than in Player because the consequence — stunning
+   * everything nearby — is a fact about the level, not about the character.
+   */
+  private watchForLanding(): void {
+    const grounded = this.player.isGrounded;
+    if (grounded && !this.wasGrounded) {
+      this.applyCholentLandingStun(this.lastFallSpeed);
+    }
+    this.wasGrounded = grounded;
+    if (!grounded) this.lastFallSpeed = this.player.physicsBody.velocity.y;
+  }
 
   /**
    * Lead the camera in the direction of travel.

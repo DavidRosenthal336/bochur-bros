@@ -72,6 +72,7 @@ L.ground(116, 10);
 L.ground(128, 15);
 L.enemy(134, 16);
 L.block(133, 16, 'mystery', 'coin');
+L.block(136, 16, 'mystery', 'lchaim');
 L.checkpoint(140);
 
 // --- Pigeons over the gaps now. Still two tiles: a walking jump clears three
@@ -86,7 +87,10 @@ L.coinRow(165, 15, 4);
 
 // --- Home straight ----------------------------------------------------------
 L.ground(173, 37);
-L.block(180, 16, 'mystery', 'cholent');
+// The first power form the game hands you, on a long safe straight with two
+// pigeons past it to try it on.
+L.block(180, 16, 'mystery', 'menorah');
+L.label(178, 18, 'MENORAH — PRESS X');
 L.enemy(188, 16);
 L.enemy(196, 17);
 L.coinRow(192, 18, 6);

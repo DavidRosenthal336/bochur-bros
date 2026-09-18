@@ -14,7 +14,7 @@ import { solidTextureKey } from '../util/textures';
 export type BlockKind = 'mystery' | 'brick' | 'reinforced' | 'weak';
 
 /** What comes out of a mystery box. */
-export type BlockContents = 'coin' | 'cholent';
+export type BlockContents = 'coin' | 'cholent' | 'menorah' | 'lulav' | 'peyos' | 'lchaim';
 
 const COLORS: Record<BlockKind, number> = {
   mystery: 0xe0a33e,

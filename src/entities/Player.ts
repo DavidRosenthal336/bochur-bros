@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
 import type { CharacterAbilities, CharacterId, CharacterStats, JumpBracket } from '../config/Tuning';
-import { CHARACTERS, GAMEPLAY, TIERS } from '../config/Tuning';
+import { CHARACTERS, GAMEPLAY, POWERS, TIERS } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from '../input/InputState';
 import { NEUTRAL_INPUT } from '../input/InputState';
+import type { SpriteSet } from '../config/sprites';
+import { animKey, spriteSetFor } from '../config/sprites';
 import { solidTextureKey } from '../util/textures';
 
 /** Everything the debug overlay wants to know, without reaching into privates. */
@@ -21,6 +23,9 @@ export interface PlayerDebugInfo {
   readonly tier: PowerTier;
   readonly character: CharacterId;
   readonly groundPounding: boolean;
+  /** Milliseconds of Peyos flight left in this takeoff. */
+  readonly flightMs: number;
+  readonly flying: boolean;
   /** Peak height above the launch point for the most recent jump, in pixels. */
   readonly lastJumpHeight: number;
   /** Horizontal ground covered by the most recent completed jump, in pixels. */
@@ -69,6 +74,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private groundPounding = false;
   /** Was the run button held this frame? Debug readout only. */
   private running = false;
+  /** Peyos flight left in this takeoff, ms. Refills on landing (§5). */
+  private flightMs: number = POWERS.peyos.durationMs;
+  private flying = false;
+  /** The hat, which lifts off and hovers while airborne (§5, §9). */
+  private hat: Phaser.GameObjects.Rectangle | undefined;
+  /** When the next Menorah shot or Lulav swing is allowed. */
+  private actionReadyAt = 0;
+  /** While the Lulav arc is live, this is where it is. */
+  private swing: Phaser.Geom.Rectangle | undefined;
+  private swingVisual: Phaser.GameObjects.Rectangle | undefined;
   /** Current power-up tier. Owned by the scene's PowerState; mirrored here for size. */
   private tier: PowerTier = 'small';
   /** While false, input is ignored — during a death, or a level-complete walk-off. */
@@ -96,8 +111,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(10);
 
     const body = this.physicsBody;
-    body.setSize(stats.bodyWidth, stats.bodyHeight);
-    body.setOffset(0, 0);
+    // Go through the same sizing path everything else uses, so the hitbox is
+    // inset into the art frame from the very first frame. Setting it by hand
+    // here left the body six pixels above the sprite's feet, which sank him
+    // into the floor and made the first crouch misbehave.
+    this.applyBodyHeight();
     body.setAllowGravity(true);
     // Note: Arcade's maxVelocity clamps a component in BOTH directions, so it
     // cannot express a terminal fall speed — it would cap the jump too.
@@ -204,8 +222,127 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.updateCrouch(grounded, input);
     this.updateHorizontal(dt, grounded, input);
     this.updateJump(grounded, input);
+    this.updateFlight(delta, grounded, input);
     this.limitFallSpeed();
     this.updateAppearance(grounded);
+  }
+
+  /**
+   * Peyos flight (§5): "Hold the jump button to hover/fly. Limited duration per
+   * takeoff, refills on landing."
+   *
+   * It takes over once the jump itself is spent, so a Peyos jump is an ordinary
+   * jump that simply does not have to end. Landing refills it in full, which
+   * makes the limit a per-hop budget rather than a resource to hoard.
+   */
+  private updateFlight(delta: number, grounded: boolean, input: InputState): void {
+    if (grounded) {
+      this.flightMs = POWERS.peyos.durationMs;
+      this.setFlying(false);
+      return;
+    }
+
+    const canFly =
+      this.tier === 'peyos' && input.jumpHeld && !this.rising && this.flightMs > 0;
+    if (!canFly) {
+      this.setFlying(false);
+      return;
+    }
+
+    this.setFlying(true);
+    this.flightMs = Math.max(0, this.flightMs - delta);
+
+    // Gravity has to come off entirely while flying. Setting a climb velocity
+    // and leaving gravity on means the two fight each other every frame, and
+    // gravity wins: at ~2000 px/s^2 it adds more downward speed per frame than
+    // the thrust takes away, so he "flies" straight into the floor.
+    const body = this.physicsBody;
+    body.setGravityY(0);
+    body.setVelocityY(
+      approach(body.velocity.y, POWERS.peyos.riseSpeed, POWERS.peyos.responsiveness * (delta / 1000)),
+    );
+  }
+
+  private setFlying(flying: boolean): void {
+    if (flying === this.flying) return;
+    this.flying = flying;
+
+    if (flying && !this.hat) {
+      // Light, not black. A black hat is right for the finished art and
+      // invisible against a dark greybox background.
+      this.hat = this.scene.add
+        .rectangle(this.x, this.y, this.tierWidth + 4, 4, 0xd8cbb0)
+        .setDepth(11);
+    } else if (!flying && this.hat) {
+      this.hat.destroy();
+      this.hat = undefined;
+    }
+  }
+
+  /**
+   * The action button. What it does depends entirely on which form you are in,
+   * which is the whole point of the power forms.
+   *
+   * Returns what the scene should spawn, because a projectile belongs to the
+   * level rather than to the character throwing it.
+   */
+  takeAction(now: number, input: InputState): 'flame' | 'swing' | 'none' {
+    if (!this.controllable || !input.actionPressed || now < this.actionReadyAt) return 'none';
+
+    if (this.tier === 'menorah') {
+      this.actionReadyAt = now + POWERS.menorah.cooldownMs;
+      return 'flame';
+    }
+    if (this.tier === 'lulav') {
+      this.actionReadyAt = now + POWERS.lulav.cooldownMs + POWERS.lulav.swingMs;
+      this.startSwing();
+      return 'swing';
+    }
+    return 'none';
+  }
+
+  /** Where a flame should appear, given which way you are facing. */
+  get muzzle(): { x: number; y: number; direction: -1 | 1 } {
+    return {
+      x: this.x + this.facing * (this.tierWidth / 2 + 4),
+      y: this.y - this.currentHeight(this.crouching) * 0.6,
+      direction: this.facing,
+    };
+  }
+
+  /** The live Lulav arc, or undefined between swings. */
+  get swingArea(): Phaser.Geom.Rectangle | undefined {
+    return this.swing;
+  }
+
+  get facingDirection(): -1 | 1 {
+    return this.facing;
+  }
+
+  private startSwing(): void {
+    const height = this.currentHeight(this.crouching);
+    const x = this.facing > 0 ? this.x : this.x - POWERS.lulav.reach;
+    const y = this.y - height * 0.5 - POWERS.lulav.height / 2;
+    this.swing = new Phaser.Geom.Rectangle(x, y, POWERS.lulav.reach, POWERS.lulav.height);
+
+    this.swingVisual = this.scene.add
+      .rectangle(
+        x + POWERS.lulav.reach / 2,
+        y + POWERS.lulav.height / 2,
+        POWERS.lulav.reach,
+        POWERS.lulav.height,
+        POWERS.lulav.color,
+        0.5,
+      )
+      .setDepth(11);
+
+    this.scene.time.delayedCall(POWERS.lulav.swingMs, () => this.endSwing());
+  }
+
+  private endSwing(): void {
+    this.swing = undefined;
+    this.swingVisual?.destroy();
+    this.swingVisual = undefined;
   }
 
   /**
@@ -375,21 +512,37 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.controllable = controllable;
   }
 
+  /** The drawn art for the current character and form, if any exists yet. */
+  private get art(): SpriteSet | undefined {
+    return spriteSetFor(this.characterId, this.tier);
+  }
+
   /**
    * Resize the sprite and its body, keeping the feet planted.
    *
-   * This swaps to a texture of exactly the right size rather than scaling one,
-   * so the sprite's scale stays at 1 and the body matches the picture exactly.
-   * Because the origin sits at the feet, a shorter body shrinks from the top —
-   * which is what ducking should look like, and stops a resize from popping the
-   * character up off the floor.
+   * Two cases. With real art the frame is bigger than the hitbox — hair and a
+   * hat brim overhang — so the body is inset into the frame. Without art the
+   * texture is a rectangle generated at exactly the hitbox size, because
+   * scaling one instead would scale the hitbox with it.
+   *
+   * Either way the origin is at the feet, so a shorter body shrinks from the
+   * top. That is what ducking should look like, and it stops a resize from
+   * popping the character up off the floor.
    */
   private applyBodyHeight(): void {
     const width = this.tierWidth;
     const height = this.currentHeight(this.crouching);
+    const body = this.physicsBody;
+    const art = this.art;
+
+    if (art) {
+      this.setTexture(art.key, art.frames.idle);
+      body.setSize(width, height);
+      body.setOffset((art.frameWidth - width) / 2, art.frameHeight - height);
+      return;
+    }
 
     this.setTexture(solidTextureKey(this.scene, width, height));
-    const body = this.physicsBody;
     body.setSize(width, height);
     body.setOffset(0, 0);
   }
@@ -432,7 +585,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       rate = running ? this.stats.runAcceleration : this.stats.walkAcceleration;
     }
 
-    if (!grounded) rate *= this.stats.airControl;
+    if (!grounded) rate *= this.flying ? POWERS.peyos.airControl : this.stats.airControl;
     body.setVelocityX(approach(vx, dir * topSpeed, rate * dt));
   }
 
@@ -488,14 +641,55 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private updateAppearance(grounded: boolean): void {
-    // Greybox feedback: a touch brighter in the air so state is readable at a glance.
-    const base = TIERS[this.tier].tint ?? this.stats.color;
-    this.setTint(grounded ? base : lighten(base, 0.35));
+    const art = this.art;
+    if (art) {
+      this.clearTint();
+      this.setFlipX(this.facing < 0);
+      this.nose.setVisible(false);
+      this.playPose(art, grounded);
+    } else {
+      // Greybox feedback: a touch brighter in the air so state is readable.
+      const base = TIERS[this.tier].tint ?? this.stats.color;
+      this.setTint(grounded ? base : lighten(base, 0.35));
+      this.nose.setVisible(true);
+    }
 
-    this.nose.setPosition(
-      this.x + this.facing * (this.tierWidth / 2 - 2),
-      this.y - this.currentHeight(this.crouching) + 6,
-    );
+    const height = this.currentHeight(this.crouching);
+    this.nose.setPosition(this.x + this.facing * (this.tierWidth / 2 - 2), this.y - height + 6);
+    void grounded;
+    // The hat lifts off and hovers above him while airborne (§5). This is the
+    // game's signature image; it gets a real sprite in the art pass.
+    this.hat?.setPosition(this.x, this.y - height - 7);
+    if (this.swing && this.swingVisual) {
+      const x = this.facing > 0 ? this.x : this.x - POWERS.lulav.reach;
+      this.swing.setPosition(x, this.y - height * 0.5 - POWERS.lulav.height / 2);
+      this.swingVisual.setPosition(
+        this.swing.x + this.swing.width / 2,
+        this.swing.y + this.swing.height / 2,
+      );
+    }
+  }
+
+  /**
+   * Pick the pose the current state calls for.
+   *
+   * The run cycle is played back at a rate proportional to actual speed, so
+   * walking and running are the same animation at two tempos rather than two
+   * animations — and a character who is barely moving does not sprint on the
+   * spot.
+   */
+  private playPose(art: SpriteSet, grounded: boolean): void {
+    const speed = Math.abs(this.physicsBody.velocity.x);
+
+    let pose: 'idle' | 'run' | 'jump' | 'fall' | 'crouch' | 'hurt';
+    if (this.crouching) pose = 'crouch';
+    else if (!grounded) pose = this.physicsBody.velocity.y < 0 ? 'jump' : 'fall';
+    else if (speed > 6) pose = 'run';
+    else pose = 'idle';
+
+    const key = animKey(art, pose);
+    if (this.anims.getName() !== key) this.play(key, true);
+    this.anims.timeScale = pose === 'run' ? Math.max(0.5, speed / this.stats.walkSpeed) : 1;
   }
 
   /** Put the player back at a known good spot, motionless. */
@@ -511,6 +705,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.lastJumpDistance = 0;
     this.crouching = false;
     this.groundPounding = false;
+    this.flightMs = POWERS.peyos.durationMs;
+    this.setFlying(false);
+    this.endSwing();
     this.controllable = true;
     this.physicsBody.checkCollision.none = false;
     this.applyBodyHeight();
@@ -531,6 +728,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       tier: this.tier,
       character: this.characterId,
       groundPounding: this.groundPounding,
+      flightMs: this.flightMs,
+      flying: this.flying,
       lastJumpHeight: this.lastJumpHeight,
       lastJumpDistance: this.lastJumpDistance,
     };
@@ -538,6 +737,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   override destroy(fromScene?: boolean): void {
     this.nose.destroy();
+    this.hat?.destroy();
+    this.swingVisual?.destroy();
     super.destroy(fromScene);
   }
 }
