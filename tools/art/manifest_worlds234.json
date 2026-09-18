@@ -1,0 +1,440 @@
+{
+  "goose": {
+    "frameWidth": 24,
+    "frameHeight": 26,
+    "frames": [
+      "idle",
+      "hiss",
+      "run",
+      "angry",
+      "squash"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      20,
+      22
+    ]
+  },
+  "chipmunk": {
+    "frameWidth": 16,
+    "frameHeight": 14,
+    "frames": [
+      "run1",
+      "run2",
+      "squash"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      12,
+      10
+    ]
+  },
+  "dog": {
+    "frameWidth": 24,
+    "frameHeight": 22,
+    "frames": [
+      "quiet",
+      "bark"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      20,
+      18
+    ]
+  },
+  "sprinkler": {
+    "frameWidth": 16,
+    "frameHeight": 28,
+    "frames": [
+      "down",
+      "up"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      10,
+      10
+    ]
+  },
+  "mower": {
+    "frameWidth": 28,
+    "frameHeight": 20,
+    "frames": [
+      "idle"
+    ],
+    "hitbox": [
+      24,
+      16
+    ]
+  },
+  "blower": {
+    "frameWidth": 20,
+    "frameHeight": 20,
+    "frames": [
+      "idle"
+    ]
+  },
+  "wind_puff": {
+    "frameWidth": 16,
+    "frameHeight": 8,
+    "frames": [
+      "idle"
+    ]
+  },
+  "trampoline": {
+    "frameWidth": 36,
+    "frameHeight": 16,
+    "frames": [
+      "idle",
+      "bounce"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      32,
+      12
+    ]
+  },
+  "gate": {
+    "frameWidth": 20,
+    "frameHeight": 36,
+    "frames": [
+      "open",
+      "shut"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      16,
+      32
+    ]
+  },
+  "minivan": {
+    "frameWidth": 56,
+    "frameHeight": 34,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      52,
+      30
+    ]
+  },
+  "escalade": {
+    "frameWidth": 88,
+    "frameHeight": 46,
+    "frames": [
+      "phase1",
+      "phase2",
+      "phase3",
+      "beaten"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      84,
+      42
+    ]
+  },
+  "goal_poppers": {
+    "frameWidth": 36,
+    "frameHeight": 28,
+    "frames": [
+      "idle"
+    ]
+  },
+  "mosquito_swarm": {
+    "frameWidth": 20,
+    "frameHeight": 12,
+    "frames": [
+      "a",
+      "b"
+    ],
+    "anchor": "centre",
+    "hitbox": [
+      16,
+      8
+    ]
+  },
+  "raccoon": {
+    "frameWidth": 22,
+    "frameHeight": 15,
+    "frames": [
+      "run1",
+      "run2"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      18,
+      11
+    ]
+  },
+  "wasp": {
+    "frameWidth": 12,
+    "frameHeight": 12,
+    "frames": [
+      "idle"
+    ],
+    "hitbox": [
+      8,
+      8
+    ]
+  },
+  "frog": {
+    "frameWidth": 16,
+    "frameHeight": 12,
+    "frames": [
+      "sit",
+      "jump"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      12,
+      8
+    ]
+  },
+  "skunk": {
+    "frameWidth": 22,
+    "frameHeight": 13,
+    "frames": [
+      "idle"
+    ],
+    "hitbox": [
+      18,
+      9
+    ]
+  },
+  "spray": {
+    "frameWidth": 16,
+    "frameHeight": 8,
+    "frames": [
+      "idle"
+    ]
+  },
+  "bear": {
+    "frameWidth": 34,
+    "frameHeight": 42,
+    "frames": [
+      "idle",
+      "swipe",
+      "hurt"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      29,
+      38
+    ]
+  },
+  "clothesline_post": {
+    "frameWidth": 12,
+    "frameHeight": 20,
+    "frames": [
+      "idle"
+    ]
+  },
+  "screen_door": {
+    "frameWidth": 16,
+    "frameHeight": 20,
+    "frames": [
+      "idle"
+    ]
+  },
+  "porch_step": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "ok",
+      "cracked"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      16,
+      16
+    ]
+  },
+  "canoe": {
+    "frameWidth": 32,
+    "frameHeight": 11,
+    "frames": [
+      "idle"
+    ],
+    "hitbox": [
+      28,
+      7
+    ]
+  },
+  "rope_swing": {
+    "frameWidth": 10,
+    "frameHeight": 22,
+    "frames": [
+      "idle"
+    ]
+  },
+  "golf_cart": {
+    "frameWidth": 28,
+    "frameHeight": 20,
+    "frames": [
+      "idle"
+    ],
+    "hitbox": [
+      24,
+      16
+    ]
+  },
+  "goal_kugel": {
+    "frameWidth": 28,
+    "frameHeight": 28,
+    "frames": [
+      "idle"
+    ]
+  },
+  "cat": {
+    "frameWidth": 22,
+    "frameHeight": 16,
+    "frames": [
+      "sit",
+      "walk1",
+      "walk2",
+      "hiss"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      18,
+      12
+    ]
+  },
+  "gecko": {
+    "frameWidth": 16,
+    "frameHeight": 9,
+    "frames": [
+      "a",
+      "b"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      12,
+      5
+    ]
+  },
+  "sparrow": {
+    "frameWidth": 16,
+    "frameHeight": 11,
+    "frames": [
+      "a",
+      "b"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      12,
+      7
+    ]
+  },
+  "solar_tank": {
+    "frameWidth": 24,
+    "frameHeight": 16,
+    "frames": [
+      "idle"
+    ],
+    "hitbox": [
+      20,
+      12
+    ]
+  },
+  "laundry_line": {
+    "frameWidth": 16,
+    "frameHeight": 8,
+    "frames": [
+      "idle"
+    ]
+  },
+  "shuk_crate": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "idle"
+    ]
+  },
+  "shuk_cart": {
+    "frameWidth": 28,
+    "frameHeight": 17,
+    "frames": [
+      "idle"
+    ],
+    "hitbox": [
+      24,
+      13
+    ]
+  },
+  "pashkevil": {
+    "frameWidth": 8,
+    "frameHeight": 8,
+    "frames": [
+      "idle"
+    ]
+  },
+  "goal_tequila": {
+    "frameWidth": 24,
+    "frameHeight": 26,
+    "frames": [
+      "idle"
+    ]
+  },
+  "yetzer_hara": {
+    "frameWidth": 44,
+    "frameHeight": 46,
+    "frames": [
+      "smoke1",
+      "smoke2",
+      "as_pigeon_king",
+      "as_escalade",
+      "as_bear"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      36,
+      40
+    ]
+  },
+  "five_towns_tileset": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "lawn",
+      "hedge",
+      "siding",
+      "shingle",
+      "driveway",
+      "fence",
+      "pool_water",
+      "pool_tile",
+      "deck"
+    ]
+  },
+  "catskills_tileset": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "dirt",
+      "mud",
+      "bungalow_wall",
+      "porch_wood",
+      "shingle",
+      "trunk",
+      "leaves",
+      "lake",
+      "lawn"
+    ]
+  },
+  "meah_shearim_tileset": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "stone",
+      "stone_worn",
+      "stone_stair",
+      "arch",
+      "rooftop",
+      "deck",
+      "dirt",
+      "awning_ms",
+      "sand"
+    ]
+  }
+}

@@ -16,7 +16,13 @@ import { join } from 'node:path';
 
 const PUBLIC = 'public';
 const SPRITES = join(PUBLIC, 'sprites');
-const MANIFEST = 'tools/art/manifest.json';
+/**
+ * The generators' own declarations of what they drew, one per script.
+ *
+ * Merged rather than kept apart because nothing downstream cares which script
+ * produced a sheet — only what size its frames are.
+ */
+const MANIFESTS = ['tools/art/manifest.json', 'tools/art/manifest_worlds234.json'];
 /** The game's internal resolution. Every backdrop layer tiles across it. */
 const VIEW_WIDTH = 320;
 
@@ -37,7 +43,7 @@ function sizeOrNull(path) {
   }
 }
 
-const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+const manifest = Object.assign({}, ...MANIFESTS.map((m) => JSON.parse(readFileSync(m, 'utf8'))));
 const spritesSource = readFileSync('src/config/sprites.ts', 'utf8');
 const scenerySource = readFileSync('src/config/scenery.ts', 'utf8');
 
@@ -63,8 +69,10 @@ function checkSheet(label, url, frameWidth, frameHeight, expectedFrames) {
   return true;
 }
 
-// 1. Every sheet the generator's manifest describes.
+// 1. Every sheet the generators' manifests describe. Backdrop layers and tiles
+//    live in their own folders and are checked by rules 4 and 5 instead.
 for (const [key, spec] of Object.entries(manifest)) {
+  if (key.startsWith('bg_') || spec.frames === undefined) continue;
   const url = `sprites/${key}.png`;
   if (!checkSheet(key, url, spec.frameWidth, spec.frameHeight, spec.frames.length)) {
     problems.push(`${key}: in the manifest but missing from ${join(PUBLIC, url)}`);
