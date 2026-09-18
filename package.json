@@ -6,7 +6,7 @@
   "description": "Bochur Bros - a 2D side-scrolling platformer",
   "scripts": {
     "dev": "vite",
-    "build": "npm run typecheck && npm run check:art && npm run check:maps && vite build",
+    "build": "npm run typecheck && npm run check:art && npm run build:maps && npm run check:maps && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "build:playtest": "npm run build && node scripts/build-playtest.mjs",

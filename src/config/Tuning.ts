@@ -342,6 +342,20 @@ export const GAMEPLAY = {
    */
   maxFlock: 2,
   /**
+   * How long a summoned pigeon stays before it flies off, ms.
+   *
+   * "The pigeons keep flying" was a playtest note and it was exactly right:
+   * nothing ever removed them. The cap meant the sky never filled up, but the
+   * two that were there were there for the rest of the fight, so from the
+   * first summon onwards every duck under the King's swoop was taken with two
+   * birds permanently overhead. A flock that is summoned should also disperse
+   * — otherwise it is not a flock, it is terrain.
+   *
+   * Long enough to be a real interruption, short enough that the fight keeps
+   * coming back to the King, which is what a boss fight is about.
+   */
+  flockLifeMs: 7000,
+  /**
    * Knockback applied to the player when hurt, px/s.
    *
    * Deliberately small. At 90 a hit threw you five and a half tiles backwards,

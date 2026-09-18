@@ -137,21 +137,69 @@ function floorRuns(grid, W, H) {
 }
 
 /**
+ * How far a jump carries you sideways, in tiles.
+ *
+ * You cannot climb a wall from the far end of the room: whatever jump the
+ * middle of a run affords, the one that matters is the jump available from the
+ * tiles beside the thing you are trying to get over. Reading the best jump
+ * anywhere along the run is what let 1-4 ship with the player sealed under a
+ * staircase — seven tiles of open floor, three of them with sky above, and a
+ * one-tile step out that could only be attempted from under a ceiling ten
+ * pixels over his head.
+ */
+const REACH = 2;
+
+/**
+ * How many tiles you can raise your feet, standing on this exact tile.
+ *
+ * Two separate limits, and it took getting it wrong to see they are separate.
+ * One is the jump itself, which is `ceiling`. The other is the roof: you rise
+ * through the empty rows above you, but you also have to fit in them, and a
+ * 22px body standing with its feet on a tile boundary occupies its own row and
+ * part of the next. So of the empty rows overhead, one is spent on your head
+ * and the rest are available to climb through.
+ *
+ * Folding that allowance into the jump instead of into the roof makes a wall
+ * as tall as the jump unclimbable everywhere, which is wrong — the gym has
+ * several of those and they are fine.
+ */
+function riseFrom(grid, x, row, ceiling) {
+  return Math.min(ceiling, headroom(grid, x, row) - 1);
+}
+
+/** Could you land `rise` tiles up, taking off from this tile? */
+function canRiseTo(grid, x, row, rise, ceiling) {
+  if (rise === 0) return true;
+  if (!Number.isFinite(rise)) return false;
+  return riseFrom(grid, x, row, ceiling) >= rise;
+}
+
+/** Could you get over the wall at one end of this run, from beside it? */
+function canClimbSide(grid, run, height, side, ceiling) {
+  const from = side === 'left' ? run.x0 : Math.max(run.x0, run.x1 - REACH);
+  const to = side === 'left' ? Math.min(run.x1, run.x0 + REACH) : run.x1;
+  for (let x = from; x <= to; x += 1) if (canRiseTo(grid, x, run.y, height, ceiling)) return true;
+  return false;
+}
+
+/**
  * Is there something to jump up ONTO within reach?
  *
  * A vertical level's ground floor is walled in by the map on both sides and is
  * not a trap at all — you leave it by climbing. Allow a couple of tiles of
- * horizontal travel either side, since a jump moves you sideways too.
+ * horizontal travel either side, since a jump moves you sideways too, and only
+ * count a landing you could actually stand on.
  */
-function hasLandingAbove(grid, run, best, W) {
-  const from = Math.max(0, run.x0 - 2);
-  const to = Math.min(W - 1, run.x1 + 2);
-
-  for (let dy = 1; dy <= best; dy += 1) {
-    const y = run.y - dy;
-    if (y < 1) break;
-    for (let x = from; x <= to; x += 1) {
-      if (!grid[y][x] && grid[y + 1][x] === 1) return true;
+function hasLandingAbove(grid, run, ceiling, W) {
+  for (let x = run.x0; x <= run.x1; x += 1) {
+    const reach = riseFrom(grid, x, run.y, ceiling);
+    for (let dy = 1; dy <= reach; dy += 1) {
+      const y = run.y - dy;
+      if (y < 1) break;
+      for (let c = Math.max(0, x - REACH); c <= Math.min(W - 1, x + REACH); c += 1) {
+        if (grid[y][c] || grid[y + 1][c] !== 1) continue;
+        if (1 + headroom(grid, c, y) >= MIN_HEADROOM) return true;
+      }
     }
   }
   return false;
@@ -172,13 +220,7 @@ export function findTraps(def) {
       (b) => b.y >= run.y - 1 && b.y <= run.y + 1 && b.x + b.w > run.x0 && b.x <= run.x1,
     );
 
-    // The best jump available anywhere along the run: a low ceiling over part
-    // of it does not matter if you can step out from under before jumping.
-    let best = 0;
-    for (let x = run.x0; x <= run.x1; x += 1) {
-      const ceiling = hasBouncer ? BOUNCE_JUMP : width >= RUNUP_WIDTH ? MAX_JUMP : NO_RUNUP_JUMP;
-      best = Math.max(best, Math.min(ceiling, headroom(grid, x, run.y)));
-    }
+    const ceiling = hasBouncer ? BOUNCE_JUMP : width >= RUNUP_WIDTH ? MAX_JUMP : NO_RUNUP_JUMP;
 
     const left = wallHeight(grid, run.x0 - 1, run.y, W);
     const right = wallHeight(grid, run.x1 + 1, run.y, W);
@@ -186,9 +228,9 @@ export function findTraps(def) {
     // A side with no wall is a way out: you walk off it, or fall off it.
     if (left === 0 || right === 0) continue;
 
-    const shortest = Math.min(left, right);
-    if (shortest <= best) continue;
-    if (hasLandingAbove(grid, run, best, W)) continue;
+    if (canClimbSide(grid, run, left, 'left', ceiling)) continue;
+    if (canClimbSide(grid, run, right, 'right', ceiling)) continue;
+    if (hasLandingAbove(grid, run, ceiling, W)) continue;
 
     traps.push({
       kind: 'trap',
@@ -198,7 +240,7 @@ export function findTraps(def) {
       width,
       leftWall: left === Infinity ? 'map edge' : left,
       rightWall: right === Infinity ? 'map edge' : right,
-      bestJump: best,
+      bestJump: ceiling,
     });
   }
 

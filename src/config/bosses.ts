@@ -60,11 +60,34 @@ export interface BossConfig {
    * do three times. Stopping still for a beat turns "land on him" from a
    * timing trick into an instruction you can follow.
    *
-   * It has to outlast a jump. A jump from the floor is about nine hundred
-   * milliseconds up and back down, so a seven-hundred-millisecond window is
-   * one you can answer correctly and still miss, because he leaves while you
-   * are in the air — which measured as zero hits from four different
-   * distances against a stationary target.
+   * It has to outlast the whole move, not just the jump. A jump is about nine
+   * hundred milliseconds up and back down, and 1200ms looked like enough on
+   * that basis — but you are not standing next to him when it opens. The skim
+   * puts him the length of the skim away, so the move is: run there, then
+   * jump, then come down. Driving the real fight, that measured at about 1.45
+   * seconds from a seventy-pixel gap, and 1200ms produced near-misses with the
+   * player still in the air as he climbed away.
+   *
+   * So: a shorter, slower skim, and a window sized to answering it.
+   *
+   * How short is not a matter of taste. You spend the skim crouched, so when
+   * the window opens you are standing still, and a jump from a standing start
+   * carries about thirty-five pixels sideways — measured, watching the real
+   * body accelerate from zero. A gap wider than that cannot be jumped; it has
+   * to be walked first, and walking into him is death by the same four pixels
+   * of overlap that make ducking work. That is the shape of "there's no way to
+   * land on him without you dying", and at a ninety-pixel gap it was still
+   * true after everything else had been fixed.
+   *
+   * 650ms at 70px/s is about forty-five pixels: he pulls up just outside your
+   * reach and stops, and the answer is to stand up and jump, immediately, from
+   * where you are. No approach, so nothing to clip.
+   *
+   * It is also the one number that does NOT escalate with the phases. Later
+   * phases come at you sooner and faster, which is escalation; shrinking the
+   * one moment the fight can be answered in is just taking the answer away,
+   * and taking the answer away is what made this fight unwinnable to begin
+   * with.
    */
   readonly hoverMs: number;
   /** How many pigeons a summon brings. */
@@ -107,9 +130,9 @@ export const BOSSES = {
      * cleared the sweep by a tenth of a pixel, which is not a mechanic.
      */
     floorY: 320 - 18,
-    sweepMs: 900,
-    sweepSpeed: 100,
-    hoverMs: 1200,
+    sweepMs: 650,
+    sweepSpeed: 70,
+    hoverMs: 1700,
     summonCount: 2,
   },
 } as const satisfies Record<string, BossConfig>;

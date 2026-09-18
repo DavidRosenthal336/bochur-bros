@@ -279,6 +279,7 @@ export class LevelScene extends Phaser.Scene {
     }
     this.updateHazards(now);
     this.updateBoss(now);
+    this.dismissFlock(now);
     this.updateClock(delta);
     this.updateAutoScroll(delta);
 
@@ -440,6 +441,8 @@ export class LevelScene extends Phaser.Scene {
     if (this.perches.length === 0) {
       this.perches = [new Phaser.Math.Vector2(this.boss.x, this.boss.y)];
     }
+    const lane = this.sweepLane(this.boss);
+    this.boss.setLane(lane.left, lane.right);
 
     this.physics.add.overlap(this.player, this.boss, () => this.onBossContact());
   }
@@ -474,6 +477,80 @@ export class LevelScene extends Phaser.Scene {
       return;
     }
     if (boss.isDangerous) this.hurtPlayer(boss.x);
+  }
+
+  /**
+   * Summoned pigeons fly off once their time is up.
+   *
+   * Taken out of the enemy group first, so that from this moment they neither
+   * think nor touch anybody: a bird on its way out that can still dive, or
+   * still hurt you, is the same permanent hazard with extra steps. Then gravity
+   * off, a push towards the nearer wall, and fade.
+   *
+   * Only the summoned ones carry `leaveAt`. Pigeons placed in a level are part
+   * of the level and stay put.
+   */
+  private dismissFlock(now: number): void {
+    const middle = (this.level.widthInTiles * TILE) / 2;
+    for (const enemy of (this.enemies.getChildren() as Enemy[]).slice()) {
+      const leaveAt = enemy.getData('leaveAt') as number | undefined;
+      if (leaveAt === undefined || now < leaveAt || !enemy.isAlive) continue;
+
+      this.enemies.remove(enemy, false, false);
+      const body = enemy.physicsBody;
+      body.setAllowGravity(false);
+      body.setVelocity(enemy.x < middle ? -90 : 90, -120);
+      this.tweens.add({
+        targets: enemy,
+        alpha: 0,
+        duration: 900,
+        onComplete: () => enemy.destroy(),
+      });
+    }
+  }
+
+  /**
+   * The widest run of floor the boss can skim along without ending up inside
+   * the level.
+   *
+   * The boss has no collider with the terrain — he is a bird, and giving him
+   * one would have him landing on the scenery — so nothing stops him sweeping
+   * straight into a staircase and hovering inside it, which is where the one
+   * stompable moment in the fight went. He needs to be told.
+   *
+   * The band that matters runs from his body at sweep height all the way DOWN
+   * to the ground, not just the body itself — and that is the whole subtlety.
+   * His height is calibrated against the floor: eighteen pixels of gap, which
+   * a crouched 13px head clears and a standing 22px one does not. Stand
+   * anywhere higher than the floor and that calibration is simply wrong. On
+   * 1-4's bottom step, one tile up, a crouched head reaches 291 and his body
+   * reaches down to 302, so ducking does not save you — nothing does.
+   *
+   * Measuring only the body's own band missed this, because a one-tile step is
+   * entirely below him: he skims two pixels over it, the step never touches
+   * his band, and the lane happily included the staircase. Driving the fight
+   * from the real loop, that was a guaranteed death in every run, at the same
+   * pixel, as soon as the fight moved to the stairs.
+   *
+   * So the lane stops where the floor stops being the floor.
+   */
+  private sweepLane(boss: Boss): { left: number; right: number } {
+    const top = boss.config.floorY - boss.config.bodyHeight;
+    const bottom = (this.level.groundRow ?? this.level.heightInTiles) * TILE;
+    let left = 0;
+    let right = this.level.widthInTiles * TILE;
+
+    for (const solid of this.level.solids) {
+      const y0 = solid.y * TILE;
+      const y1 = (solid.y + solid.h) * TILE;
+      if (y1 <= top || y0 >= bottom) continue; // nowhere near the sweep
+      const x0 = solid.x * TILE;
+      const x1 = (solid.x + solid.w) * TILE;
+      if (x1 <= boss.x) left = Math.max(left, x1);
+      else if (x0 >= boss.x) right = Math.min(right, x0);
+    }
+
+    return { left, right };
   }
 
   /**
@@ -541,7 +618,9 @@ export class LevelScene extends Phaser.Scene {
             TILE * 2,
             this.level.widthInTiles * TILE - TILE * 2,
           );
-          this.enemies.add(new Enemy(this, x, y, ENEMY_TABLE.pigeon));
+          const bird = new Enemy(this, x, y, ENEMY_TABLE.pigeon);
+          bird.setData('leaveAt', this.time.now + GAMEPLAY.flockLifeMs);
+          this.enemies.add(bird);
         }
         break;
       }

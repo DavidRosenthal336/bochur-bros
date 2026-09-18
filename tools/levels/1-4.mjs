@@ -7,24 +7,35 @@ import { level } from '../level-builder.mjs';
  * dive-bombs in arcs, and retreats to high perches between attacks. Sitting on
  * the meat board." (§6)
  *
- * Rebuilt after playtesting, which turned up three things and all three were
- * about space rather than about the boss.
+ * Third version. The second one shipped with the player spawning inside a
+ * sealed closet, and the lesson in that is worth more than the fix.
  *
- * **Room to move.** The first arena was forty tiles wide with scaffolding
- * across the middle of it, which left nowhere to go when the King came down
- * with two pigeons already in the air. It is fifty-six tiles now and the middle
- * two-thirds are deliberately empty floor — the whole span from tile 13 to tile
- * 43 is clear. Everything you climb is pushed out to the walls.
+ * The climbs are staircases rising towards the walls, which is right: the way
+ * up belongs at the edges so the middle stays open. But a staircase drawn as
+ * three floating shelves leaves the space underneath it enclosed — walled by
+ * the map on one side, roofed by its own treads, and shut on the other side by
+ * the bottom tread. Standing in there the ceiling is ten pixels over your head
+ * and the step out is sixteen tall, so there is no jump that leaves. I put the
+ * spawn in that pocket.
  *
- * **Steps you can actually make.** The old scaffolding rose four tiles a step
- * and the comment claimed both brothers could climb it from a standstill. They
- * cannot: a standing jump is 62px, which is 3.85 tiles, so every step needed a
- * run-up and a run-up is the one thing a boss arena does not give you room for.
- * Every step here is three tiles.
+ * So the treads are filled down to the floor now. A staircase is a solid
+ * wedge, not a set of shelves, and a solid wedge has no underneath to be
+ * trapped in. The top tread runs flush into the wall for the same reason: the
+ * one-tile gap between them was a well you could drop into and not climb out
+ * of.
  *
- * **Nowhere to be cornered.** No pits, and two bounce pads on the open floor,
- * so being knocked down never costs you the climb. A boss fight should be lost
- * to the boss.
+ * Everything else is as it was and for the reasons it was:
+ *
+ * **Room to move.** Fifty-six tiles, and tiles 12 to 43 are unbroken open
+ * floor. Everything you climb is pushed out to the walls.
+ *
+ * **Steps you can make from a standstill.** One tile, then two, then two.
+ * Nothing is three: Mendy's standing jump is 62px, but Berel's is 48px, which
+ * is three tiles exactly and no margin. A boss arena is the last place to ask
+ * for a run-up.
+ *
+ * **Nowhere to be cornered, and nothing to trip over.** No pits, and nothing
+ * standing on the floor between the two staircases at all.
  */
 const WIDTH = 56;
 const HEIGHT = 27;
@@ -40,7 +51,9 @@ const L = level({
   backdrop: 'night',
 });
 
-L.spawnAt(5);
+// In the open, in the middle, with the whole room visible and nothing
+// overhead. Where you start a boss fight should need no explaining.
+L.spawnAt(14);
 L.ground(0, WIDTH);
 
 // Walls, so the fight stays in the room. The King ignores them — he is a bird,
@@ -49,65 +62,70 @@ L.slab(0, 5, 2, FLOOR - 5, 'wall');
 L.slab(WIDTH - 2, 5, 2, FLOOR - 5, 'wall');
 
 /**
- * Scaffolding up both walls, three tiles a step.
+ * A solid staircase up each wall, climbed from the middle of the room outwards.
  *
- * Symmetrical on purpose: whichever side he drives you to, the way up is the
- * same shape, so you are never learning a new climb while being dived at.
+ * `ledge` fills from the tread down to the floor, which is what keeps this
+ * honest — there is no space under a step to fall into. Read from the arena
+ * inwards the profile only ever goes up, so the tread you are jumping to is
+ * ahead of you rather than over you and there is open sky above the one you
+ * take off from. That is the whole requirement, and the previous version broke
+ * it by being built out of shelves.
  *
- * Each step is set back from the one below it, so the three tiles you take off
- * from always have open sky above them. Without that gap you rise into the
- * underside of the very ledge you are aiming for, the jump is cut at head
- * height, and the climb reads as needing a run-up when what it actually needs
- * is somewhere to stand. That is what made the first arena feel stuck.
+ * Both sides are the same shape on purpose: whichever way he drives you, you
+ * are not learning a new climb while being dived at.
  */
+L.ledge(9, 19, 3);  // left stair: floor -> 1 tile up
+L.ledge(6, 17, 3);  //             -> 2 tiles
+L.ledge(2, 15, 4);  //             -> 2 tiles, run flush into the wall
+
+L.ledge(44, 19, 3); // right stair, mirrored
+L.ledge(47, 17, 3);
+L.ledge(50, 15, 4);
+
 /**
- * A staircase, not a ladder.
+ * The perches he retreats to: a line of them, six tiles apart, the whole width
+ * of the room.
  *
- * Every tread is set back from the one above it, so the tiles you take off
- * from always have open sky. That is the whole trick, and getting it wrong is
- * what made the first arena feel stuck: with a ledge directly overhead you
- * rise into its underside, the jump is cut at head height, and it reads as
- * needing a run-up when what it needs is somewhere to stand.
+ * There were three, at either end and the middle, and that was too few for the
+ * rule he now picks by. He goes to the nearest perch that is not right on top
+ * of you, so that the rear-up before a dive happens where you can see it — and
+ * with three perches in fifty-six tiles the nearest one is routinely further
+ * than the twenty tiles the camera shows. He would tell his dive off-screen.
  *
- * Rises are one tile, then two, then two. Nothing is three: Mendy's standing
- * jump is 62px and clears three tiles with room, but Berel's is 48px, which is
- * three tiles exactly and no margin — measured, he misses the last step of a
- * three-tile staircase by two pixels. An arena half of which one brother
- * cannot climb is not an arena.
+ * Six tiles apart, and wherever you stand there is a perch between five and
+ * nine tiles away: far enough that the tell is a warning, close enough that it
+ * is a warning you are looking at. The varied heights are so the room reads as
+ * scaffolding rather than a shelf.
  */
-L.slab(9, 19, 3, 1); //  left: floor -> 1 tile
-L.slab(6, 17, 3, 1); //        -> 2 tiles, sky clear over tiles 9-11
-L.slab(3, 15, 3, 1); //        -> 2 tiles, sky clear over tiles 6-8
-
-L.slab(44, 19, 3, 1); // right, mirrored
-L.slab(47, 17, 3, 1);
-L.slab(50, 15, 3, 1);
-
-// The perches he retreats to, spread across the room so he crosses it between
-// attacks instead of hanging over one spot.
 L.perch(5, 12);
-L.perch(28, 10);
-L.perch(51, 12);
+L.perch(11, 10);
+L.perch(17, 11);
+L.perch(23, 9);
+L.perch(29, 10);
+L.perch(35, 9);
+L.perch(41, 11);
+L.perch(47, 10);
+L.perch(50, 12);
 
 /**
- * A bag of rubbish at the foot of each climb.
+ * No bounce pads, and that is the arena's whole argument.
  *
- * These are the way up, not a bonus. Jumping from the floor onto a ledge three
- * tiles above needs you to clear its top before you drift underneath it, and
- * beside a wall there is only a tile or so of room to do that in — which is
- * the "you need a running start" of the first arena, and there is nowhere to
- * run. Land on the bag instead and you are thrown well over the shelf with
- * time to steer.
+ * There were two of them out on the floor, as insurance against being knocked
+ * down. Driving the real game loop across the room showed what they actually
+ * were: a pad is a collider, so walking into the side of one stops you dead.
+ * Three seconds of holding right from the spawn covered five tiles and then
+ * hit a wall. Two of those in a thirty-two tile room is not insurance, it is
+ * the "nowhere to move" this rebuild exists to fix.
  *
- * They double as the way back up after being knocked down, which is what they
- * were there for before.
+ * They were there so a knock-down would not cost you the climb, and the
+ * staircases already answer that: every tread goes from a standstill, for both
+ * brothers, so getting back up costs you seconds rather than a run-up. Tiles
+ * 12 to 43 are now unbroken floor.
  */
-L.bounce(20, 19, 3);
-L.bounce(34, 19, 3);
 
-// One box, because going into this fight small is a rough evening. Hit from
-// the floor below it.
-L.block(12, 16, 'mystery', 'cholent');
+// One box, out on the open floor where you can line it up. Going into this
+// fight small is a rough evening.
+L.block(18, 16, 'mystery', 'cholent');
 
 L.bossAt(28, 11);
 
@@ -119,7 +137,7 @@ L.bossAt(28, 11);
  * arc he levels out and then stops dead for a beat — that pause is the whole
  * fight, and it is long enough to walk up to and jump on.
  */
-L.sign(6, [
+L.sign(24, [
   'THE PIGEON KING',
   'he aims where you stand. move.',
   'duck, or land on his back. x3',
