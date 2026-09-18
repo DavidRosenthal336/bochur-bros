@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 82,
+ "nextobjectid": 90,
  "tilesets": [],
  "properties": [
   {
@@ -69,96 +69,6 @@
        "name": "kind",
        "type": "string",
        "value": "ground"
-      }
-     ]
-    },
-    {
-     "id": 3,
-     "name": "",
-     "class": "",
-     "x": 576,
-     "y": 288,
-     "width": 48,
-     "height": 32,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 4,
-     "name": "",
-     "class": "",
-     "x": 672,
-     "y": 272,
-     "width": 48,
-     "height": 48,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 5,
-     "name": "",
-     "class": "",
-     "x": 768,
-     "y": 256,
-     "width": 48,
-     "height": 64,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 6,
-     "name": "",
-     "class": "",
-     "x": 864,
-     "y": 240,
-     "width": 48,
-     "height": 80,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 7,
-     "name": "",
-     "class": "",
-     "x": 960,
-     "y": 224,
-     "width": 48,
-     "height": 96,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
       }
      ]
     },
@@ -899,6 +809,78 @@
        "value": "wall"
       }
      ]
+    },
+    {
+     "id": 82,
+     "name": "",
+     "class": "",
+     "x": 576,
+     "y": 288,
+     "width": 48,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 84,
+     "name": "",
+     "class": "",
+     "x": 720,
+     "y": 272,
+     "width": 48,
+     "height": 48,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 86,
+     "name": "",
+     "class": "",
+     "x": 864,
+     "y": 256,
+     "width": 48,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 88,
+     "name": "",
+     "class": "",
+     "x": 1008,
+     "y": 240,
+     "width": 48,
+     "height": 80,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
     }
    ]
   },
@@ -992,96 +974,6 @@
        "name": "text",
        "type": "string",
        "value": "each pillar is 1 tile taller. running gets you one higher."
-      }
-     ]
-    },
-    {
-     "id": 54,
-     "name": "",
-     "class": "label",
-     "x": 576,
-     "y": 272,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "text",
-       "type": "string",
-       "value": "2"
-      }
-     ]
-    },
-    {
-     "id": 55,
-     "name": "",
-     "class": "label",
-     "x": 672,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "text",
-       "type": "string",
-       "value": "3"
-      }
-     ]
-    },
-    {
-     "id": 56,
-     "name": "",
-     "class": "label",
-     "x": 768,
-     "y": 240,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "text",
-       "type": "string",
-       "value": "4"
-      }
-     ]
-    },
-    {
-     "id": 57,
-     "name": "",
-     "class": "label",
-     "x": 864,
-     "y": 224,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "text",
-       "type": "string",
-       "value": "5"
-      }
-     ]
-    },
-    {
-     "id": 58,
-     "name": "",
-     "class": "label",
-     "x": 960,
-     "y": 208,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "text",
-       "type": "string",
-       "value": "6"
       }
      ]
     },
@@ -1496,6 +1388,78 @@
        "name": "text",
        "type": "string",
        "value": "H  END OF THE LINE"
+      }
+     ]
+    },
+    {
+     "id": 83,
+     "name": "",
+     "class": "label",
+     "x": 576,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "2"
+      }
+     ]
+    },
+    {
+     "id": 85,
+     "name": "",
+     "class": "label",
+     "x": 720,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "3"
+      }
+     ]
+    },
+    {
+     "id": 87,
+     "name": "",
+     "class": "label",
+     "x": 864,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "4"
+      }
+     ]
+    },
+    {
+     "id": 89,
+     "name": "",
+     "class": "label",
+     "x": 1008,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "5"
       }
      ]
     }

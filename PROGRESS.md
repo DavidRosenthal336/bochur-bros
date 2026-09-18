@@ -360,6 +360,34 @@ sunk into the floor, and the first crouch misbehaved.
 
 See `ART_SPEC.md` for the grid, every hitbox, and how to add the next form.
 
+### Playtest fixes after Milestone 5
+
+**Stuck between the awnings in 1-1.** The same class of bug as 1-2's climb, and
+that is the part worth recording: it was built with `ledge()`, which makes a
+block solid all the way down to the floor, so three awnings became three
+pillars with two-tile slots between them — walled five and seven tiles high,
+which no jump clears from a standstill. They are one-tile platforms now, which
+is also what §6 describes: something you land on, not a pillar.
+
+**This bug has now shipped twice, so it is a build error rather than a habit.**
+`tools/validate-level.mjs` reads a level's geometry, finds every horizontal run
+of floor, and asks whether you could leave it — by walking off an end, by
+mounting the shorter of the two walls, or by jumping onto something above.
+Anything you could get into and not out of fails the build. It runs on every
+`npm run build:maps` and `npm run build`, and `npm run check:maps` checks the
+hand-edited maps too.
+
+Pointed at the existing levels it immediately found the awning trap *and* one
+in the Gym: the height-ladder pillars were three tiles apart with five-tile
+walls, so falling between the two tallest wedged you. Respaced to four pillars
+nine apart. All six maps now pass.
+
+**Cholent reverting to a box** is expected, not a bug — only Mendy Small is
+drawn so far, and everything else falls back to a placeholder. Placeholders now
+carry a darker edge so they read as a deliberate stand-in rather than as art
+that failed to load, and `ART_SPEC.md` names Cholent as the next form to draw:
+it is the first power-up in the game, so it is the most visible gap.
+
 ---
 
 ## Milestone 6 — World 1 complete

@@ -55,10 +55,16 @@ L.sign(53, ['LAND ON TOP OF A PIGEON'], 16);
 
 // --- Awnings: a climb for coins, over solid ground. Falling off costs nothing
 // here on purpose — this is where climbing gets introduced, not tested.
+//
+// They are one tile thick, not solid down to the floor. Built as columns they
+// made two-tile slots between them with five- and seven-tile walls on either
+// side: you could drop in and there was no jump that got you out. A thin
+// awning is also what the design doc describes (§6) — something you land on,
+// not a pillar.
 L.ground(77, 25);
-L.ledge(80, 17, 3);
-L.ledge(85, 15, 3);
-L.ledge(90, 13, 3);
+L.slab(80, 17, 3, 1);
+L.slab(85, 15, 3, 1);
+L.slab(90, 13, 3, 1);
 L.coinRow(90, 11, 3);
 L.enemy(86, 11);
 

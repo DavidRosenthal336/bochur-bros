@@ -146,11 +146,19 @@ above the head.
 
 ### Suggested order
 
-1. **Mendy, Small** — idle, run, jump, fall. Four frames-worth tells us whether
-   the whole look is right, and it is the character you see most.
-2. Mendy Cholent (the size change is the thing to check).
+1. ~~**Mendy, Small**~~ — **done.**
+2. **Mendy Cholent — next, and the most visible gap.** It is the first power-up
+   in the game, so within a minute of starting you go from a drawn character to
+   a placeholder box. Same six animations, 16 × 30 hitbox. §5 describes it as
+   "puffs up round and heavy, steam rising" — rounder and squatter than Small,
+   not simply scaled up.
 3. Berel, Small — he has to read as heavier at a glance, not just larger.
-4. Everything else.
+4. Menorah, Lulav and Peyos for Mendy. Peyos needs the separate hovering hat.
+5. Everything else.
+
+Until a form is drawn it shows as a coloured box with a darker edge. That edge
+is deliberate — it marks a placeholder, so a missing sprite reads as "not drawn
+yet" rather than as something broken.
 
 ### Colours currently standing in
 

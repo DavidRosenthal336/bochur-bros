@@ -133,7 +133,7 @@
      "x": 1280,
      "y": 272,
      "width": 48,
-     "height": 48,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -151,7 +151,7 @@
      "x": 1360,
      "y": 240,
      "width": 48,
-     "height": 80,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -169,7 +169,7 @@
      "x": 1440,
      "y": 208,
      "width": 48,
-     "height": 112,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [

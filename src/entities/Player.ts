@@ -6,7 +6,7 @@ import type { InputState } from '../input/InputState';
 import { NEUTRAL_INPUT } from '../input/InputState';
 import type { SpriteSet } from '../config/sprites';
 import { animKey, spriteSetFor } from '../config/sprites';
-import { solidTextureKey } from '../util/textures';
+import { placeholderTextureKey } from '../util/textures';
 
 /** Everything the debug overlay wants to know, without reaching into privates. */
 export interface PlayerDebugInfo {
@@ -99,7 +99,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   constructor(scene: Phaser.Scene, x: number, y: number, characterId: CharacterId) {
     const stats = CHARACTERS[characterId];
-    super(scene, x, y, solidTextureKey(scene, stats.bodyWidth, stats.bodyHeight));
+    super(scene, x, y, placeholderTextureKey(scene, stats.bodyWidth, stats.bodyHeight));
     this.characterId = characterId;
     this.bracket = stats.jumpBrackets[0]!;
 
@@ -542,7 +542,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    this.setTexture(solidTextureKey(this.scene, width, height));
+    this.setTexture(placeholderTextureKey(this.scene, width, height));
     body.setSize(width, height);
     body.setOffset(0, 0);
   }

@@ -25,6 +25,36 @@ export function makeSolidTexture(
 }
 
 /**
+ * A white rectangle with a darker edge, sized exactly, made once and reused.
+ *
+ * The edge survives tinting — a tint multiplies the whole texture, so a mid-grey
+ * border under an orange tint is simply a darker orange — which makes a
+ * placeholder read as a deliberate stand-in rather than as art that failed to
+ * load. Forms that have been drawn never use this.
+ */
+export function placeholderTextureKey(
+  scene: Phaser.Scene,
+  width: number,
+  height: number,
+): string {
+  const key = `placeholder-${width}x${height}`;
+  if (scene.textures.exists(key)) return key;
+
+  const graphics = scene.add.graphics();
+  graphics.fillStyle(0xffffff, 1);
+  graphics.fillRect(0, 0, width, height);
+  graphics.fillStyle(0x9a9a9a, 1);
+  graphics.fillRect(0, 0, width, 1);
+  graphics.fillRect(0, height - 1, width, 1);
+  graphics.fillRect(0, 0, 1, height);
+  graphics.fillRect(width - 1, 0, 1, height);
+  graphics.generateTexture(key, width, height);
+  graphics.destroy();
+
+  return key;
+}
+
+/**
  * A white rectangle of exactly this size, made once and reused, to be tinted
  * by whatever uses it.
  *
