@@ -145,6 +145,23 @@ export const ACTOR_SPRITES = {
   rat: actor('rat', 20, 14, { run: [0, 1], squash: 2 }, { fps: 12 }),
   pigeonKing: actor('pigeon_king', 44, 38, { idle: 0, wings: 1, dive: 2, hurt: 3 }),
 
+  /**
+   * The Yetzer Hara.
+   *
+   * §6 calls him "a shape-shifter with no true form", and the sheet is drawn
+   * that way: the first two frames are a formless dark shape, and the other
+   * three are the borrowed forms he cycles through in World 4. The prologue
+   * only ever uses the smoke, which is the point — the final fight has nothing
+   * left to reveal if you have had a good look at him in the first minute.
+   */
+  yetzerHara: actor(
+    'yetzer_hara',
+    44,
+    46,
+    { smoke: [0, 1], asPigeonKing: 2, asEscalade: 3, asBear: 4 },
+    { fps: 6 },
+  ),
+
   cart: actor('cart', 26, 22, { idle: 0 }),
   pipe: actor('scaffold_pipe', 16, 44, { idle: 0 }),
   stroller: actor('stroller', 28, 30, { idle: 0 }),

@@ -21,4 +21,13 @@ export const LEVELS: Record<string, LevelDef> = Object.fromEntries(
 /** Levels that are not part of the game proper: instruments and test beds. */
 export const GREYBOX_LEVELS: readonly string[] = ['powers', 'gym', 'core-loop', 'chavrusa'];
 
+/**
+ * The prologue's map key.
+ *
+ * Deliberately not in the catalog: it is not one of the sixteen levels, it
+ * belongs to no world, and it unlocks nothing. It is the thing that explains
+ * the map, so it cannot be on it.
+ */
+export const PROLOGUE_LEVEL = 'intro';
+
 export const DEFAULT_LEVEL = '1-1';

@@ -10,6 +10,7 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   const bouncers = [];
   const perches = [];
   let boss;
+  let thief;
   let autoScroll;
   const solids = [];
   const labels = [];
@@ -68,6 +69,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
     /** Something you bounce off: an awning, a bag of rubbish. */
     bounce(x, y, w = 1) { bouncers.push({ x, y, w }); return api; },
     bossAt(x, y) { boss = { x, y }; return api; },
+    /** The Yetzer Hara, in the prologue. He runs; he is not fought. */
+    thiefAt(x, y = floorTop) { thief = { x, y }; return api; },
     perch(x, y) { perches.push({ x, y }); return api; },
     scrolls(pxPerSecond) { autoScroll = pxPerSecond; return api; },
     label(x, y, text) { labels.push({ x, y, text }); return api; },
@@ -97,6 +100,7 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         perches,
         checkpoints,
         ...(boss ? { boss } : {}),
+        ...(thief ? { thief } : {}),
         ...(autoScroll === undefined ? {} : { autoScroll }),
         ...(goal ? { goal } : {}),
       };

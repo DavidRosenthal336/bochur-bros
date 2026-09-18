@@ -10,6 +10,8 @@ import type { CharacterPose } from '../config/sprites';
 import { artExists, BACKDROPS, SCENERY, tallSky } from '../config/scenery';
 import type { BackdropVariant } from '../config/scenery';
 import { SceneKey } from './SceneKey';
+import { PROLOGUE_LEVEL } from '../levels';
+import { loadSave } from '../systems/SaveGame';
 
 /**
  * Loads every sheet in the art registry and registers their animations.
@@ -85,6 +87,17 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
-    this.scene.start(SceneKey.WorldMap);
+    /**
+     * A new game opens on the prologue, not the map.
+     *
+     * The map is four neighbourhoods and no explanation; the prologue is the
+     * explanation. Once it has been watched the game opens where it used to,
+     * and it can be watched again from the map.
+     */
+    if (loadSave().introSeen) {
+      this.scene.start(SceneKey.WorldMap);
+      return;
+    }
+    this.scene.start(SceneKey.Level, { levelKey: PROLOGUE_LEVEL, prologue: true });
   }
 }

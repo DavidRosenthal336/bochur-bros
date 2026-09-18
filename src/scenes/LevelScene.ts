@@ -20,6 +20,7 @@ import { Enemy } from '../entities/Enemy';
 import { WindZone } from '../entities/Hazard';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
+import { Thief } from '../entities/Thief';
 import { ENEMIES as ENEMY_TABLE } from '../config/enemies';
 import { HAZARDS } from '../config/hazards';
 import { Flame } from '../entities/Flame';
@@ -27,7 +28,7 @@ import { Coin, PowerUpPickup } from '../entities/Pickup';
 import { Player } from '../entities/Player';
 import { KeyboardInput } from '../input/KeyboardInput';
 import type { LevelDef, SolidKind } from '../levels/LevelDef';
-import { DEFAULT_LEVEL, GREYBOX_LEVELS, LEVELS } from '../levels';
+import { DEFAULT_LEVEL, GREYBOX_LEVELS, PROLOGUE_LEVEL, LEVELS } from '../levels';
 import { findLevel, worldOf } from '../levels/catalog';
 import { completeLevel as recordCompletion, loadSave, writeSave } from '../systems/SaveGame';
 import type { PowerTier } from '../systems/PowerState';
@@ -65,6 +66,12 @@ export interface LevelSceneData {
   readonly levelId?: string;
   /** True when this is an instrument rather than part of the game. */
   readonly greybox?: boolean;
+  /**
+   * True for the prologue, which is a level in every mechanical sense and none
+   * of the bookkeeping ones: it is not in the catalog, unlocks nothing, and
+   * records only that it has been watched.
+   */
+  readonly prologue?: boolean;
   /** Carried across a death, so the coin total is not lost with the life. */
   readonly coins?: number;
   /** The checkpoint to come back to, in pixels. Omitted means the level start. */
@@ -122,6 +129,8 @@ export class LevelScene extends Phaser.Scene {
   /** The hazard the player is currently standing on, if any. */
   private riding: MovingHazard | undefined;
   private boss: Boss | undefined;
+  private thief: Thief | undefined;
+  private prologue = false;
   private perches: Phaser.Math.Vector2[] = [];
   /** Seconds left, on the levels that have a clock (§7). */
   private secondsLeft: number | undefined;
@@ -166,6 +175,7 @@ export class LevelScene extends Phaser.Scene {
     this.secondsLeft = this.levelId ? findLevel(this.levelId)?.timeLimit : undefined;
     this.autoScrollX = 0;
     this.greybox = data.greybox ?? GREYBOX_LEVELS.includes(key);
+    this.prologue = data.prologue ?? key === PROLOGUE_LEVEL;
     this.state = 'playing';
   }
 
@@ -234,6 +244,7 @@ export class LevelScene extends Phaser.Scene {
     this.buildHazards();
     this.buildBouncers();
     this.buildBoss();
+    this.buildThief();
     this.buildCheckpointsAndGoal();
     this.pickups = this.add.group();
     this.flames = this.add.group();
@@ -251,7 +262,13 @@ export class LevelScene extends Phaser.Scene {
       this.state === 'complete' ? this.restartFromStart() : this.restartFromCheckpoint(),
     );
     this.keyboard?.on('keydown-F3', () => this.cycleLevel());
-    this.keyboard?.on('keydown-ESC', () => this.toWorldMap());
+    this.keyboard?.on('keydown-ESC', () => {
+      // Skipping the prologue still counts as having seen it. Otherwise it
+      // reappears every launch until it is sat through, which is the surest
+      // way to make somebody resent it.
+      if (this.prologue) writeSave({ ...loadSave(), introSeen: true });
+      this.toWorldMap();
+    });
     this.keyboard?.on('keydown-SPACE', () => {
       if (this.state === 'complete' && !this.greybox) this.toWorldMap();
     });
@@ -280,6 +297,8 @@ export class LevelScene extends Phaser.Scene {
     this.updateHazards(now);
     this.updateBoss(now);
     this.dismissFlock(now);
+    this.thief?.tick(step, this.player.x);
+    this.watchForTheGetaway();
     this.updateClock(delta);
     this.updateAutoScroll(delta);
 
@@ -477,6 +496,124 @@ export class LevelScene extends Phaser.Scene {
       return;
     }
     if (boss.isDangerous) this.hurtPlayer(boss.x);
+  }
+
+  /**
+   * He goes when you get close, not when you touch the goal.
+   *
+   * The goal alone was the wrong trigger. He runs out of street three tiles
+   * short of it and waits there, so a player at full tilt simply overtakes the
+   * thing that is supposed to be uncatchable and jogs past him to the flag —
+   * measured, the gap went from fourteen pixels to minus fifty-six. Watching
+   * the distance instead means the escape plays as you close on him, which is
+   * the moment the whole level is for, and the goal is left as a backstop for
+   * anyone who finds a way round.
+   */
+  private watchForTheGetaway(): void {
+    const thief = this.thief;
+    if (!thief || !this.prologue || this.state !== 'playing') return;
+    if (!thief.isAtExit || thief.isLeaving) return;
+    if (thief.x - this.player.x > TILE * 4) return;
+    this.completeLevel();
+  }
+
+  /**
+   * The Yetzer Hara, in the prologue.
+   *
+   * Cleared first for the same reason the boss is: Phaser reuses the scene
+   * instance across `scene.start`, so one left over from the level before
+   * would go on being ticked with a destroyed sprite under it.
+   */
+  private buildThief(): void {
+    this.thief = undefined;
+    const placement = this.level.thief;
+    if (!placement) return;
+
+    const goalX = (this.level.goal?.x ?? this.level.widthInTiles - 6) * TILE;
+    this.thief = new Thief(
+      this,
+      placement.x * TILE + TILE / 2,
+      placement.y * TILE,
+      // Short of the goal, so the escape happens in front of the player rather
+      // than off the edge of the screen while they are still running at it.
+      goalX - TILE * 3,
+    );
+
+    /**
+     * The held beat, and then he goes.
+     *
+     * This is the crash. The player gets a second and a half to read the room
+     * and the sign with nothing moving, and then the shape they have been
+     * looking at turns out to be the thief and bolts. Doing it this way rather
+     * than as a cutscene keeps the controls live throughout — the first thing
+     * the game does is not take them away.
+     */
+    this.time.delayedCall(1500, () => {
+      if (!this.thief || this.state !== 'playing') return;
+      this.thief.release();
+      this.cameras.main.shake(260, 0.006);
+    });
+  }
+
+  /**
+   * The spread goes up, and comes down over four neighbourhoods.
+   *
+   * Four icons, the four world prizes, thrown out along four arcs. It is the
+   * last beat of the prologue and the first line of the map screen's argument:
+   * the player has just watched the thing the map is a picture of, so the four
+   * nodes they are about to see arrive already meaning something.
+   *
+   * Thrown flat rather than high, because there is nowhere to throw it.
+   *
+   * The camera sits near the bottom of a 27-tile level and the view is 180px,
+   * so above the pavement there are about fifty pixels of picture and no more.
+   * The first version launched from the thief's own position and arced six to
+   * nine tiles up: measured against the camera, every piece left the top of
+   * the screen within a few frames, and the beat the whole prologue ends on
+   * played entirely above the visible world. Twice, because the second attempt
+   * fixed the launch height and kept the arc.
+   *
+   * So it fans sideways and rises a little, which is the right reading anyway
+   * — four places, spread out, not one plume going up.
+   *
+   * Drawn from the prize sheet when it exists and as four coloured squares
+   * when it does not, like everything else here.
+   */
+  private scatterTheSpread(fromX: number): void {
+    const camera = this.cameras.main;
+    const icons = sceneryArt('prizeIcons');
+    const spread: readonly { frame: string; tint: number }[] = [
+      { frame: 'meat_board', tint: 0x8d6bb5 },
+      { frame: 'poppers', tint: 0x5fa86b },
+      { frame: 'kugel', tint: 0xd98b3a },
+      { frame: 'tequila', tint: 0x4f8fd0 },
+    ];
+
+    // Chest height on the pavement, and a rise that stops short of the top of
+    // the view whatever the camera is doing.
+    const fromY = this.player.y - TILE;
+    const headroom = Math.max(TILE * 2, fromY - camera.scrollY - TILE);
+
+    spread.forEach((item, i) => {
+      const piece = icons
+        ? this.add.image(fromX, fromY, icons.key, icons.frames[item.frame] ?? 0)
+        : this.add.rectangle(fromX, fromY, 10, 10, item.tint);
+      piece.setDepth(11).setScrollFactor(1);
+
+      // Fanned out: two left, two right, each a little further than the last.
+      const direction = i < 2 ? -1 : 1;
+      const reach = TILE * (2 + i * 1.5);
+
+      this.tweens.add({
+        targets: piece,
+        x: fromX + direction * reach,
+        y: fromY - headroom * (i % 2 === 0 ? 0.85 : 0.55),
+        alpha: { value: 0, delay: 700, duration: 800 },
+        duration: 1500,
+        ease: 'Quad.easeOut',
+        onComplete: () => piece.destroy(),
+      });
+    });
   }
 
   /**
@@ -1068,6 +1205,10 @@ export class LevelScene extends Phaser.Scene {
    */
   private completeLevel(): void {
     if (this.state !== 'playing') return;
+    if (this.prologue) {
+      this.completePrologue();
+      return;
+    }
     this.state = 'complete';
     this.player.setControllable(false);
 
@@ -1135,6 +1276,35 @@ export class LevelScene extends Phaser.Scene {
     const index = GREYBOX_LEVELS.indexOf(this.level.key);
     const next = GREYBOX_LEVELS[(index + 1) % GREYBOX_LEVELS.length]!;
     this.scene.restart({ levelKey: next, greybox: true } satisfies LevelSceneData);
+  }
+
+  /**
+   * The end of the prologue: he gets away, and the spread goes with him.
+   *
+   * Nothing is unlocked and nothing is scored, because the prologue is not one
+   * of the sixteen. The only thing written down is that it has been watched.
+   *
+   * It ends on its own rather than waiting for a keypress. Every other level
+   * finishes on "SPACE for the map" because finishing one is an achievement
+   * worth sitting in; this one finishes on losing, and holding the player
+   * there to press a key would be asking them to confirm it.
+   */
+  private completePrologue(): void {
+    this.state = 'complete';
+    this.player.setControllable(false);
+    writeSave({ ...loadSave(), introSeen: true });
+
+    const thief = this.thief;
+    if (!thief) {
+      this.toWorldMap();
+      return;
+    }
+
+    thief.escape(() => {
+      this.scatterTheSpread(thief.x);
+      this.hud.showBanner('SCATTERED ACROSS FOUR PLACES.\nGO AND GET IT BACK');
+      this.time.delayedCall(2600, () => this.toWorldMap());
+    });
   }
 
   private toWorldMap(): void {
@@ -1298,7 +1468,7 @@ export class LevelScene extends Phaser.Scene {
    */
   private drawLabels(): void {
     for (const label of this.level.labels) {
-      this.add
+      const text = this.add
         .text(label.x * TILE, label.y * TILE, label.text, {
           fontFamily: 'monospace',
           fontSize: '8px',
@@ -1306,6 +1476,20 @@ export class LevelScene extends Phaser.Scene {
         })
         .setShadow(1, 1, '#0d0f1a', 0, true, true)
         .setDepth(5);
+
+      /**
+       * A plate behind the words.
+       *
+       * Near-white with a drop shadow is legible over brick and sky and
+       * nothing else. The backdrop's shopfronts are a red and white striped
+       * awning at a fixed height, and any line that lands on that band is
+       * gone — the prologue's third line was unreadable and the line had done
+       * nothing wrong. A sign has to be readable wherever it is hung.
+       */
+      this.add
+        .rectangle(text.x - 2, text.y - 1, text.width + 4, text.height + 2, 0x0d0f1a, 0.66)
+        .setOrigin(0, 0)
+        .setDepth(4.5);
     }
   }
 

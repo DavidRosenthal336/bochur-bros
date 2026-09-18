@@ -3,7 +3,7 @@ import { sceneryArt } from '../config/scenery';
 import { VIEW_WIDTH } from '../config/Tuning';
 import type { LevelEntry, WorldEntry } from '../levels/catalog';
 import { LEVEL_ORDER, WORLDS } from '../levels/catalog';
-import { GREYBOX_LEVELS, LEVELS } from '../levels';
+import { GREYBOX_LEVELS, LEVELS, PROLOGUE_LEVEL } from '../levels';
 import type { SaveData } from '../systems/SaveGame';
 import { clearSave, currentLevel, isUnlocked, loadSave } from '../systems/SaveGame';
 import { SceneKey } from './SceneKey';
@@ -81,6 +81,11 @@ export class WorldMapScene extends Phaser.Scene {
     keyboard?.on('keydown-ENTER', () => this.enter());
     keyboard?.on('keydown-Z', () => this.enter());
     keyboard?.on('keydown-G', () => this.enterGreybox());
+    // The prologue, again. It plays once by itself and is worth being able to
+    // go back to, since it is the only place the story is actually told.
+    keyboard?.on('keydown-I', () =>
+      this.scene.start(SceneKey.Level, { levelKey: PROLOGUE_LEVEL, prologue: true }),
+    );
     keyboard?.on('keydown-BACKSPACE', () => this.wipe());
   }
 

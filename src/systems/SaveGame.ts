@@ -19,6 +19,15 @@ export interface SaveData {
   readonly lives: number;
   readonly coins: number;
   readonly character: CharacterId;
+  /**
+   * Whether the prologue has been watched.
+   *
+   * Added without bumping `VERSION`, on purpose. A version bump discards the
+   * save, and discarding somebody's progress to record that they have not seen
+   * a thing they have not seen is a bad trade. An older save simply reads as
+   * `false` and gets the prologue once, which is the right answer anyway.
+   */
+  readonly introSeen: boolean;
 }
 
 const KEY = 'bochur-bros/save/v1';
@@ -31,6 +40,7 @@ export const EMPTY_SAVE: SaveData = {
   lives: 3,
   coins: 0,
   character: DEFAULT_CHARACTER,
+  introSeen: false,
 };
 
 /**
@@ -55,6 +65,7 @@ export function loadSave(): SaveData {
       lives: typeof parsed.lives === 'number' ? parsed.lives : EMPTY_SAVE.lives,
       coins: typeof parsed.coins === 'number' ? parsed.coins : 0,
       character: parsed.character === 'berel' ? 'berel' : 'mendy',
+      introSeen: parsed.introSeen === true,
     };
   } catch {
     return EMPTY_SAVE;

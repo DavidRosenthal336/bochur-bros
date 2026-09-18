@@ -43,6 +43,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   let spawn: TilePoint = { x: 2, y: map.height - 8 };
   let goal: TilePoint | undefined;
   let boss: TilePoint | undefined;
+  let thief: TilePoint | undefined;
 
   for (const layer of map.layers) {
     if (layer.type !== 'objectgroup') continue;
@@ -119,6 +120,9 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
         case 'boss':
           boss = { x, y };
           break;
+        case 'thief':
+          thief = { x, y };
+          break;
         case 'perch':
           perches.push({ x, y });
           break;
@@ -153,6 +157,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     perches,
     ...(goal ? { goal } : {}),
     ...(boss ? { boss } : {}),
+    ...(thief ? { thief } : {}),
     ...(readMapString(map, 'autoScroll') ? { autoScroll: Number(readMapString(map, 'autoScroll')) } : {}),
     ...(isBackdropVariant(readMapString(map, 'backdrop'))
       ? { backdrop: readMapString(map, 'backdrop') as BackdropVariant }

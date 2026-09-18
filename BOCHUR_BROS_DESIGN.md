@@ -100,6 +100,13 @@ Each world's boss holds a stolen kiddush item. Recovering it is the world's vict
 
 ---
 
+### Prologue — The Kiddush
+Staging the premise above, so the map screen is arrived at rather than opened on.
+
+The Yetzer Hara takes the spread and runs. He is a formless shadow the whole way — §6 has him as a shape-shifter with no true form, and the final fight has nothing left to reveal if he has already been seen properly — and he holds station ahead of the player however fast they run, so the chase cannot be won. It cannot be lost either: no enemies, no hazards, no pit, no clock. It ends when the player closes on him at the end of the street, at which point he goes up and over and the spread scatters into the four world-map nodes.
+
+It also teaches running, jumping and swapping brothers, in a level where none of them can be failed. Plays once on a new save, skippable, and rewatchable from the map with **I**.
+
 ### World 1 — Boro Park
 Dense, loud, urban Brooklyn. Grimy, crowded, vertical.
 

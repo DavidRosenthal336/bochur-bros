@@ -105,6 +105,14 @@ export interface LevelDef {
   /** A boss, and the perches it retreats to between attacks (§6). */
   readonly boss?: TilePoint;
   readonly perches?: readonly TilePoint[];
+  /**
+   * Where the Yetzer Hara starts, in the prologue.
+   *
+   * He is not a boss and not an enemy: he cannot be caught, cannot be hurt and
+   * cannot hurt you. He runs, and the level is over when you reach the end of
+   * the street he ran down.
+   */
+  readonly thief?: TilePoint;
   /** Scroll the level along by itself, px/s. 1-3 is a chase (§6). */
   readonly autoScroll?: number;
   /** Wind and anything else that acts on a region rather than on contact. */
