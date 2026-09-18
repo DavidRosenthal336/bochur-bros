@@ -4,6 +4,7 @@ import { TILE } from '../../config/Tuning';
 import type { BlockContents, BlockKind } from '../../entities/Block';
 import type {
   BlockPlacement,
+  BouncePlacement,
   EnemyPlacement,
   HazardPlacement,
   LabelDef,
@@ -35,9 +36,12 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const enemies: EnemyPlacement[] = [];
   const crates: TilePoint[] = [];
   const hazards: HazardPlacement[] = [];
+  const bouncers: BouncePlacement[] = [];
   const checkpoints: TilePoint[] = [];
+  const perches: TilePoint[] = [];
   let spawn: TilePoint = { x: 2, y: map.height - 8 };
   let goal: TilePoint | undefined;
+  let boss: TilePoint | undefined;
 
   for (const layer of map.layers) {
     if (layer.type !== 'objectgroup') continue;
@@ -95,14 +99,27 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
           });
           break;
         case 'wind':
+        case 'pipe':
+        case 'cart':
+        case 'van':
+        case 'stroller':
           hazards.push({
             x,
             y,
             w: Math.round(object.width / tile),
             h: Math.round(object.height / tile),
-            kind: 'wind' as HazardKind,
+            kind: kind as HazardKind,
             direction: readNumber(object, 'direction') === 1 ? 1 : -1,
           });
+          break;
+        case 'bounce':
+          bouncers.push({ x, y, w: Math.max(1, Math.round(object.width / tile)) });
+          break;
+        case 'boss':
+          boss = { x, y };
+          break;
+        case 'perch':
+          perches.push({ x, y });
           break;
         case 'label':
           labels.push({ x, y, text: readString(object, 'text') ?? object.name });
@@ -122,6 +139,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     heightInTiles: map.height,
     spawn,
     backgroundColor: Number(readMapString(map, 'backgroundColor') ?? '0x151a2c'),
+    ...(readMapString(map, 'groundRow') ? { groundRow: Number(readMapString(map, 'groundRow')) } : {}),
     solids,
     labels,
     coins,
@@ -129,8 +147,12 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     enemies,
     crates,
     hazards,
+    bouncers,
     checkpoints,
+    perches,
     ...(goal ? { goal } : {}),
+    ...(boss ? { boss } : {}),
+    ...(readMapString(map, 'autoScroll') ? { autoScroll: Number(readMapString(map, 'autoScroll')) } : {}),
   };
 }
 

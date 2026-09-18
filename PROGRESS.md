@@ -392,4 +392,104 @@ it is the first power-up in the game, so it is the most visible gap.
 
 ## Milestone 6 — World 1 complete
 
-Not started.
+Four levels, a boss, and the art.
+
+### The levels
+
+**1-3, The Stroller** — the chase. The screen scrolls on by itself at 86 px/s,
+slightly under a walking pace, so standing still loses ground; the stroller
+comes from behind and never tires; there is a clock. The design rule here is
+that the route is never ambiguous, because at this speed there is no time to
+read a fork — so there isn't one. Everything is a straight run with things to
+clear.
+
+**1-4, The Pigeon King** — "an enormous, grimy pigeon atop the scaffolding.
+Summons flocks of pigeons, dive-bombs in arcs, and retreats to high perches
+between attacks" (§6). Three hits, three phases, each faster than the last. He
+is only vulnerable while he is down among you, which makes the fight about
+waiting for the dive rather than chasing him.
+
+### New systems
+
+**Hazards that move** (`MovingHazard`) — one class, four behaviours from the
+config table, for the same reason the enemies are one class:
+
+- `faller` — the scaffolding pipe. A shadow appears on the pavement, then it
+  drops. The shadow is the entire fairness of it.
+- `roller` — the shopping cart. Rolls fast; stand on top and ride it.
+- `lurcher` — the double-parked van. Sits still, then lunges with no warning.
+- `chaser` — the stroller.
+
+**Bosses** (`Boss`, `src/config/bosses.ts`) — a third category beside enemies
+and hazards: real health, named phases, and a script rather than a behaviour.
+Kept in a table so World 4's Yetzer Hara, who "cycles through the forms of every
+boss already beaten" (§6), can be built by referring to these rows rather than
+by reimplementing three fights.
+
+**Riding, bounce pads, and the level clock**, all driven from the level data.
+
+---
+
+### The art
+
+The full World 1 art package arrived and went in: both brothers in all five
+forms, the pigeons, the rats, the Pigeon King, the cart, the scaffolding pipe,
+the stroller, coins, boxes, crates, flames, the loose hat, and a nine-tile
+Boro Park tileset. Twenty-five sheets, all original, all generated from text
+grids in `tools/art/generate.py`.
+
+`src/config/sprites.ts` grew from a player-forms registry into the registry for
+everything drawn: character sheets, actor sheets with free-form named poses, and
+the tile textures. Enemies, hazards and bosses name their sheet with one `art:`
+field in their config row, and `src/util/art.ts` insets the hitbox into the
+frame in exactly one place — the thing that goes silently wrong otherwise.
+
+Solids are tiled now: a surface row you can land on and a fill beneath it,
+sidewalk over asphalt for ground and plank over brick for platforms. The tile
+grid that used to be drawn behind every level is an instrument, so it is now
+drawn only in the greybox test levels; real levels get a brick facade scrolling
+at a third of camera speed behind them instead.
+
+**`npm run check:art`** fails the build if a sheet on disk stops matching the
+frame sizes `sprites.ts` slices it by. The frame size is load-bearing — get it
+wrong and the game shows the wrong half of every frame, forever, quietly — so
+it is a build error rather than a thing to remember.
+
+### Bugs the art pass turned up
+
+Wiring the art meant looking at every entity in a browser, which found four
+real bugs that had nothing to do with art:
+
+**Carts and the stroller fell through the pavement.** Arcade skips separation
+entirely when *both* bodies in a collision are immovable, and every solid in a
+level is a static body, which counts as immovable. So `setImmovable(true)` on a
+hazard — reached for so the player could not shove it — meant it simply fell
+out of the world. `pushable = false` gets the intent without the side effect.
+
+**The Pigeon King never flapped.** His perched phase returned early out of
+`tick`, which skipped the pose update at the bottom, so the wings-out summon
+drawing never appeared — he was calling flocks of pigeons down without once
+moving his wings. There are no early returns in that method any more, and the
+comment says why.
+
+**1-3 killed you before you could press anything.** The stroller started one
+tile behind a spawn point two tiles in, which put its hitbox on top of you: at
+104 px/s you had about a quarter of a second. It starts nine tiles back now,
+which is about a second of head start — the difference between a chase and an
+ambush.
+
+**The pipes never fell.** Fixing the cart made hazards collide with solids for
+the first time, and a pipe resting on the scaffolding it deliberately overlaps
+came up `blocked.down` before it had fallen anywhere. A faller does not collide
+with level geometry at all now; it stops at the ground row it is told about, and
+snaps flush to it, because at 520 px/s one frame is nine pixels of hovering.
+
+Also removed: the Menorah flame's scale pulse, which was breathing its hitbox in
+and out thirty times a second, since Arcade multiplies a body's size by its
+sprite's scale. The two drawn flame frames do the flicker properly.
+
+### What is still a rectangle
+
+The goal marker, checkpoints, the van, the Lulav swing, the world map and the
+HUD. `ART_SPEC.md` lists all of it, worst gap first — the backdrop being the
+one that would change the look of the whole game.

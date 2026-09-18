@@ -14,6 +14,11 @@ export interface LevelEntry {
   readonly map?: string;
   /** A boss level ends its world and yields the kiddush item (§6). */
   readonly isBoss?: boolean;
+  /**
+   * Seconds on the clock. §7 puts a timer on exactly three levels — 1-3, 3-3
+   * and 4-3 — and leaves every other level untimed on purpose.
+   */
+  readonly timeLimit?: number;
 }
 
 export interface WorldEntry {
@@ -35,8 +40,8 @@ export const WORLDS: readonly WorldEntry[] = [
     levels: [
       { id: '1-1', name: 'Thirteenth Avenue', map: '1-1' },
       { id: '1-2', name: 'The Scaffolding', map: '1-2' },
-      { id: '1-3', name: 'The Stroller' },
-      { id: '1-4', name: 'The Pigeon King', isBoss: true },
+      { id: '1-3', name: 'The Stroller', map: '1-3', timeLimit: 100 },
+      { id: '1-4', name: 'The Pigeon King', map: '1-4', isBoss: true },
     ],
   },
   {

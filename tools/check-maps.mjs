@@ -14,6 +14,7 @@ let trapped = 0;
 for (const file of files) {
   const map = JSON.parse(await readFile(join(DIR, file), 'utf8'));
   const solidLayer = map.layers.find((l) => l.name === 'solids');
+  const entityLayer = map.layers.find((l) => l.name === 'entities');
   const def = {
     widthInTiles: map.width,
     heightInTiles: map.height,
@@ -23,6 +24,9 @@ for (const file of files) {
       w: o.width / map.tilewidth,
       h: o.height / map.tileheight,
     })),
+    bouncers: (entityLayer?.objects ?? [])
+      .filter((o) => o.class === 'bounce')
+      .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight, w: o.width / map.tilewidth })),
   };
 
   const traps = findTraps(def);

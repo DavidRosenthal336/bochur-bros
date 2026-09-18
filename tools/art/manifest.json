@@ -1,0 +1,317 @@
+{
+  "mendy_small": {
+    "frameWidth": 24,
+    "frameHeight": 28,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "mendy_cholent": {
+    "frameWidth": 26,
+    "frameHeight": 36,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "mendy_menorah": {
+    "frameWidth": 26,
+    "frameHeight": 36,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "mendy_lulav": {
+    "frameWidth": 26,
+    "frameHeight": 36,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "mendy_peyos": {
+    "frameWidth": 26,
+    "frameHeight": 36,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "berel_small": {
+    "frameWidth": 26,
+    "frameHeight": 30,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "berel_cholent": {
+    "frameWidth": 28,
+    "frameHeight": 41,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "berel_menorah": {
+    "frameWidth": 28,
+    "frameHeight": 41,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "berel_lulav": {
+    "frameWidth": 28,
+    "frameHeight": 41,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "berel_peyos": {
+    "frameWidth": 28,
+    "frameHeight": 41,
+    "frames": [
+      "idle",
+      "run1",
+      "run2",
+      "run3",
+      "jump",
+      "fall",
+      "crouch",
+      "hurt"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "peyos_hat": {
+    "frameWidth": 12,
+    "frameHeight": 6,
+    "frames": [
+      "hat"
+    ],
+    "anchor": "centre"
+  },
+  "pigeon": {
+    "frameWidth": 20,
+    "frameHeight": 16,
+    "frames": [
+      "perch",
+      "rear",
+      "fly1",
+      "fly2",
+      "swoop",
+      "squash"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      16,
+      12
+    ]
+  },
+  "rat": {
+    "frameWidth": 20,
+    "frameHeight": 14,
+    "frames": [
+      "run1",
+      "run2",
+      "squash"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      16,
+      10
+    ]
+  },
+  "pigeon_king": {
+    "frameWidth": 44,
+    "frameHeight": 38,
+    "frames": [
+      "idle",
+      "wings",
+      "dive",
+      "hurt"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      34,
+      30
+    ]
+  },
+  "cart": {
+    "frameWidth": 26,
+    "frameHeight": 22,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      22,
+      18
+    ]
+  },
+  "scaffold_pipe": {
+    "frameWidth": 16,
+    "frameHeight": 44,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      12,
+      40
+    ]
+  },
+  "stroller": {
+    "frameWidth": 28,
+    "frameHeight": 30,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre",
+    "hitbox": [
+      24,
+      26
+    ]
+  },
+  "coin": {
+    "frameWidth": 8,
+    "frameHeight": 10,
+    "frames": [
+      "spin1",
+      "spin2",
+      "spin3",
+      "spin4"
+    ],
+    "anchor": "centre"
+  },
+  "menorah_flame": {
+    "frameWidth": 8,
+    "frameHeight": 8,
+    "frames": [
+      "a",
+      "b"
+    ],
+    "anchor": "centre"
+  },
+  "lchaim": {
+    "frameWidth": 10,
+    "frameHeight": 14,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "powerup_pickup": {
+    "frameWidth": 14,
+    "frameHeight": 14,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "mystery_box": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "box_used": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "crate": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "idle"
+    ],
+    "anchor": "bottom-centre"
+  },
+  "boro_park_tileset": {
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": [
+      "brick",
+      "sidewalk",
+      "asphalt",
+      "scaffold_pole",
+      "scaffold_plank",
+      "fire_escape",
+      "awning",
+      "sewer_grate",
+      "window"
+    ]
+  }
+}

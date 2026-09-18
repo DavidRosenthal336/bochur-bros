@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
+import { ACTOR_SPRITES } from '../config/sprites';
 import { POWERS } from '../config/Tuning';
+import { applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 
 /**
@@ -19,27 +21,20 @@ export class Flame extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setOrigin(0.5, 0.5);
-    this.setTint(POWERS.menorah.color);
     this.setDepth(8);
 
     const body = this.physicsBody;
-    body.setSize(size, size);
-    body.setOffset(0, 0);
+    applyActorArt(this, ACTOR_SPRITES.flame, size, size);
+    playPose(this, ACTOR_SPRITES.flame, 'burn');
     body.setAllowGravity(true);
     body.setGravityY(POWERS.menorah.gravity);
     body.setVelocity(direction * POWERS.menorah.speed, -60);
     body.setBounceY(POWERS.menorah.bounce);
     body.setCollideWorldBounds(false);
 
-    scene.tweens.add({
-      targets: this,
-      scale: 0.7,
-      duration: 160,
-      yoyo: true,
-      repeat: -1,
-    });
-
+    // The flicker is two drawn frames, not a scale pulse. Scaling a sprite
+    // scales its Arcade body with it, so the old pulse was quietly breathing
+    // the flame's hitbox in and out thirty times a second.
     scene.time.delayedCall(POWERS.menorah.lifetimeMs, () => this.gutter());
   }
 

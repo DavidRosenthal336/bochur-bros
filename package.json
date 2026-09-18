@@ -6,12 +6,14 @@
   "description": "Bochur Bros - a 2D side-scrolling platformer",
   "scripts": {
     "dev": "vite",
-    "build": "npm run typecheck && npm run check:maps && vite build",
+    "build": "npm run typecheck && npm run check:art && npm run check:maps && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "build:playtest": "npm run build && node scripts/build-playtest.mjs",
     "build:maps": "node tools/make-maps.mjs",
-    "check:maps": "node tools/check-maps.mjs"
+    "check:maps": "node tools/check-maps.mjs",
+    "check:art": "node tools/check-art.mjs",
+    "art": "python3 tools/art/generate.py --out public/sprites"
   },
   "dependencies": {
     "phaser": "^3.90.0"

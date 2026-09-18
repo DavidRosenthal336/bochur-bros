@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
+import { ACTOR_SPRITES } from '../config/sprites';
 import { GAMEPLAY, TILE } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
+import { applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 
 /** What a pickup gives you when you touch it. */
@@ -18,14 +20,13 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setOrigin(0.5, 0.5);
-    this.setTint(0xf2c14e);
     this.setDepth(6);
 
     const body = this.physicsBody;
     body.setAllowGravity(false);
     body.setImmovable(true);
-    body.setSize(8, 10);
+    applyActorArt(this, ACTOR_SPRITES.coin, 8, 10);
+    playPose(this, ACTOR_SPRITES.coin, 'spin');
 
     // A slow bob, so coins read as collectable rather than as scenery.
     scene.tweens.add({
@@ -90,12 +91,20 @@ export class PowerUpPickup extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.setOrigin(0.5, 1);
-    this.setTint(color);
     this.setDepth(6);
 
     const body = this.physicsBody;
     body.setSize(givesLife ? 10 : 14, 14);
     body.setOffset(0, 0);
+
+    // One drawing for all four power-ups, tinted to the form it grants: a
+    // covered pot is a covered pot, and what is under the lid is the surprise.
+    // A L'chaim is its own thing and keeps its own colours.
+    const art = givesLife ? ACTOR_SPRITES.lchaim : ACTOR_SPRITES.powerUp;
+    applyActorArt(this, art, givesLife ? 10 : 14, 14);
+    playPose(this, art, 'idle');
+    if (!givesLife) this.setTint(color);
+
     body.setAllowGravity(true);
     body.setGravityY(1400);
     body.setMaxVelocity(200, 400);

@@ -10,11 +10,19 @@
  * thief. Milestone 2 implements the first two; the rest land with the worlds
  * that need them.
  */
-export type EnemyBehaviorKind = 'patrol' | 'dive';
+import type { ActorSpriteName } from './sprites';
+
+export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge';
 
 export interface EnemyConfig {
   readonly label: string;
   readonly behavior: EnemyBehaviorKind;
+  /**
+   * Which drawn sheet to use, if one exists. Leave it off and the enemy is a
+   * tinted rectangle of exactly its hitbox size, which is how a creature gets
+   * built and tuned before it gets drawn.
+   */
+  readonly art?: ActorSpriteName;
   /** Cruising speed, px/s. */
   readonly speed: number;
   /** Stomps needed to put it down. Geese take two (§6, World 2). */
@@ -28,6 +36,15 @@ export interface EnemyConfig {
   readonly color: number;
   /** How far either side of its spawn it patrols, px. */
   readonly patrolRange: number;
+  /** Extra settings for `emerge`: hiding, then scurrying out on a timer (§6). */
+  readonly emerge?: {
+    /** How long it stays out of sight between appearances, ms. */
+    readonly hiddenMs: number;
+    /** How long it takes to climb out, ms. This is the warning. */
+    readonly risingMs: number;
+    /** How long it runs for before it is gone, ms. */
+    readonly runMs: number;
+  };
   /** Extra settings for `dive`. */
   readonly dive?: {
     /** How close the player must get, horizontally, to trigger a swoop, px. */
@@ -63,6 +80,7 @@ export const ENEMIES = {
     hits: 1,
     stompable: true,
     affectedByGravity: false,
+    art: 'pigeon',
     bodyWidth: 16,
     bodyHeight: 12,
     color: 0x8a8f9e,
@@ -71,6 +89,31 @@ export const ENEMIES = {
     // in front of you. Triggering at 120 means a pigeon is always on screen
     // before it reacts — a wind-up you cannot see is not a warning.
     dive: { triggerRange: 120, windUpMs: 500, speed: 105, recoverSpeed: 70, cooldownMs: 1400 },
+  },
+  /**
+   * The rat — "emerge from sewer grates and garbage bags on a timer, scurry
+   * fast in one direction" (§6).
+   *
+   * Fast enough to be a problem and short-lived enough not to be a siege. It
+   * climbs out visibly before it moves, for the same reason the pigeon rears
+   * up: an enemy that simply appears underneath you is a coin toss.
+   */
+  rat: {
+    label: 'Rat',
+    behavior: 'emerge',
+    speed: 120,
+    hits: 1,
+    stompable: true,
+    affectedByGravity: true,
+    art: 'rat',
+    // 16 x 10 rather than the 14 x 9 it was greyboxed at: the drawn rat's body
+    // is 16 wide before the tail, and a hitbox narrower than the animal means
+    // stomps that visibly connect do nothing.
+    bodyWidth: 16,
+    bodyHeight: 10,
+    color: 0x6f6257,
+    patrolRange: 0,
+    emerge: { hiddenMs: 1800, risingMs: 420, runMs: 3200 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

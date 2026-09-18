@@ -23,6 +23,11 @@
    "name": "backgroundColor",
    "type": "string",
    "value": "0x141a26"
+  },
+  {
+   "name": "groundRow",
+   "type": "string",
+   "value": "60"
   }
  ],
  "layers": [

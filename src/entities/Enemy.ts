@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import type { EnemyConfig } from '../config/enemies';
+import type { ActorSpriteSet } from '../config/sprites';
 import { GAMEPLAY } from '../config/Tuning';
+import { actorArt, applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 
 /**
@@ -19,13 +21,18 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private readonly homeX: number;
   private readonly homeY: number;
   private facing: -1 | 1 = -1;
-  private phase: 'patrol' | 'winding' | 'diving' | 'recovering' = 'patrol';
+  private phase: 'patrol' | 'winding' | 'diving' | 'recovering' | 'hidden' | 'rising' | 'scurrying' =
+    'patrol';
+  /** When the current emerge phase ends. */
+  private phaseEndsAt = 0;
   private nextDiveAllowedAt = 0;
   /** When the current wind-up finishes and the swoop actually starts. */
   private diveStartsAt = 0;
   private tell: Phaser.GameObjects.Rectangle | undefined;
   /** Frozen until this time. A stunned enemy still collides; it just stops. */
   private stunnedUntil = 0;
+  /** The drawn sheet, if this creature has been drawn. */
+  private readonly art: ActorSpriteSet | undefined;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig) {
     super(scene, x, y, solidTextureKey(scene, config.bodyWidth, config.bodyHeight));
@@ -38,12 +45,19 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.setOrigin(0.5, 1);
-    this.setTint(config.color);
     this.setDepth(9);
 
     const body = this.physicsBody;
     body.setSize(config.bodyWidth, config.bodyHeight);
     body.setOffset(0, 0);
+
+    this.art = actorArt(config.art);
+    if (this.art) {
+      applyActorArt(this, this.art, config.bodyWidth, config.bodyHeight);
+    } else {
+      this.setTint(config.color);
+    }
+
     body.setAllowGravity(config.affectedByGravity);
     if (config.affectedByGravity) body.setGravityY(1400);
     body.setVelocityX(this.facing * config.speed);
@@ -74,7 +88,52 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'dive':
         this.tickDive(now, playerX, playerY);
         break;
+      case 'emerge':
+        this.tickEmerge(now, playerX);
+        break;
     }
+
+    this.updatePose();
+  }
+
+  /**
+   * Show whichever drawing matches what the creature is doing.
+   *
+   * The phase already says what is happening, so the pose is a lookup rather
+   * than a second state machine — and a creature with no art simply has no
+   * poses to play.
+   */
+  private updatePose(): void {
+    const art = this.art;
+    if (!art) return;
+
+    switch (this.phase) {
+      case 'winding':
+        playPose(this, art, 'rear');
+        break;
+      case 'diving':
+        playPose(this, art, 'swoop');
+        break;
+      case 'rising':
+      case 'scurrying':
+        playPose(this, art, 'run');
+        break;
+      default:
+        // Drifting along a perch line is flying; standing still is perching.
+        playPose(this, art, Math.abs(this.physicsBody.velocity.x) > 2 ? 'fly' : 'perch');
+        break;
+    }
+
+    if (this.physicsBody.velocity.x !== 0) {
+      // Every sheet is drawn facing right.
+      this.setFlipX(this.physicsBody.velocity.x < 0);
+    }
+  }
+
+  /** Back to normal colours after a flash. Drawn art is never tinted at rest. */
+  private restoreTint(): void {
+    if (this.art) this.clearTint();
+    else this.setTint(this.config.color);
   }
 
   /** Walk or drift back and forth, turning at the ends of the beat and at walls. */
@@ -146,6 +205,64 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Out of sight, then up through the grate, then a hard run in one direction
+   * and gone. The rising phase is deliberately visible: it is the warning.
+   */
+  private tickEmerge(now: number, playerX: number): void {
+    const config = this.config.emerge;
+    if (!config) {
+      this.tickPatrol();
+      return;
+    }
+
+    const body = this.physicsBody;
+
+    if (this.phase === 'patrol') {
+      this.phase = 'hidden';
+      this.phaseEndsAt = now + config.hiddenMs;
+    }
+
+    switch (this.phase) {
+      case 'hidden':
+        this.setVisible(false);
+        body.enable = false;
+        this.setPosition(this.homeX, this.homeY);
+        if (now >= this.phaseEndsAt) {
+          this.phase = 'rising';
+          this.phaseEndsAt = now + config.risingMs;
+          this.facing = playerX < this.homeX ? -1 : 1;
+          this.setVisible(true);
+          this.setAlpha(0.55);
+        }
+        break;
+
+      case 'rising':
+        // Climbing out: visible, harmless, and not going anywhere yet.
+        body.enable = false;
+        this.setAlpha(0.55 + 0.45 * (1 - (this.phaseEndsAt - now) / config.risingMs));
+        if (now >= this.phaseEndsAt) {
+          this.phase = 'scurrying';
+          this.phaseEndsAt = now + config.runMs;
+          this.setAlpha(1);
+          body.enable = true;
+        }
+        break;
+
+      case 'scurrying':
+        body.setVelocityX(this.facing * this.config.speed);
+        if (now >= this.phaseEndsAt) {
+          this.phase = 'hidden';
+          this.phaseEndsAt = now + config.hiddenMs;
+        }
+        break;
+
+      default:
+        this.phase = 'hidden';
+        this.phaseEndsAt = now + config.hiddenMs;
+    }
+  }
+
   private turnAround(): void {
     this.facing = this.facing === 1 ? -1 : 1;
   }
@@ -179,7 +296,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   private endWindUp(): void {
-    this.setTint(this.config.color);
+    this.restoreTint();
     if (this.tell) {
       this.scene.tweens.killTweensOf(this.tell);
       this.tell.destroy();
@@ -195,7 +312,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.phase = 'patrol';
     this.setTint(0x9aa4c8);
     this.scene.time.delayedCall(durationMs, () => {
-      if (this.active && !this.dying) this.setTint(this.config.color);
+      if (this.active && !this.dying) this.restoreTint();
     });
   }
 
@@ -237,7 +354,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.hitsLeft -= 1;
     if (this.hitsLeft > 0) {
       this.setTint(0xffffff);
-      this.scene.time.delayedCall(120, () => this.setTint(this.config.color));
+      this.scene.time.delayedCall(120, () => this.restoreTint());
       return false;
     }
 
@@ -254,11 +371,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     body.setAllowGravity(false);
     body.enable = false;
 
+    // A drawn creature has a squashed pose of its own; squeezing that flat as
+    // well would flatten something already flat. Undrawn ones get the scale.
+    const squashed = this.art !== undefined && 'squash' in this.art.poses;
+    if (squashed && this.art) playPose(this, this.art, 'squash');
+
     this.scene.tweens.add({
       targets: this,
-      scaleY: 0.2,
+      ...(squashed ? {} : { scaleY: 0.2 }),
       alpha: 0,
-      duration: GAMEPLAY.enemyDeathMs,
+      duration: squashed ? GAMEPLAY.enemyDeathMs * 1.6 : GAMEPLAY.enemyDeathMs,
       ease: 'Quad.easeIn',
       onComplete: () => this.destroy(),
     });

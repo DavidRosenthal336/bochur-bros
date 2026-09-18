@@ -52,13 +52,22 @@ export interface EnemyPlacement extends TilePoint {
   readonly kind: EnemyKind;
 }
 
-/** A hazard region, in tiles. `kind` is a key into the HAZARDS table. */
+/**
+ * A hazard, in tiles. `kind` is a key into the HAZARDS table.
+ *
+ * Region hazards (wind) use `w` and `h`; the rest ignore them and are placed at
+ * `x`, `y` like anything else. `direction` is which way it faces or blows.
+ */
 export interface HazardPlacement extends TilePoint {
   readonly kind: HazardKind;
   readonly w: number;
   readonly h: number;
-  /** Which way it blows. -1 is left, 1 is right. */
   readonly direction: -1 | 1;
+}
+
+/** Something you bounce off: an awning, a bag of rubbish (§6). */
+export interface BouncePlacement extends TilePoint {
+  readonly w: number;
 }
 
 export interface LevelDef {
@@ -83,6 +92,15 @@ export interface LevelDef {
   readonly checkpoints?: readonly TilePoint[];
   /** Crates. Berel shoves them; Mendy cannot budge them. */
   readonly crates?: readonly TilePoint[];
+  /** Awnings and rubbish bags — land on one and you are launched (§6). */
+  readonly bouncers?: readonly BouncePlacement[];
+  /** Where the level's floor is, for hazards that cast a shadow on it. */
+  readonly groundRow?: number;
+  /** A boss, and the perches it retreats to between attacks (§6). */
+  readonly boss?: TilePoint;
+  readonly perches?: readonly TilePoint[];
+  /** Scroll the level along by itself, px/s. 1-3 is a chase (§6). */
+  readonly autoScroll?: number;
   /** Wind and anything else that acts on a region rather than on contact. */
   readonly hazards?: readonly HazardPlacement[];
   /** The end of the level. Without one, the level cannot be completed. */

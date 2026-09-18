@@ -1,0 +1,303 @@
+{
+ "compressionlevel": -1,
+ "width": 40,
+ "height": 27,
+ "tilewidth": 16,
+ "tileheight": 16,
+ "infinite": false,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.11.0",
+ "type": "map",
+ "version": "1.10",
+ "nextlayerid": 3,
+ "nextobjectid": 17,
+ "tilesets": [],
+ "properties": [
+  {
+   "name": "name",
+   "type": "string",
+   "value": "The Pigeon King"
+  },
+  {
+   "name": "backgroundColor",
+   "type": "string",
+   "value": "0x2a1a20"
+  },
+  {
+   "name": "groundRow",
+   "type": "string",
+   "value": "20"
+  }
+ ],
+ "layers": [
+  {
+   "id": 1,
+   "name": "solids",
+   "type": "objectgroup",
+   "draworder": "index",
+   "opacity": 1,
+   "visible": true,
+   "x": 0,
+   "y": 0,
+   "objects": [
+    {
+     "id": 1,
+     "name": "",
+     "class": "",
+     "x": 0,
+     "y": 320,
+     "width": 640,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "name": "",
+     "class": "",
+     "x": 0,
+     "y": 96,
+     "width": 32,
+     "height": 224,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "",
+     "class": "",
+     "x": 608,
+     "y": 96,
+     "width": 32,
+     "height": 224,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "",
+     "class": "",
+     "x": 80,
+     "y": 256,
+     "width": 96,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "name": "",
+     "class": "",
+     "x": 272,
+     "y": 192,
+     "width": 96,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "",
+     "class": "",
+     "x": 464,
+     "y": 256,
+     "width": 96,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "entities",
+   "type": "objectgroup",
+   "draworder": "index",
+   "opacity": 1,
+   "visible": true,
+   "x": 0,
+   "y": 0,
+   "objects": [
+    {
+     "id": 7,
+     "name": "",
+     "class": "spawn",
+     "x": 64,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 8,
+     "name": "",
+     "class": "block",
+     "x": 144,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "mystery"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "cholent"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "",
+     "class": "bounce",
+     "x": 208,
+     "y": 304,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 10,
+     "name": "",
+     "class": "bounce",
+     "x": 384,
+     "y": 304,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 11,
+     "name": "",
+     "class": "perch",
+     "x": 112,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 12,
+     "name": "",
+     "class": "perch",
+     "x": 304,
+     "y": 176,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 13,
+     "name": "",
+     "class": "perch",
+     "x": 496,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 14,
+     "name": "",
+     "class": "boss",
+     "x": 304,
+     "y": 176,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 15,
+     "name": "",
+     "class": "label",
+     "x": 192,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "THE PIGEON KING"
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "name": "",
+     "class": "label",
+     "x": 192,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "land on him when he comes down. three times."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

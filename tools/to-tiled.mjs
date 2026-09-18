@@ -41,7 +41,10 @@ export function levelDefToTiled(def) {
     entities.push(rect(b.x, b.y, 1, 1, 'block', [prop('block', b.kind), prop('contents', b.contents ?? 'coin')]));
   for (const e of def.enemies ?? []) entities.push(rect(e.x, e.y, 1, 1, 'enemy', [prop('enemy', e.kind)]));
   for (const h of def.hazards ?? [])
-    entities.push(rect(h.x, h.y, h.w, h.h, h.kind, [prop('direction', h.direction)]));
+    entities.push(rect(h.x, h.y, h.w || 1, h.h || 1, h.kind, [prop('direction', h.direction)]));
+  for (const b of def.bouncers ?? []) entities.push(rect(b.x, b.y, b.w, 1, 'bounce'));
+  for (const p of def.perches ?? []) entities.push(rect(p.x, p.y, 1, 1, 'perch'));
+  if (def.boss) entities.push(rect(def.boss.x, def.boss.y, 1, 1, 'boss'));
   for (const l of def.labels ?? []) entities.push(rect(l.x, l.y, 1, 1, 'label', [prop('text', l.text)]));
 
   return {
@@ -62,6 +65,8 @@ export function levelDefToTiled(def) {
     properties: [
       prop('name', def.name),
       prop('backgroundColor', '0x' + def.backgroundColor.toString(16).padStart(6, '0')),
+      ...(def.groundRow === undefined ? [] : [prop('groundRow', String(def.groundRow))]),
+      ...(def.autoScroll === undefined ? [] : [prop('autoScroll', String(def.autoScroll))]),
     ],
     layers: [
       { id: 1, name: 'solids', type: 'objectgroup', draworder: 'index', opacity: 1, visible: true, x: 0, y: 0, objects: solids },

@@ -1,0 +1,1079 @@
+{
+ "compressionlevel": -1,
+ "width": 260,
+ "height": 27,
+ "tilewidth": 16,
+ "tileheight": 16,
+ "infinite": false,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.11.0",
+ "type": "map",
+ "version": "1.10",
+ "nextlayerid": 3,
+ "nextobjectid": 75,
+ "tilesets": [],
+ "properties": [
+  {
+   "name": "name",
+   "type": "string",
+   "value": "The Stroller"
+  },
+  {
+   "name": "backgroundColor",
+   "type": "string",
+   "value": "0x241826"
+  },
+  {
+   "name": "groundRow",
+   "type": "string",
+   "value": "20"
+  },
+  {
+   "name": "autoScroll",
+   "type": "string",
+   "value": "86"
+  }
+ ],
+ "layers": [
+  {
+   "id": 1,
+   "name": "solids",
+   "type": "objectgroup",
+   "draworder": "index",
+   "opacity": 1,
+   "visible": true,
+   "x": 0,
+   "y": 0,
+   "objects": [
+    {
+     "id": 1,
+     "name": "",
+     "class": "",
+     "x": 0,
+     "y": 320,
+     "width": 640,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "name": "",
+     "class": "",
+     "x": 688,
+     "y": 320,
+     "width": 256,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "",
+     "class": "",
+     "x": 992,
+     "y": 320,
+     "width": 288,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "",
+     "class": "",
+     "x": 1328,
+     "y": 320,
+     "width": 224,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "name": "",
+     "class": "",
+     "x": 1616,
+     "y": 320,
+     "width": 320,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "",
+     "class": "",
+     "x": 1984,
+     "y": 320,
+     "width": 480,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "",
+     "class": "",
+     "x": 1984,
+     "y": 192,
+     "width": 480,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "",
+     "class": "",
+     "x": 2512,
+     "y": 320,
+     "width": 416,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "",
+     "class": "",
+     "x": 2976,
+     "y": 320,
+     "width": 448,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "",
+     "class": "",
+     "x": 3472,
+     "y": 320,
+     "width": 688,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "entities",
+   "type": "objectgroup",
+   "draworder": "index",
+   "opacity": 1,
+   "visible": true,
+   "x": 0,
+   "y": 0,
+   "objects": [
+    {
+     "id": 11,
+     "name": "",
+     "class": "spawn",
+     "x": 160,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 12,
+     "name": "",
+     "class": "goal",
+     "x": 4032,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 13,
+     "name": "",
+     "class": "checkpoint",
+     "x": 1120,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 14,
+     "name": "",
+     "class": "checkpoint",
+     "x": 2400,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 15,
+     "name": "",
+     "class": "coin",
+     "x": 192,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 16,
+     "name": "",
+     "class": "coin",
+     "x": 208,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 17,
+     "name": "",
+     "class": "coin",
+     "x": 224,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 18,
+     "name": "",
+     "class": "coin",
+     "x": 240,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 19,
+     "name": "",
+     "class": "coin",
+     "x": 256,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 20,
+     "name": "",
+     "class": "coin",
+     "x": 272,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 21,
+     "name": "",
+     "class": "coin",
+     "x": 416,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 22,
+     "name": "",
+     "class": "coin",
+     "x": 432,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 23,
+     "name": "",
+     "class": "coin",
+     "x": 448,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 24,
+     "name": "",
+     "class": "coin",
+     "x": 688,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 25,
+     "name": "",
+     "class": "coin",
+     "x": 704,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 26,
+     "name": "",
+     "class": "coin",
+     "x": 720,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 27,
+     "name": "",
+     "class": "coin",
+     "x": 736,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 28,
+     "name": "",
+     "class": "coin",
+     "x": 752,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 29,
+     "name": "",
+     "class": "coin",
+     "x": 768,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 30,
+     "name": "",
+     "class": "coin",
+     "x": 1408,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 31,
+     "name": "",
+     "class": "coin",
+     "x": 1424,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 32,
+     "name": "",
+     "class": "coin",
+     "x": 1440,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 33,
+     "name": "",
+     "class": "coin",
+     "x": 2112,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 34,
+     "name": "",
+     "class": "coin",
+     "x": 2128,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 35,
+     "name": "",
+     "class": "coin",
+     "x": 2144,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 36,
+     "name": "",
+     "class": "coin",
+     "x": 2160,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 37,
+     "name": "",
+     "class": "coin",
+     "x": 2640,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 38,
+     "name": "",
+     "class": "coin",
+     "x": 2656,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 39,
+     "name": "",
+     "class": "coin",
+     "x": 2672,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 40,
+     "name": "",
+     "class": "coin",
+     "x": 2688,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 41,
+     "name": "",
+     "class": "coin",
+     "x": 3040,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 42,
+     "name": "",
+     "class": "coin",
+     "x": 3056,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 43,
+     "name": "",
+     "class": "coin",
+     "x": 3072,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 44,
+     "name": "",
+     "class": "coin",
+     "x": 3088,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 45,
+     "name": "",
+     "class": "coin",
+     "x": 3104,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 46,
+     "name": "",
+     "class": "coin",
+     "x": 3552,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 47,
+     "name": "",
+     "class": "coin",
+     "x": 3568,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 48,
+     "name": "",
+     "class": "coin",
+     "x": 3584,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 49,
+     "name": "",
+     "class": "coin",
+     "x": 3600,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 50,
+     "name": "",
+     "class": "coin",
+     "x": 3616,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 51,
+     "name": "",
+     "class": "coin",
+     "x": 3632,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 52,
+     "name": "",
+     "class": "coin",
+     "x": 3648,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 53,
+     "name": "",
+     "class": "coin",
+     "x": 3664,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 54,
+     "name": "",
+     "class": "block",
+     "x": 3136,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "mystery"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "cholent"
+      }
+     ]
+    },
+    {
+     "id": 55,
+     "name": "",
+     "class": "enemy",
+     "x": 1088,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 56,
+     "name": "",
+     "class": "enemy",
+     "x": 1696,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 57,
+     "name": "",
+     "class": "enemy",
+     "x": 1824,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 58,
+     "name": "",
+     "class": "enemy",
+     "x": 2592,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 59,
+     "name": "",
+     "class": "enemy",
+     "x": 2720,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 60,
+     "name": "",
+     "class": "enemy",
+     "x": 2848,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 61,
+     "name": "",
+     "class": "enemy",
+     "x": 3712,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 62,
+     "name": "",
+     "class": "stroller",
+     "x": 16,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 63,
+     "name": "",
+     "class": "pipe",
+     "x": 2080,
+     "y": 192,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 64,
+     "name": "",
+     "class": "pipe",
+     "x": 2192,
+     "y": 192,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 65,
+     "name": "",
+     "class": "pipe",
+     "x": 2304,
+     "y": 192,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 66,
+     "name": "",
+     "class": "pipe",
+     "x": 2400,
+     "y": 192,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 67,
+     "name": "",
+     "class": "cart",
+     "x": 3360,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 68,
+     "name": "",
+     "class": "bounce",
+     "x": 416,
+     "y": 272,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 69,
+     "name": "",
+     "class": "bounce",
+     "x": 1408,
+     "y": 304,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 70,
+     "name": "",
+     "class": "bounce",
+     "x": 2784,
+     "y": 272,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 71,
+     "name": "",
+     "class": "label",
+     "x": 160,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "RUN."
+      }
+     ]
+    },
+    {
+     "id": 72,
+     "name": "",
+     "class": "label",
+     "x": 160,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "the stroller does not get tired and neither does the screen."
+      }
+     ]
+    },
+    {
+     "id": 73,
+     "name": "",
+     "class": "label",
+     "x": 2000,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "SCAFFOLDING — WATCH THE GROUND"
+      }
+     ]
+    },
+    {
+     "id": 74,
+     "name": "",
+     "class": "label",
+     "x": 3840,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "ALMOST"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,11 +1,24 @@
 import Phaser from 'phaser';
 import { ENEMIES } from '../config/enemies';
 import type { CharacterId } from '../config/Tuning';
-import { CAMERA, DEFAULT_CHARACTER, FELL_OUT_MARGIN, GAMEPLAY, POWERS, TIERS, TILE } from '../config/Tuning';
+import {
+  CAMERA,
+  DEFAULT_CHARACTER,
+  FELL_OUT_MARGIN,
+  GAMEPLAY,
+  POWERS,
+  TIERS,
+  TILE,
+  VIEW_HEIGHT,
+  VIEW_WIDTH,
+} from '../config/Tuning';
 import { Block } from '../entities/Block';
 import { Crate } from '../entities/Crate';
 import { Enemy } from '../entities/Enemy';
 import { WindZone } from '../entities/Hazard';
+import { MovingHazard } from '../entities/MovingHazard';
+import { Boss } from '../entities/Boss';
+import { ENEMIES as ENEMY_TABLE } from '../config/enemies';
 import { HAZARDS } from '../config/hazards';
 import { Flame } from '../entities/Flame';
 import { Coin, PowerUpPickup } from '../entities/Pickup';
@@ -13,7 +26,7 @@ import { Player } from '../entities/Player';
 import { KeyboardInput } from '../input/KeyboardInput';
 import type { LevelDef, SolidKind } from '../levels/LevelDef';
 import { DEFAULT_LEVEL, GREYBOX_LEVELS, LEVELS } from '../levels';
-import { findLevel } from '../levels/catalog';
+import { findLevel, worldOf } from '../levels/catalog';
 import { completeLevel as recordCompletion, loadSave, writeSave } from '../systems/SaveGame';
 import type { PowerTier } from '../systems/PowerState';
 import { PowerState } from '../systems/PowerState';
@@ -22,11 +35,26 @@ import { DebugOverlay } from './DebugOverlay';
 import { Hud } from './Hud';
 import { SceneKey } from './SceneKey';
 
-/** Placeholder palette. Colour carries no meaning to the physics. */
+/** Fallback palette, used only if the tileset failed to load. */
 const SOLID_COLORS: Record<SolidKind, number> = {
   ground: 0x3d4466,
   platform: 0x565f8c,
   wall: 0x2b3050,
+};
+
+/**
+ * How each kind of solid is tiled: the surface you land on, and the fill under
+ * it.
+ *
+ * Splitting the two is what makes a platform readable at a glance — the top
+ * row is the thing you can stand on, and it wants to look different from the
+ * mass beneath it. It was a lighter-coloured strip in greybox for exactly the
+ * same reason.
+ */
+const SOLID_TILES: Record<SolidKind, { readonly top: string; readonly fill: string }> = {
+  ground: { top: 'tile-sidewalk', fill: 'tile-asphalt' },
+  platform: { top: 'tile-scaffoldPlank', fill: 'tile-brick' },
+  wall: { top: 'tile-brick', fill: 'tile-brick' },
 };
 
 export interface LevelSceneData {
@@ -62,6 +90,9 @@ export class LevelScene extends Phaser.Scene {
   private hud!: Hud;
   private power!: PowerState;
 
+  /** The parallax building wall behind the street. Absent in greybox levels. */
+  private backdrop: Phaser.GameObjects.TileSprite | undefined;
+
   private solids!: Phaser.Physics.Arcade.StaticGroup;
   private blocks!: Phaser.Physics.Arcade.StaticGroup;
   private coins!: Phaser.GameObjects.Group;
@@ -70,6 +101,16 @@ export class LevelScene extends Phaser.Scene {
   private crates!: Phaser.GameObjects.Group;
   private flames!: Phaser.GameObjects.Group;
   private winds: WindZone[] = [];
+  private hazards!: Phaser.GameObjects.Group;
+  private bouncers!: Phaser.Physics.Arcade.StaticGroup;
+  /** The hazard the player is currently standing on, if any. */
+  private riding: MovingHazard | undefined;
+  private boss: Boss | undefined;
+  private perches: Phaser.Math.Vector2[] = [];
+  /** Seconds left, on the levels that have a clock (§7). */
+  private secondsLeft: number | undefined;
+  /** How far the level has scrolled itself along, px. */
+  private autoScrollX = 0;
   private lives: number = GAMEPLAY.startingLives;
   private wasGrounded = true;
   private lastFallSpeed = 0;
@@ -100,6 +141,8 @@ export class LevelScene extends Phaser.Scene {
     this.carriedCharacter = data.character ?? DEFAULT_CHARACTER;
     this.lives = data.lives ?? loadSave().lives;
     this.levelId = data.levelId;
+    this.secondsLeft = this.levelId ? findLevel(this.levelId)?.timeLimit : undefined;
+    this.autoScrollX = 0;
     this.greybox = data.greybox ?? GREYBOX_LEVELS.includes(key);
     this.state = 'playing';
   }
@@ -113,7 +156,10 @@ export class LevelScene extends Phaser.Scene {
     // it rather than landing on an invisible surface.
     this.physics.world.setBounds(0, 0, widthPx, heightPx + 400);
 
-    this.drawGrid(widthPx, heightPx);
+    // The tile grid is an instrument, not scenery: it belongs in the greybox
+    // test levels and nowhere near a level with drawn art behind it.
+    if (this.greybox) this.drawGrid(widthPx, heightPx);
+    else this.drawBackdrop();
     this.buildSolids();
     this.drawLabels();
 
@@ -134,6 +180,8 @@ export class LevelScene extends Phaser.Scene {
     this.buildEnemies();
     this.buildCrates();
     this.buildHazards();
+    this.buildBouncers();
+    this.buildBoss();
     this.buildCheckpointsAndGoal();
     this.pickups = this.add.group();
     this.flames = this.add.group();
@@ -177,11 +225,22 @@ export class LevelScene extends Phaser.Scene {
     for (const pickup of this.pickups.getChildren() as PowerUpPickup[]) {
       pickup.tick();
     }
+    this.updateHazards(now);
+    this.updateBoss(now);
+    this.updateClock(delta);
+    this.updateAutoScroll(delta);
 
     this.watchForLanding();
     this.updateCameraLookAhead();
+    this.updateBackdrop();
     this.flashWhileInvulnerable(now);
-    this.hud.update(this.coinCount, this.power.current, this.player.character, this.lives);
+    this.hud.update(
+      this.coinCount,
+      this.power.current,
+      this.player.character,
+      this.lives,
+      this.secondsLeft,
+    );
     this.overlay.update();
 
     if (
@@ -202,16 +261,27 @@ export class LevelScene extends Phaser.Scene {
     for (const def of this.level.solids) {
       const w = def.w * TILE;
       const h = def.h * TILE;
-      const rect = this.add.rectangle(
-        def.x * TILE + w / 2,
-        def.y * TILE + h / 2,
-        w,
-        h,
-        SOLID_COLORS[def.kind ?? 'ground'],
-      );
-      // A lighter top edge, so the surface you can actually land on reads clearly.
-      this.add.rectangle(def.x * TILE + w / 2, def.y * TILE + 1, w, 2, 0x8d97c9).setDepth(1);
+      const kind = def.kind ?? 'ground';
+      const x = def.x * TILE;
+      const y = def.y * TILE;
+
+      // The rectangle stays: it is what carries the static body, and keeping
+      // collision separate from decoration means the drawing can change
+      // without any risk of the hitbox moving with it.
+      const rect = this.add.rectangle(x + w / 2, y + h / 2, w, h, SOLID_COLORS[kind]);
       this.solids.add(rect);
+
+      const tiles = SOLID_TILES[kind];
+      if (this.textures.exists(tiles.top) && this.textures.exists(tiles.fill)) {
+        rect.setVisible(false);
+        if (h > TILE) {
+          this.add.tileSprite(x, y + TILE, w, h - TILE, tiles.fill).setOrigin(0, 0).setDepth(0);
+        }
+        this.add.tileSprite(x, y, w, Math.min(TILE, h), tiles.top).setOrigin(0, 0).setDepth(1);
+      } else {
+        // A lighter top edge, so the surface you can land on reads clearly.
+        this.add.rectangle(x + w / 2, y + 1, w, 2, 0x8d97c9).setDepth(1);
+      }
     }
   }
 
@@ -255,19 +325,144 @@ export class LevelScene extends Phaser.Scene {
 
   private buildHazards(): void {
     this.winds = [];
+    this.hazards = this.add.group();
+
     for (const placement of this.level.hazards ?? []) {
       const config = HAZARDS[placement.kind];
-      this.winds.push(
-        new WindZone(
+
+      // Wind acts on a region; everything else is a thing in the level.
+      if (config.behavior === 'wind') {
+        this.winds.push(
+          new WindZone(this, placement.x, placement.y, placement.w, placement.h, placement.direction, config),
+        );
+        continue;
+      }
+
+      this.hazards.add(
+        new MovingHazard(
           this,
-          placement.x,
-          placement.y,
-          placement.w,
-          placement.h,
-          placement.direction,
+          placement.x * TILE + TILE / 2,
+          placement.y * TILE,
           config,
+          placement.direction,
         ),
       );
+    }
+  }
+
+  /** Awnings and rubbish bags: land on one and you are launched (§6). */
+  private buildBouncers(): void {
+    this.bouncers = this.physics.add.staticGroup();
+    for (const placement of this.level.bouncers ?? []) {
+      const w = placement.w * TILE;
+      const x = placement.x * TILE;
+      const y = placement.y * TILE;
+      // The pad is a thin strip so that landing on it is unambiguous; the
+      // awning drawn under it is a full tile deep and purely decorative.
+      const pad = this.add.rectangle(x + w / 2, y + 3, w, 6, 0xd06a8a).setDepth(4);
+      this.bouncers.add(pad);
+
+      if (this.textures.exists('tile-awning')) {
+        pad.setVisible(false);
+        this.add.tileSprite(x, y, w, TILE, 'tile-awning').setOrigin(0, 0).setDepth(4);
+      }
+    }
+  }
+
+  private buildBoss(): void {
+    this.perches = (this.level.perches ?? []).map(
+      (p) => new Phaser.Math.Vector2(p.x * TILE + TILE / 2, p.y * TILE),
+    );
+    if (!this.level.boss) return;
+
+    this.boss = new Boss(this, this.level.boss.x * TILE + TILE / 2, this.level.boss.y * TILE);
+    if (this.perches.length === 0) {
+      this.perches = [new Phaser.Math.Vector2(this.boss.x, this.boss.y)];
+    }
+
+    this.physics.add.overlap(this.player, this.boss, () => this.onBossContact());
+  }
+
+  /**
+   * Landing on the boss hurts it; anything else hurts you. Same rule as an
+   * ordinary enemy, which is the point — the fight teaches nothing new, it
+   * asks you to do the thing you already know under pressure.
+   */
+  private onBossContact(): void {
+    const boss = this.boss;
+    if (!boss?.isAlive || this.state !== 'playing') return;
+
+    const body = this.player.physicsBody;
+    const falling = body.velocity.y > GAMEPLAY.stompMinFallSpeed;
+    const aboveMidline = body.bottom <= boss.physicsBody.center.y + GAMEPLAY.stompFootMargin;
+
+    if (falling && aboveMidline && boss.isVulnerable) {
+      this.player.bounce(GAMEPLAY.stompBounceHeld);
+      if (boss.takeHit(this.time.now)) this.onBossDefeated();
+      return;
+    }
+    if (boss.isDangerous) this.hurtPlayer(boss.x);
+  }
+
+  /**
+   * The boss is down, so the kiddush item it was sitting on comes loose (§6).
+   *
+   * Recovering it *is* the world's victory condition, so the level ends when
+   * you pick it up rather than at a goal post — there is no goal post in a
+   * boss arena.
+   */
+  private onBossDefeated(): void {
+    const boss = this.boss;
+    if (!boss) return;
+    this.hud.hideBossHealth();
+
+    const world = worldOf(this.levelId ?? '');
+    const prize = this.add
+      .rectangle(boss.x, boss.y - 10, 22, 14, world?.color ?? 0xe8d9b0)
+      .setStrokeStyle(1, 0xffffff)
+      .setDepth(8);
+    this.physics.add.existing(prize);
+    const prizeBody = prize.body as Phaser.Physics.Arcade.Body;
+    prizeBody.setAllowGravity(true);
+    prizeBody.setGravityY(900);
+    prizeBody.setBounce(0.3);
+    this.physics.add.collider(prize, this.solids);
+
+    this.hud.showBanner(world ? `GET ${world.prize.toUpperCase()}` : 'GET IT BACK');
+
+    this.physics.add.overlap(this.player, prize, () => {
+      if (this.state !== 'playing') return;
+      prize.destroy();
+      this.completeLevel();
+    });
+  }
+
+  private updateBoss(now: number): void {
+    const boss = this.boss;
+    if (!boss) return;
+
+    if (!boss.isAlive) {
+      this.hud.hideBossHealth();
+      return;
+    }
+
+    boss.tick(now, this.player.x, this.perches);
+    this.hud.showBossHealth(boss.healthFraction);
+
+    switch (boss.takeRequest()) {
+      case 'summon': {
+        // A flock, thrown in from above on either side of the arena.
+        for (let i = 0; i < boss.config.summonCount; i += 1) {
+          const x = boss.x + (i % 2 === 0 ? -70 : 70);
+          this.enemies.add(new Enemy(this, x, boss.y - 20, ENEMY_TABLE.pigeon));
+        }
+        break;
+      }
+      case 'shockwave':
+        this.cameras.main.shake(160, 0.006);
+        break;
+      case 'none':
+        break;
     }
   }
 
@@ -304,7 +499,25 @@ export class LevelScene extends Phaser.Scene {
     this.physics.add.collider(this.crates, this.solids);
     this.physics.add.collider(this.crates, this.blocks);
     this.physics.add.collider(this.crates, this.crates);
+    this.physics.add.collider(
+      this.hazards,
+      this.solids,
+      undefined,
+      (hazardObject) => (hazardObject as MovingHazard).collidesWithSolids,
+    );
+    this.physics.add.collider(this.enemies, this.hazards);
     this.physics.add.collider(this.flames, this.solids);
+
+    // Standing on a cart or a van roof carries you; walking into its side does
+    // not. §6 is explicit that the player "must climb the thing trying to kill
+    // them", so which part you touch has to be the whole difference.
+    this.physics.add.collider(this.player, this.hazards, (_player, hazardObject) => {
+      this.onHazardContact(hazardObject as MovingHazard);
+    });
+
+    this.physics.add.collider(this.player, this.bouncers, (_player, padObject) => {
+      this.onBounce(padObject as Phaser.GameObjects.Rectangle);
+    });
     this.physics.add.collider(this.flames, this.blocks);
     this.physics.add.collider(this.flames, this.crates);
 
@@ -544,6 +757,87 @@ export class LevelScene extends Phaser.Scene {
     this.hud.flashLife();
   }
 
+  /** Move every hazard, and carry the player if they are riding one. */
+  private updateHazards(now: number): void {
+    const groundY = (this.level.groundRow ?? this.level.heightInTiles - 7) * TILE;
+    for (const hazard of this.hazards.getChildren() as MovingHazard[]) {
+      hazard.tick(now, this.player.x, this.player.y, groundY);
+    }
+
+    // Riding: while stood on one, the player is moved by it. Arcade does not
+    // carry a body on top of a moving platform by itself.
+    if (this.riding && this.riding.active) {
+      const body = this.player.physicsBody;
+      const stillOn =
+        body.blocked.down &&
+        body.bottom <= this.riding.physicsBody.top + 4 &&
+        body.right > this.riding.physicsBody.left &&
+        body.left < this.riding.physicsBody.right;
+
+      if (stillOn) this.player.x += (this.riding.physicsBody.velocity.x * this.game.loop.delta) / 1000;
+      else this.riding = undefined;
+    } else {
+      this.riding = undefined;
+    }
+  }
+
+  /**
+   * Touching a hazard. On top of a rideable one you get a lift; anywhere else
+   * on a harmful one costs you.
+   */
+  private onHazardContact(hazard: MovingHazard): void {
+    if (this.state !== 'playing') return;
+    const body = this.player.physicsBody;
+    const onTop = body.bottom <= hazard.physicsBody.top + 6 && body.velocity.y >= 0;
+
+    if (onTop && hazard.config.rideable) {
+      this.riding = hazard;
+      return;
+    }
+    if (hazard.isDangerous) this.hurtPlayer(hazard.x);
+  }
+
+  /** Landing on an awning or a bag of rubbish launches you (§6). */
+  private onBounce(pad: Phaser.GameObjects.Rectangle): void {
+    const body = this.player.physicsBody;
+    if (body.velocity.y < 0 || body.bottom > pad.y + 8) return;
+
+    this.player.bounce(GAMEPLAY.bounceVelocity);
+    this.tweens.add({ targets: pad, scaleY: 0.4, duration: 80, yoyo: true });
+  }
+
+  /** The clock, on the levels that have one (§7). Running out costs a life. */
+  private updateClock(delta: number): void {
+    if (this.secondsLeft === undefined || this.state !== 'playing') return;
+
+    this.secondsLeft = Math.max(0, this.secondsLeft - delta / 1000);
+    if (this.secondsLeft === 0) {
+      this.hud.showBanner('TIME');
+      this.killPlayer();
+    }
+  }
+
+  /**
+   * An auto-scrolling chase (§6, 1-3): the camera moves on by itself and the
+   * left edge of the screen is a wall you cannot go back through.
+   */
+  private updateAutoScroll(delta: number): void {
+    if (!this.level.autoScroll || this.state !== 'playing') return;
+
+    const camera = this.cameras.main;
+    this.autoScrollX += (this.level.autoScroll * delta) / 1000;
+    camera.stopFollow();
+    camera.setScroll(
+      Math.min(this.autoScrollX, this.level.widthInTiles * TILE - VIEW_WIDTH),
+      camera.scrollY,
+    );
+
+    // Shove the player along rather than letting them be left behind: being
+    // scrolled off the back is the chase, not a death.
+    const leftEdge = camera.scrollX + 6;
+    if (this.player.x < leftEdge) this.player.x = leftEdge;
+  }
+
   private hurtPlayer(fromX: number): void {
     const outcome = this.power.takeHit(this.time.now);
     if (outcome === 'ignored') return;
@@ -593,8 +887,11 @@ export class LevelScene extends Phaser.Scene {
         character: this.player.character,
         lives: this.lives,
       });
+      const world = worldOf(this.levelId);
       this.hud.showBanner(
-        entry?.isBoss === true ? 'YOU GOT IT BACK!\nSPACE for the map' : "L'CHAIM!\nSPACE for the map",
+        entry?.isBoss === true && world
+          ? `YOU GOT ${world.prize.toUpperCase()} BACK!\nSPACE for the map`
+          : "L'CHAIM!\nSPACE for the map",
       );
     } else {
       this.hud.showBanner("L'CHAIM!\nR to play again");
@@ -695,6 +992,33 @@ export class LevelScene extends Phaser.Scene {
       ease: 'Quad.easeOut',
       onComplete: () => coin.destroy(),
     });
+  }
+
+  /**
+   * Buildings behind the street.
+   *
+   * One tiling sprite pinned to the camera, scrolled by hand at a fraction of
+   * the camera's speed. Pinning it and moving the texture rather than moving
+   * the sprite is what makes the parallax endless — a sprite as wide as the
+   * level would be enormous, and one as wide as the view would run out.
+   */
+  private drawBackdrop(): void {
+    if (!this.textures.exists('tile-brick')) return;
+    this.backdrop = this.add
+      .tileSprite(0, 0, VIEW_WIDTH, VIEW_HEIGHT, 'tile-brick')
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(-10)
+      // Pushed well back, so nothing in the foreground has to compete with it.
+      .setTint(0x4a3f4e)
+      .setAlpha(0.5);
+  }
+
+  private updateBackdrop(): void {
+    if (!this.backdrop) return;
+    const camera = this.cameras.main;
+    this.backdrop.tilePositionX = camera.scrollX * CAMERA.parallax;
+    this.backdrop.tilePositionY = camera.scrollY * CAMERA.parallax;
   }
 
   private drawGrid(widthPx: number, heightPx: number): void {

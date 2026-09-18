@@ -12,6 +12,8 @@
 
 /** Tiles a standing jump reliably clears. Measured, not guessed — see PROGRESS.md. */
 const MAX_JUMP = 4;
+/** Tiles a bounce pad throws you. Conservative against the real launch. */
+const BOUNCE_JUMP = 9;
 /** Below this width there is no room for a run-up, so assume the standing jump. */
 const RUNUP_WIDTH = 5;
 const NO_RUNUP_JUMP = 3;
@@ -91,15 +93,22 @@ export function findTraps(def) {
   const H = def.heightInTiles;
   const grid = buildGrid(def);
   const traps = [];
+  const bouncers = def.bouncers ?? [];
 
   for (const run of floorRuns(grid, W, H)) {
     const width = run.x1 - run.x0 + 1;
+
+    // A bounce pad on this stretch of floor is a way out on its own.
+    const hasBouncer = bouncers.some(
+      (b) => b.y >= run.y - 1 && b.y <= run.y + 1 && b.x + b.w > run.x0 && b.x <= run.x1,
+    );
 
     // The best jump available anywhere along the run: a low ceiling over part
     // of it does not matter if you can step out from under before jumping.
     let best = 0;
     for (let x = run.x0; x <= run.x1; x += 1) {
-      best = Math.max(best, Math.min(width >= RUNUP_WIDTH ? MAX_JUMP : NO_RUNUP_JUMP, headroom(grid, x, run.y)));
+      const ceiling = hasBouncer ? BOUNCE_JUMP : width >= RUNUP_WIDTH ? MAX_JUMP : NO_RUNUP_JUMP;
+      best = Math.max(best, Math.min(ceiling, headroom(grid, x, run.y)));
     }
 
     const left = wallHeight(grid, run.x0 - 1, run.y, W);

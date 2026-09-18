@@ -7,6 +7,10 @@
  * edit it visually instead; just stop regenerating that one.
  */
 export function level({ key, name, width, height, floorTop, background = '0x151a2c' }) {
+  const bouncers = [];
+  const perches = [];
+  let boss;
+  let autoScroll;
   const solids = [];
   const labels = [];
   const coins = [];
@@ -56,6 +60,16 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
     enemy(x, y, kind = 'pigeon') { enemies.push({ x, y, kind }); return api; },
     crate(x, y = floorTop) { crates.push({ x, y }); return api; },
     wind(x, y, w, h, direction) { hazards.push({ x, y, w, h, kind: 'wind', direction }); return api; },
+    /** A moving hazard: pipe, cart, van, stroller. */
+    hazard(kind, x, y = floorTop, direction = -1) {
+      hazards.push({ x, y, w: 1, h: 1, kind, direction });
+      return api;
+    },
+    /** Something you bounce off: an awning, a bag of rubbish. */
+    bounce(x, y, w = 1) { bouncers.push({ x, y, w }); return api; },
+    bossAt(x, y) { boss = { x, y }; return api; },
+    perch(x, y) { perches.push({ x, y }); return api; },
+    scrolls(pxPerSecond) { autoScroll = pxPerSecond; return api; },
     label(x, y, text) { labels.push({ x, y, text }); return api; },
     /** Signage. Row 15 is the first row the camera reliably shows. */
     sign(x, lines, firstRow = 15) {
@@ -77,7 +91,12 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         enemies,
         crates,
         hazards,
+        bouncers,
+        groundRow: floorTop,
+        perches,
         checkpoints,
+        ...(boss ? { boss } : {}),
+        ...(autoScroll === undefined ? {} : { autoScroll }),
         ...(goal ? { goal } : {}),
       };
     },

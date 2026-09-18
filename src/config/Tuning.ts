@@ -271,6 +271,13 @@ export const CAMERA = {
    * telegraphed attack readable.
    */
   lookAhead: 44,
+  /**
+   * How fast the buildings behind the street move relative to the camera.
+   *
+   * Low enough to read as distance, high enough that the background is not a
+   * static wallpaper you stop noticing.
+   */
+  parallax: 0.35,
   /** How fast the lead swings across when you turn around, 0..1 per frame. */
   lookAheadLerp: 0.045,
 } as const;
@@ -359,6 +366,8 @@ export const GAMEPLAY = {
   startingLives: 3,
   /** Tzedakah coins that buy an extra life (§5). The counter resets after. */
   coinsPerLife: 100,
+  /** How hard an awning or a bag of rubbish throws you, px/s. */
+  bounceVelocity: -420,
 } as const;
 
 /**

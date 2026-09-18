@@ -23,7 +23,22 @@ const COLORS: Record<BlockKind, number> = {
   weak: 0x7a6a52,
 };
 
-const SPENT_COLOR = 0x5a5f78;
+/**
+ * Which drawing each kind of block wears.
+ *
+ * A mystery box and a spent one are their own sheets; the other three are
+ * tiles out of the Boro Park set, chosen so the kind is readable without a
+ * legend — brick you can break, metal grating you cannot, and a wooden plank
+ * that is obviously a floor waiting to give way.
+ */
+const BLOCK_TEXTURES: Record<BlockKind, string> = {
+  mystery: 'mystery_box',
+  brick: 'tile-brick',
+  reinforced: 'tile-sewerGrate',
+  weak: 'tile-scaffoldPlank',
+};
+
+const SPENT_TEXTURE = 'box_used';
 
 /**
  * A block you hit from below: a mystery box that gives up its contents, or a
@@ -52,8 +67,21 @@ export class Block extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this, true);
 
     this.setOrigin(0.5, 0.5);
-    this.setTint(COLORS[kind]);
     this.setDepth(4);
+    // Every block is exactly one tile, so the drawing can be swapped in
+    // without touching the body: frame and hitbox are the same 16 x 16.
+    this.wear(BLOCK_TEXTURES[kind]);
+  }
+
+  /** Put on a drawing, falling back to a tinted rectangle if it never loaded. */
+  private wear(texture: string): void {
+    if (!this.scene.textures.exists(texture)) {
+      this.setTexture(solidTextureKey(this.scene, TILE, TILE));
+      this.setTint(COLORS[this.kind]);
+      return;
+    }
+    this.setTexture(texture);
+    this.clearTint();
   }
 
   get staticBody(): Phaser.Physics.Arcade.StaticBody {
@@ -102,7 +130,7 @@ export class Block extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.spent = true;
-    this.setTint(SPENT_COLOR);
+    this.wear(SPENT_TEXTURE);
     this.bump();
     return 'contents';
   }

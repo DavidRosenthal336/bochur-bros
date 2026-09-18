@@ -32,7 +32,7 @@ export class WindZone {
     const h = tileH * TILE;
 
     this.bounds = new Phaser.Geom.Rectangle(x, y, w, h);
-    this.force = config.force * direction;
+    this.force = (config.force ?? 0) * direction;
 
     scene.add.rectangle(x + w / 2, y + h / 2, w, h, config.color, 0.1).setDepth(2);
 

@@ -2,14 +2,23 @@ import type { CharacterId } from './Tuning';
 import type { PowerTier } from '../systems/PowerState';
 
 /**
- * Real sprite art, where it exists.
+ * The art registry: every drawn sheet in the game, and which frame is which.
  *
- * Forms not listed here fall back to the placeholder rectangle, so art can
- * land one form at a time without the game caring which are drawn and which
- * are not. `tools/art/generate.py` produces these sheets; the art is authored
- * as text grids in that file rather than as binary assets, so a recolour or a
- * restyle is a diff rather than a redraw.
+ * Nothing that uses a sprite knows where it came from or how big its frame is
+ * — it asks this table. A form or a creature that is not listed here falls
+ * back to the generated placeholder rectangle, so art can land one piece at a
+ * time without the game caring which pieces have arrived.
+ *
+ * `tools/art/generate.py` produces every one of these sheets. The art is
+ * authored as text grids in that script rather than as binary assets, so a
+ * recolour or a restyle is a diff rather than a redraw, and
+ * `npm run check:art` fails the build if a PNG here stops matching the frame
+ * sizes this file claims.
  */
+
+/** Poses every playable character has, in every form. */
+export type CharacterPose = 'idle' | 'run' | 'jump' | 'fall' | 'crouch' | 'hurt';
+
 export interface SpriteSet {
   /** Texture key, and also the file name. */
   readonly key: string;
@@ -30,15 +39,44 @@ export interface SpriteSet {
   readonly runFps: number;
 }
 
+/**
+ * Every character sheet has the same eight frames in the same order, so the
+ * only thing that varies between forms is the frame size.
+ *
+ * The run cycle is 1, 2, 3, 2 rather than 1, 2, 3: the three drawn legs are
+ * contact, passing and contact-on-the-other-foot, so playing them straight
+ * through snaps back to the first pose and the walk limps. Bouncing off the
+ * middle pose gives a four-beat cycle out of three drawings.
+ */
+const CHARACTER_FRAMES = {
+  idle: 0,
+  run: [1, 2, 3, 2],
+  jump: 4,
+  fall: 5,
+  crouch: 6,
+  hurt: 7,
+} as const;
+
+const character = (key: string, frameWidth: number, frameHeight: number): SpriteSet => ({
+  key,
+  url: `sprites/${key}.png`,
+  frameWidth,
+  frameHeight,
+  frames: CHARACTER_FRAMES,
+  runFps: 10,
+});
+
 export const SPRITE_SETS: Partial<Record<`${CharacterId}-${PowerTier}`, SpriteSet>> = {
-  'mendy-small': {
-    key: 'mendy_small',
-    url: 'sprites/mendy_small.png',
-    frameWidth: 24,
-    frameHeight: 28,
-    frames: { idle: 0, run: [1, 2, 3], jump: 4, fall: 5, crouch: 6, hurt: 7 },
-    runFps: 10,
-  },
+  'mendy-small': character('mendy_small', 24, 28),
+  'mendy-cholent': character('mendy_cholent', 26, 36),
+  'mendy-menorah': character('mendy_menorah', 26, 36),
+  'mendy-lulav': character('mendy_lulav', 26, 36),
+  'mendy-peyos': character('mendy_peyos', 26, 36),
+  'berel-small': character('berel_small', 26, 30),
+  'berel-cholent': character('berel_cholent', 28, 41),
+  'berel-menorah': character('berel_menorah', 28, 41),
+  'berel-lulav': character('berel_lulav', 28, 41),
+  'berel-peyos': character('berel_peyos', 28, 41),
 };
 
 export function spriteSetFor(character: CharacterId, tier: PowerTier): SpriteSet | undefined {
@@ -46,5 +84,102 @@ export function spriteSetFor(character: CharacterId, tier: PowerTier): SpriteSet
 }
 
 /** Animation keys are derived, so nothing has to keep two lists in step. */
-export const animKey = (set: SpriteSet, name: 'idle' | 'run' | 'jump' | 'fall' | 'crouch' | 'hurt'): string =>
-  `${set.key}-${name}`;
+export const animKey = (set: SpriteSet, name: CharacterPose): string => `${set.key}-${name}`;
+
+// --------------------------------------------------------------- actors ---
+
+/**
+ * Everything drawn that is not a playable character: enemies, hazards, the
+ * boss, coins, boxes, crates, the hat.
+ *
+ * These have no fixed pose vocabulary — a pigeon perches and swoops, a cart
+ * just sits there — so poses are a free-form map and the entity asks for the
+ * one it wants by name.
+ */
+export interface ActorSpriteSet {
+  readonly key: string;
+  readonly url: string;
+  readonly frameWidth: number;
+  readonly frameHeight: number;
+  /** Named pose → one frame, or a list of frames to cycle. */
+  readonly poses: Readonly<Record<string, number | readonly number[]>>;
+  /** Playback rate for the poses that are a list. */
+  readonly fps: number;
+  /**
+   * Where the origin sits vertically. Anything that stands on the ground is
+   * anchored at its feet so a spawn point is a floor position; coins and
+   * flames hang in the air and are anchored at their middle.
+   */
+  readonly originY: 0.5 | 1;
+}
+
+const actor = (
+  key: string,
+  frameWidth: number,
+  frameHeight: number,
+  poses: Readonly<Record<string, number | readonly number[]>>,
+  options: { readonly fps?: number; readonly originY?: 0.5 | 1 } = {},
+): ActorSpriteSet => ({
+  key,
+  url: `sprites/${key}.png`,
+  frameWidth,
+  frameHeight,
+  poses,
+  fps: options.fps ?? 8,
+  originY: options.originY ?? 1,
+});
+
+export const ACTOR_SPRITES = {
+  /** The hat, which lifts off the head and hovers while airborne (§5, §9). */
+  peyosHat: actor('peyos_hat', 12, 6, { hat: 0 }, { originY: 0.5 }),
+
+  pigeon: actor(
+    'pigeon',
+    20,
+    16,
+    { perch: 0, rear: 1, fly: [2, 3], swoop: 4, squash: 5 },
+    { fps: 8 },
+  ),
+  rat: actor('rat', 20, 14, { run: [0, 1], squash: 2 }, { fps: 12 }),
+  pigeonKing: actor('pigeon_king', 44, 38, { idle: 0, wings: 1, dive: 2, hurt: 3 }),
+
+  cart: actor('cart', 26, 22, { idle: 0 }),
+  pipe: actor('scaffold_pipe', 16, 44, { idle: 0 }),
+  stroller: actor('stroller', 28, 30, { idle: 0 }),
+
+  coin: actor('coin', 8, 10, { spin: [0, 1, 2, 3] }, { fps: 8, originY: 0.5 }),
+  flame: actor('menorah_flame', 8, 8, { burn: [0, 1] }, { fps: 12, originY: 0.5 }),
+  lchaim: actor('lchaim', 10, 14, { idle: 0 }),
+  powerUp: actor('powerup_pickup', 14, 14, { idle: 0 }),
+  mysteryBox: actor('mystery_box', 16, 16, { idle: 0 }),
+  boxUsed: actor('box_used', 16, 16, { idle: 0 }),
+  crate: actor('crate', 16, 16, { idle: 0 }),
+} as const satisfies Record<string, ActorSpriteSet>;
+
+export type ActorSpriteName = keyof typeof ACTOR_SPRITES;
+
+export const actorAnimKey = (set: ActorSpriteSet, pose: string): string => `${set.key}-${pose}`;
+
+// ---------------------------------------------------------------- tiles ---
+
+/**
+ * The Boro Park tileset, one 16x16 texture per file.
+ *
+ * Loaded as separate images rather than sliced out of the strip because the
+ * solids are drawn with tiling sprites, and a tiling sprite repeats a whole
+ * texture. Nine small files is a cheaper answer than a strip plus nine
+ * canvases to cut it up.
+ */
+export const TILE_TEXTURES = {
+  brick: 'tiles/brick.png',
+  sidewalk: 'tiles/sidewalk.png',
+  asphalt: 'tiles/asphalt.png',
+  scaffoldPole: 'tiles/scaffold_pole.png',
+  scaffoldPlank: 'tiles/scaffold_plank.png',
+  fireEscape: 'tiles/fire_escape.png',
+  awning: 'tiles/awning.png',
+  sewerGrate: 'tiles/sewer_grate.png',
+  window: 'tiles/window.png',
+} as const;
+
+export type TileTextureName = keyof typeof TILE_TEXTURES;

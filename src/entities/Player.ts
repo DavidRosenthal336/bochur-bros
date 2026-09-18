@@ -5,7 +5,7 @@ import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from '../input/InputState';
 import { NEUTRAL_INPUT } from '../input/InputState';
 import type { SpriteSet } from '../config/sprites';
-import { animKey, spriteSetFor } from '../config/sprites';
+import { ACTOR_SPRITES, animKey, spriteSetFor } from '../config/sprites';
 import { placeholderTextureKey } from '../util/textures';
 
 /** Everything the debug overlay wants to know, without reaching into privates. */
@@ -77,8 +77,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Peyos flight left in this takeoff, ms. Refills on landing (§5). */
   private flightMs: number = POWERS.peyos.durationMs;
   private flying = false;
-  /** The hat, which lifts off and hovers while airborne (§5, §9). */
-  private hat: Phaser.GameObjects.Rectangle | undefined;
+  /**
+   * The hat, which lifts off and hovers while airborne (§5, §9).
+   *
+   * In every other form the hat is drawn on the head as part of the character.
+   * In Peyos form the sheets are drawn bare-headed and the hat is its own
+   * sprite, because it has to leave his head and come back.
+   */
+  private hat: Phaser.GameObjects.Sprite | undefined;
   /** When the next Menorah shot or Lulav swing is allowed. */
   private actionReadyAt = 0;
   /** While the Lulav arc is live, this is where it is. */
@@ -264,19 +270,37 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private setFlying(flying: boolean): void {
-    if (flying === this.flying) return;
     this.flying = flying;
+  }
 
-    if (flying && !this.hat) {
-      // Light, not black. A black hat is right for the finished art and
-      // invisible against a dark greybox background.
-      this.hat = this.scene.add
-        .rectangle(this.x, this.y, this.tierWidth + 4, 4, 0xd8cbb0)
-        .setDepth(11);
-    } else if (!flying && this.hat) {
+  /**
+   * Keep the loose hat where it belongs: on his head on the ground, hovering
+   * and tilting above it in the air.
+   *
+   * §9 calls the airborne version the game's signature image, so it is worth
+   * the extra entity rather than being folded into the character sheet.
+   */
+  private syncHat(grounded: boolean): void {
+    const wanted = this.tier === 'peyos';
+    if (wanted && !this.hat) {
+      const art = ACTOR_SPRITES.peyosHat;
+      this.hat = this.scene.add.sprite(this.x, this.y, art.key, 0).setDepth(11);
+    } else if (!wanted && this.hat) {
       this.hat.destroy();
       this.hat = undefined;
     }
+    if (!this.hat) return;
+
+    const headTop = this.y - this.currentHeight(this.crouching);
+    if (grounded) {
+      this.hat.setPosition(this.x, headTop + 2);
+      this.hat.setAngle(0);
+    } else {
+      const t = this.scene.time.now / 1000;
+      this.hat.setPosition(this.x, headTop - 8 + Math.sin(t * 6) * 1.5);
+      this.hat.setAngle(Math.sin(t * 3) * 14);
+    }
+    this.hat.setFlipX(this.facing < 0);
   }
 
   /**
@@ -656,10 +680,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     const height = this.currentHeight(this.crouching);
     this.nose.setPosition(this.x + this.facing * (this.tierWidth / 2 - 2), this.y - height + 6);
-    void grounded;
-    // The hat lifts off and hovers above him while airborne (§5). This is the
-    // game's signature image; it gets a real sprite in the art pass.
-    this.hat?.setPosition(this.x, this.y - height - 7);
+    this.syncHat(grounded);
     if (this.swing && this.swingVisual) {
       const x = this.facing > 0 ? this.x : this.x - POWERS.lulav.reach;
       this.swing.setPosition(x, this.y - height * 0.5 - POWERS.lulav.height / 2);
