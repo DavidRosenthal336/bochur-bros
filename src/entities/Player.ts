@@ -558,9 +558,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const height = this.currentHeight(this.crouching);
     const body = this.physicsBody;
     const art = this.art;
+    /**
+     * Where the feet are before the resize.
+     *
+     * Read off the body, not the sprite. The sprite's position is written from
+     * the body after the physics step, so during an update it is a frame out
+     * of date — and setting the body from it turns a resize into a shove.
+     */
+    const feet = body.bottom;
 
     if (art) {
-      this.setTexture(art.key, art.frames.idle);
+      // Only when the sheet itself changes. Forcing the idle frame here on
+      // every resize is what made ducking glitch: `playPose` below re-plays an
+      // animation only when its *name* changes, so on the second and every
+      // later crouch the name was already "crouch", the play was skipped, and
+      // the standing drawing stayed on screen over a crouched hitbox.
+      if (this.texture.key !== art.key) this.setTexture(art.key, art.frames.idle);
       body.setSize(width, height);
       body.setOffset((art.frameWidth - width) / 2, art.frameHeight - height);
     } else {
@@ -569,27 +582,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       body.setOffset(0, 0);
     }
 
-    this.plantFeet(width, height);
-  }
-
-  /**
-   * Put the body back where the sprite says it is, after a resize.
-   *
-   * Arcade's `setSize` keeps the body's top-left corner and grows it downward,
-   * so standing up from a crouch moves the *feet* down by the nine pixels the
-   * character just gained instead of raising the head. For a frame the player
-   * is buried in the floor, and a jump started on that frame launches from
-   * nine pixels underground.
-   *
-   * The body's position is recomputed from the sprite on the next physics
-   * step, which is why this only ever lasted one frame and stayed invisible —
-   * but one frame is enough to lose a jump in, and ducking under something and
-   * immediately jumping is exactly what a fight asks you to do.
-   */
-  private plantFeet(width: number, height: number): void {
-    const body = this.physicsBody;
-    body.x = this.x - width / 2;
-    body.y = this.y - height;
+    /**
+     * Keep the feet where they were, without dragging the drawing with them.
+     *
+     * Two separate traps here, and falling into either one is visible.
+     *
+     * Resizing moves the feet: Arcade's `setSize` re-centres the body on the
+     * sprite, so a crouch lifts the feet and standing up buries them, by the
+     * nine pixels of height the character just lost or gained. Left alone, a
+     * jump on the frame you stand up launches from nine pixels underground.
+     *
+     * Moving the body then moves the sprite: `postUpdate` applies the body's
+     * *delta* to the game object rather than setting its position, so nudging
+     * the body down nine pixels to plant the feet slides the drawing down nine
+     * pixels too — and Mendy spends the whole crouch sunk into the pavement.
+     * Clearing the previous position after the correction makes the delta zero,
+     * so the body lands where it belongs and the sprite stays put.
+     */
+    body.y = feet - body.height;
+    body.prev.y = body.y;
+    body.prevFrame.y = body.y;
   }
 
   /**
@@ -730,7 +742,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     else pose = 'idle';
 
     const key = animKey(art, pose);
-    if (this.anims.getName() !== key) this.play(key, true);
+    // The texture check matters as much as the name: a form change swaps the
+    // sheet without changing the pose, and a resize can leave the wrong frame
+    // showing under a name that is already correct.
+    if (this.anims.getName() !== key || this.texture.key !== art.key) this.play(key, true);
     this.anims.timeScale = pose === 'run' ? Math.max(0.5, speed / this.stats.walkSpeed) : 1;
   }
 

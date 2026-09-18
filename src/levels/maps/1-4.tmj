@@ -1,6 +1,6 @@
 {
  "compressionlevel": -1,
- "width": 40,
+ "width": 56,
  "height": 27,
  "tilewidth": 16,
  "tileheight": 16,
@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 18,
+ "nextobjectid": 21,
  "tilesets": [],
  "properties": [
   {
@@ -52,7 +52,7 @@
      "class": "",
      "x": 0,
      "y": 320,
-     "width": 640,
+     "width": 896,
      "height": 112,
      "rotation": 0,
      "visible": true,
@@ -69,9 +69,9 @@
      "name": "",
      "class": "",
      "x": 0,
-     "y": 96,
+     "y": 80,
      "width": 32,
-     "height": 224,
+     "height": 240,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -86,10 +86,10 @@
      "id": 3,
      "name": "",
      "class": "",
-     "x": 608,
-     "y": 96,
+     "x": 864,
+     "y": 80,
      "width": 32,
-     "height": 224,
+     "height": 240,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -104,9 +104,9 @@
      "id": 4,
      "name": "",
      "class": "",
-     "x": 80,
-     "y": 256,
-     "width": 96,
+     "x": 144,
+     "y": 304,
+     "width": 48,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -122,9 +122,9 @@
      "id": 5,
      "name": "",
      "class": "",
-     "x": 272,
-     "y": 192,
-     "width": 96,
+     "x": 96,
+     "y": 272,
+     "width": 48,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -140,9 +140,63 @@
      "id": 6,
      "name": "",
      "class": "",
-     "x": 464,
-     "y": 256,
-     "width": 96,
+     "x": 48,
+     "y": 240,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "",
+     "class": "",
+     "x": 704,
+     "y": 304,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "",
+     "class": "",
+     "x": 752,
+     "y": 272,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "",
+     "class": "",
+     "x": 800,
+     "y": 240,
+     "width": 48,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -167,10 +221,10 @@
    "y": 0,
    "objects": [
     {
-     "id": 7,
+     "id": 10,
      "name": "",
      "class": "spawn",
-     "x": 64,
+     "x": 80,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -178,11 +232,11 @@
      "visible": true
     },
     {
-     "id": 8,
+     "id": 11,
      "name": "",
      "class": "block",
-     "x": 144,
-     "y": 208,
+     "x": 192,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -201,45 +255,12 @@
      ]
     },
     {
-     "id": 9,
-     "name": "",
-     "class": "bounce",
-     "x": 208,
-     "y": 304,
-     "width": 48,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 10,
-     "name": "",
-     "class": "bounce",
-     "x": 384,
-     "y": 304,
-     "width": 48,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 11,
-     "name": "",
-     "class": "perch",
-     "x": 112,
-     "y": 240,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
      "id": 12,
      "name": "",
-     "class": "perch",
-     "x": 304,
-     "y": 176,
-     "width": 16,
+     "class": "bounce",
+     "x": 320,
+     "y": 304,
+     "width": 48,
      "height": 16,
      "rotation": 0,
      "visible": true
@@ -247,10 +268,10 @@
     {
      "id": 13,
      "name": "",
-     "class": "perch",
-     "x": 496,
-     "y": 240,
-     "width": 16,
+     "class": "bounce",
+     "x": 544,
+     "y": 304,
+     "width": 48,
      "height": 16,
      "rotation": 0,
      "visible": true
@@ -258,9 +279,9 @@
     {
      "id": 14,
      "name": "",
-     "class": "boss",
-     "x": 304,
-     "y": 176,
+     "class": "perch",
+     "x": 80,
+     "y": 192,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -269,8 +290,41 @@
     {
      "id": 15,
      "name": "",
+     "class": "perch",
+     "x": 448,
+     "y": 160,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 16,
+     "name": "",
+     "class": "perch",
+     "x": 816,
+     "y": 192,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 17,
+     "name": "",
+     "class": "boss",
+     "x": 448,
+     "y": 176,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 18,
+     "name": "",
      "class": "label",
-     "x": 176,
+     "x": 96,
      "y": 240,
      "width": 16,
      "height": 16,
@@ -285,10 +339,10 @@
      ]
     },
     {
-     "id": 16,
+     "id": 19,
      "name": "",
      "class": "label",
-     "x": 176,
+     "x": 96,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -298,15 +352,15 @@
       {
        "name": "text",
        "type": "string",
-       "value": "he aims where you stand when he starts flashing. move."
+       "value": "he aims where you stand. move."
       }
      ]
     },
     {
-     "id": 17,
+     "id": 20,
      "name": "",
      "class": "label",
-     "x": 176,
+     "x": 96,
      "y": 272,
      "width": 16,
      "height": 16,
@@ -316,7 +370,7 @@
       {
        "name": "text",
        "type": "string",
-       "value": "duck under the swoop, or land on his back. three times."
+       "value": "duck, or land on his back. x3"
       }
      ]
     }

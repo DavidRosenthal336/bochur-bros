@@ -340,7 +340,7 @@ export const GAMEPLAY = {
    * fight, and without a ceiling the arena fills up until the fight is decided
    * by the birds rather than by the boss.
    */
-  maxFlock: 3,
+  maxFlock: 2,
   /**
    * Knockback applied to the player when hurt, px/s.
    *
