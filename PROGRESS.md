@@ -556,3 +556,64 @@ hole. All three are cleared on build now.
 **The greybox levels were getting a backdrop.** Same root cause: the backdrop
 list was built only for real levels, so a greybox level inherited whatever the
 last real level left behind.
+
+---
+
+## World 1 art complete
+
+The scenery pack landed and went in: twelve backdrop layers, the meat board, the
+pushke checkpoints, the van, the reinforced and weak blocks, and the interface
+art. **56 of 56 pieces the game knows how to draw are now drawn.** Every file
+matched the sizes `ART_SPEC.md` asked for on the first try, including the one
+requirement that came out of testing against stand-ins — every backdrop layer is
+opaque along its bottom row.
+
+Dropping the files into `public/` was the whole integration, exactly as the
+sockets promised; the running dev server picked all twelve layers up without a
+restart. `tools/art/scenery.py` regenerates all 22 files byte-identically, so
+the art is genuinely source rather than binaries that happen to be in the repo.
+
+### The backdrop had to be anchored to the pavement, not the screen
+
+First pass put each layer's base at the bottom of the view, which is where the
+stand-ins had been built for. With the real art that buried the whole shopfront
+band — awnings, doorways, everything below the buildings — under the road
+surface, because the game's pavement sits about halfway up the screen, not at
+the bottom of it.
+
+Layers are now lined up so their base meets the pavement, and lag behind by
+their scroll fraction as the camera strays from that position. The shopfronts
+sit on the street where they were drawn to, and still slide correctly through
+the climb in 1-2.
+
+### Signage had to be rewritten to survive the backdrop
+
+The in-world labels were muted blue-grey on a flat background. Against lit
+windows and fire escapes they vanished. They are near-white with a hard shadow
+now — a readability regression the art caused, and the sort of thing that only
+shows up once the thing behind the text is finished.
+
+### The HUD and the world map
+
+The HUD is icon-and-number rows now — clock, life, tzedakah — with the clock row
+closed up on the levels that have no timer. The number sits immediately after
+its icon rather than right-aligned to the edge, because a right-aligned number
+drifts away from its own icon as the count shrinks.
+
+The world map is drawn nodes (locked / open / cleared) joined by a path of dots,
+and the kiddush table with the four prizes laid along it — the meat board
+recovered, the other three as dashed outlines. The table is the player's
+progress bar and should be the first thing they look at, so it replaced the row
+of labelled boxes.
+
+The one tint applied over the artist's work: the empty prize slots are drawn in
+the palette's near-black, for a table with a solid top. This table's interior is
+open, so on the map's dark background they were invisible. They are lifted to a
+slate blue.
+
+### Still a rectangle
+
+The Lulav swing arc, the wind streaks, the pipe's shadow and the boss health
+bar — all effects drawn in code rather than missing sheets. And `van.png` is in
+and wired but no level places a van yet: that needs a stretch of street designed
+around climbing one, which is level design rather than art.

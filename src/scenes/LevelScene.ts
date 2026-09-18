@@ -97,6 +97,17 @@ export class LevelScene extends Phaser.Scene {
    * fast it moves. Empty in greybox levels.
    */
   private backdrop: { readonly sprite: Phaser.GameObjects.TileSprite; readonly layer: BackdropLayer }[] = [];
+  /**
+   * Where the backdrop lines up with the level, in screen pixels, and the
+   * camera position that alignment is measured from.
+   *
+   * The layers are drawn so their base sits on the pavement — the shopfronts
+   * and awnings along the bottom of each layer are meant to meet the street,
+   * not the bottom of the screen. Anchoring them to the view instead buries
+   * that whole band under the road surface.
+   */
+  private backdropRestY = 0;
+  private backdropRestScrollY = 0;
 
   private solids!: Phaser.Physics.Arcade.StaticGroup;
   private blocks!: Phaser.Physics.Arcade.StaticGroup;
@@ -1072,32 +1083,47 @@ export class LevelScene extends Phaser.Scene {
       this.backdrop.push({ sprite, layer });
     }
 
-    if (this.backdrop.length > 0 || !this.textures.exists('tile-brick')) return;
+    if (this.backdrop.length === 0 && this.textures.exists('tile-brick')) {
+      const wall = this.add
+        .tileSprite(0, VIEW_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT * 2, 'tile-brick')
+        .setOrigin(0, 1)
+        .setScrollFactor(0)
+        .setDepth(-10)
+        // Pushed well back, so nothing in the foreground has to compete with it.
+        .setTint(0x4a3f4e)
+        .setAlpha(0.5);
+      this.backdrop.push({
+        sprite: wall,
+        layer: { key: 'tile-brick', url: '', scrollX: CAMERA.parallax, scrollY: CAMERA.parallax },
+      });
+    }
 
-    const wall = this.add
-      .tileSprite(0, VIEW_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT, 'tile-brick')
-      .setOrigin(0, 1)
-      .setScrollFactor(0)
-      .setDepth(-10)
-      // Pushed well back, so nothing in the foreground has to compete with it.
-      .setTint(0x4a3f4e)
-      .setAlpha(0.5);
-    this.backdrop.push({
-      sprite: wall,
-      layer: { key: 'tile-brick', url: '', scrollX: CAMERA.parallax, scrollY: CAMERA.parallax },
-    });
+    // Line the layers up with the pavement, and remember the camera position
+    // that alignment was measured at, so `updateBackdrop` can lag behind it.
+    const groundY = (this.level.groundRow ?? this.level.heightInTiles - 7) * TILE;
+    const travel = Math.max(0, this.level.heightInTiles * TILE - VIEW_HEIGHT);
+    this.backdropRestScrollY = Phaser.Math.Clamp(groundY - VIEW_HEIGHT / 2, 0, travel);
+    this.backdropRestY = groundY - this.backdropRestScrollY;
+    this.updateBackdrop();
   }
 
+  /**
+   * Slide the layers to match the camera.
+   *
+   * Horizontally the texture moves inside a sprite pinned to the camera, which
+   * is what makes the scroll endless. Vertically the sprite itself moves, by a
+   * fraction of how far the camera has strayed from the position the backdrop
+   * was lined up for — so the shopfronts sit on the pavement while you are on
+   * the street, and lag behind as you climb away from it.
+   */
   private updateBackdrop(): void {
     if (this.backdrop.length === 0) return;
     const camera = this.cameras.main;
-    // Measured from the bottom of the level, so a layer sits where it was
-    // drawn while you are on the street and slides down as you climb.
-    const risen = this.level.heightInTiles * TILE - VIEW_HEIGHT - camera.scrollY;
+    const strayed = this.backdropRestScrollY - camera.scrollY;
 
     for (const { sprite, layer } of this.backdrop) {
       sprite.tilePositionX = camera.scrollX * layer.scrollX;
-      sprite.y = VIEW_HEIGHT + risen * layer.scrollY;
+      sprite.y = this.backdropRestY + strayed * layer.scrollY;
     }
   }
 
@@ -1109,14 +1135,22 @@ export class LevelScene extends Phaser.Scene {
     grid.strokePath();
   }
 
+  /**
+   * In-world signage.
+   *
+   * Lit rather than dim, with a hard shadow behind it. It used to be a muted
+   * blue-grey against a flat background, which was legible right up until there
+   * were lit windows and fire escapes behind it.
+   */
   private drawLabels(): void {
     for (const label of this.level.labels) {
       this.add
         .text(label.x * TILE, label.y * TILE, label.text, {
           fontFamily: 'monospace',
           fontSize: '8px',
-          color: '#7f8bbd',
+          color: '#e8ecff',
         })
+        .setShadow(1, 1, '#0d0f1a', 0, true, true)
         .setDepth(5);
     }
   }

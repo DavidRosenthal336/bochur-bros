@@ -26,6 +26,8 @@ export interface WorldEntry {
   readonly name: string;
   /** The stolen kiddush item this world's boss is sitting on. */
   readonly prize: string;
+  /** Which frame of `ui/prize_icons.png` stands for this world's prize. */
+  readonly prizeIcon: 'meat_board' | 'poppers' | 'kugel' | 'tequila';
   /** Placeholder colour for the map screen until art exists. */
   readonly color: number;
   readonly levels: readonly LevelEntry[];
@@ -36,6 +38,7 @@ export const WORLDS: readonly WorldEntry[] = [
     number: 1,
     name: 'Boro Park',
     prize: 'the meat board',
+    prizeIcon: 'meat_board',
     color: 0x8d6bb5,
     levels: [
       { id: '1-1', name: 'Thirteenth Avenue', map: '1-1' },
@@ -48,6 +51,7 @@ export const WORLDS: readonly WorldEntry[] = [
     number: 2,
     name: 'The Five Towns',
     prize: 'the pan of poppers',
+    prizeIcon: 'poppers',
     color: 0x5fa86b,
     levels: [
       { id: '2-1', name: 'Central Avenue' },
@@ -60,6 +64,7 @@ export const WORLDS: readonly WorldEntry[] = [
     number: 3,
     name: 'The Catskills',
     prize: 'the kugel',
+    prizeIcon: 'kugel',
     color: 0xc98b4a,
     levels: [
       { id: '3-1', name: 'The Colony' },
@@ -72,6 +77,7 @@ export const WORLDS: readonly WorldEntry[] = [
     number: 4,
     name: 'Meah Shearim',
     prize: 'the tequila',
+    prizeIcon: 'tequila',
     color: 0xd9b26f,
     levels: [
       { id: '4-1', name: 'The Alleys' },

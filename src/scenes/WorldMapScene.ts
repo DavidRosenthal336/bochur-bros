@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { sceneryArt } from '../config/scenery';
 import { VIEW_WIDTH } from '../config/Tuning';
 import type { LevelEntry, WorldEntry } from '../levels/catalog';
 import { LEVEL_ORDER, WORLDS } from '../levels/catalog';
@@ -21,18 +22,29 @@ import { SceneKey } from './SceneKey';
  * nothing lands on anything else: worlds 42..108, the kiddush table 113..136,
  * the description 142..160, the controls 166..174.
  */
-const NODE_WIDTH = 26;
-const NODE_HEIGHT = 13;
+const NODE_SIZE = 12;
 const NODE_SPACING = 40;
 const NODE_LEFT = 132;
-const ROW_SPACING = 20;
-const MAP_TOP = 42;
-const TABLE_Y = 118;
+const ROW_SPACING = 18;
+const MAP_TOP = 40;
+/** Top-left of the kiddush table, which is 64 x 32. */
+const TABLE_X = (VIEW_WIDTH - 64) / 2;
+const TABLE_Y = 106;
+/** Where the prizes sit on the tabletop, relative to the table's corner. */
+const PRIZE_INSET = 8;
+const PRIZE_PITCH = 13;
+const PRIZE_TOP = 2;
+
+/** One level's marker on the map, whether it is drawn art or a rectangle. */
+interface MapNode {
+  readonly object: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+  readonly setState: (state: 'locked' | 'open' | 'cleared', world: WorldEntry) => void;
+}
 
 export class WorldMapScene extends Phaser.Scene {
   private save!: SaveData;
   private selected = 0;
-  private nodes: Phaser.GameObjects.Rectangle[] = [];
+  private nodes: MapNode[] = [];
   private marker!: Phaser.GameObjects.Rectangle;
   private detail!: Phaser.GameObjects.Text;
 
@@ -53,7 +65,7 @@ export class WorldMapScene extends Phaser.Scene {
     this.drawKiddushTable();
 
     this.marker = this.add
-      .rectangle(0, 0, NODE_WIDTH + 6, NODE_HEIGHT + 6)
+      .rectangle(0, 0, NODE_SIZE + 6, NODE_SIZE + 6)
       .setStrokeStyle(1, 0xffffff)
       .setDepth(5);
     this.refresh();
@@ -110,6 +122,8 @@ export class WorldMapScene extends Phaser.Scene {
 
   private drawWorlds(): void {
     this.nodes = [];
+    const nodeArt = sceneryArt('mapNode');
+    const dotArt = sceneryArt('mapPathDot');
 
     WORLDS.forEach((world, worldIndex) => {
       const y = MAP_TOP + worldIndex * ROW_SPACING;
@@ -125,25 +139,90 @@ export class WorldMapScene extends Phaser.Scene {
 
       world.levels.forEach((level, levelIndex) => {
         const x = NODE_LEFT + levelIndex * NODE_SPACING;
-        const node = this.add.rectangle(x, y, NODE_WIDTH, NODE_HEIGHT, world.color).setDepth(2);
-        this.nodes.push(node);
 
-        this.add
-          .text(x, y, level.id, {
-            fontFamily: 'monospace',
-            fontSize: '8px',
-            color: '#0e1018',
-          })
-          .setOrigin(0.5)
-          .setDepth(3)
-          .setName(`label-${level.id}`);
+        // The path between one level and the next, so the row reads as a
+        // journey rather than four unrelated buttons.
+        if (levelIndex > 0 && dotArt) {
+          for (let dot = 1; dot <= 4; dot += 1) {
+            this.add
+              .image(x - NODE_SPACING + dot * 8, y, dotArt.key, 0)
+              .setDepth(1)
+              .setAlpha(worldOpen ? 0.8 : 0.25);
+          }
+        }
+
+        this.nodes.push(this.makeNode(x, y, world, nodeArt));
+        void level;
       });
     });
   }
 
-  /** The kiddush table, filling up as the prizes come home (§6). */
+  /**
+   * A level marker.
+   *
+   * Drawn art gives each state its own frame; without it the node falls back to
+   * the coloured rectangle the map used before, which is why the state change
+   * is handed back as a closure rather than branching at every refresh.
+   */
+  private makeNode(
+    x: number,
+    y: number,
+    world: WorldEntry,
+    art: ReturnType<typeof sceneryArt>,
+  ): MapNode {
+    if (art) {
+      const image = this.add.image(x, y, art.key, art.frames.locked).setDepth(2);
+      return {
+        object: image,
+        setState: (state) => image.setFrame(art.frames[state] ?? 0),
+      };
+    }
+
+    const rect = this.add.rectangle(x, y, NODE_SIZE, NODE_SIZE, world.color).setDepth(2);
+    return {
+      object: rect,
+      setState: (state, forWorld) => {
+        rect.setFillStyle(state === 'locked' ? 0x252a3d : forWorld.color);
+        rect.setStrokeStyle(state === 'cleared' ? 1 : 0, 0xffffff);
+      },
+    };
+  }
+
+  /**
+   * The kiddush table, filling up as the prizes come home (§6).
+   *
+   * This is the player's progress bar and it should be the first thing they
+   * look at, so it is a drawn table with the four prizes laid along it rather
+   * than a row of labelled boxes.
+   */
   private drawKiddushTable(): void {
-    const y = TABLE_Y;
+    const tableArt = sceneryArt('kiddushTable');
+    const prizeArt = sceneryArt('prizeIcons');
+
+    if (!tableArt || !prizeArt) {
+      this.drawKiddushTableFallback();
+      return;
+    }
+
+    this.add.image(TABLE_X, TABLE_Y, tableArt.key, 0).setOrigin(0, 0).setDepth(1);
+
+    WORLDS.forEach((world, index) => {
+      const recovered = this.save.kiddushItems.includes(world.number);
+      const frame = recovered ? (prizeArt.frames[world.prizeIcon] ?? 0) : prizeArt.frames.empty;
+      const slot = this.add
+        .image(TABLE_X + PRIZE_INSET + index * PRIZE_PITCH, TABLE_Y + PRIZE_TOP, prizeArt.key, frame)
+        .setOrigin(0, 0)
+        .setDepth(2);
+      // The empty slot is drawn as an outline in the palette's near-black, for
+      // a table with a solid top. This one is open, so it needs lifting off
+      // the map's own dark background or it simply is not there.
+      if (!recovered) slot.setTint(0x5d678f);
+    });
+  }
+
+  /** The pre-art version: a shelf with a labelled box per prize. */
+  private drawKiddushTableFallback(): void {
+    const y = TABLE_Y + 12;
     this.add.rectangle(VIEW_WIDTH / 2, y + 7, VIEW_WIDTH - 40, 2, 0x6b5330).setDepth(1);
 
     WORLDS.forEach((world, index) => {
@@ -183,18 +262,14 @@ export class WorldMapScene extends Phaser.Scene {
       const unlocked = isUnlocked(this.save, level.id);
       const done = this.save.completed.includes(level.id);
 
-      node.setFillStyle(unlocked ? world.color : 0x252a3d);
-      node.setAlpha(level.map ? 1 : 0.55);
-      node.setStrokeStyle(done ? 1 : 0, 0xffffff);
-
-      const label = this.children.getByName(`label-${level.id}`);
-      if (label instanceof Phaser.GameObjects.Text) {
-        label.setColor(unlocked ? '#0e1018' : '#4c5478');
-      }
+      node.setState(done ? 'cleared' : unlocked ? 'open' : 'locked', world);
+      // A level nobody has built yet is faded rather than locked: the shape of
+      // the whole journey is the point of this screen (§7).
+      node.object.setAlpha(level.map ? 1 : 0.5);
     });
 
     const node = this.nodes[this.selected];
-    if (node) this.marker.setPosition(node.x, node.y);
+    if (node) this.marker.setPosition(node.object.x, node.object.y);
     this.detail.setText(this.describe(LEVEL_ORDER[this.selected]!));
   }
 

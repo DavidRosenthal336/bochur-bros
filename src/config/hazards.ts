@@ -111,6 +111,10 @@ export const HAZARDS = {
    * Double-parked van — "sit still, then lurch forward without warning and
    * crush against walls. Their roofs are platforms, so the player must climb
    * the thing trying to kill them." (§6)
+   *
+   * Built and drawn, but not placed in any level yet — a van wants a stretch of
+   * street designed around climbing it, which is a level-design decision rather
+   * than a line in this table.
    */
   van: {
     label: 'Van',
