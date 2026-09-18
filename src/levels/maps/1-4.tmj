@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 17,
+ "nextobjectid": 18,
  "tilesets": [],
  "properties": [
   {
@@ -270,7 +270,7 @@
      "id": 15,
      "name": "",
      "class": "label",
-     "x": 192,
+     "x": 176,
      "y": 240,
      "width": 16,
      "height": 16,
@@ -288,7 +288,7 @@
      "id": 16,
      "name": "",
      "class": "label",
-     "x": 192,
+     "x": 176,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -298,7 +298,25 @@
       {
        "name": "text",
        "type": "string",
-       "value": "land on him when he comes down. three times."
+       "value": "he aims where you stand when he starts flashing. move."
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "name": "",
+     "class": "label",
+     "x": 176,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "duck under the swoop, or land on his back. three times."
       }
      ]
     }

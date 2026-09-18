@@ -47,7 +47,19 @@ L.bounce(13, 19, 3);
 L.bounce(24, 19, 3);
 
 L.bossAt(19, 11);
-L.sign(12, ['THE PIGEON KING', 'land on him when he comes down. three times.']);
+/**
+ * Three sentences, one per thing the fight asks of you.
+ *
+ * He picks his target when he starts flashing, not when he lets go, so the
+ * dodge is to be somewhere else by the time he arrives. At the bottom of the
+ * arc he levels out and then stops dead for a beat — that pause is the whole
+ * fight, and it is long enough to walk up to and jump on.
+ */
+L.sign(11, [
+  'THE PIGEON KING',
+  'he aims where you stand when he starts flashing. move.',
+  'duck under the swoop, or land on his back. three times.',
+]);
 
 // One box, because going in small is a rough fight.
 L.block(9, 13, 'mystery', 'cholent');

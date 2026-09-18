@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BOSSES } from '../config/bosses';
 import type { BossConfig } from '../config/bosses';
+import { TILE } from '../config/Tuning';
 import type { ActorSpriteSet } from '../config/sprites';
 import { actorArt, applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
@@ -23,7 +24,18 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   readonly config: BossConfig;
 
   private hitsLeft: number;
-  private phase: 'perched' | 'telegraph' | 'diving' | 'returning' | 'dead' = 'perched';
+  private phase:
+    | 'perched'
+    | 'telegraph'
+    | 'diving'
+    | 'sweeping'
+    | 'hovering'
+    | 'returning'
+    | 'dead' = 'perched';
+  /** Set on the first tick, once there is a clock to measure the opening from. */
+  private opened = false;
+  /** Which way it is skimming at the bottom of the arc. */
+  private sweepDirection: -1 | 1 = 1;
   private phaseEndsAt = 0;
   private perchIndex = 0;
   private invulnerableUntil = 0;
@@ -83,18 +95,41 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
 
   /** Can it be hurt right now? Only while it is down among you. */
   get isVulnerable(): boolean {
-    return this.phase === 'diving' && this.scene.time.now >= this.invulnerableUntil;
+    return this.isDangerous && this.scene.time.now >= this.invulnerableUntil;
   }
 
-  /** How fast it is going, which decides how dangerous the current phase is. */
+  /**
+   * Is touching it right now a hit?
+   *
+   * Not while it is climbing back to a perch. It leaves along a straight line
+   * to wherever the next perch is, which can run directly through the player,
+   * and a hit you cannot see coming or move away from is not a fight — it is a
+   * toll. Going up is its retreat; the fight is what happens on the way down.
+   */
   get isDangerous(): boolean {
-    return this.phase === 'diving' || this.phase === 'returning';
+    return this.phase === 'diving' || this.phase === 'sweeping' || this.phase === 'hovering';
   }
 
   /** The escalating phase number, 1-based. Later phases move faster. */
   private get intensity(): number {
     const lost = this.config.hits - this.hitsLeft;
     return 1 + Math.floor((lost / this.config.hits) * (this.config.phases - 1));
+  }
+
+  /**
+   * Park him exactly at the bottom of the arc.
+   *
+   * The body has to be moved, not the sprite. Arcade owns the body's position
+   * and writes it back to the sprite after every step, so assigning `this.y`
+   * is undone on the next frame — which left him a couple of pixels below
+   * where the config said, and a couple of pixels is the entire margin between
+   * a duck that works and a duck that does not.
+   */
+  private settleAtSweepHeight(): void {
+    const body = this.physicsBody;
+    body.stop();
+    body.y = this.config.floorY - body.height;
+    this.y = this.config.floorY;
   }
 
   /** Read and clear whatever the boss asked the level to do. */
@@ -107,6 +142,11 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   tick(now: number, playerX: number, perches: readonly Phaser.Math.Vector2[]): void {
     if (this.phase === 'dead') return;
     if (this.tell) this.tell.setPosition(this.x, this.y - this.config.bodyHeight / 2);
+
+    if (!this.opened) {
+      this.opened = true;
+      this.phaseEndsAt = now + this.config.openingMs;
+    }
 
     const speedUp = 1 + (this.intensity - 1) * 0.35;
 
@@ -140,6 +180,12 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
           this.clearTell();
           this.phase = 'diving';
           this.invulnerableUntil = now + 120;
+          // Fixed here, where it is unambiguous: the way he is travelling is
+          // from his perch toward where he is aiming. Reading it off his
+          // velocity at the bottom of the dive does not work, because by then
+          // he has converged on his target and is barely moving sideways at
+          // all, so the sign is whichever way the rounding fell.
+          this.sweepDirection = this.targetX >= this.x ? 1 : -1;
         }
         break;
 
@@ -150,9 +196,45 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
           this.config.diveSpeed * 0.55 * speedUp,
         );
         if (this.y >= this.config.floorY) {
-          this.phase = 'returning';
+          // Level out and run past, rather than pulling straight back up. This
+          // is the beat the whole fight hangs on: it is the only time his back
+          // is somewhere a jump can reach.
+          this.settleAtSweepHeight();
+          this.phase = 'sweeping';
+          this.phaseEndsAt = now + this.config.sweepMs;
           this.pendingRequest = 'shockwave';
         }
+        break;
+      }
+
+      case 'sweeping': {
+        // Flat, with no vertical velocity at all: a sweep that drifts down
+        // sinks into the ground, and one that drifts up is gone before you can
+        // answer it. The height itself was set once, on arrival.
+        // Nothing stops him leaving the room — he has no collider with the
+        // level, being a bird — so he turns at the walls himself rather than
+        // sweeping off into the dark where the fight cannot follow.
+        const margin = TILE * 3;
+        const arena = this.scene.physics.world.bounds;
+        if (
+          (this.sweepDirection < 0 && this.x <= arena.x + margin) ||
+          (this.sweepDirection > 0 && this.x >= arena.right - margin)
+        ) {
+          this.sweepDirection = (this.sweepDirection * -1) as -1 | 1;
+        }
+        this.physicsBody.setVelocity(this.sweepDirection * this.config.sweepSpeed * speedUp, 0);
+        if (now >= this.phaseEndsAt) {
+          this.phase = 'hovering';
+          this.phaseEndsAt = now + this.config.hoverMs / speedUp;
+        }
+        break;
+      }
+
+      case 'hovering': {
+        // Stopped, at head height, wings going. Still lethal to walk into —
+        // the answer is to come down on top of him, or to duck and wait.
+        this.physicsBody.setVelocity(0, 0);
+        if (now >= this.phaseEndsAt) this.phase = 'returning';
         break;
       }
 
@@ -191,9 +273,11 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     const art = this.art;
     if (!art) return;
 
-    if (this.scene.time.now < this.invulnerableUntil && this.phase !== 'diving') {
+    if (this.scene.time.now < this.invulnerableUntil && !this.isDangerous) {
       playPose(this, art, 'hurt');
-    } else if (this.phase === 'diving' || this.phase === 'telegraph') {
+    } else if (this.phase === 'hovering') {
+      playPose(this, art, 'wings');
+    } else if (this.phase === 'diving' || this.phase === 'sweeping' || this.phase === 'telegraph') {
       playPose(this, art, 'dive');
     } else if (this.scene.time.now < this.summoningUntil) {
       playPose(this, art, 'wings');

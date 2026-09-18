@@ -334,6 +334,14 @@ export const GAMEPLAY = {
   /** How long a defeated enemy stays visible, squashed, before vanishing, ms. */
   enemyDeathMs: 350,
   /**
+   * How many summoned enemies a boss may have in the air at once.
+   *
+   * A cap rather than a spawn budget: the boss keeps calling for the flock all
+   * fight, and without a ceiling the arena fills up until the fight is decided
+   * by the birds rather than by the boss.
+   */
+  maxFlock: 3,
+  /**
    * Knockback applied to the player when hurt, px/s.
    *
    * Deliberately small. At 90 a hit threw you five and a half tiles backwards,

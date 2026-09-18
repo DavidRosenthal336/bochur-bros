@@ -453,6 +453,17 @@ export class LevelScene extends Phaser.Scene {
     const boss = this.boss;
     if (!boss?.isAlive || this.state !== 'playing') return;
 
+    /**
+     * The same stomp test every other enemy uses: coming down, from above.
+     *
+     * It was tempting to loosen this for the boss, because the fight really
+     * was unwinnable — but the reason was never the test. He was only
+     * vulnerable while diving *at* the player, which puts him above you by
+     * construction, so there was no moment when landing on him was a thing you
+     * could do. The window is what was missing, not the rule, and a boss with
+     * its own private definition of a stomp is a worse thing to explain than a
+     * boss that holds still long enough to be jumped on.
+     */
     const body = this.player.physicsBody;
     const falling = body.velocity.y > GAMEPLAY.stompMinFallSpeed;
     const aboveMidline = body.bottom <= boss.physicsBody.center.y + GAMEPLAY.stompFootMargin;
@@ -512,10 +523,25 @@ export class LevelScene extends Phaser.Scene {
 
     switch (boss.takeRequest()) {
       case 'summon': {
-        // A flock, thrown in from above on either side of the arena.
-        for (let i = 0; i < boss.config.summonCount; i += 1) {
-          const x = boss.x + (i % 2 === 0 ? -70 : 70);
-          this.enemies.add(new Enemy(this, x, boss.y - 20, ENEMY_TABLE.pigeon));
+        // A flock, thrown in from either side of the arena.
+        //
+        // Two things this gets wrong if you let it. Spawning them relative to
+        // the boss puts them above the top of the screen while he is on a high
+        // perch, so the first you know of a pigeon is the one already on you —
+        // they come in at a height the camera can actually see instead. And
+        // nothing ever removed them, so a long fight silently turned into a
+        // room full of birds. The flock is capped; calling for more when the
+        // sky is full does nothing.
+        const alive = (this.enemies.getChildren() as Enemy[]).filter((e) => e.isAlive).length;
+        const room = Math.max(0, GAMEPLAY.maxFlock - alive);
+        const y = this.cameras.main.scrollY + VIEW_HEIGHT * 0.3;
+        for (let i = 0; i < Math.min(boss.config.summonCount, room); i += 1) {
+          const x = Phaser.Math.Clamp(
+            boss.x + (i % 2 === 0 ? -70 : 70),
+            TILE * 2,
+            this.level.widthInTiles * TILE - TILE * 2,
+          );
+          this.enemies.add(new Enemy(this, x, y, ENEMY_TABLE.pigeon));
         }
         break;
       }

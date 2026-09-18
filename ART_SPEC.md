@@ -128,6 +128,83 @@ signature image, so it is worth the extra entity.
 
 ---
 
+## Worlds 2, 3 and 4
+
+Drawn and installed, not yet wired into the game. Hitboxes are the artist's,
+taken from `docs/art/README_WORLDS_2_3_4.md`; they become the numbers in
+`src/config/enemies.ts`, `hazards.ts` and `bosses.ts` as each is built.
+
+Mendy and Berel are world-agnostic — all five forms work unchanged everywhere,
+so there is no new character art in any of these.
+
+### World 2 — The Five Towns
+
+| Sheet | Frame | Frames | Hitbox |
+|---|---|---|---|
+| `goose` | 24 × 26 | idle, hiss, run, angry, squash | **20 × 22** |
+| `chipmunk` | 16 × 14 | run1, run2, squash | **12 × 10** |
+| `dog` | 24 × 22 | quiet, bark | **20 × 18** |
+| `sprinkler` | 16 × 28 | down, up | **10 × 10** (head only) |
+| `mower` | 28 × 20 | idle | **24 × 16** |
+| `blower` | 20 × 20 | idle | — |
+| `trampoline` | 36 × 16 | idle, bounce | **32 × 12** |
+| `gate` | 20 × 36 | open, shut | **16 × 32** |
+| `minivan` | 56 × 34 | idle | **52 × 30** |
+| `escalade` | 88 × 46 | phase1, phase2, phase3, beaten | **84 × 42** |
+| `goal_poppers` | 36 × 28 | idle | — |
+
+The goose takes **two stomps** — the first only makes it angrier. The
+sprinkler's spray launches the player upward, so it is a route as well as a
+hazard. The Escalade's driver never reacts and is never harmed; all damage
+lands on the vehicle.
+
+### World 3 — The Catskills
+
+| Sheet | Frame | Frames | Hitbox |
+|---|---|---|---|
+| `mosquito_swarm` | 20 × 12 | a, b | **16 × 8** |
+| `raccoon` | 22 × 15 | run1, run2 | **18 × 11** |
+| `wasp` | 12 × 12 | idle | **8 × 8** |
+| `frog` | 16 × 12 | sit, jump | **12 × 8** |
+| `skunk` | 22 × 13 | idle | **18 × 9** |
+| `bear` | 34 × 42 | idle, swipe, hurt | **29 × 38** |
+| `porch_step` | 16 × 16 | ok, cracked | **16 × 16** |
+| `canoe` | 32 × 11 | idle | **28 × 7** |
+| `golf_cart` | 28 × 20 | idle | **24 × 16** |
+| `goal_kugel` | 28 × 28 | idle | — |
+
+Plus `spray`, `clothesline_post`, `screen_door` and `rope_swing` as decoration
+and fixtures. The mosquito swarm cannot be stomped. The raccoon is the thief:
+it takes your power-up and bolts.
+
+### World 4 — Meah Shearim
+
+| Sheet | Frame | Frames | Hitbox |
+|---|---|---|---|
+| `cat` | 22 × 16 | sit, walk1, walk2, hiss | **18 × 12** |
+| `gecko` | 16 × 9 | a, b | **12 × 5** |
+| `sparrow` | 16 × 11 | a, b | **12 × 7** |
+| `solar_tank` | 24 × 16 | idle | **20 × 12** |
+| `shuk_cart` | 28 × 17 | idle | **24 × 13** |
+| `yetzer_hara` | 44 × 46 | smoke1, smoke2, as_pigeon_king, as_escalade, as_bear | **36 × 40** |
+| `goal_tequila` | 24 × 26 | idle | — |
+
+Rooftop pigeons reuse World 1's `pigeon`. The Yetzer Hara's three mimic frames
+are generated from the real boss sprites, so they stay in step if those change.
+
+### Tilesets and backdrops
+
+One nine-tile set per world — `five_towns_tileset`, `catskills_tileset`,
+`meah_shearim_tileset` — with the individual tiles in `public/tiles/`.
+
+Backdrops follow World 1's rules exactly (320 × 180, seamless, opaque to the
+bottom edge) but are named per world: `bg_sky_<world>_<v>`,
+`bg_far_<world>_<v>` at ~0.25, `bg_near_<world>_<v>` at ~0.5. Variants are
+`day`/`dusk` for the Five Towns and Meah Shearim, `day`/`night` for the
+Catskills — the night set is for 3-3, the limited-visibility level.
+
+---
+
 ## Origins
 
 **Characters, enemies and crates are anchored at their feet** — origin
