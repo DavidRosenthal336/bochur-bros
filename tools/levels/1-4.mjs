@@ -20,6 +20,7 @@ const L = level({
   height: HEIGHT,
   floorTop: FLOOR,
   background: '0x2a1a20',
+  backdrop: 'night',
 });
 
 L.spawnAt(4);

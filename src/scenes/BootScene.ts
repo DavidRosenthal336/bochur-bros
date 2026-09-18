@@ -7,6 +7,8 @@ import {
   TILE_TEXTURES,
 } from '../config/sprites';
 import type { CharacterPose } from '../config/sprites';
+import { artExists, BACKDROPS, SCENERY, tallSky } from '../config/scenery';
+import type { BackdropVariant } from '../config/scenery';
 import { SceneKey } from './SceneKey';
 
 /**
@@ -21,22 +23,29 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    for (const set of Object.values(SPRITE_SETS)) {
+    // Only ever ask for a file that is there. The registries list everything
+    // the game knows how to draw, drawn or not, and the Vite plugin behind
+    // `artExists` says which of those have actually been made.
+    const sheet = (set: { key: string; url: string; frameWidth: number; frameHeight: number }) => {
+      if (!artExists(set.url)) return;
       this.load.spritesheet(set.key, set.url, {
         frameWidth: set.frameWidth,
         frameHeight: set.frameHeight,
       });
-    }
+    };
 
-    for (const set of Object.values(ACTOR_SPRITES)) {
-      this.load.spritesheet(set.key, set.url, {
-        frameWidth: set.frameWidth,
-        frameHeight: set.frameHeight,
-      });
-    }
+    for (const set of Object.values(SPRITE_SETS)) sheet(set);
+    for (const set of Object.values(ACTOR_SPRITES)) sheet(set);
+    for (const set of Object.values(SCENERY)) sheet(set);
 
     for (const [name, url] of Object.entries(TILE_TEXTURES)) {
-      this.load.image(`tile-${name}`, url);
+      if (artExists(url)) this.load.image(`tile-${name}`, url);
+    }
+
+    for (const variant of Object.keys(BACKDROPS) as BackdropVariant[]) {
+      for (const layer of [...BACKDROPS[variant], tallSky(variant)]) {
+        if (artExists(layer.url)) this.load.image(layer.key, layer.url);
+      }
     }
   }
 

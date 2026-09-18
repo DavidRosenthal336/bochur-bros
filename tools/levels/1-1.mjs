@@ -23,6 +23,7 @@ const L = level({
   height: HEIGHT,
   floorTop: FLOOR,
   background: '0x1b1524',
+  backdrop: 'day',
 });
 
 L.spawnAt(3);

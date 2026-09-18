@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { ENEMIES } from '../config/enemies';
 import type { CharacterId } from '../config/Tuning';
+import type { BackdropLayer } from '../config/scenery';
+import { BACKDROPS, DEFAULT_BACKDROP, sceneryArt, tallSky } from '../config/scenery';
 import {
   CAMERA,
   DEFAULT_CHARACTER,
@@ -90,8 +92,11 @@ export class LevelScene extends Phaser.Scene {
   private hud!: Hud;
   private power!: PowerState;
 
-  /** The parallax building wall behind the street. Absent in greybox levels. */
-  private backdrop: Phaser.GameObjects.TileSprite | undefined;
+  /**
+   * The parallax layers behind the street, back to front, each paired with how
+   * fast it moves. Empty in greybox levels.
+   */
+  private backdrop: { readonly sprite: Phaser.GameObjects.TileSprite; readonly layer: BackdropLayer }[] = [];
 
   private solids!: Phaser.Physics.Arcade.StaticGroup;
   private blocks!: Phaser.Physics.Arcade.StaticGroup;
@@ -155,6 +160,11 @@ export class LevelScene extends Phaser.Scene {
     // The world floor sits well below the level so a missed jump falls out of
     // it rather than landing on an invisible surface.
     this.physics.world.setBounds(0, 0, widthPx, heightPx + 400);
+
+    // Same reason as the boss below: the scene instance outlives the level, so
+    // anything not rebuilt every time has to be cleared every time.
+    this.backdrop = [];
+    this.riding = undefined;
 
     // The tile grid is an instrument, not scenery: it belongs in the greybox
     // test levels and nowhere near a level with drawn art behind it.
@@ -370,6 +380,11 @@ export class LevelScene extends Phaser.Scene {
   }
 
   private buildBoss(): void {
+    // Cleared first, not just assigned when there is one. Phaser reuses the
+    // scene instance across `scene.start`, so a boss left over from the level
+    // before would go on being ticked here with a destroyed body under it —
+    // beat 1-4, go back to the map, start 1-1, crash.
+    this.boss = undefined;
     this.perches = (this.level.perches ?? []).map(
       (p) => new Phaser.Math.Vector2(p.x * TILE + TILE / 2, p.y * TILE),
     );
@@ -466,7 +481,17 @@ export class LevelScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Checkpoints and the end of the level.
+   *
+   * In both cases the rectangle stays as the trigger and the drawing goes
+   * behind it, so what you have to touch is identical whether or not the art
+   * has been made. A goal you can reach in one build and miss in the next
+   * because someone added a sprite is not a trade worth making.
+   */
   private buildCheckpointsAndGoal(): void {
+    const checkpointArt = sceneryArt('checkpoint');
+
     for (const point of this.level.checkpoints ?? []) {
       const x = point.x * TILE + TILE / 2;
       // A checkpoint carried in from a previous life shows as already taken.
@@ -475,19 +500,36 @@ export class LevelScene extends Phaser.Scene {
         .rectangle(x, point.y * TILE - 20, 4, 40, 0x6ee7a0, alreadyTaken ? 1 : 0.55)
         .setDepth(3);
       this.physics.add.existing(post, true);
+
+      let pushke: Phaser.GameObjects.Image | undefined;
+      if (checkpointArt) {
+        post.setVisible(false);
+        pushke = this.add
+          .image(x, point.y * TILE, checkpointArt.key, checkpointArt.frames[alreadyTaken ? 'on' : 'off'])
+          .setOrigin(0.5, 1)
+          .setDepth(3);
+      }
+
       this.physics.add.overlap(this.player, post, () => {
         if (this.respawnAt.x >= x) return;
         this.respawnAt.set(x, point.y * TILE);
         post.setFillStyle(0x6ee7a0, 1);
+        if (checkpointArt && pushke) pushke.setFrame(checkpointArt.frames.on ?? 0);
       });
     }
 
     const goal = this.level.goal;
     if (!goal) return;
-    const post = this.add
-      .rectangle(goal.x * TILE + TILE / 2, goal.y * TILE - 48, 6, 96, 0xf2c14e)
-      .setDepth(3);
+    const x = goal.x * TILE + TILE / 2;
+    const post = this.add.rectangle(x, goal.y * TILE - 48, 6, 96, 0xf2c14e).setDepth(3);
     this.physics.add.existing(post, true);
+
+    const goalArt = sceneryArt('goal');
+    if (goalArt) {
+      post.setVisible(false);
+      this.add.image(x, goal.y * TILE, goalArt.key, 0).setOrigin(0.5, 1).setDepth(3);
+    }
+
     this.physics.add.overlap(this.player, post, () => this.completeLevel());
   }
 
@@ -995,30 +1037,68 @@ export class LevelScene extends Phaser.Scene {
   }
 
   /**
-   * Buildings behind the street.
+   * The street behind the street: sky, then a distant skyline, then the
+   * shopfronts.
    *
-   * One tiling sprite pinned to the camera, scrolled by hand at a fraction of
-   * the camera's speed. Pinning it and moving the texture rather than moving
-   * the sprite is what makes the parallax endless — a sprite as wide as the
-   * level would be enormous, and one as wide as the view would run out.
+   * Every layer is a tiling sprite pinned to the camera. Horizontal movement
+   * moves the *texture* inside it, which is what makes the scroll endless — a
+   * sprite as wide as a 260-tile level would be enormous, and one as wide as
+   * the view would run out. Vertical movement moves the sprite itself, because
+   * a skyline tiles left to right but emphatically not top to bottom.
+   *
+   * Until the layers are drawn this falls back to a single tinted brick wall,
+   * which is not a backdrop so much as a promise that one is coming.
    */
   private drawBackdrop(): void {
-    if (!this.textures.exists('tile-brick')) return;
-    this.backdrop = this.add
-      .tileSprite(0, 0, VIEW_WIDTH, VIEW_HEIGHT, 'tile-brick')
-      .setOrigin(0, 0)
+    const variant = this.level.backdrop ?? DEFAULT_BACKDROP;
+    // A level that climbs well above the shopfronts needs sky above the view to
+    // reveal; one that does not would only be loading a taller image for
+    // nothing. The two are interchangeable — the tall one's bottom 180px are
+    // the short one — so the test is how far the camera can actually travel
+    // upward, not how tall the level's bounding box happens to be.
+    const climbs = this.level.heightInTiles * TILE - VIEW_HEIGHT > VIEW_HEIGHT * 2;
+    const layers = BACKDROPS[variant].map((layer, index) =>
+      index === 0 && climbs ? tallSky(variant) : layer,
+    );
+
+    for (const layer of layers) {
+      if (!this.textures.exists(layer.key)) continue;
+      const source = this.textures.get(layer.key).getSourceImage();
+      const sprite = this.add
+        .tileSprite(0, VIEW_HEIGHT, VIEW_WIDTH, source.height, layer.key)
+        .setOrigin(0, 1)
+        .setScrollFactor(0)
+        .setDepth(-10 + this.backdrop.length);
+      this.backdrop.push({ sprite, layer });
+    }
+
+    if (this.backdrop.length > 0 || !this.textures.exists('tile-brick')) return;
+
+    const wall = this.add
+      .tileSprite(0, VIEW_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT, 'tile-brick')
+      .setOrigin(0, 1)
       .setScrollFactor(0)
       .setDepth(-10)
       // Pushed well back, so nothing in the foreground has to compete with it.
       .setTint(0x4a3f4e)
       .setAlpha(0.5);
+    this.backdrop.push({
+      sprite: wall,
+      layer: { key: 'tile-brick', url: '', scrollX: CAMERA.parallax, scrollY: CAMERA.parallax },
+    });
   }
 
   private updateBackdrop(): void {
-    if (!this.backdrop) return;
+    if (this.backdrop.length === 0) return;
     const camera = this.cameras.main;
-    this.backdrop.tilePositionX = camera.scrollX * CAMERA.parallax;
-    this.backdrop.tilePositionY = camera.scrollY * CAMERA.parallax;
+    // Measured from the bottom of the level, so a layer sits where it was
+    // drawn while you are on the street and slides down as you climb.
+    const risen = this.level.heightInTiles * TILE - VIEW_HEIGHT - camera.scrollY;
+
+    for (const { sprite, layer } of this.backdrop) {
+      sprite.tilePositionX = camera.scrollX * layer.scrollX;
+      sprite.y = VIEW_HEIGHT + risen * layer.scrollY;
+    }
   }
 
   private drawGrid(widthPx: number, heightPx: number): void {

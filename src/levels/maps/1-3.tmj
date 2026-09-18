@@ -33,6 +33,11 @@
    "name": "autoScroll",
    "type": "string",
    "value": "86"
+  },
+  {
+   "name": "backdrop",
+   "type": "string",
+   "value": "dusk"
   }
  ],
  "layers": [

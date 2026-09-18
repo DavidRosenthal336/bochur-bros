@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { sceneryArt } from '../config/scenery';
 import { GAMEPLAY, TILE } from '../config/Tuning';
 import { solidTextureKey } from '../util/textures';
 
@@ -26,17 +27,26 @@ const COLORS: Record<BlockKind, number> = {
 /**
  * Which drawing each kind of block wears.
  *
- * A mystery box and a spent one are their own sheets; the other three are
- * tiles out of the Boro Park set, chosen so the kind is readable without a
- * legend — brick you can break, metal grating you cannot, and a wooden plank
- * that is obviously a floor waiting to give way.
+ * A mystery box and a spent one are their own sheets. Brick is the Boro Park
+ * brick tile, which is exactly right — it is the wall you can break.
+ *
+ * Reinforced and weak have dedicated sheets and stand in on tiles until those
+ * arrive: sewer grating for metal you cannot break, a scaffold plank for a
+ * floor waiting to give way. Both read correctly enough to play against, which
+ * is the whole job of a stand-in.
  */
-const BLOCK_TEXTURES: Record<BlockKind, string> = {
-  mystery: 'mystery_box',
-  brick: 'tile-brick',
-  reinforced: 'tile-sewerGrate',
-  weak: 'tile-scaffoldPlank',
-};
+function blockTexture(kind: BlockKind): string {
+  switch (kind) {
+    case 'mystery':
+      return 'mystery_box';
+    case 'brick':
+      return 'tile-brick';
+    case 'reinforced':
+      return sceneryArt('reinforcedBlock')?.key ?? 'tile-sewerGrate';
+    case 'weak':
+      return sceneryArt('weakFloor')?.key ?? 'tile-scaffoldPlank';
+  }
+}
 
 const SPENT_TEXTURE = 'box_used';
 
@@ -70,7 +80,7 @@ export class Block extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(4);
     // Every block is exactly one tile, so the drawing can be swapped in
     // without touching the body: frame and hitbox are the same 16 x 16.
-    this.wear(BLOCK_TEXTURES[kind]);
+    this.wear(blockTexture(kind));
   }
 
   /** Put on a drawing, falling back to a tinted rectangle if it never loaded. */

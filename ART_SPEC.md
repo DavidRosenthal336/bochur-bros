@@ -159,48 +159,76 @@ World 1 plays through end to end on drawn art. What is left is listed worst
 gap first. Everything here is currently a flat coloured rectangle, and the
 game runs fine without it — a missing sheet is a rectangle, never a crash.
 
-### 1. Backdrops and scenery — the biggest gap by far
+### Everything below is already wired
 
-The levels are a tiled brick wall scrolling at a third of camera speed behind a
-flat colour. It reads as a street, but only just. What would change the look of
-the whole game:
+The slots exist in code and are verified. Each of these is a file name the
+game is already looking for: **drop the PNG into `public/` and it appears.**
+No code change, no registry edit, not even a dev-server restart — the
+`available-art` Vite plugin watches `public/` and the game loads exactly what
+is there. `npm run check:art` then holds every sheet to the sizes below.
 
-- **A Boro Park street backdrop**, parallax, wide enough to tile horizontally:
-  shopfronts, awnings over them, fire escapes, a strip of sky. Two or three
-  layers at different depths.
-- **Sky and skyline** for the top of the screen, since 1-2 climbs well above
-  the shopfronts.
-- **A night / late-afternoon variant**, because World 1 ends at a kiddush.
+Until a file exists the game draws what it drew before, so a half-finished art
+pass never breaks anything.
 
-### 2. Things the player touches that are still rectangles
+### 1. Backdrops — `public/sprites/backdrops/`
 
-| Thing | Size | What it is |
+Three layers per time of day. `<v>` is `day`, `dusk` or `night`.
+
+| Layer | File | Size | Moves at |
+|---|---|---|---|
+| Sky | `bg_sky_<v>.png` | 320 × 180 | 0 across, 0.12 vertically |
+| Skyline | `bg_skyline_<v>.png` | 320 × 180 | 0.25 across, 0.2 vertically |
+| Street | `bg_street_<v>.png` | 320 × 180 | 0.5 across, 0.4 vertically |
+| Tall sky | `bg_sky_tall_<v>.png` | 320 × 360 | as the sky; used only in 1-2 |
+
+Two things the code cares about, both learned by testing the layers against a
+stand-in set:
+
+- **320 px wide and seamless left-to-right.** The layer is drawn into a sprite
+  pinned to the camera and scrolled by moving the texture inside it, so a seam
+  shows up once per screen, forever. The build fails on any other width.
+- **Opaque all the way to the bottom of the frame.** Each layer is anchored to
+  the bottom of the view and slides *down* as the camera climbs, so any
+  transparency along a layer's base turns into a visible horizontal cut in a
+  level like 1-2. Buildings should run off the bottom edge, not stop above it.
+
+The tall sky's bottom 180 px must match `bg_sky_<v>.png` exactly; the game picks
+whichever it needs and treats them as interchangeable.
+
+Which level uses which is already set: 1-1 and 1-2 `day`, 1-3 `dusk`, 1-4
+`night`. It is a level property, so it round-trips through Tiled.
+
+### 2. Level furniture — `public/sprites/`
+
+| File | Frame | Notes |
 |---|---|---|
-| Goal marker | 6 × 96 | The end of a level. World 1 ends at the **meat board** (§6), so this wants to be the thing itself, not a post. |
-| Checkpoint | 4 × 40 | Reached / not-reached states — it lights up when you take it. |
-| Reinforced block | 16 × 16 | Standing in as the sewer-grate tile. Wants to read as metal you *cannot* break, next to brick you can. |
-| Weak floor block | 16 × 16 | Standing in as the scaffold plank. Wants to read as a floor about to give way. |
-| Double-parked van | 46 × 28 | Rideable roof, lurches sideways. The one hazard in the table with no drawing. |
-| Rubbish-bag bouncer | n × 16 | Bounce pads are drawn as awnings; §6 also calls for bags of rubbish. |
-| Lulav swing arc | 22 × 26 | The swing itself — a sweep, two or three frames. |
-| Wind zone | region | Currently drifting streaks. Leaf-blower gusts or blown litter. |
+| `goal_meat_board.png` | 36 × 34 | The World 1 goal. Bottom-centre. The trigger stays the generous 6 × 96 column it is today, so the art cannot change where the level ends. |
+| `checkpoint.png` | 20 × 36, 2 frames | `off`, `on`. Swaps frame the moment you touch it. |
+| `van.png` | 50 × 32 | Hitbox 46 × 28, bottom-centre. Rideable roof. |
+| `reinforced_block.png` | 16 × 16 | Standing in as the sewer-grate tile. |
+| `weak_floor.png` | 16 × 16 | Standing in as the scaffold plank. |
 
-### 3. The world map
+### 3. The world map and HUD — `public/sprites/ui/`
 
-The map is coloured boxes and text: level nodes (locked / open / cleared), the
-path between them, the kiddush table that fills in as each world's prize is
-recovered, and a background.
+| File | Frame | Frames |
+|---|---|---|
+| `map_node.png` | 12 × 12 | `locked`, `open`, `cleared` |
+| `map_path_dot.png` | 4 × 4 | repeated along the path |
+| `kiddush_table.png` | 64 × 32 | fills as prizes come back |
+| `prize_icons.png` | 12 × 12 | `meat_board`, `poppers`, `kugel`, `tequila`, `empty` |
+| `hud_icons.png` | 8 × 8 | `coin`, `life`, `clock` |
 
-### 4. HUD
+These are registered but **not yet drawn into the map or the HUD**, because
+laying icons out against art nobody has seen is guesswork. That is a short job
+once the files land.
 
-Lives, tzedakah count and the timer are plain text. Small icons — a coin, a
-life, a clock — and a frame would finish it.
-
-### 5. Nice to have
+### 4. Nice to have
 
 - A **pushing pose** for Berel with a crate.
 - A **death** pose distinct from `hurt`.
 - Idle blink / sway frames, so standing still is not perfectly static.
+- Bags of rubbish as an alternative bouncer to the awning (§6).
+- A drawn **Lulav swing** arc, 22 × 26, two or three frames.
 
 ### Colours currently standing in
 

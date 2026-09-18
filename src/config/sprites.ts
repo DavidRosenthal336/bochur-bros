@@ -1,5 +1,6 @@
 import type { CharacterId } from './Tuning';
 import type { PowerTier } from '../systems/PowerState';
+import { artExists } from './scenery';
 
 /**
  * The art registry: every drawn sheet in the game, and which frame is which.
@@ -80,7 +81,8 @@ export const SPRITE_SETS: Partial<Record<`${CharacterId}-${PowerTier}`, SpriteSe
 };
 
 export function spriteSetFor(character: CharacterId, tier: PowerTier): SpriteSet | undefined {
-  return SPRITE_SETS[`${character}-${tier}`];
+  const set = SPRITE_SETS[`${character}-${tier}`];
+  return set && artExists(set.url) ? set : undefined;
 }
 
 /** Animation keys are derived, so nothing has to keep two lists in step. */
@@ -146,6 +148,7 @@ export const ACTOR_SPRITES = {
   cart: actor('cart', 26, 22, { idle: 0 }),
   pipe: actor('scaffold_pipe', 16, 44, { idle: 0 }),
   stroller: actor('stroller', 28, 30, { idle: 0 }),
+  van: actor('van', 50, 32, { idle: 0 }),
 
   coin: actor('coin', 8, 10, { spin: [0, 1, 2, 3] }, { fps: 8, originY: 0.5 }),
   flame: actor('menorah_flame', 8, 8, { burn: [0, 1] }, { fps: 12, originY: 0.5 }),

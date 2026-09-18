@@ -111,13 +111,11 @@ export const HAZARDS = {
    * Double-parked van — "sit still, then lurch forward without warning and
    * crush against walls. Their roofs are platforms, so the player must climb
    * the thing trying to kill them." (§6)
-   *
-   * Not drawn yet, and not placed in a level yet either — it stays a rectangle
-   * until there is a van sheet to point at.
    */
   van: {
     label: 'Van',
     behavior: 'lurcher',
+    art: 'van',
     bodyWidth: 46,
     bodyHeight: 28,
     color: 0x4a5a76,

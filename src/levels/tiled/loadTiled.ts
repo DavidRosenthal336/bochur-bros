@@ -1,5 +1,6 @@
 import type { EnemyKind } from '../../config/enemies';
 import type { HazardKind } from '../../config/hazards';
+import type { BackdropVariant } from '../../config/scenery';
 import { TILE } from '../../config/Tuning';
 import type { BlockContents, BlockKind } from '../../entities/Block';
 import type {
@@ -153,7 +154,16 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     ...(goal ? { goal } : {}),
     ...(boss ? { boss } : {}),
     ...(readMapString(map, 'autoScroll') ? { autoScroll: Number(readMapString(map, 'autoScroll')) } : {}),
+    ...(isBackdropVariant(readMapString(map, 'backdrop'))
+      ? { backdrop: readMapString(map, 'backdrop') as BackdropVariant }
+      : {}),
   };
+}
+
+const BACKDROP_VARIANTS: readonly string[] = ['day', 'dusk', 'night'];
+
+function isBackdropVariant(value: string | undefined): value is BackdropVariant {
+  return value !== undefined && BACKDROP_VARIANTS.includes(value);
 }
 
 function find(properties: readonly TiledProperty[] | undefined, name: string): TiledProperty | undefined {

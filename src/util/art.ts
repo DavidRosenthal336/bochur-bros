@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { ActorSpriteSet } from '../config/sprites';
 import { ACTOR_SPRITES, actorAnimKey } from '../config/sprites';
 import type { ActorSpriteName } from '../config/sprites';
+import { artExists } from '../config/scenery';
 
 /**
  * Point a physics sprite at a drawn sheet, keeping its hitbox where it was.
@@ -40,7 +41,15 @@ export function playPose(sprite: Phaser.GameObjects.Sprite, set: ActorSpriteSet,
   sprite.play(key, true);
 }
 
-/** Look up a sheet by registry name. `undefined` means "not drawn yet". */
+/**
+ * Look up a sheet by registry name.
+ *
+ * `undefined` means "not drawn yet" — either the entity does not name a sheet,
+ * or it names one whose file is not in `public/` yet. Both cases end the same
+ * way: a rectangle of exactly the hitbox size.
+ */
 export function actorArt(name: ActorSpriteName | undefined): ActorSpriteSet | undefined {
-  return name ? ACTOR_SPRITES[name] : undefined;
+  if (!name) return undefined;
+  const set = ACTOR_SPRITES[name];
+  return artExists(set.url) ? set : undefined;
 }

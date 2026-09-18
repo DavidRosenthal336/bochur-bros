@@ -493,3 +493,66 @@ sprite's scale. The two drawn flame frames do the flicker properly.
 The goal marker, checkpoints, the van, the Lulav swing, the world map and the
 HUD. `ART_SPEC.md` lists all of it, worst gap first — the backdrop being the
 one that would change the look of the whole game.
+
+---
+
+## Sockets for the scenery
+
+The scenery package — backdrops, level furniture, the world map and HUD icons —
+has a README but the PNGs have not arrived yet. The second zip was byte-for-byte
+the first one. Rather than wait, the slots for all of it are in and verified.
+
+**`available-art`** (a Vite plugin) hands the game the real listing of what is
+in `public/` at build time. Phaser cannot ask whether a file exists — it can
+only fetch and fail — so without this, listing art that has not been drawn means
+a 404 for every piece of it. With it, the game asks for exactly what is there,
+and *dropping a PNG into `public/` is the entire integration step*: no code
+change, no registry edit, and the plugin watches the directory so not even a
+dev-server restart. Both directions are tested: adding a file makes it appear in
+the listing, removing one takes it away.
+
+**`src/config/scenery.ts`** registers the backdrop layers, the level furniture
+and the interface art with their file names and frame sizes. `sceneryArt()`
+returns the sheet or `undefined`, and `undefined` means whatever was drawing a
+rectangle carries on drawing one. The goal, the checkpoints, the reinforced and
+weak blocks and the van all go through it; the van also gets a row in the actor
+registry, so it is a hazard with a hitbox rather than scenery.
+
+**The backdrop is three parallax layers now** — sky, skyline, street — each a
+tiling sprite pinned to the camera, scrolled horizontally by moving the texture
+and vertically by moving the sprite, because a skyline tiles left to right but
+not top to bottom. A level names its time of day (`day`, `dusk`, `night`) and it
+round-trips through Tiled like any other level property: 1-1 and 1-2 day, 1-3
+dusk, 1-4 night, since World 1 ends at a kiddush. Until the layers exist it
+falls back to the single tinted brick wall.
+
+`npm run check:art` now covers the scenery registry as well, and holds backdrop
+layers to 320px wide — anything else seams once per screen, forever.
+
+### Verified against stand-ins, then thrown away
+
+The three-layer code was tested against a generated stand-in set (flat gradients
+and rectangles), which is the only way to know the depth sorting, the scroll
+ratios and the tall-sky switch actually work. The stand-ins were deleted
+afterwards: inventing the art direction is not this session's job. Two things
+the test established that are now in `ART_SPEC.md` as requirements:
+
+- A layer must be **opaque to the bottom of its frame**. Layers slide down as
+  the camera climbs, so transparency along the base becomes a visible cut in a
+  level like 1-2.
+- The **tall sky** is for levels whose camera can travel more than two screens
+  upward, which is 1-2 and nothing else. The first cut of that test used the
+  level's bounding box and picked the tall sky for every level in the game.
+
+### Two more real bugs
+
+**A boss survived into the next level.** Phaser reuses the scene instance across
+`scene.start`, and `buildBoss` only ever *assigned* `this.boss` — it never
+cleared it. Beat 1-4, go back to the map, start 1-1, and the scene goes on
+ticking a Pigeon King whose body has been destroyed: `Cannot read properties of
+undefined`. The parallax layers and the hazard you were riding had the same
+hole. All three are cleared on build now.
+
+**The greybox levels were getting a backdrop.** Same root cause: the backdrop
+list was built only for real levels, so a greybox level inherited whatever the
+last real level left behind.

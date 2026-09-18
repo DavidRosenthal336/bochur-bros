@@ -28,6 +28,11 @@
    "name": "groundRow",
    "type": "string",
    "value": "60"
+  },
+  {
+   "name": "backdrop",
+   "type": "string",
+   "value": "day"
   }
  ],
  "layers": [

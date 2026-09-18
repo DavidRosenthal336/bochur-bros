@@ -35,6 +35,7 @@ const L = level({
   height: HEIGHT,
   floorTop: FLOOR,
   background: '0x141a26',
+  backdrop: 'day',
 });
 
 L.ground(0, WIDTH);

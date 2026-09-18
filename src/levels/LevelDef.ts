@@ -1,6 +1,7 @@
 import type { BlockContents, BlockKind } from '../entities/Block';
 import type { EnemyKind } from '../config/enemies';
 import type { HazardKind } from '../config/hazards';
+import type { BackdropVariant } from '../config/scenery';
 
 /**
  * The greybox level format.
@@ -78,6 +79,11 @@ export interface LevelDef {
   /** Where the player starts, in tiles. This is the bottom-centre of the body. */
   readonly spawn: { readonly x: number; readonly y: number };
   readonly backgroundColor: number;
+  /**
+   * Time of day behind the level. World 1 ends at a kiddush, so it runs from
+   * day through dusk to night across its four levels.
+   */
+  readonly backdrop?: BackdropVariant;
   readonly solids: readonly SolidDef[];
   readonly labels: readonly LabelDef[];
 

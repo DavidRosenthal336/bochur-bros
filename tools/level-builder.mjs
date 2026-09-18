@@ -6,7 +6,7 @@
  * hand. Once a map has been generated you can open the `.tmj` in Tiled and
  * edit it visually instead; just stop regenerating that one.
  */
-export function level({ key, name, width, height, floorTop, background = '0x151a2c' }) {
+export function level({ key, name, width, height, floorTop, background = '0x151a2c', backdrop = 'day' }) {
   const bouncers = [];
   const perches = [];
   let boss;
@@ -84,6 +84,7 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         heightInTiles: height,
         spawn,
         backgroundColor: Number(background),
+        backdrop,
         solids,
         labels,
         coins,
