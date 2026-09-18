@@ -18,17 +18,86 @@ const BOUNCE_JUMP = 9;
 const RUNUP_WIDTH = 5;
 const NO_RUNUP_JUMP = 3;
 
-function buildGrid(def) {
+/**
+ * Tiles of clear space a surface needs above it before anyone can *stand*
+ * there.
+ *
+ * The shortest character in the game is Mendy Small at 22px, so one tile —
+ * sixteen pixels — is a slot nobody fits in standing up. Two tiles fits
+ * everyone except Berel in Cholent form, who is 33px.
+ */
+const MIN_HEADROOM = 2;
+
+function buildGrid(def, { includeBlocks = false } = {}) {
   const { widthInTiles: W, heightInTiles: H } = def;
   const grid = Array.from({ length: H }, () => new Uint8Array(W));
+  const mark = (x, y) => {
+    if (y >= 0 && y < H && x >= 0 && x < W) grid[y][x] = 1;
+  };
+
   for (const s of def.solids) {
     for (let y = s.y; y < s.y + s.h; y += 1) {
-      for (let x = s.x; x < s.x + s.w; x += 1) {
-        if (y >= 0 && y < H && x >= 0 && x < W) grid[y][x] = 1;
-      }
+      for (let x = s.x; x < s.x + s.w; x += 1) mark(x, y);
     }
   }
+
+  // Blocks are static bodies the player collides with, so for the purpose of
+  // "is there room to stand here" they are terrain. They are left out of the
+  // trap analysis on purpose: a brick can be broken, so treating a row of them
+  // as a wall you cannot climb would fail levels that are perfectly passable.
+  if (includeBlocks) for (const b of def.blocks ?? []) mark(b.x, b.y);
+
   return grid;
+}
+
+/**
+ * Surfaces with too little room above them to stand on, that you cannot duck
+ * into either.
+ *
+ * Distinct from a trap: a trap is somewhere you can walk into and not out of,
+ * this is somewhere your body does not fit at all.
+ *
+ * A one-tile ceiling is not wrong by itself — the greybox gym has two of them
+ * on purpose, because ducking through a low gap is a mechanic and crouched is
+ * only thirteen pixels. What makes one wrong is arriving at it any way other
+ * than crouched, and the geometry that decides this is whether the low stretch
+ * connects sideways to a surface you can stand up on. A crouch tunnel does. A
+ * block tucked one tile under an overhang does not: the only way onto it is
+ * from below or above, at full height, and the physics answers that by shoving
+ * you back and forth between the block and the ceiling.
+ *
+ * That block shipped in 1-2 as the peyos box.
+ */
+function findCrushPockets(def) {
+  const W = def.widthInTiles;
+  const H = def.heightInTiles;
+  const grid = buildGrid(def, { includeBlocks: true });
+  const pockets = [];
+
+  for (let y = 1; y < H - 1; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      if (grid[y][x] || !grid[y + 1][x]) continue; // not a surface you could stand on
+      // The standable cell is itself part of the clearance: `headroom` counts
+      // the empty rows *above* it, and you stand in it.
+      const clearance = 1 + headroom(grid, x, y);
+      if (clearance >= MIN_HEADROOM) continue;
+      pockets.push({ x, y, headroom: clearance });
+    }
+  }
+
+  // Report one entry per contiguous run, so a long low shelf is one problem.
+  const merged = [];
+  for (const p of pockets) {
+    const last = merged[merged.length - 1];
+    if (last && last.y === p.y && last.to === p.x - 1 && last.headroom === p.headroom) last.to = p.x;
+    else merged.push({ y: p.y, from: p.x, to: p.x, headroom: p.headroom });
+  }
+
+  /** Could you walk onto this cell upright, and duck as you go? */
+  const enterableUpright = (x, y) =>
+    x >= 0 && x < W && !grid[y][x] && grid[y + 1][x] === 1 && 1 + headroom(grid, x, y) >= MIN_HEADROOM;
+
+  return merged.filter((m) => !enterableUpright(m.from - 1, m.y) && !enterableUpright(m.to + 1, m.y));
 }
 
 /** How many empty rows sit above this cell before something solid. */
@@ -92,7 +161,7 @@ export function findTraps(def) {
   const W = def.widthInTiles;
   const H = def.heightInTiles;
   const grid = buildGrid(def);
-  const traps = [];
+  const traps = findCrushPockets(def).map((p) => ({ kind: 'pocket', ...p }));
   const bouncers = def.bouncers ?? [];
 
   for (const run of floorRuns(grid, W, H)) {
@@ -122,6 +191,7 @@ export function findTraps(def) {
     if (hasLandingAbove(grid, run, best, W)) continue;
 
     traps.push({
+      kind: 'trap',
       row: run.y,
       from: run.x0,
       to: run.x1,
@@ -137,10 +207,12 @@ export function findTraps(def) {
 
 export function describeTraps(key, traps) {
   return traps
-    .map(
-      (t) =>
-        `  ${key}: tiles ${t.from}-${t.to} on row ${t.row} (${t.width} wide) — ` +
-        `walls ${t.leftWall} left, ${t.rightWall} right, but only ${t.bestJump} tiles of jump available`,
+    .map((t) =>
+      t.kind === 'pocket'
+        ? `  ${key}: tiles ${t.from}-${t.to} on row ${t.y} have ${t.headroom} tile(s) of headroom — ` +
+          `nobody fits, the shortest character is 22px`
+        : `  ${key}: tiles ${t.from}-${t.to} on row ${t.row} (${t.width} wide) — ` +
+          `walls ${t.leftWall} left, ${t.rightWall} right, but only ${t.bestJump} tiles of jump available`,
     )
     .join('\n');
 }

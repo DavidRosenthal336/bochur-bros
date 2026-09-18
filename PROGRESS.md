@@ -617,3 +617,77 @@ The Lulav swing arc, the wind streaks, the pipe's shadow and the boss health
 bar — all effects drawn in code rather than missing sheets. And `van.png` is in
 and wired but no level places a van yet: that needs a stretch of street designed
 around climbing one, which is level design rather than art.
+
+---
+
+## Playtest fixes after the art landed
+
+Two reports: the checkpoint in 1-3 not sticking, and Mendy getting stuck in 1-2
+"when he hits a side wall". The first turned out to be three bugs stacked on
+each other, and two of them had nothing to do with checkpoints.
+
+### 1-3 restarted from the beginning, with the checkpoint working perfectly
+
+`autoScrollX` was reset to zero on every life. In a level scrolled by a clock
+rather than by the player, that put the camera back at the start of the level
+while the player stood at the checkpoint a thousand pixels off the right-hand
+edge, waiting for the screen to arrive. The checkpoint was doing its job and
+looked completely broken.
+
+The scroll now resumes at the checkpoint, a quarter of a screen in from the
+left, which is where the chase has you at the level's own start — and only on a
+resumed life, so a first attempt still opens where the level was designed to
+open.
+
+The stroller had the same problem from the other direction: it was rebuilt at
+the position it was *placed*, a thousand pixels behind, so every restart handed
+you a free run. A chaser is now offset by however far into the level the life
+began, because "just behind you" is a fact about the player, not about the map.
+
+### Dying took the level's identity with it
+
+`restartFromCheckpoint` did not pass `levelId` through. Everything keyed off it
+quietly stopped working after a single death: the 1-3 clock disappeared, and —
+much worse — **finishing the level no longer recorded completion or unlocked
+the next one.** Die once in 1-1, walk to the goal, and 1-2 stayed locked.
+
+Found by checking what the restart actually carried while verifying the
+checkpoint fix, not by looking for it. Both restart paths now carry the
+level's identity, and the test walks 1-1 to its goal with and without a death
+and reads the save back both times.
+
+### 1-2: a block nobody could stand on
+
+The level validator now knows about blocks, which are static bodies the player
+collides with and therefore terrain. It found the peyos box tucked one tile
+under an overhang: sixteen pixels of clearance on top of it, against a shortest
+character of twenty-two. Anything that reached the top of it was shoved back
+out — a hundred and fifteen pixels sideways, when measured.
+
+The check is not "low ceilings are wrong". The greybox gym has two on purpose,
+because ducking through a low gap is a mechanic and crouched is thirteen pixels.
+What makes one wrong is arriving at it any way but crouched, and the geometry
+that decides it is whether the low stretch connects sideways to somewhere you
+can stand up. A crouch tunnel does; a block under an overhang does not. With
+that rule the validator flags exactly one spot across all eight maps, and it is
+the box. Moved up a row; it is still hit from the landing below.
+
+**Honest limit:** this is a real defect and it is fixed, but it was never
+reproduced as a hard freeze. Jumping into the box from the platform below bonks
+and falls, every time, across a spread of approach speeds and jump heights. So
+it may not be the thing that was reported. If it happens again, where on the
+climb it happened would narrow it down a long way.
+
+### Two test harnesses that lied
+
+Worth recording, because both wasted more time than the bugs did.
+
+A stuck detector that compares the first and last frame of a window reports a
+jump loop as frozen: leave and come back and the endpoints match. It has to
+measure the range across the whole window.
+
+And driving Arcade by hand to run faster than real time needs
+`world.singleStep()`. `world.step(delta)` and `world.update(time, delta)` both
+return without doing anything, so the player never moves and every case looks
+like a bug. A harness gets a positive control now — make the player fall, check
+he fell — before anything it reports is believed.

@@ -27,6 +27,11 @@ for (const file of files) {
     bouncers: (entityLayer?.objects ?? [])
       .filter((o) => o.class === 'bounce')
       .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight, w: o.width / map.tilewidth })),
+    // Blocks are solid to the player, so they are part of the geometry as far
+    // as "is there room to stand here" is concerned.
+    blocks: (entityLayer?.objects ?? [])
+      .filter((o) => o.class === 'block')
+      .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight })),
   };
 
   const traps = findTraps(def);

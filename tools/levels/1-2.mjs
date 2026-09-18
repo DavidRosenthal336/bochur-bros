@@ -68,7 +68,12 @@ for (let step = 0; step < 16; step += 1) {
   if (step === 6) L.block(x + 1, row - 4, 'mystery', 'cholent');
   // Peyos in a climbing level: flight turns the back half into a different
   // problem, which is the point of giving it to you here.
-  if (step === 11) L.block(x + 2, row - 4, 'mystery', 'peyos');
+  //
+  // Three rows up, not four. At four it sat one tile under the platform above,
+  // leaving sixteen pixels on top of it — less than the shortest character is
+  // tall — so anyone who reached the top of it was shoved back out. Three rows
+  // leaves two tiles, and it is still hit from the landing below.
+  if (step === 11) L.block(x + 2, row - 3, 'mystery', 'peyos');
 
   row -= RISE;
   const next = x + direction * SIDESTEP;

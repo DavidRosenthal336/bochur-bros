@@ -127,6 +127,12 @@ export class LevelScene extends Phaser.Scene {
   private secondsLeft: number | undefined;
   /** How far the level has scrolled itself along, px. */
   private autoScrollX = 0;
+  /**
+   * How far to move a pursuing hazard along, so it resumes the same distance
+   * behind the player as it started. Only ever non-zero on a chase level
+   * restarted from a checkpoint.
+   */
+  private hazardOffsetX = 0;
   private lives: number = GAMEPLAY.startingLives;
   private wasGrounded = true;
   private lastFallSpeed = 0;
@@ -195,6 +201,31 @@ export class LevelScene extends Phaser.Scene {
       this.carriedRespawn?.y ?? this.level.spawn.y * TILE,
     );
     this.player = new Player(this, this.respawnAt.x, this.respawnAt.y, this.carriedCharacter);
+
+    /**
+     * How far into the level this life begins, compared with the level's own
+     * start. Zero on a first attempt, a checkpoint's worth on a later one.
+     *
+     * An auto-scrolling level has to be told: the scroll is driven by a clock,
+     * not by the player, so restarting it at zero left the camera crawling up
+     * the level from the beginning while the player stood at the checkpoint
+     * far off the right-hand edge, waiting for the screen to arrive. The
+     * checkpoint was working perfectly and looked completely broken.
+     */
+    const resumedAt = this.carriedRespawn
+      ? this.respawnAt.x - (this.level.spawn.x * TILE + TILE / 2)
+      : 0;
+    if (this.level.autoScroll && resumedAt > 0) {
+      // A quarter of a screen in from the left, which is where the chase has
+      // you at the level's own start. Only on a resumed life: a first attempt
+      // must open where the level was designed to open.
+      this.autoScrollX = Phaser.Math.Clamp(
+        this.respawnAt.x - VIEW_WIDTH * 0.25,
+        0,
+        Math.max(0, widthPx - VIEW_WIDTH),
+      );
+    }
+    this.hazardOffsetX = this.level.autoScroll ? resumedAt : 0;
 
     this.buildBlocks();
     this.buildCoins();
@@ -359,10 +390,14 @@ export class LevelScene extends Phaser.Scene {
         continue;
       }
 
+      // A chaser is positioned relative to the player rather than to the
+      // level: the stroller's whole job is to be just behind you, and after a
+      // checkpoint restart "just behind you" is not where it was placed.
+      const offset = config.behavior === 'chaser' ? this.hazardOffsetX : 0;
       this.hazards.add(
         new MovingHazard(
           this,
-          placement.x * TILE + TILE / 2,
+          placement.x * TILE + TILE / 2 + offset,
           placement.y * TILE,
           config,
           placement.direction,
@@ -960,9 +995,19 @@ export class LevelScene extends Phaser.Scene {
    * there is no way to get big again. The coin total and the checkpoint you
    * reached are the two things that survive.
    */
+  /**
+   * Take a life and start again from the last checkpoint.
+   *
+   * `levelId` has to come along. It is what ties a play to its entry in the
+   * catalog, and without it the level stops being a level in the game: no
+   * clock, and — worse — finishing no longer records completion or unlocks
+   * anything. Die once in 1-1, reach the goal, and 1-2 stayed locked.
+   */
   private restartFromCheckpoint(): void {
     this.scene.restart({
       levelKey: this.level.key,
+      ...(this.levelId ? { levelId: this.levelId } : {}),
+      ...(this.greybox ? { greybox: true } : {}),
       coins: this.coinCount,
       respawnX: this.respawnAt.x,
       respawnY: this.respawnAt.y,
@@ -971,9 +1016,13 @@ export class LevelScene extends Phaser.Scene {
     } satisfies LevelSceneData);
   }
 
-  /** Start the level over from the top, with nothing carried. */
+  /** Start the level over from the top, with nothing carried but its identity. */
   private restartFromStart(): void {
-    this.scene.restart({ levelKey: this.level.key } satisfies LevelSceneData);
+    this.scene.restart({
+      levelKey: this.level.key,
+      ...(this.levelId ? { levelId: this.levelId } : {}),
+      ...(this.greybox ? { greybox: true } : {}),
+    } satisfies LevelSceneData);
   }
 
   /** F3 cycles the greybox instruments, which are not part of the game proper. */
