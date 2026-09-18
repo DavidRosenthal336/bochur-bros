@@ -12,4 +12,9 @@ npm-debug.log*
 .vite
 playtest/
 
+# Throwaway verification harnesses. They drive the real game in a headless
+# browser, so they have to sit where `playwright` resolves from — the repo
+# root — but none of them is part of the project.
+*.tmp.mjs
+
 # Sprite sheets are generated from tools/art/generate.py
