@@ -13,17 +13,21 @@
 /**
  * NOTE ON PUBLISHING
  *
- * Vite gives the entry bundle a content hash, so every build is a new filename
- * and `index.html` is rewritten to point at it. When publishing to the
- * playtest artifact, ADD the new bundle and leave the old ones in place — do
- * not delete them.
+ * Publish EVERY file in `playtest/`, every time. Not the bundle, not "what
+ * changed" — all of it.
  *
- * Deleting the previous bundle in the same publish is what turned the link
- * into a blank page: a browser holding a cached copy of the old `index.html`
- * asks for a file that is no longer there, gets nothing, and renders nothing.
- * Keeping the old names costs a few hundred kilobytes and means a stale page
- * still loads. Publishing the current bundle under the old names as well makes
- * a stale page load the current game.
+ * The artifact keeps whatever was published before and carries it forward, so
+ * sending only the bundle looks like it works and quietly freezes the art at
+ * whatever was there the first time. Adding `yetzer_hara.png` to the sprite
+ * registry and shipping only the code left the game asking a server for a
+ * drawing that had never been sent to it, and the whole thing refused to boot
+ * over one missing 1.5KB PNG.
+ *
+ * Also: leave the old bundles published. Vite content-hashes the entry, so
+ * every build rewrites `index.html` to a new filename; deleting the previous
+ * one means a browser holding a cached copy of the old page asks for a file
+ * that is gone and renders nothing. Publishing the current bundle under the
+ * old names as well makes a stale page load the current game.
  */
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';

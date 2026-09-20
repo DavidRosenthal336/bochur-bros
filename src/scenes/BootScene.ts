@@ -52,7 +52,30 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    /**
+     * Build animations only for sheets that actually arrived.
+     *
+     * `artExists` answers whether a file was in `public/` when the bundle was
+     * built, which is not the same question as whether it is on the server the
+     * bundle is being served from — and the difference is not cosmetic. A sheet
+     * that 404s leaves no texture behind, `anims.create` walks into it looking
+     * for frames, and the whole of `create` dies with "Cannot read properties
+     * of undefined". Boot never finishes, no scene ever starts, and the game is
+     * a plain dark rectangle with no error anywhere a player can see.
+     *
+     * That shipped: the playtest artifact was missing one 220-byte PNG, and the
+     * entire game refused to boot because of it. One absent drawing should cost
+     * its own drawing and nothing else — the registry already falls back to a
+     * plain rectangle for art that does not exist.
+     */
+    const loaded = (key: string): boolean => {
+      if (this.textures.exists(key)) return true;
+      console.warn(`bochur-bros: "${key}" did not load; drawing it as a rectangle instead`);
+      return false;
+    };
+
     for (const set of Object.values(SPRITE_SETS)) {
+      if (!loaded(set.key)) continue;
       const still = (name: CharacterPose, frame: number) => {
         this.anims.create({
           key: animKey(set, name),
@@ -76,6 +99,7 @@ export class BootScene extends Phaser.Scene {
     }
 
     for (const set of Object.values(ACTOR_SPRITES)) {
+      if (!loaded(set.key)) continue;
       for (const [pose, frames] of Object.entries(set.poses)) {
         const list = typeof frames === 'number' ? [frames] : frames;
         this.anims.create({
