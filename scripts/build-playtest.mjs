@@ -10,6 +10,21 @@
  *
  * Run it with `npm run build:playtest`.
  */
+/**
+ * NOTE ON PUBLISHING
+ *
+ * Vite gives the entry bundle a content hash, so every build is a new filename
+ * and `index.html` is rewritten to point at it. When publishing to the
+ * playtest artifact, ADD the new bundle and leave the old ones in place — do
+ * not delete them.
+ *
+ * Deleting the previous bundle in the same publish is what turned the link
+ * into a blank page: a browser holding a cached copy of the old `index.html`
+ * asks for a file that is no longer there, gets nothing, and renders nothing.
+ * Keeping the old names costs a few hundred kilobytes and means a stale page
+ * still loads. Publishing the current bundle under the old names as well makes
+ * a stale page load the current game.
+ */
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
