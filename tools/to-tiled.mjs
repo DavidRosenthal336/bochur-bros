@@ -42,7 +42,15 @@ export function levelDefToTiled(def) {
   for (const e of def.enemies ?? []) entities.push(rect(e.x, e.y, 1, 1, 'enemy', [prop('enemy', e.kind)]));
   for (const h of def.hazards ?? [])
     entities.push(rect(h.x, h.y, h.w || 1, h.h || 1, h.kind, [prop('direction', h.direction)]));
-  for (const b of def.bouncers ?? []) entities.push(rect(b.x, b.y, b.w, 1, 'bounce'));
+  for (const b of def.bouncers ?? []) {
+    entities.push(
+      rect(b.x, b.y, b.w, 1, 'bounce', [
+        ...(b.kind ? [prop('kind', b.kind)] : []),
+        ...(b.periodMs === undefined ? [] : [prop('periodMs', String(b.periodMs))]),
+        ...(b.offsetMs === undefined ? [] : [prop('offsetMs', String(b.offsetMs))]),
+      ]),
+    );
+  }
   for (const p of def.perches ?? []) entities.push(rect(p.x, p.y, 1, 1, 'perch'));
   if (def.boss) entities.push(rect(def.boss.x, def.boss.y, 1, 1, 'boss'));
   if (def.thief) entities.push(rect(def.thief.x, def.thief.y, 1, 1, 'thief'));

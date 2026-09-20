@@ -411,6 +411,29 @@ export const GAMEPLAY = {
   coinsPerLife: 80,
   /** How hard an awning or a bag of rubbish throws you, px/s. */
   bounceVelocity: -420,
+  /**
+   * The other two things that throw you, and they get their own numbers
+   * because they are doing a different job.
+   *
+   * An awning is a soft landing that happens to help. A trampoline is
+   * transport between backyards, and a sprinkler is §6's "intended route to
+   * high platforms" — a platform with a timetable. Both have to clear ground
+   * an ordinary jump cannot, or there was no reason to put them there.
+   *
+   * Both numbers were set by measuring rather than by arithmetic, because the
+   * height a launch reaches depends on which of the two gravities the player
+   * is falling under and it is not the one you would guess. At -560 a
+   * trampoline cleared 96px, which is a backyard fence exactly, and "exactly"
+   * is not a margin. At -650 a sprinkler reached 90px against a deck I had put
+   * 128px up — the route to the high platform did not reach the high platform.
+   *
+   * What they buy now, measured: a trampoline about 7 tiles, a sprinkler about
+   * 9. A standing jump is under 4.
+   */
+  trampolineVelocity: -640,
+  sprinklerVelocity: -790,
+  /** How long a sprinkler stays up once it fires, ms. */
+  sprinklerUpMs: 900,
 } as const;
 
 /**

@@ -28,16 +28,31 @@ import { Flame } from '../entities/Flame';
 import { Coin, PowerUpPickup } from '../entities/Pickup';
 import { Player } from '../entities/Player';
 import { KeyboardInput } from '../input/KeyboardInput';
-import type { LevelDef, SolidKind } from '../levels/LevelDef';
+import type { BounceKind, LevelDef, SolidKind } from '../levels/LevelDef';
 import { DEFAULT_LEVEL, GREYBOX_LEVELS, PROLOGUE_LEVEL, LEVELS } from '../levels';
 import { findLevel, worldOf } from '../levels/catalog';
 import { completeLevel as recordCompletion, loadSave, writeSave } from '../systems/SaveGame';
 import type { PowerTier } from '../systems/PowerState';
 import { PowerState } from '../systems/PowerState';
+import { actorArt } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 import { DebugOverlay } from './DebugOverlay';
 import { Hud } from './Hud';
 import { SceneKey } from './SceneKey';
+
+/** How hard each one throws you. See the note in Tuning. */
+const BOUNCE_VELOCITY: Record<BounceKind, number> = {
+  awning: GAMEPLAY.bounceVelocity,
+  trampoline: GAMEPLAY.trampolineVelocity,
+  sprinkler: GAMEPLAY.sprinklerVelocity,
+};
+
+/** Placeholder colours for the three things that throw you upward. */
+const BOUNCE_COLORS = {
+  awning: 0xd06a8a,
+  trampoline: 0x3f7fa8,
+  sprinkler: 0x6fb3d2,
+} as const;
 
 /** Which drawn prize hangs on the goal post, by the world's kiddush item. */
 const GOAL_ART = {
@@ -163,6 +178,16 @@ export class LevelScene extends Phaser.Scene {
   private winds: WindZone[] = [];
   private hazards!: Phaser.GameObjects.Group;
   private bouncers!: Phaser.Physics.Arcade.StaticGroup;
+  /** The ones on a timer, and where they are in their cycle. */
+  private launchers: {
+    readonly kind: BounceKind;
+    readonly pad: Phaser.GameObjects.Rectangle;
+    readonly head: Phaser.GameObjects.Image | undefined;
+    readonly periodMs: number;
+    readonly offsetMs: number;
+    /** Last frame's state, so the launch fires once as it comes up. */
+    wasUp: boolean;
+  }[] = [];
   /** The hazard the player is currently standing on, if any. */
   private riding: MovingHazard | undefined;
   private boss: Boss | undefined;
@@ -367,6 +392,7 @@ export class LevelScene extends Phaser.Scene {
     for (const pickup of this.pickups.getChildren() as PowerUpPickup[]) {
       pickup.tick();
     }
+    this.updateLaunchers(now);
     this.updateHazards(now);
     this.updateBoss(now);
     this.dismissFlock(now);
@@ -503,19 +529,108 @@ export class LevelScene extends Phaser.Scene {
   /** Awnings and rubbish bags: land on one and you are launched (§6). */
   private buildBouncers(): void {
     this.bouncers = this.physics.add.staticGroup();
+    this.launchers = [];
+
     for (const placement of this.level.bouncers ?? []) {
       const w = placement.w * TILE;
       const x = placement.x * TILE;
       const y = placement.y * TILE;
-      // The pad is a thin strip so that landing on it is unambiguous; the
-      // awning drawn under it is a full tile deep and purely decorative.
-      const pad = this.add.rectangle(x + w / 2, y + 3, w, 6, 0xd06a8a).setDepth(4);
+      const kind = placement.kind ?? 'awning';
+
+      // The pad is a thin strip so that landing on it is unambiguous; whatever
+      // is drawn under it is a full tile deep and purely decorative.
+      const pad = this.add.rectangle(x + w / 2, y + 3, w, 6, BOUNCE_COLORS[kind]).setDepth(4);
+      pad.setData('bounceKind', kind);
       this.bouncers.add(pad);
 
-      if (this.textures.exists('tile-awning')) {
+      if (kind === 'awning' && this.textures.exists('tile-awning')) {
         pad.setVisible(false);
         this.add.tileSprite(x, y, w, TILE, 'tile-awning').setOrigin(0, 0).setDepth(4);
       }
+
+      if (kind === 'trampoline') {
+        const art = actorArt('trampoline');
+        if (art) {
+          pad.setVisible(false);
+          this.add.image(x + w / 2, y + TILE, art.key, 0).setOrigin(0.5, 1).setDepth(4);
+        }
+        this.launchers.push({ kind, pad, head: undefined, periodMs: 0, offsetMs: 0, wasUp: false });
+      }
+
+      if (kind === 'sprinkler') {
+        const art = actorArt('sprinkler');
+        const head = art
+          ? this.add.image(x + w / 2, y + TILE, art.key, 0).setOrigin(0.5, 1).setDepth(4)
+          : undefined;
+        if (head) pad.setVisible(false);
+        this.launchers.push({
+          kind,
+          pad,
+          head,
+          periodMs: placement.periodMs ?? 2600,
+          offsetMs: placement.offsetMs ?? 0,
+          wasUp: false,
+        });
+        // Down to begin with, so nothing launches anybody on the first frame.
+        (pad.body as Phaser.Physics.Arcade.StaticBody).enable = false;
+      }
+    }
+  }
+
+  /**
+   * The two pads that act on you rather than waiting to be landed on.
+   *
+   * An awning is something you fall onto — that is what an awning is. A
+   * trampoline is not: you walk onto a trampoline and it throws you, and
+   * building it as a fall-onto pad means a player standing on one does
+   * nothing at all. Driving a bot across 2-2 it hopped from the lawn, drifted
+   * over the pad, and landed past it every single time, never once bouncing,
+   * and a human walking up to it would have had exactly the same afternoon.
+   *
+   * So both of these launch whoever is standing on them. The trampoline does
+   * it whenever, which reads as a trampoline; the sprinkler does it on the
+   * frame it comes up, which reads as a sprinkler.
+   *
+   * §6 calls them "the intended route to high platforms", so the timing has to
+   * be readable from across the room: the head pops up a beat before it throws
+   * anything, and it is up for the best part of a second.
+   *
+   * The launch happens on the frame it comes up, to whoever is standing over
+   * it — not when you land on it. That distinction is the whole thing. Every
+   * other pad in the game is something you fall onto, and running a sprinkler
+   * that way means a player who walks up and waits, which is what "fires on a
+   * timer" invites, simply stands there while it goes off under their feet.
+   * Measured: zero pixels of launch, every cycle.
+   *
+   * The pad stays a collider as well, so coming down onto one while it is up
+   * still throws you. Both readings of the thing work.
+   */
+  private updateLaunchers(now: number): void {
+    if (this.state !== 'playing') return;
+    const body = this.player.physicsBody;
+
+    for (const launcher of this.launchers) {
+      const pad = launcher.pad.body as Phaser.Physics.Arcade.StaticBody;
+
+      const over = body.right > pad.left && body.left < pad.right;
+      // Standing on it, or on the ground it is set into, and not already on
+      // the way up — otherwise one contact becomes a stack of launches.
+      const onIt =
+        body.bottom >= pad.top - 4 && body.bottom <= pad.top + TILE + 12 && body.velocity.y > -40;
+
+      if (launcher.kind === 'trampoline') {
+        if (over && onIt) this.player.bounce(GAMEPLAY.trampolineVelocity);
+        continue;
+      }
+
+      const phase = (now + launcher.offsetMs) % launcher.periodMs;
+      const up = phase < GAMEPLAY.sprinklerUpMs;
+      if (pad.enable !== up) pad.enable = up;
+      launcher.head?.setFrame(up ? 1 : 0);
+
+      // The rising edge, and only it.
+      if (up && !launcher.wasUp && over && onIt) this.player.bounce(GAMEPLAY.sprinklerVelocity);
+      launcher.wasUp = up;
     }
   }
 
@@ -1237,7 +1352,8 @@ export class LevelScene extends Phaser.Scene {
     const body = this.player.physicsBody;
     if (body.velocity.y < 0 || body.bottom > pad.y + 8) return;
 
-    this.player.bounce(GAMEPLAY.bounceVelocity);
+    const kind = (pad.getData('bounceKind') as BounceKind | undefined) ?? 'awning';
+    this.player.bounce(BOUNCE_VELOCITY[kind]);
     this.tweens.add({ targets: pad, scaleY: 0.4, duration: 80, yoyo: true });
   }
 

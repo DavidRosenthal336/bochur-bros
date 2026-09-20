@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { HazardConfig } from '../config/hazards';
 import { TILE } from '../config/Tuning';
+import { actorArt } from '../util/art';
 
 /**
  * A region of the level that does something to whoever is standing in it.
@@ -35,6 +36,22 @@ export class WindZone {
     this.force = (config.force ?? 0) * direction;
 
     scene.add.rectangle(x + w / 2, y + h / 2, w, h, config.color, 0.1).setDepth(2);
+
+    /**
+     * The machine doing the blowing, at the upwind end.
+     *
+     * A zone that pushes you with nothing visible causing it reads as the
+     * controls having gone wrong. The blower sits at the edge the wind comes
+     * from and faces along it.
+     */
+    const art = actorArt(config.art);
+    if (art) {
+      scene.add
+        .image(direction > 0 ? x : x + w, y + h, art.key, 0)
+        .setOrigin(0.5, 1)
+        .setFlipX(direction < 0)
+        .setDepth(3);
+    }
 
     // Streaks blowing the way the wind blows, so the direction is readable
     // without a legend.

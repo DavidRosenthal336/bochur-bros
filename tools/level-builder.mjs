@@ -62,6 +62,11 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
     enemy(x, y, kind = 'pigeon') { enemies.push({ x, y, kind }); return api; },
     crate(x, y = floorTop) { crates.push({ x, y }); return api; },
     wind(x, y, w, h, direction) { hazards.push({ x, y, w, h, kind: 'wind', direction }); return api; },
+    /** A leaf blower: a wind zone with the machine drawn at its mouth (§6). */
+    blower(x, y, w, h, direction = -1) {
+      hazards.push({ x, y, w, h, kind: 'blower', direction });
+      return api;
+    },
     /** A moving hazard: pipe, cart, van, stroller. */
     hazard(kind, x, y = floorTop, direction = -1) {
       hazards.push({ x, y, w: 1, h: 1, kind, direction });
@@ -69,6 +74,18 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
     },
     /** Something you bounce off: an awning, a bag of rubbish. */
     bounce(x, y, w = 1) { bouncers.push({ x, y, w }); return api; },
+    /** A trampoline between backyards (§6). Throws you further than an awning. */
+    trampoline(x, y, w = 2) { bouncers.push({ x, y, w, kind: 'trampoline' }); return api; },
+    /**
+     * A pop-up sprinkler. Fires on a timer and launches you (§6).
+     *
+     * `offsetMs` is how far into the cycle it starts, so a row of them can
+     * ripple instead of firing as one wall.
+     */
+    sprinkler(x, y, { periodMs = 2600, offsetMs = 0, w = 1 } = {}) {
+      bouncers.push({ x, y, w, kind: 'sprinkler', periodMs, offsetMs });
+      return api;
+    },
     bossAt(x, y) { boss = { x, y }; return api; },
     /** The Yetzer Hara, in the prologue. He runs; he is not fought. */
     thiefAt(x, y = floorTop) { thief = { x, y }; return api; },

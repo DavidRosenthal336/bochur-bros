@@ -6,6 +6,7 @@ import { TILE } from '../../config/Tuning';
 import type { BlockContents, BlockKind } from '../../entities/Block';
 import type {
   BlockPlacement,
+  BounceKind,
   BouncePlacement,
   EnemyPlacement,
   HazardPlacement,
@@ -102,6 +103,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
           });
           break;
         case 'wind':
+        case 'blower':
         case 'pipe':
         case 'cart':
         case 'van':
@@ -117,9 +119,20 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
             direction: readNumber(object, 'direction') === 1 ? 1 : -1,
           });
           break;
-        case 'bounce':
-          bouncers.push({ x, y, w: Math.max(1, Math.round(object.width / tile)) });
+        case 'bounce': {
+          const kind = readString(object, 'kind');
+          const periodMs = readNumber(object, 'periodMs');
+          const offsetMs = readNumber(object, 'offsetMs');
+          bouncers.push({
+            x,
+            y,
+            w: Math.max(1, Math.round(object.width / tile)),
+            ...(isBounceKind(kind) ? { kind } : {}),
+            ...(periodMs === undefined ? {} : { periodMs }),
+            ...(offsetMs === undefined ? {} : { offsetMs }),
+          });
           break;
+        }
         case 'boss':
           boss = { x, y };
           break;
@@ -171,6 +184,10 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   };
 }
 
+
+function isBounceKind(value: string | undefined): value is BounceKind {
+  return value === 'awning' || value === 'trampoline' || value === 'sprinkler';
+}
 
 function isBackdropVariant(value: string | undefined): value is BackdropVariant {
   return value !== undefined && (BACKDROP_VARIANTS as readonly string[]).includes(value);

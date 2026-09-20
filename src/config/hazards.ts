@@ -11,7 +11,15 @@
  */
 import type { ActorSpriteName } from './sprites';
 
-export type HazardKind = 'wind' | 'pipe' | 'cart' | 'van' | 'stroller' | 'minivan' | 'mower';
+export type HazardKind =
+  | 'wind'
+  | 'pipe'
+  | 'cart'
+  | 'van'
+  | 'stroller'
+  | 'minivan'
+  | 'mower'
+  | 'blower';
 
 export type HazardBehavior =
   /** A region that pushes. Leaf blowers, the hamsin. */
@@ -131,6 +139,34 @@ export const HAZARDS = {
   },
 
   // --- World 2, The Five Towns ----------------------------------------------
+
+  /**
+   * Leaf blower — "constant wind pushing the player backward mid-jump. Berel is
+   * immune." (§6)
+   *
+   * The wind zone already existed and Berel's immunity with it; what this adds
+   * is the machine at the mouth of it, because a push with nothing visible
+   * causing it reads as the controls being broken.
+   *
+   * 300, measured against the pair of them walking into it for three seconds:
+   * Mendy makes about thirty pixels and Berel about three hundred. That is the
+   * shape wanted — hard for one, nothing for the other. At 560 Mendy went
+   * *backwards*, which is not a difficulty setting, it is a locked door, and
+   * §6 gives Berel immunity rather than giving Mendy a wall.
+   */
+  blower: {
+    label: 'Leaf blower',
+    behavior: 'wind',
+    art: 'blower',
+    bodyWidth: 16,
+    bodyHeight: 16,
+    color: 0x9ad0e8,
+    rideable: false,
+    harmful: false,
+    speed: 0,
+    affectedByGravity: false,
+    force: 300,
+  },
 
   /**
    * The minivan — §6 gives it four jobs in The Five Towns, and this is the

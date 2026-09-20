@@ -67,8 +67,24 @@ export interface HazardPlacement extends TilePoint {
 }
 
 /** Something you bounce off: an awning, a bag of rubbish (§6). */
+/**
+ * The three things in this game that throw you upward.
+ *
+ * An awning you land on, a trampoline that throws you further, and a sprinkler
+ * that is not there most of the time — §6 makes the last one "the intended
+ * route to high platforms", which means it is a platform with a timetable
+ * rather than a hazard.
+ */
+export type BounceKind = 'awning' | 'trampoline' | 'sprinkler';
+
 export interface BouncePlacement extends TilePoint {
   readonly w: number;
+  /** Defaults to an awning, which is what every World 1 map means by one. */
+  readonly kind?: BounceKind;
+  /** Sprinklers: the full down-and-up cycle, ms. */
+  readonly periodMs?: number;
+  /** Sprinklers: how far into that cycle this one starts, so a row of them ripples. */
+  readonly offsetMs?: number;
 }
 
 export interface LevelDef {
