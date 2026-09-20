@@ -3,6 +3,7 @@ import { ENEMIES } from '../config/enemies';
 import type { CharacterId } from '../config/Tuning';
 import type { BackdropLayer } from '../config/scenery';
 import { BACKDROPS, DEFAULT_BACKDROP, sceneryArt, tallSky } from '../config/scenery';
+import type { SceneryName, BackdropVariant } from '../config/scenery';
 import {
   CAMERA,
   DEFAULT_CHARACTER,
@@ -38,6 +39,14 @@ import { DebugOverlay } from './DebugOverlay';
 import { Hud } from './Hud';
 import { SceneKey } from './SceneKey';
 
+/** Which drawn prize hangs on the goal post, by the world's kiddush item. */
+const GOAL_ART = {
+  meat_board: 'goal',
+  poppers: 'goalPoppers',
+  kugel: 'goalKugel',
+  tequila: 'goalTequila',
+} as const satisfies Record<string, SceneryName>;
+
 /** Fallback palette, used only if the tileset failed to load. */
 const SOLID_COLORS: Record<SolidKind, number> = {
   ground: 0x3d4466,
@@ -54,11 +63,39 @@ const SOLID_COLORS: Record<SolidKind, number> = {
  * mass beneath it. It was a lighter-coloured strip in greybox for exactly the
  * same reason.
  */
-const SOLID_TILES: Record<SolidKind, { readonly top: string; readonly fill: string }> = {
+type TileSet = Record<SolidKind, { readonly top: string; readonly fill: string }>;
+
+const BORO_PARK: TileSet = {
   ground: { top: 'tile-sidewalk', fill: 'tile-asphalt' },
   platform: { top: 'tile-scaffoldPlank', fill: 'tile-brick' },
   wall: { top: 'tile-brick', fill: 'tile-brick' },
 };
+
+/**
+ * Lawn over driveway, decking over siding, hedge for a wall.
+ *
+ * A neighbourhood is mostly its ground. Boro Park's pavement-over-asphalt says
+ * city before a single enemy appears, and The Five Towns has to do the same
+ * job with grass — §6 calls it "open, manicured, quiet", and manicured is a
+ * thing you read off the floor.
+ */
+const FIVE_TOWNS: TileSet = {
+  ground: { top: 'tile-lawn', fill: 'tile-driveway' },
+  platform: { top: 'tile-deck', fill: 'tile-siding' },
+  wall: { top: 'tile-hedge', fill: 'tile-hedge' },
+};
+
+/**
+ * Which tiles a level is built from, chosen by its sky.
+ *
+ * The backdrop already names the neighbourhood, so it is the one place a level
+ * has to say where it is — anything else would be a second field to keep in
+ * step with the first.
+ */
+function tilesFor(backdrop: BackdropVariant): TileSet {
+  if (backdrop.startsWith('five_towns')) return FIVE_TOWNS;
+  return BORO_PARK;
+}
 
 export interface LevelSceneData {
   readonly levelKey?: string;
@@ -380,7 +417,7 @@ export class LevelScene extends Phaser.Scene {
       const rect = this.add.rectangle(x + w / 2, y + h / 2, w, h, SOLID_COLORS[kind]);
       this.solids.add(rect);
 
-      const tiles = SOLID_TILES[kind];
+      const tiles = tilesFor(this.level.backdrop ?? DEFAULT_BACKDROP)[kind];
       if (this.textures.exists(tiles.top) && this.textures.exists(tiles.fill)) {
         rect.setVisible(false);
         if (h > TILE) {
@@ -849,7 +886,15 @@ export class LevelScene extends Phaser.Scene {
     const post = this.add.rectangle(x, goal.y * TILE - 48, 6, 96, 0xf2c14e).setDepth(3);
     this.physics.add.existing(post, true);
 
-    const goalArt = sceneryArt('goal');
+    /**
+     * The prize on the post is the one this world is trying to get back (§6).
+     *
+     * Every level in a world ends on the same item, so reaching the end of 2-3
+     * and seeing a pan of poppers is the game saying what the next fight is
+     * for. Falls back to World 1's meat board for anything with no world —
+     * the greybox instruments and the prologue.
+     */
+    const goalArt = sceneryArt(GOAL_ART[worldOf(this.levelId ?? '')?.prizeIcon ?? 'meat_board']);
     if (goalArt) {
       post.setVisible(false);
       this.add.image(x, goal.y * TILE, goalArt.key, 0).setOrigin(0.5, 1).setDepth(3);

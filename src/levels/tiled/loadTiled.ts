@@ -1,6 +1,7 @@
 import type { EnemyKind } from '../../config/enemies';
 import type { HazardKind } from '../../config/hazards';
 import type { BackdropVariant } from '../../config/scenery';
+import { BACKDROP_VARIANTS } from '../../config/scenery';
 import { TILE } from '../../config/Tuning';
 import type { BlockContents, BlockKind } from '../../entities/Block';
 import type {
@@ -105,6 +106,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
         case 'cart':
         case 'van':
         case 'stroller':
+        case 'minivan':
+        case 'mower':
           hazards.push({
             x,
             y,
@@ -168,10 +171,9 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   };
 }
 
-const BACKDROP_VARIANTS: readonly string[] = ['day', 'dusk', 'night'];
 
 function isBackdropVariant(value: string | undefined): value is BackdropVariant {
-  return value !== undefined && BACKDROP_VARIANTS.includes(value);
+  return value !== undefined && (BACKDROP_VARIANTS as readonly string[]).includes(value);
 }
 
 function find(properties: readonly TiledProperty[] | undefined, name: string): TiledProperty | undefined {

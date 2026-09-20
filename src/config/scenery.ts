@@ -15,7 +15,36 @@ export const artExists = (url: string): boolean => AVAILABLE_ART.has(url);
 
 // ------------------------------------------------------------- backdrops ---
 
-export type BackdropVariant = 'day' | 'dusk' | 'night';
+/**
+ * Every sky in the game, named for where and when.
+ *
+ * World 1's three are bare times of day because they were the only ones when
+ * they were drawn; everything since is prefixed with its neighbourhood. The
+ * plain names are kept rather than renamed so that World 1's maps, which are
+ * data files carrying `backdrop: "night"`, go on meaning what they say.
+ */
+export type BackdropVariant =
+  | 'day'
+  | 'dusk'
+  | 'night'
+  | 'five_towns_day'
+  | 'five_towns_dusk'
+  | 'catskills_day'
+  | 'catskills_night'
+  | 'meah_shearim_day'
+  | 'meah_shearim_dusk';
+
+export const BACKDROP_VARIANTS: readonly BackdropVariant[] = [
+  'day',
+  'dusk',
+  'night',
+  'five_towns_day',
+  'five_towns_dusk',
+  'catskills_day',
+  'catskills_night',
+  'meah_shearim_day',
+  'meah_shearim_dusk',
+];
 
 export interface BackdropLayer {
   readonly key: string;
@@ -39,16 +68,30 @@ export interface BackdropLayer {
  * wide as a 260-tile level would be enormous. Vertical movement moves the
  * sprite itself, because a skyline does not tile top to bottom.
  */
-const backdrop = (variant: BackdropVariant): readonly BackdropLayer[] => [
-  { key: `bg_sky_${variant}`, url: `sprites/backdrops/bg_sky_${variant}.png`, scrollX: 0, scrollY: 0.12 },
-  { key: `bg_skyline_${variant}`, url: `sprites/backdrops/bg_skyline_${variant}.png`, scrollX: 0.25, scrollY: 0.2 },
-  { key: `bg_street_${variant}`, url: `sprites/backdrops/bg_street_${variant}.png`, scrollX: 0.5, scrollY: 0.4 },
+const layers = (
+  variant: BackdropVariant,
+  [back, middle, front]: readonly [string, string, string],
+): readonly BackdropLayer[] => [
+  { key: `${back}_${variant}`, url: `sprites/backdrops/${back}_${variant}.png`, scrollX: 0, scrollY: 0.12 },
+  { key: `${middle}_${variant}`, url: `sprites/backdrops/${middle}_${variant}.png`, scrollX: 0.25, scrollY: 0.2 },
+  { key: `${front}_${variant}`, url: `sprites/backdrops/${front}_${variant}.png`, scrollX: 0.5, scrollY: 0.4 },
 ];
 
+/** Boro Park: sky, skyline, shopfronts. */
+const boroPark = (variant: BackdropVariant) => layers(variant, ['bg_sky', 'bg_skyline', 'bg_street']);
+/** Everywhere since: sky, far, near — the naming the later art packs use. */
+const suburb = (variant: BackdropVariant) => layers(variant, ['bg_sky', 'bg_far', 'bg_near']);
+
 export const BACKDROPS: Record<BackdropVariant, readonly BackdropLayer[]> = {
-  day: backdrop('day'),
-  dusk: backdrop('dusk'),
-  night: backdrop('night'),
+  day: boroPark('day'),
+  dusk: boroPark('dusk'),
+  night: boroPark('night'),
+  five_towns_day: suburb('five_towns_day'),
+  five_towns_dusk: suburb('five_towns_dusk'),
+  catskills_day: suburb('catskills_day'),
+  catskills_night: suburb('catskills_night'),
+  meah_shearim_day: suburb('meah_shearim_day'),
+  meah_shearim_dusk: suburb('meah_shearim_dusk'),
 };
 
 /**
@@ -57,12 +100,13 @@ export const BACKDROPS: Record<BackdropVariant, readonly BackdropLayer[]> = {
  * Its bottom 180px match the short one exactly, so the two are interchangeable
  * and the choice is purely about whether there is sky above the view to reveal.
  */
-export const tallSky = (variant: BackdropVariant): BackdropLayer => ({
-  key: `bg_sky_tall_${variant}`,
-  url: `sprites/backdrops/bg_sky_tall_${variant}.png`,
-  scrollX: 0,
-  scrollY: 0.12,
-});
+export const tallSky = (variant: BackdropVariant): BackdropLayer => {
+  const url = `sprites/backdrops/bg_sky_tall_${variant}.png`;
+  // Only Boro Park was drawn with a tall sky. Everywhere else, a climbing
+  // level gets the ordinary one rather than a hole where the sky should be.
+  if (!artExists(url)) return BACKDROPS[variant][0] as BackdropLayer;
+  return { key: `bg_sky_tall_${variant}`, url, scrollX: 0, scrollY: 0.12 };
+};
 
 export const DEFAULT_BACKDROP: BackdropVariant = 'day';
 
@@ -86,8 +130,17 @@ const scenery = (
 ): SceneryArt => ({ key, url: `sprites/${path}.png`, frameWidth, frameHeight, frames });
 
 export const SCENERY = {
-  /** The World 1 goal: the meat board the Pigeon King was sitting on (§6). */
+  /**
+   * The prize at the end of a level, one per world (§6).
+   *
+   * `goal` stays as World 1's meat board so that every map already drawn keeps
+   * the post it was built with; the others are picked per world by the level
+   * scene from the catalog's `prizeIcon`.
+   */
   goal: scenery('goal_meat_board', 'goal_meat_board', 36, 34),
+  goalPoppers: scenery('goal_poppers', 'goal_poppers', 36, 28),
+  goalKugel: scenery('goal_kugel', 'goal_kugel', 28, 28),
+  goalTequila: scenery('goal_tequila', 'goal_tequila', 24, 26),
   /** A pushke on a post. Lights up gold when you reach it. */
   checkpoint: scenery('checkpoint', 'checkpoint', 20, 36, { off: 0, on: 1 }),
   /** Riveted metal: Berel only. */

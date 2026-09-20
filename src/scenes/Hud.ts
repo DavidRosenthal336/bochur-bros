@@ -55,6 +55,7 @@ export class Hud {
         : undefined,
       value: scene.add
         .text(0, 0, '', { fontFamily: 'monospace', fontSize: '8px', color: '#f2e6c8' })
+        .setShadow(1, 1, '#0d0f1a', 0, true, true)
         .setOrigin(icons ? 0 : 1, 0)
         .setScrollFactor(0)
         .setDepth(1000),
@@ -65,8 +66,19 @@ export class Hud {
     this.lives = row('life', 'LIVES');
     this.coins = row('coin', 'TZEDAKAH');
 
+    /**
+     * The HUD is pale text with no backing, which was fine for as long as the
+     * game was one dark Boro Park street. The Five Towns is a blue sky over
+     * white clapboard houses, and against that the counters all but vanish —
+     * a readout you have to hunt for is not a readout.
+     *
+     * A hard one-pixel shadow rather than a plate: the HUD sits over the
+     * playfield, and four opaque boxes across the top of a 320px-wide screen
+     * take up more of the game than they are worth.
+     */
     this.form = scene.add
       .text(RIGHT, 0, '', { fontFamily: 'monospace', fontSize: '8px', color: '#f2e6c8' })
+      .setShadow(1, 1, '#0d0f1a', 0, true, true)
       .setOrigin(1, 0)
       .setScrollFactor(0)
       .setDepth(1000);
@@ -78,6 +90,7 @@ export class Hud {
         color: '#ffffff',
         align: 'center',
       })
+      .setShadow(2, 2, '#0d0f1a', 0, true, true)
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(1001)

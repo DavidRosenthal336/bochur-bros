@@ -12,7 +12,7 @@
  */
 import type { ActorSpriteName } from './sprites';
 
-export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge';
+export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase';
 
 export interface EnemyConfig {
   readonly label: string;
@@ -46,6 +46,21 @@ export interface EnemyConfig {
     readonly runMs: number;
   };
   /** Extra settings for `dive`. */
+  /**
+   * Walks at you on the ground and does not stop (§6's geese).
+   *
+   * Distinct from `dive`, which is a single committed attack with a recovery
+   * afterwards. A chaser has no attack and no recovery — it simply arrives,
+   * and the answer is to go somewhere it cannot follow or to stand on it.
+   */
+  readonly chase?: {
+    /** How close you have to get before it notices, px. */
+    readonly triggerRange: number;
+    /** How long it stands and hisses before setting off, ms. The tell. */
+    readonly hissMs: number;
+    /** Chasing speed, px/s. */
+    readonly speed: number;
+  };
   readonly dive?: {
     /** How close the player must get, horizontally, to trigger a swoop, px. */
     readonly triggerRange: number;
@@ -114,6 +129,50 @@ export const ENEMIES = {
     color: 0x6f6257,
     patrolRange: 0,
     emerge: { hiddenMs: 1800, risingMs: 420, runMs: 3200 },
+  },
+
+  // --- World 2, The Five Towns ----------------------------------------------
+
+  /**
+   * The Canada goose — World 2's signature enemy (§6): "Hiss, chase on foot,
+   * relentless, don't scare off. A stomp makes one angrier before it goes down
+   * (two hits)."
+   *
+   * All three of those are load-bearing. It hisses first, because every threat
+   * in this game announces itself before it becomes one. It does not scare
+   * off, so there is no standing your ground and waiting it out — the answer
+   * is height, or two stomps. And at 96px/s it is faster than a walk and
+   * slower than a run, which makes running away a real option and dawdling
+   * not one.
+   */
+  goose: {
+    label: 'Canada goose',
+    behavior: 'chase',
+    speed: 38,
+    hits: 2,
+    stompable: true,
+    affectedByGravity: true,
+    art: 'goose',
+    bodyWidth: 20,
+    bodyHeight: 22,
+    color: 0x4a4f42,
+    patrolRange: 44,
+    chase: { triggerRange: 140, hissMs: 520, speed: 96 },
+  },
+
+  /** "Quick ground grunts darting between hedges" (§6). */
+  chipmunk: {
+    label: 'Chipmunk',
+    behavior: 'patrol',
+    speed: 128,
+    hits: 1,
+    stompable: true,
+    affectedByGravity: true,
+    art: 'chipmunk',
+    bodyWidth: 12,
+    bodyHeight: 10,
+    color: 0x9a7448,
+    patrolRange: 56,
   },
 } as const satisfies Record<string, EnemyConfig>;
 

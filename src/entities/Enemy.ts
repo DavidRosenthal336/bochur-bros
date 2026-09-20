@@ -21,8 +21,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private readonly homeX: number;
   private readonly homeY: number;
   private facing: -1 | 1 = -1;
-  private phase: 'patrol' | 'winding' | 'diving' | 'recovering' | 'hidden' | 'rising' | 'scurrying' =
-    'patrol';
+  private phase:
+    | 'patrol'
+    | 'winding'
+    | 'diving'
+    | 'recovering'
+    | 'hidden'
+    | 'rising'
+    | 'scurrying'
+    | 'noticing'
+    | 'chasing' = 'patrol';
   /** When the current emerge phase ends. */
   private phaseEndsAt = 0;
   private nextDiveAllowedAt = 0;
@@ -91,6 +99,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'emerge':
         this.tickEmerge(now, playerX);
         break;
+      case 'chase':
+        this.tickChase(now, playerX);
+        break;
     }
 
     this.updatePose();
@@ -118,10 +129,21 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'scurrying':
         playPose(this, art, 'run');
         break;
-      default:
-        // Drifting along a perch line is flying; standing still is perching.
-        playPose(this, art, Math.abs(this.physicsBody.velocity.x) > 2 ? 'fly' : 'perch');
+      case 'noticing':
+        playPose(this, art, 'hiss');
         break;
+      case 'chasing':
+        // A goose that has been stood on once is angry about it, and says so
+        // for the rest of its short life.
+        playPose(this, art, this.hitsLeft < this.config.hits ? 'angry' : 'run');
+        break;
+      default: {
+        const moving = Math.abs(this.physicsBody.velocity.x) > 2;
+        // A flier drifts along a perch line; anything on legs walks or stands.
+        if ('perch' in art.poses || 'fly' in art.poses) playPose(this, art, moving ? 'fly' : 'perch');
+        else playPose(this, art, moving ? 'run' : 'idle');
+        break;
+      }
     }
 
     if (this.physicsBody.velocity.x !== 0) {
@@ -137,6 +159,44 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /** Walk or drift back and forth, turning at the ends of the beat and at walls. */
+  /**
+   * Notice, hiss, then come for you and keep coming.
+   *
+   * The hiss is the tell and it is worth the half-second it costs: a creature
+   * that simply starts walking at you from off the edge of the screen reads as
+   * a bug rather than a threat. After that there is no giving up and no range
+   * check — §6 is explicit that geese "don't scare off" — so what ends it is
+   * you getting somewhere it cannot walk, or landing on it twice.
+   *
+   * It cannot jump, which is the whole counterplay. Anything a goose can reach
+   * on foot, it eventually reaches.
+   */
+  private tickChase(now: number, playerX: number): void {
+    const chase = this.config.chase;
+    const body = this.physicsBody;
+    if (!chase) return;
+
+    if (this.phase === 'patrol') {
+      if (Math.abs(playerX - this.x) <= chase.triggerRange) {
+        this.phase = 'noticing';
+        this.phaseEndsAt = now + chase.hissMs;
+        body.setVelocityX(0);
+        return;
+      }
+      this.tickPatrol();
+      return;
+    }
+
+    if (this.phase === 'noticing') {
+      body.setVelocityX(0);
+      if (now >= this.phaseEndsAt) this.phase = 'chasing';
+      return;
+    }
+
+    this.facing = playerX >= this.x ? 1 : -1;
+    body.setVelocityX(this.facing * chase.speed);
+  }
+
   private tickPatrol(): void {
     const body = this.physicsBody;
     const strayed = Math.abs(this.x - this.homeX) >= this.config.patrolRange;

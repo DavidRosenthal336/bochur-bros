@@ -163,6 +163,26 @@ export const ACTOR_SPRITES = {
   ),
 
   cart: actor('cart', 26, 22, { idle: 0 }),
+
+  // --- World 2, The Five Towns (§6) ----------------------------------------
+  /**
+   * The signature enemy. "Hiss, chase on foot, relentless, don't scare off. A
+   * stomp makes one angrier before it goes down (two hits)."
+   */
+  goose: actor('goose', 24, 26, { idle: 0, hiss: 1, run: [2, 0], angry: 3, squash: 4 }, { fps: 7 }),
+  chipmunk: actor('chipmunk', 16, 14, { run: [0, 1], squash: 2 }, { fps: 14 }),
+  /** Cannot reach you. Barks, and the bark is the hazard. */
+  dog: actor('dog', 24, 22, { quiet: 0, bark: 1 }),
+  sprinkler: actor('sprinkler', 16, 28, { down: 0, up: 1 }),
+  mower: actor('mower', 28, 20, { idle: 0 }),
+  blower: actor('blower', 20, 20, { idle: 0 }),
+  windPuff: actor('wind_puff', 16, 8, { idle: 0 }, { originY: 0.5 }),
+  trampoline: actor('trampoline', 36, 16, { idle: 0, bounce: 1 }),
+  gate: actor('gate', 20, 36, { open: 0, shut: 1 }),
+  minivan: actor('minivan', 56, 34, { idle: 0 }),
+  golfCart: actor('golf_cart', 28, 20, { idle: 0 }),
+  /** The boss. One frame per phase, and one for after. */
+  escalade: actor('escalade', 88, 46, { phase1: 0, phase2: 1, phase3: 2, beaten: 3 }),
   pipe: actor('scaffold_pipe', 16, 44, { idle: 0 }),
   stroller: actor('stroller', 28, 30, { idle: 0 }),
   van: actor('van', 50, 32, { idle: 0 }),
@@ -200,6 +220,17 @@ export const TILE_TEXTURES = {
   awning: 'tiles/awning.png',
   sewerGrate: 'tiles/sewer_grate.png',
   window: 'tiles/window.png',
+
+  // --- World 2, The Five Towns ---------------------------------------------
+  lawn: 'tiles/five_towns_lawn.png',
+  hedge: 'tiles/five_towns_hedge.png',
+  siding: 'tiles/five_towns_siding.png',
+  shingle: 'tiles/five_towns_shingle.png',
+  driveway: 'tiles/five_towns_driveway.png',
+  fence: 'tiles/five_towns_fence.png',
+  poolWater: 'tiles/five_towns_pool_water.png',
+  poolTile: 'tiles/five_towns_pool_tile.png',
+  deck: 'tiles/five_towns_deck.png',
 } as const;
 
 export type TileTextureName = keyof typeof TILE_TEXTURES;

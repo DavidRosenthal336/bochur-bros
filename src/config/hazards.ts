@@ -11,7 +11,7 @@
  */
 import type { ActorSpriteName } from './sprites';
 
-export type HazardKind = 'wind' | 'pipe' | 'cart' | 'van' | 'stroller';
+export type HazardKind = 'wind' | 'pipe' | 'cart' | 'van' | 'stroller' | 'minivan' | 'mower';
 
 export type HazardBehavior =
   /** A region that pushes. Leaf blowers, the hamsin. */
@@ -128,6 +128,53 @@ export const HAZARDS = {
     speed: 190,
     affectedByGravity: true,
     lurcher: { waitMs: 1500, lungeMs: 900, triggerRange: 150 },
+  },
+
+  // --- World 2, The Five Towns ----------------------------------------------
+
+  /**
+   * The minivan — §6 gives it four jobs in The Five Towns, and this is the
+   * carpool line: "idle in a carpool line whose roofs are platforms but which
+   * lurch forward one at a time".
+   *
+   * Mechanically the double-parked van of Boro Park, which is the point: the
+   * rule that its roof is the way past it was taught once, on an empty street
+   * in 1-1, so that a row of four of them in 2-1 is a puzzle rather than a
+   * lesson. Bigger, slower off the mark, and it waits longer — a carpool line
+   * is a thing that lurches, not a thing that charges.
+   */
+  minivan: {
+    label: 'Minivan',
+    behavior: 'lurcher',
+    art: 'minivan',
+    bodyWidth: 52,
+    bodyHeight: 30,
+    color: 0x6b7a92,
+    rideable: true,
+    harmful: true,
+    speed: 165,
+    affectedByGravity: true,
+    lurcher: { waitMs: 2000, lungeMs: 950, triggerRange: 130 },
+  },
+
+  /**
+   * Self-driving lawn mower — "patrol lawns in slow loops. Ride-on models can
+   * be hopped onto and ridden" (§6).
+   *
+   * A roller, like the shopping cart, but slow enough to be furniture you time
+   * rather than traffic you dodge.
+   */
+  mower: {
+    label: 'Lawn mower',
+    behavior: 'roller',
+    art: 'mower',
+    bodyWidth: 24,
+    bodyHeight: 16,
+    color: 0x6f8f4a,
+    rideable: true,
+    harmful: true,
+    speed: 58,
+    affectedByGravity: true,
   },
 
   /** The stroller — "rolls downhill and chases the player through a level." (§6) */
