@@ -31,6 +31,27 @@ const MIN_HEADROOM = 2;
 /** The widest pit a walking jump clears. Beyond this it is not a gap, it is a wall. */
 const MAX_GAP = 3;
 
+/**
+ * Which tiles are water (§6, 2-3).
+ *
+ * Water changes what the rest of this file means. A pool is a pit you do not
+ * have to jump, a pool floor is a surface you do not have to stand up on, and
+ * a walled basin is somewhere you get out of by swimming rather than by
+ * climbing. Every check below asks this first.
+ */
+function buildWater(def) {
+  const { widthInTiles: W, heightInTiles: H } = def;
+  const wet = Array.from({ length: H }, () => new Uint8Array(W));
+  for (const r of def.water ?? []) {
+    for (let y = r.y; y < r.y + r.h; y += 1) {
+      for (let x = r.x; x < r.x + r.w; x += 1) {
+        if (y >= 0 && y < H && x >= 0 && x < W) wet[y][x] = 1;
+      }
+    }
+  }
+  return wet;
+}
+
 function buildGrid(def, { includeBlocks = false } = {}) {
   const { widthInTiles: W, heightInTiles: H } = def;
   const grid = Array.from({ length: H }, () => new Uint8Array(W));
@@ -75,11 +96,14 @@ function findCrushPockets(def) {
   const W = def.widthInTiles;
   const H = def.heightInTiles;
   const grid = buildGrid(def, { includeBlocks: true });
+  const wet = buildWater(def);
   const pockets = [];
 
   for (let y = 1; y < H - 1; y += 1) {
     for (let x = 0; x < W; x += 1) {
       if (grid[y][x] || !grid[y + 1][x]) continue; // not a surface you could stand on
+      // Under water nobody is standing up, so headroom is not the question.
+      if (wet[y][x]) continue;
       // The standable cell is itself part of the clearance: `headroom` counts
       // the empty rows *above* it, and you stand in it.
       const clearance = 1 + headroom(grid, x, y);
@@ -234,8 +258,13 @@ function findLeaps(def) {
   const floor = def.groundRow;
   if (floor === undefined) return [];
 
+  const wet = buildWater(def);
+
   /** Is there anything to land on at column x, at or above the floor? */
   const standableNear = (x) => {
+    // Water is not a pit. You do not jump a pool, you swim it, so a column
+    // with water in it needs nothing to land on.
+    for (let y = 0; y < H; y += 1) if (wet[y][x]) return true;
     for (let y = floor; y >= Math.max(1, floor - MAX_JUMP); y -= 1) {
       if (!grid[y][x] && grid[y + 1] && grid[y + 1][x] === 1) return true;
     }
@@ -254,7 +283,6 @@ function findLeaps(def) {
       gapFrom = -1;
     }
   }
-  void H;
   return leaps;
 }
 
@@ -262,12 +290,19 @@ export function findTraps(def, { checkLeaps = true } = {}) {
   const W = def.widthInTiles;
   const H = def.heightInTiles;
   const grid = buildGrid(def);
+  const wet = buildWater(def);
   const traps = findCrushPockets(def).map((p) => ({ kind: 'pocket', ...p }));
   if (checkLeaps) traps.push(...findLeaps(def).map((l) => ({ kind: 'leap', ...l })));
   const bouncers = def.bouncers ?? [];
 
   for (const run of floorRuns(grid, W, H)) {
     const width = run.x1 - run.x0 + 1;
+
+    // The bottom of a pool is walled on both sides by definition, and getting
+    // out of it is not a jump. Swimming is the way out, and it goes straight
+    // up, so a wet run is only a trap if the water has a lid over all of it —
+    // which is the `pocket` check's business, not this one's.
+    if (wet[run.y] && wet[run.y][run.x0] && wet[run.y][run.x1]) continue;
 
     // A bounce pad on this stretch of floor is a way out on its own.
     const hasBouncer = bouncers.some(

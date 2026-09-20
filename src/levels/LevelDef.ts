@@ -26,7 +26,12 @@ export interface SolidDef {
   readonly kind?: SolidKind;
 }
 
-export type SolidKind = 'ground' | 'platform' | 'wall';
+/**
+ * `pool` is the inside of a basin — the floor of the water and the shelves in
+ * it. It is a solid like any other; it is a separate kind only because grass
+ * on the bottom of a swimming pool reads as a bug.
+ */
+export type SolidKind = 'ground' | 'platform' | 'wall' | 'pool';
 
 /** A bit of in-world text. Greybox signage, so the test level explains itself. */
 export interface LabelDef {
@@ -87,6 +92,42 @@ export interface BouncePlacement extends TilePoint {
   readonly offsetMs?: number;
 }
 
+/**
+ * A rectangle of water, in tiles (§6, 2-3).
+ *
+ * Water is terrain rather than a hazard: nothing in it can hurt you and there
+ * is no air meter, because §5 does not ask for one and a drowning timer is a
+ * mechanic this document does not have. What water changes is how you move,
+ * and a region is the honest way to say that.
+ *
+ * The top row is the surface. Everything about swimming — whether you are
+ * swimming at all, whether a jump is a stroke or a jump out — is decided from
+ * that one line.
+ */
+export interface WaterDef {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+}
+
+/**
+ * A current: water that is going somewhere (§6, "currents from the filter").
+ *
+ * The same idea as a wind zone with one deliberate difference — **nobody is
+ * immune to it.** Berel walks through a leaf blower because §6 says so, and a
+ * pool current that he could ignore would turn every water puzzle in the game
+ * into "press the swap button". Air is one thing; being under water is
+ * another, and this is the one place the heavy brother does not get a pass.
+ */
+export interface CurrentDef extends WaterDef {
+  /** Which way it pushes. Either axis may be zero; both may not. */
+  readonly dx: -1 | 0 | 1;
+  readonly dy: -1 | 0 | 1;
+  /** Acceleration, px/s^2. Omitted means the default in the hazard table. */
+  readonly force?: number;
+}
+
 export interface LevelDef {
   readonly key: string;
   readonly name: string;
@@ -144,6 +185,10 @@ export interface LevelDef {
   readonly autoScroll?: number;
   /** Wind and anything else that acts on a region rather than on contact. */
   readonly hazards?: readonly HazardPlacement[];
+  /** Swimmable water (§6, 2-3). */
+  readonly water?: readonly WaterDef[];
+  /** Water that pushes. Only meaningful where it overlaps water. */
+  readonly currents?: readonly CurrentDef[];
   /** The end of the level. Without one, the level cannot be completed. */
   readonly goal?: TilePoint;
 }

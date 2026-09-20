@@ -20,6 +20,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   const enemies = [];
   const crates = [];
   const hazards = [];
+  const waters = [];
+  const currents = [];
   const checkpoints = [];
   let spawn = { x: 2, y: floorTop };
   let goal;
@@ -86,6 +88,36 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
       bouncers.push({ x, y, w, kind: 'sprinkler', periodMs, offsetMs });
       return api;
     },
+    /**
+     * A body of water you can swim in (§6). `y` is the surface.
+     *
+     * Water is not a solid and not a hazard — it is a region that changes how
+     * you move through it. Whatever is under it still has to be built: a pool
+     * needs a floor and two walls like any other hole in the ground, or you
+     * swim out of the bottom of the level.
+     */
+    water(x, y, w, h) { waters.push({ x, y, w, h }); return api; },
+    /**
+     * A current, from the filter (§6). `dx`/`dy` are which way it pushes.
+     *
+     * Drawn as part of the water rather than on top of it, so place one inside
+     * a `water` rectangle; a current in mid-air does nothing.
+     */
+    current(x, y, w, h, dx = 1, dy = 0, force) {
+      currents.push({ x, y, w, h, dx, dy, ...(force === undefined ? {} : { force }) });
+      return api;
+    },
+    /**
+     * A return jet: a current that pushes straight up. Water's lift shaft.
+     *
+     * Leave `force` alone unless you have measured it. A jet is working
+     * against gravity before it moves anybody, so the default is more than
+     * twice a sideways current's and anything much under it does nothing.
+     */
+    jet(x, y, w, h, force) {
+      currents.push({ x, y, w, h, dx: 0, dy: -1, ...(force === undefined ? {} : { force }) });
+      return api;
+    },
     bossAt(x, y) { boss = { x, y }; return api; },
     /** The Yetzer Hara, in the prologue. He runs; he is not fought. */
     thiefAt(x, y = floorTop) { thief = { x, y }; return api; },
@@ -115,6 +147,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         enemies,
         crates,
         hazards,
+        water: waters,
+        currents,
         bouncers,
         groundRow: floorTop,
         perches,

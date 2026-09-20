@@ -56,7 +56,7 @@ export const WORLDS: readonly WorldEntry[] = [
     levels: [
       { id: '2-1', name: 'Central Avenue', map: '2-1' },
       { id: '2-2', name: 'Backyards', map: '2-2' },
-      { id: '2-3', name: 'The Pool' },
+      { id: '2-3', name: 'The Pool', map: '2-3' },
       { id: '2-4', name: 'The Escalade', isBoss: true },
     ],
   },

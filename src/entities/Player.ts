@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { CharacterAbilities, CharacterId, CharacterStats, JumpBracket } from '../config/Tuning';
-import { CHARACTERS, GAMEPLAY, POWERS, TIERS } from '../config/Tuning';
+import { CHARACTERS, GAMEPLAY, POWERS, SWIM, TIERS, TILE } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from '../input/InputState';
 import { NEUTRAL_INPUT } from '../input/InputState';
@@ -102,6 +102,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private launchX = 0;
   private lastJumpHeight = 0;
   private lastJumpDistance = 0;
+
+  /**
+   * The surface of the water this body is overlapping, in pixels, or undefined
+   * for dry land. Set by the scene each frame — water is a place, not a thing
+   * you collide with, so nobody is told they entered it.
+   */
+  private waterTop: number | undefined;
+  private submerged = false;
+  /** Milliseconds until another stroke will take. Mashing does not help. */
+  private strokeMs = 0;
+  /** Current acting on the body this frame, px/s^2 on each axis. */
+  private currentX = 0;
+  private currentY = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number, characterId: CharacterId) {
     const stats = CHARACTERS[characterId];
@@ -217,6 +230,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Scene.update — so by the time we get here, position already reflects this
     // frame's movement. Measure first, while it is freshest.
     this.measure(grounded);
+
+    this.updateWaterState();
+    if (this.submerged) {
+      this.updateTimers(delta, grounded, input);
+      this.updateSwim(delta, dt, input);
+      this.updateAppearance(grounded);
+      return;
+    }
 
     this.updateGroundPound(grounded, input);
     if (this.groundPounding) {
@@ -396,6 +417,134 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   get isGroundPounding(): boolean {
     return this.groundPounding;
+  }
+
+  /**
+   * Where the water is, this frame (§6, 2-3).
+   *
+   * `top` is the surface of whatever the body is overlapping, or undefined on
+   * dry land. The current is separate because a current only exists inside
+   * water — a filter blowing into thin air is not a thing.
+   */
+  setWater(top: number | undefined, currentX = 0, currentY = 0): void {
+    this.waterTop = top;
+    this.currentX = currentX;
+    this.currentY = currentY;
+  }
+
+  get isSwimming(): boolean {
+    return this.submerged;
+  }
+
+  /**
+   * Are we swimming, and what changed since last frame?
+   *
+   * The test is the body's *middle* against the surface, not its feet: wading
+   * in ankle-deep is walking, and a body more than half under is swimming.
+   * That also makes the surface a place you can bob at rather than a line you
+   * flicker across.
+   */
+  private updateWaterState(): void {
+    const body = this.physicsBody;
+    const wet = this.waterTop !== undefined && body.center.y > this.waterTop;
+    if (wet === this.submerged) return;
+    this.submerged = wet;
+    if (!wet) return;
+
+    // Hitting water kills a fall. Everything a dry body was in the middle of
+    // — a jump, a ground pound, a flight — is over the moment it goes under.
+    body.setVelocityY(Math.min(body.velocity.y, SWIM.entrySpeed));
+    this.rising = false;
+    this.jumpActive = false;
+    this.groundPounding = false;
+    this.setFlying(false);
+    this.crouching = false;
+    this.strokeMs = 0;
+  }
+
+  /**
+   * Swimming (§6, 2-3).
+   *
+   * The one rule that matters: a stroke is a decision you take again every
+   * quarter of a second, where a jump is a decision taken once at takeoff. So
+   * there are no brackets here and no held-button gravity — a press gives a
+   * fixed shove, and the way up is to keep asking for it.
+   *
+   * Near the surface a stroke stops being a stroke and becomes an ordinary
+   * jump, which is how you get out of a pool. Without that the surface is a
+   * ceiling: a stroke is worth about eight pixels once it is in air, and the
+   * pool would have no exit that is not a ladder.
+   */
+  private updateSwim(delta: number, dt: number, input: InputState): void {
+    const body = this.physicsBody;
+    this.strokeMs = Math.max(0, this.strokeMs - delta);
+    body.setGravityY(SWIM.gravity);
+
+    // Sideways: slow to start and slow to stop, and it steers the same whether
+    // your feet are on the bottom or not.
+    const top = this.stats.walkSpeed * SWIM.speedFactor;
+    if (input.moveX === 0) {
+      body.setVelocityX(approach(body.velocity.x, 0, SWIM.drag * dt));
+    } else {
+      this.facing = input.moveX;
+      const accel = this.stats.walkAcceleration * SWIM.accelFactor;
+      body.setVelocityX(approach(body.velocity.x, input.moveX * top, accel * dt));
+    }
+
+    if (this.bufferMs > 0) {
+      if (this.canBreakSurface()) {
+        // A jump, in full, with the bracket and the held-button gravity: out of
+        // the water and onto the deck is as high as onto anything else.
+        this.bracket = this.bracketFor(Math.abs(body.velocity.x));
+        body.setVelocityY(this.bracket.launchVelocity);
+        this.bufferMs = 0;
+        this.coyoteMs = 0;
+        this.rising = true;
+        this.jumpActive = true;
+        this.launchY = this.y;
+        this.launchX = this.x;
+        this.lastJumpHeight = 0;
+      } else if (this.strokeMs === 0) {
+        // §4's height difference survives underwater, because a water level
+        // where the swap does not matter is the one thing World 2 must not be.
+        body.setVelocityY(this.stats.jumpBrackets[0]!.launchVelocity * SWIM.strokeFactor);
+        this.bufferMs = 0;
+        this.strokeMs = SWIM.strokeIntervalMs;
+      }
+    }
+
+    // Currents come after your own swimming and before the sink limit: water
+    // that is going somewhere is allowed to carry you faster than you sink.
+    if (this.currentX !== 0) {
+      const limit = top + SWIM.maxDrift;
+      body.setVelocityX(Phaser.Math.Clamp(body.velocity.x + this.currentX * dt, -limit, limit));
+    }
+    if (this.currentY !== 0) {
+      const limit = SWIM.sinkSpeed + SWIM.maxDrift;
+      body.setVelocityY(Phaser.Math.Clamp(body.velocity.y + this.currentY * dt, -limit, limit));
+    }
+
+    const sink =
+      (input.moveY > 0 ? SWIM.diveSpeed : SWIM.sinkSpeed) + (this.currentY > 0 ? SWIM.maxDrift : 0);
+    if (body.velocity.y > sink) body.setVelocityY(sink);
+  }
+
+  /**
+   * Is this a stroke or a jump out?
+   *
+   * Within a tile of the surface it is a jump — except under a pool cover,
+   * where there is a solid lid overhead and launching at it would turn a swim
+   * along the underside into a series of bonks. So the surface has to be a
+   * surface: open water above your head, and nothing on it.
+   */
+  private canBreakSurface(): boolean {
+    if (this.waterTop === undefined) return false;
+    const body = this.physicsBody;
+    if (body.center.y > this.waterTop + TILE) return false;
+    return (
+      this.scene.physics.overlapRect(body.x + 1, body.top - 6, body.width - 2, 6, false, true)
+        .length === 0
+    );
   }
 
   /**

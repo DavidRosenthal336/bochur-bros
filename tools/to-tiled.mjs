@@ -51,6 +51,15 @@ export function levelDefToTiled(def) {
       ]),
     );
   }
+  for (const w of def.water ?? []) entities.push(rect(w.x, w.y, w.w, w.h, 'water'));
+  for (const c of def.currents ?? [])
+    entities.push(
+      rect(c.x, c.y, c.w, c.h, 'current', [
+        prop('dx', c.dx),
+        prop('dy', c.dy),
+        ...(c.force === undefined ? [] : [prop('force', c.force)]),
+      ]),
+    );
   for (const p of def.perches ?? []) entities.push(rect(p.x, p.y, 1, 1, 'perch'));
   if (def.boss) entities.push(rect(def.boss.x, def.boss.y, 1, 1, 'boss'));
   if (def.thief) entities.push(rect(def.thief.x, def.thief.y, 1, 1, 'thief'));

@@ -492,3 +492,67 @@ export const POWERS = {
     stunMs: 2200,
   },
 } as const;
+
+/**
+ * Water (§6, 2-3 — "swim physics, currents from the filter").
+ *
+ * Swimming is not jumping with the numbers turned down. A jump is one decision
+ * taken at takeoff and then lived with; a stroke is a decision you take again
+ * every quarter of a second, and the whole feel of water comes from that being
+ * true. So: gentle gravity, a low terminal sink, and a jump button that gives
+ * you a fixed upward shove on every press rather than a bracket chosen once.
+ *
+ * ## Why the stroke is a fraction of the jump rather than its own number
+ *
+ * Mendy jumps higher than Berel because §4 says so, and a water level that
+ * threw that away would be a level where the swap does not matter — which is
+ * the one thing World 2 is supposed to be about. Deriving the stroke from each
+ * character's own standing jump keeps the gap: Mendy climbs about two and a
+ * half tiles per stroke and Berel about one and a half. Mendy is the swimmer.
+ * Berel walks along the bottom, which is its own kind of useful.
+ *
+ * ## Surfacing
+ *
+ * A stroke taken with your head already out of the water is not a stroke, it
+ * is a jump, and it uses the ordinary jump so that climbing out of a pool onto
+ * the deck is exactly as high as climbing onto anything else. Without that
+ * rule the surface becomes a ceiling: the stroke is worth eight pixels in air
+ * and the pool has no exit.
+ */
+export const SWIM = {
+  /** Downward acceleration while submerged, px/s^2. A sixth of dry gravity. */
+  gravity: 420,
+  /** The fastest you sink under your own weight, px/s. */
+  sinkSpeed: 90,
+  /** Holding down swims you down, at this speed, px/s. */
+  diveSpeed: 170,
+  /** A stroke, as a fraction of that character's standing-jump launch. */
+  strokeFactor: 0.62,
+  /** How long before another stroke will take, ms. Mashing does not help. */
+  strokeIntervalMs: 260,
+  /** Top horizontal speed in water, as a fraction of the walk. */
+  speedFactor: 0.72,
+  /**
+   * How hard you swim, as a multiple of that character's walking acceleration.
+   *
+   * It has to come from the character rather than be a number of its own,
+   * because horizontal acceleration is what decides whether a current can be
+   * swum against at all: motion here is a velocity approached at a rate, so a
+   * current weaker than your acceleration is invisible and one stronger than
+   * it is a wall. Mendy accelerates at 133 on land and Berel at 110, so this
+   * makes Mendy the stronger swimmer — which is the same edge §4 already gives
+   * him, said in water.
+   *
+   * Levels still do not ask anyone to swim head-on into a current. That is the
+   * lesson the leaf blowers taught in 2-2: a force near your own acceleration
+   * is a locked door with a difficulty setting painted on it. Currents here are
+   * things you ride or go around, and the band never fills the column.
+   */
+  accelFactor: 1.5,
+  /** Drag in water, px/s^2. Slow to stop; a swimmer glides. */
+  drag: 150,
+  /** Entering the water kills a fall: velocity is clamped to this, px/s. */
+  entrySpeed: 150,
+  /** The most a current can carry you against your own swimming, px/s. */
+  maxDrift: 150,
+} as const;

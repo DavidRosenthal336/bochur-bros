@@ -30,6 +30,16 @@ for (const file of files) {
     bouncers: (entityLayer?.objects ?? [])
       .filter((o) => o.class === 'bounce')
       .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight, w: o.width / map.tilewidth })),
+    // Water changes what a hole and a walled floor mean — see the validator.
+    // Without it a pool reads as an unjumpable pit and its bottom as a trap.
+    water: (entityLayer?.objects ?? [])
+      .filter((o) => o.class === 'water')
+      .map((o) => ({
+        x: o.x / map.tilewidth,
+        y: o.y / map.tileheight,
+        w: o.width / map.tilewidth,
+        h: o.height / map.tileheight,
+      })),
     // Blocks are solid to the player, so they are part of the geometry as far
     // as "is there room to stand here" is concerned.
     blocks: (entityLayer?.objects ?? [])

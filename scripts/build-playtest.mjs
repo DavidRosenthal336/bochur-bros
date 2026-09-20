@@ -28,6 +28,11 @@
  * one means a browser holding a cached copy of the old page asks for a file
  * that is gone and renders nothing. Publishing the current bundle under the
  * old names as well makes a stale page load the current game.
+ *
+ * That last part used to be a rule somebody had to remember. It is a file now:
+ * `scripts/bundle-aliases.txt` lists every name the entry has ever gone out
+ * under, this script writes the current bundle to all of them and adds today's,
+ * and the list is committed. Nothing to remember.
  */
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -57,12 +62,30 @@ await writeFile(join(OUT, 'index.html'), flattened + '\n');
 
 // Everything Vite emitted except the page itself: JS chunks, and whatever came
 // from public/ (sprite sheets, and later audio).
-for (const entry of await readdir(DIST, { withFileTypes: true })) {
-  if (entry.name === 'index.html') continue;
-  await cp(join(DIST, entry.name), join(OUT, entry.name), { recursive: true });
+for (const item of await readdir(DIST, { withFileTypes: true })) {
+  if (item.name === 'index.html') continue;
+  await cp(join(DIST, item.name), join(OUT, item.name), { recursive: true });
 }
 
-console.log(`playtest build ready in ${OUT}/ (${flattened.length} bytes of HTML)`);
+// The entry chunk, under every name it has ever been published as.
+const ALIASES = 'scripts/bundle-aliases.txt';
+const entry = pick(html, /src="\.?\/?(assets\/index-[^"]+\.js)"/);
+const lines = (await readFile(ALIASES, 'utf8')).split('\n');
+const known = new Set(lines.filter((l) => l.trim() && !l.startsWith('#')).map((l) => l.trim()));
+if (!known.has(entry)) {
+  known.add(entry);
+  await writeFile(
+    ALIASES,
+    lines.filter((l) => l.startsWith('#')).join('\n') + '\n' + [...known].sort().join('\n') + '\n',
+  );
+}
+const current = await readFile(join(DIST, entry));
+for (const alias of known) if (alias !== entry) await writeFile(join(OUT, alias), current);
+
+console.log(
+  `playtest build ready in ${OUT}/ (${flattened.length} bytes of HTML, ` +
+    `entry ${entry}, ${known.size} bundle names)`,
+);
 
 function pick(source, pattern) {
   const match = source.match(pattern);

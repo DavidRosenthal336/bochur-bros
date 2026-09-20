@@ -1,0 +1,18 @@
+# Every name the entry bundle has ever been published under.
+#
+# Vite content-hashes the entry chunk, so every build renames it and rewrites
+# index.html to match. A browser holding a cached copy of an older index.html
+# asks for the name IT remembers — so if that file is not there, a returning
+# player gets a blank page and no error worth reading.
+#
+# `build-playtest.mjs` copies the current bundle to every name in this list and
+# adds the new one, so the old pages keep working and the list keeps itself.
+assets/index-0pJ69l0f.js
+assets/index-BC4aH_y2.js
+assets/index-BTAmLyvg.js
+assets/index-BU1vqW9g.js
+assets/index-CDPfhEAx.js
+assets/index-CYqUpLbl.js
+assets/index-CwgRFFpE.js
+assets/index-DsE--_So.js
+assets/index-T1QFpzbu.js

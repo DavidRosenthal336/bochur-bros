@@ -8,6 +8,7 @@ import type {
   BlockPlacement,
   BounceKind,
   BouncePlacement,
+  CurrentDef,
   EnemyPlacement,
   HazardPlacement,
   LabelDef,
@@ -15,6 +16,7 @@ import type {
   SolidDef,
   SolidKind,
   TilePoint,
+  WaterDef,
 } from '../LevelDef';
 import type { TiledMap, TiledObject, TiledObjectLayer, TiledProperty } from './TiledTypes';
 
@@ -40,6 +42,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const crates: TilePoint[] = [];
   const hazards: HazardPlacement[] = [];
   const bouncers: BouncePlacement[] = [];
+  const water: WaterDef[] = [];
+  const currents: CurrentDef[] = [];
   const checkpoints: TilePoint[] = [];
   const perches: TilePoint[] = [];
   let spawn: TilePoint = { x: 2, y: map.height - 8 };
@@ -133,6 +137,27 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
           });
           break;
         }
+        case 'water':
+          water.push({
+            x,
+            y,
+            w: Math.max(1, Math.round(object.width / tile)),
+            h: Math.max(1, Math.round(object.height / tile)),
+          });
+          break;
+        case 'current': {
+          const force = readNumber(object, 'force');
+          currents.push({
+            x,
+            y,
+            w: Math.max(1, Math.round(object.width / tile)),
+            h: Math.max(1, Math.round(object.height / tile)),
+            dx: axis(readNumber(object, 'dx')),
+            dy: axis(readNumber(object, 'dy')),
+            ...(force === undefined ? {} : { force }),
+          });
+          break;
+        }
         case 'boss':
           boss = { x, y };
           break;
@@ -168,6 +193,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     enemies,
     crates,
     hazards,
+    water,
+    currents,
     bouncers,
     checkpoints,
     perches,
@@ -184,6 +211,12 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   };
 }
 
+
+/** Tiled writes numbers as strings often enough that this is worth spelling out. */
+function axis(value: number | undefined): -1 | 0 | 1 {
+  if (value === undefined) return 0;
+  return value > 0 ? 1 : value < 0 ? -1 : 0;
+}
 
 function isBounceKind(value: string | undefined): value is BounceKind {
   return value === 'awning' || value === 'trampoline' || value === 'sprinkler';

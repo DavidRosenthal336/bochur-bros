@@ -19,6 +19,7 @@ import { Block } from '../entities/Block';
 import { Crate } from '../entities/Crate';
 import { Enemy } from '../entities/Enemy';
 import { WindZone } from '../entities/Hazard';
+import { Current, Water } from '../entities/Water';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
 import { Thief } from '../entities/Thief';
@@ -67,6 +68,7 @@ const SOLID_COLORS: Record<SolidKind, number> = {
   ground: 0x3d4466,
   platform: 0x565f8c,
   wall: 0x2b3050,
+  pool: 0x3f6f8c,
 };
 
 /**
@@ -84,6 +86,9 @@ const BORO_PARK: TileSet = {
   ground: { top: 'tile-sidewalk', fill: 'tile-asphalt' },
   platform: { top: 'tile-scaffoldPlank', fill: 'tile-brick' },
   wall: { top: 'tile-brick', fill: 'tile-brick' },
+  // Boro Park has no pools. The row has to exist because the record is total;
+  // if one ever turns up there it can be brick, like everything else.
+  pool: { top: 'tile-brick', fill: 'tile-brick' },
 };
 
 /**
@@ -98,6 +103,7 @@ const FIVE_TOWNS: TileSet = {
   ground: { top: 'tile-lawn', fill: 'tile-driveway' },
   platform: { top: 'tile-deck', fill: 'tile-siding' },
   wall: { top: 'tile-hedge', fill: 'tile-hedge' },
+  pool: { top: 'tile-poolTile', fill: 'tile-poolTile' },
 };
 
 /**
@@ -176,6 +182,8 @@ export class LevelScene extends Phaser.Scene {
   private crates!: Phaser.GameObjects.Group;
   private flames!: Phaser.GameObjects.Group;
   private winds: WindZone[] = [];
+  private waters: Water[] = [];
+  private currents: Current[] = [];
   private hazards!: Phaser.GameObjects.Group;
   private bouncers!: Phaser.Physics.Arcade.StaticGroup;
   /** The ones on a timer, and where they are in their cycle. */
@@ -339,6 +347,7 @@ export class LevelScene extends Phaser.Scene {
     this.buildCoins();
     this.buildEnemies();
     this.buildCrates();
+    this.buildWater();
     this.buildHazards();
     this.buildBouncers();
     this.buildBoss();
@@ -381,6 +390,7 @@ export class LevelScene extends Phaser.Scene {
       this.swapCharacter();
     }
 
+    this.updateWater();
     this.player.tick(step, this.controls.current);
     this.applyWind(step / 1000);
     this.updateCrates();
@@ -493,6 +503,49 @@ export class LevelScene extends Phaser.Scene {
     for (const point of this.level.crates ?? []) {
       this.crates.add(new Crate(this, point.x * TILE + TILE / 2, point.y * TILE));
     }
+  }
+
+  /**
+   * The pool (§6, 2-3).
+   *
+   * Built before the hazards and the bouncers so that the water is drawn under
+   * whatever is floating in it, and read before the player ticks each frame,
+   * because whether you are swimming is something `Player.tick` needs to know
+   * rather than something it can be told afterwards.
+   */
+  private buildWater(): void {
+    this.waters = (this.level.water ?? []).map((def) => new Water(this, def));
+    this.currents = (this.level.currents ?? []).map((def) => new Current(this, def));
+  }
+
+  /**
+   * Tell the player where the water is.
+   *
+   * Overlapping two pools at once is possible where two rectangles meet, and
+   * the shallower surface is the right one: the surface you can break is the
+   * one nearest your head.
+   */
+  private updateWater(): void {
+    if (this.waters.length === 0) return;
+    const body = this.player.physicsBody;
+
+    let top: number | undefined;
+    for (const water of this.waters) {
+      if (!water.contains(body)) continue;
+      if (top === undefined || water.top < top) top = water.top;
+    }
+
+    let currentX = 0;
+    let currentY = 0;
+    if (top !== undefined) {
+      for (const current of this.currents) {
+        if (!current.contains(body)) continue;
+        currentX += current.forceX;
+        currentY += current.forceY;
+      }
+    }
+
+    this.player.setWater(top, currentX, currentY);
   }
 
   private buildHazards(): void {

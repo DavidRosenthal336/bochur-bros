@@ -691,3 +691,117 @@ And driving Arcade by hand to run faster than real time needs
 return without doing anything, so the player never moves and every case looks
 like a bug. A harness gets a positive control now — make the player fall, check
 he fell — before anything it reports is believed.
+
+## World 2, level 3 — the water
+
+2-3 is the first level in the game whose floor is not the point, and building
+it meant building a way to move that the engine did not have. The rules it
+settled on, and the measurements behind them.
+
+### A stroke is not a small jump
+
+A jump in this game is one decision taken at takeoff and lived with — the
+bracket is chosen from your speed at the moment you leave the ground and holds
+for the whole arc, and holding the button lowers gravity rather than adding
+force. Swimming had to be the opposite of that or the water would feel like a
+level with the numbers turned down. So under water there are no brackets and no
+held-button gravity: a press gives a fixed upward shove, and the way up is to
+keep asking for it. Gravity is 420 against roughly 1850 dry, and you sink at 90.
+
+The stroke itself is a fraction of each character's own standing jump rather
+than a number of its own, which keeps §4's height difference alive under water.
+Measured, from the bottom of a six-tile pool: **Mendy 36px a stroke, Berel 22px.**
+Mendy is the swimmer. Berel walks along the bottom, which has its own uses,
+two of which are grey blocks.
+
+### The surface is not a ceiling
+
+The first working version of the swim code had no way out of a pool. A stroke
+is worth about 180 px/s, and 180 px/s in air against a fall gravity of 1850 is
+eight pixels — so the water's edge was a lid you could see the deck over and
+never reach.
+
+The rule that fixes it: **within a tile of the surface, with open sky over your
+head, a stroke is not a stroke, it is an ordinary jump** — same bracket, same
+held-button gravity, same height as climbing onto anything else. The "open sky"
+half of that is not decoration. Under a pool cover the same test would launch
+you into the underside of it forever, so the check is for a solid six pixels
+above the head and the answer decides which of the two you get.
+
+### Currents have no interesting middle
+
+Horizontal movement here is a velocity approached at a rate, not a force
+summed against other forces. The consequence is sharp: a current weaker than
+your acceleration does **nothing at all**, and one stronger than it is a wall
+with no door. There is no "hard but possible" to tune towards, which is the
+same shape as the leaf blower that had to come down from 560 to 300 in 2-2.
+
+So the level never asks anyone to swim head-on into a current. Every band in
+2-3 is something you ride, something you fall through, or something you go over
+the top of, and **no band fills the column it is in** — there is always clear
+water above or below it. The one place that rule was broken by accident, a
+four-row band in a seven-row pool, cost a test run a full minute pinned against
+the bottom being pushed backwards. Three rows of band and three clear.
+
+Swim acceleration still comes from the character (1.5× their walking figure, so
+Mendy 200 and Berel 165), because recovering from a current faster is a real
+difference even when fighting one is not on the menu.
+
+### A jet has to beat gravity before it lifts anything
+
+The first filter jet was set to 380, the sideways figure plus a bit. It lifted a
+body off the bottom of the pool by half a pixel and put it back, because what
+reaches the player is the difference between the jet and `SWIM.gravity` at 420.
+At 760 a jet carries you from the floor of the deepest pool in the level to the
+surface, and that is the default now.
+
+### Water is drawn behind the solids, not over them
+
+Water went in at depth 1.5, above the terrain's 0 and 1, which meant every
+shelf and every pool floor inside it was invisible — 2-3 shipped its first
+screenshot with a ledge in the middle of the deep end that nothing could see.
+It sits at -0.6 now, behind the terrain and in front of the sky, with a second
+nearly transparent pane at depth 12 that tints whatever is under the surface,
+including the player. There is a `pool` solid kind as well, so the bottom of a
+swimming pool is pool tile and not lawn.
+
+### A dead end has to be somewhere you can stand still
+
+§6 asks for "a pool cover to swim beneath", and a cover at the water's surface
+is only a cover if you cannot walk along it. The first two attempts put a fence
+where the water meets the lid, and both produced the same thing when played: a
+wall at the waterline. You surface, the stroke throws you at it, you fall back,
+you surface again, and none of it is legible because you never stop moving. A
+test run spent forty seconds in that cycle without ever going under.
+
+The shape that works is a walkway with a hole in it. You step off the deck onto
+the lid, walk six tiles, the lid stops, and six tiles of open water is past any
+jump in the game. The far stretch of lid has its fence one tile back from its
+edge — so if you do climb out on that side you land on a board, stand still,
+and look at a fence, which is a thing a person can read and then step off
+backwards from. One tile of difference between a dead end and a trap.
+
+### What the validator had to be told
+
+Water changes what the rest of the geometry checks mean. A pool is a pit you do
+not have to jump; a pool floor is a surface you do not have to stand up on; a
+basin walled on both sides is somewhere you leave by swimming. All three checks
+now ask whether a tile is wet first, and `check-maps.mjs` had to learn to read
+the water objects back out of the `.tmj` — it builds its own level definition
+from the map file, so for one run 2-3 passed at build time and failed the
+standalone check with eleven traps that were all just the pool.
+
+### Verified
+
+Both brothers, start to goal, driving the real game: **Mendy 44s, Berel 53s**
+over 330 tiles with six pools in them. Dry physics re-measured on 1-1 and
+unchanged — Mendy's standing jump 61.6px, run 150 px/s, and `isSwimming` never
+true on a level with no water in it.
+
+The traversal bot needed four rewrites before its results were worth anything,
+and every one of its failures was the same mistake in a different coat:
+stroking the moment it started sinking, so it never went down; diving again the
+moment a stroke cleared the floor, so it never came up; and testing "am I
+sinking" while resting on the bottom, where the velocity is zero and the answer
+is no. Diving and climbing are commitments that have to hold for a couple of
+seconds. That is true of the bot and it is true of the player.
