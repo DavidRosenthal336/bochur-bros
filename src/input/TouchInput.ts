@@ -96,6 +96,20 @@ export class TouchInput {
   private mouse: TouchAction | undefined;
   /** Actions that went down since the last `update`, so a quick tap is never lost. */
   private readonly tapped = new Set<TouchAction>();
+  /**
+   * Run is a latch, not a button you hold.
+   *
+   * Holding it is what a controller does, because a controller has a shoulder
+   * for it. On a phone it means keeping one thumb pinned on the far side of
+   * the screen from the one that is steering, for the whole level — and the
+   * two things it changes, top speed and how far a jump carries, are exactly
+   * the things you want while you are busy doing something else with that
+   * thumb. So it stays on until it is turned off, and the button says which.
+   *
+   * The keyboard is untouched: Shift is still held, and the two are OR'd, so
+   * holding Shift on a latched-off keyboard still runs.
+   */
+  private running = false;
   private state: InputState = NEUTRAL_INPUT;
   /** True once a real touch has happened, which is what reveals the controls. */
   private used = false;
@@ -162,7 +176,7 @@ export class TouchInput {
       // button went down at any point since the last frame.
       jumpPressed: this.tapped.has('jump'),
       jumpHeld: this.held.has('jump') || this.mouse === 'jump',
-      run: down('run'),
+      run: this.running || down('run'),
       actionPressed: this.tapped.has('action'),
       swapPressed: this.tapped.has('swap'),
       pausePressed: this.tapped.has('menu'),
@@ -191,9 +205,7 @@ export class TouchInput {
     // that rolls off jump onto swap without lifting.
     for (const action of next) {
       if (this.held.has(action)) continue;
-      this.tapped.add(action);
-      if (action === 'menu') this.menuHandler?.();
-      if (action === 'full') toggleFullScreen();
+      this.press(action);
     }
 
     // Stop the page treating a press on a button as a scroll or a zoom. Only
@@ -206,6 +218,24 @@ export class TouchInput {
     document.body.dataset['touch'] = 'on';
     this.held = next;
     this.paint();
+  }
+
+  /** Everything that happens the moment a button goes down. */
+  private press(action: TouchAction): void {
+    this.tapped.add(action);
+    switch (action) {
+      case 'run':
+        this.running = !this.running;
+        break;
+      case 'menu':
+        this.menuHandler?.();
+        break;
+      case 'full':
+        toggleFullScreen();
+        break;
+      default:
+        break;
+    }
   }
 
   private overAButton(touches: TouchList): boolean {
@@ -221,10 +251,8 @@ export class TouchInput {
     if (!action) return;
     event.preventDefault();
     this.mouse = action;
-    this.tapped.add(action);
+    this.press(action);
     this.paint();
-    if (action === 'menu') this.menuHandler?.();
-    if (action === 'full') toggleFullScreen();
   }
 
   private onMouseMove(event: PointerEvent): void {
@@ -237,7 +265,7 @@ export class TouchInput {
     }
     const action = this.actionAt(event.clientX, event.clientY);
     if (action === this.mouse) return;
-    if (action && !this.held.has(action)) this.tapped.add(action);
+    if (action && !this.held.has(action)) this.press(action);
     this.mouse = action;
     this.paint();
   }
@@ -275,6 +303,9 @@ export class TouchInput {
       const act = button.dataset['act'];
       const on = isAction(act) && (this.held.has(act) || this.mouse === act);
       button.classList.toggle('on', on);
+      // A latch has to say so even when nothing is touching it, or the only
+      // way to find out whether you are running is to try it.
+      if (act === 'run') button.classList.toggle('latched', this.running);
     }
   }
 }

@@ -211,7 +211,8 @@
       }
       #touch .pad.left {
         left: calc(12px + env(safe-area-inset-left, 0px));
-        align-items: flex-end;
+        flex-direction: column;
+        align-items: stretch;
       }
       #touch .pad.right {
         right: calc(12px + env(safe-area-inset-right, 0px));
@@ -281,6 +282,22 @@
         grid-column: 1 / span 2;
         width: 100%;
         height: 42px;
+      }
+      /*
+        A latch, so it has to read as on or off while nothing is touching it —
+        the pressed highlight says "your thumb is here", which is a different
+        thing and lasts a moment. This one stays.
+      */
+      #touch button.latch {
+        width: 100%;
+        height: 36px;
+        font-size: 12px;
+      }
+      #touch button.latch.latched {
+        background: #4ea8de;
+        border-color: #9fd6f5;
+        color: #08131c;
+        font-weight: bold;
       }
       #touch .corner {
         position: absolute;
@@ -356,6 +373,10 @@
           width: 64px;
           height: 44px;
         }
+        body[data-touch='on'] #touch .pad button.latch {
+          width: 100%;
+          height: 40px;
+        }
       }
 
       /* A short landscape phone has no room for 88px of jump button. */
@@ -376,6 +397,11 @@
         #touch .pad button.small {
           width: 54px;
           height: 34px;
+        }
+        #touch .pad button.latch {
+          width: 100%;
+          height: 30px;
+          font-size: 11px;
         }
         #touch .pad {
           bottom: calc(6px + env(safe-area-inset-bottom, 0px));
@@ -402,7 +428,19 @@
       here needs an id, and a thumb can slide from one button to the next.
     -->
     <div id="touch">
+      <!--
+        RUN sits with the thumb that steers, not with the thumb that jumps.
+
+        It is a latch rather than a button you hold, and that changes where it
+        belongs twice over. It is about how you are moving, which is this
+        thumb's business. And an accidental brush is no longer half a second of
+        sprinting, it is a mode flip — so it cannot live directly above the
+        jump button, which is the one a thumb reaches for in a hurry.
+      -->
       <div class="pad left">
+        <button class="latch" data-act="run" aria-label="Run: tap to turn on, tap to turn off">
+          RUN
+        </button>
         <div class="dpad">
           <button class="bar" data-act="down" aria-label="Duck, and Berel's ground pound">
             &#9660;
@@ -416,10 +454,7 @@
           <button class="small" data-act="swap" aria-label="Swap brothers">SWAP</button>
           <button class="small" data-act="action" aria-label="Use your form">FORM</button>
         </div>
-        <div class="stack">
-          <button class="small" data-act="run" aria-label="Run">RUN</button>
-          <button class="big" data-act="jump" aria-label="Jump">JUMP</button>
-        </div>
+        <button class="big" data-act="jump" aria-label="Jump">JUMP</button>
       </div>
       <!--
         Top left, and stacked rather than side by side.
@@ -483,7 +518,9 @@
         <tr><td>&#9664; &#9654;</td><td>Move</td></tr>
         <tr><td>&#9660;</td><td>Duck &mdash; and in mid-air, Berel's ground pound</td></tr>
         <tr><td>JUMP</td><td>Hold it down to jump higher</td></tr>
-        <tr><td>RUN</td><td>Faster, and further through a leaf blower</td></tr>
+        <tr><td>RUN</td>
+            <td>Tap once to run, tap again to stop &mdash; it stays on, so you
+                are never holding two things at once</td></tr>
         <tr><td>SWAP</td><td><b>Swap brothers</b> &mdash; free, instant, unlimited</td></tr>
         <tr><td>FORM</td><td>Menorah throws, Lulav swings</td></tr>
         <tr><td>MAP</td><td>Top corner &mdash; back to the map</td></tr>

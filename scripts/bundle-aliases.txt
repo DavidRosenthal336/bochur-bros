@@ -12,6 +12,7 @@ assets/index-B93cxfec.js
 assets/index-BC4aH_y2.js
 assets/index-BTAmLyvg.js
 assets/index-BU1vqW9g.js
+assets/index-CDI6ramp.js
 assets/index-CDPfhEAx.js
 assets/index-CYqUpLbl.js
 assets/index-CrUtgKP-.js

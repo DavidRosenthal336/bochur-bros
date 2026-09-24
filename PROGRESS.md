@@ -990,3 +990,43 @@ the page, which for this game would be a screenshot of a start card.
 
 Deploying it is a decision for the person whose game it is, not something to do
 because it would be convenient, so it is offered rather than done.
+
+## Run is a latch
+
+Asked for, and right: "just click run and then it stays running until you click
+it again, so that you don't have to hold two things at once."
+
+Holding it is what a controller does, because a controller has a shoulder
+button for it. On a phone it means pinning one thumb on the far side of the
+screen from the one that is steering, for the whole level — and the two things
+run changes, top speed and how far a jump carries, are exactly the things you
+want while that thumb is busy. So it stays on until it is turned off.
+
+That changes where the button belongs, twice over. It is about how you are
+moving, which is the steering thumb's business, so it moved to the left cluster
+as a bar over the d-pad. And an accidental brush is no longer half a second of
+sprinting, it is a mode flip — so it cannot sit directly above JUMP, which is
+the button a thumb reaches for in a hurry. JUMP now stands alone.
+
+A latch has to say which way it is set while nothing is touching it, so it has
+a second state beyond the pressed highlight: lit solid blue for on. The pressed
+highlight means "your thumb is here" and lasts a moment; this one stays.
+
+The keyboard is untouched. Shift is still a hold, and the two are OR'd, so
+Shift still runs whatever the latch says.
+
+Verified: RIGHT alone walks at 90 with the latch off and runs at 150 with it
+on, one thumb either way; the latch survives letting go, dying and restarting;
+a running jump still carries 85px; and Shift still runs with the latch off.
+
+## Deployed
+
+`bochur-bros.vercel.app` equivalent, built from this repo on every push to the
+working branch — Vercel pulls the branch, runs `npm run build` and serves
+`dist/`. That is the standalone page, not the flattened artifact copy: the
+artifact build strips the `<head>` because its host supplies one, and a phone
+without a viewport meta lays the page out at 980 points and scales it down.
+
+Vercel Authentication was on by default, which would have put a login in front
+of the URL. Turned off deliberately: the link is public now, which is what a
+link you can open on a phone means.
