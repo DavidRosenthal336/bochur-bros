@@ -7,7 +7,20 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <meta name="theme-color" content="#0d0f1a" />
+    <!--
+      Added to a phone's home screen, the page launches with no browser chrome
+      at all — which on an iPhone is the ONLY way to get the whole screen,
+      because Safari there does not implement the Fullscreen API. These four
+      lines are what make that work, and they only take effect when the game is
+      the top-level page at its own address. Inside an artifact panel they are
+      inert, and harmless.
+    -->
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Bochur Bros" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/icon-180.png" />
     <title>Bochur Bros</title>
     <link
       rel="icon"
@@ -272,7 +285,13 @@
       #touch .corner {
         position: absolute;
         top: calc(8px + env(safe-area-inset-top, 0px));
-        right: calc(10px + env(safe-area-inset-right, 0px));
+        left: calc(10px + env(safe-area-inset-left, 0px));
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      #touch .corner button[hidden] {
+        display: none;
       }
       #touch .corner button {
         width: 54px;
@@ -402,8 +421,24 @@
           <button class="big" data-act="jump" aria-label="Jump">JUMP</button>
         </div>
       </div>
+      <!--
+        Top left, and stacked rather than side by side.
+
+        Everything the HUD draws is anchored to the right edge — lives, coins,
+        which brother you are — and a timed level puts a clock bar across the
+        middle. The left column is the one part of the top of the screen that
+        nothing in the game uses, and a stack keeps it narrow enough to stay
+        clear of the clock on a phone whose canvas fills the width.
+
+        FULL is hidden unless the browser will actually grant it. An iframe
+        cannot go fullscreen unless the page holding it allows that, and Safari
+        on iPhone does not implement the API at all, so a button that is always
+        there is a button that does nothing on the devices that want it most.
+        `TouchInput.fullScreenAvailable` decides, at load.
+      -->
       <div class="corner">
         <button data-act="menu" aria-label="Back to the map">MAP</button>
+        <button class="full" data-act="full" aria-label="Fill the screen" hidden>FULL</button>
       </div>
     </div>
 
@@ -455,8 +490,13 @@
         <tr><td colspan="2" class="group">IN THE WATER (2-3)</td></tr>
         <tr><td>JUMP</td><td>A stroke. Press it again and again</td></tr>
         <tr><td>&#9660;</td><td>Swim down, under the pool cover</td></tr>
-        <tr><td colspan="2" class="group">&nbsp;</td></tr>
+        <tr><td colspan="2" class="group">THE WHOLE SCREEN</td></tr>
         <tr><td>Sideways</td><td>Turn the phone for a bigger picture</td></tr>
+        <tr><td>FULL</td>
+            <td>Next to MAP, when this browser allows it &mdash; iPhones do not</td></tr>
+        <tr><td>Properly</td>
+            <td>Open the game at its own address and add it to your home screen.
+                It then runs with no browser round it at all</td></tr>
       </table>
       <div class="go">CLICK HERE TO PLAY</div>
       <p class="note" id="thumb-note">

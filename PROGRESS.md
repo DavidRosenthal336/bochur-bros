@@ -908,3 +908,85 @@ wholesale with an object that has `update` and `current` and nothing else —
 still drive a level from start to finish. That last one is why the hint text
 asks the shared controls whether a phone is in play rather than reaching
 through `this.controls` for it.
+
+## The stuck button
+
+Reported from a real phone, which is where this was always going to be found:
+pressing forward and letting go left him walking.
+
+### Why the first design could stick at all
+
+It tracked each touch in a map — a pointer went in on `pointerdown`, moved
+between buttons on `pointermove`, came out on `pointerup`. A design like that
+can only ever be corrected by an event it is still expecting, and there are
+real ways to miss one. A browser that decides a touch was the start of a scroll
+takes the gesture and stops sending. A second finger can turn the first into a
+pinch candidate. A touch that ends while the page is being backgrounded may
+report nothing at all. Miss the release and the entry sits in the map forever.
+
+It had a second hole in the same place, pointing the other way. `pointermove`
+began `if (!this.pointers.has(event.pointerId)) return;` — so a thumb that
+jittered a pixel into the gap between two buttons was deleted from the map, and
+when it jittered back onto the button the handler returned early and the button
+was dead until the finger lifted. One bug made the character run forever and
+the other made the button stop answering, and both would be reported as "it
+gets stuck".
+
+### What replaced it
+
+Every touch event — `touchstart`, `touchmove`, `touchend`, `touchcancel` —
+carries `event.touches`: **every finger on the glass at that moment**, not a
+delta. So the held set is thrown away and rebuilt from that list on each one.
+
+A finger that lifted is not in the list, so it cannot be held. A finger that
+slid off a button and back is resolved fresh against where it is now, so it
+cannot go dead. An event that never arrives is repaired by the next one,
+whatever it is. There is no accounting to get out of step, because there is no
+accounting. Mouse and stylus keep the tracked shape, because there is only ever
+one of them and its events are not the ones that go missing.
+
+The listeners are also non-passive now and call `preventDefault` on a touch
+that lands on a button, so the browser never gets the chance to decide the
+press was a scroll — which is the thing that makes it stop sending events in
+the first place.
+
+### Tested with real touches this time
+
+The first round of testing used synthetic `PointerEvent`s dispatched from
+JavaScript, which is not the same thing at all and is why this shipped. These
+go through the browser's own touch pipeline, over CDP: press and hold and lift;
+two fingers with only one lifted; a thumb slid off a button and back on; a
+touch cancelled mid-hold; the window losing focus mid-hold. All of them end
+with nothing held and nothing lit, and the one that used to go dead now keeps
+working.
+
+One case cannot be tested here and is worth naming: a release that is never
+reported at all. The browser maintains its own touch state, so CDP will not let
+a `touchend` be dropped. That case is handled by construction rather than by
+test — the next event of any kind rebuilds the set from scratch.
+
+## The whole screen
+
+Asked for, and the honest answer has three parts.
+
+**Inside an artifact panel there is no way to get it.** The game is in an
+iframe, and an iframe cannot go fullscreen unless the page holding it allows
+that. There is now a FULL button next to MAP that calls the Fullscreen API,
+shown only where `document.fullscreenEnabled` says it will be granted — which
+is desktop, Android, and an iPad, and is not an iPhone: Safari there does not
+implement the API on the phone at all.
+
+**A page of its own is the answer.** At its own address the game is the
+top-level document, so fullscreen works where the browser has it — and, better
+than that, it can be added to a phone's home screen and launched with no
+browser around it whatsoever. That is a genuinely full screen on an iPhone and
+it is the only one.
+
+So the metadata for it is in place now rather than later: the Apple web-app
+meta tags, a manifest asking for `display: fullscreen` in landscape, and an
+icon generated from frame 0 of Mendy's idle sheet at 32, 180, 192 and 512
+(`npm run art:icon`). A phone that is not given an icon uses a screenshot of
+the page, which for this game would be a screenshot of a start card.
+
+Deploying it is a decision for the person whose game it is, not something to do
+because it would be convenient, so it is offered rather than done.

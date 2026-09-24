@@ -8,6 +8,7 @@
 # `build-playtest.mjs` copies the current bundle to every name in this list and
 # adds the new one, so the old pages keep working and the list keeps itself.
 assets/index-0pJ69l0f.js
+assets/index-B93cxfec.js
 assets/index-BC4aH_y2.js
 assets/index-BTAmLyvg.js
 assets/index-BU1vqW9g.js

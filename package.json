@@ -14,7 +14,8 @@
     "check:maps": "node tools/check-maps.mjs",
     "check:art": "node tools/check-art.mjs",
     "art": "python3 tools/art/generate.py --out public/sprites",
-    "art:scenery": "python3 tools/art/scenery.py --out public/sprites"
+    "art:scenery": "python3 tools/art/scenery.py --out public/sprites",
+    "art:icon": "python3 tools/art/icon.py"
   },
   "dependencies": {
     "phaser": "^3.90.0"

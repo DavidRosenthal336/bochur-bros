@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { PHYSICS_FPS, VIEW_HEIGHT, VIEW_WIDTH } from './config/Tuning';
+import { fullScreenAvailable } from './input/TouchInput';
 import { BootScene } from './scenes/BootScene';
 import { LevelScene } from './scenes/LevelScene';
 import { WorldMapScene } from './scenes/WorldMapScene';
@@ -47,6 +48,19 @@ const game = new Phaser.Game(config);
  * canvas that has not re-fitted after either is either overlapped by the
  * control deck or letterboxed into a band with a strip of dead space under it.
  */
+/**
+ * Offer a fullscreen button only where pressing it would do something.
+ *
+ * `fullscreenEnabled` is false inside an iframe whose host has not allowed it,
+ * and false on an iPhone, where Safari does not implement the API. Both of
+ * those are the normal case for this game right now, so the button is the
+ * exception rather than the rule — see the start card for the answer that
+ * works everywhere, which is a page of its own rather than a panel.
+ */
+if (fullScreenAvailable()) {
+  document.querySelector<HTMLElement>('#touch .full')?.removeAttribute('hidden');
+}
+
 const stage = document.getElementById('game');
 if (stage && 'ResizeObserver' in window) {
   new ResizeObserver(() => game.scale.refresh()).observe(stage);

@@ -26,25 +26,51 @@ import { NEUTRAL_INPUT } from './InputState';
  * ## Two buttons §8 does not list
  *
  * **Down**, because §4 gives Berel a ground pound on "Down, in mid-air" and §5
- * gives every character a crouch, and 2-3 swims downward with it. A control
- * scheme without Down cannot play the game that exists.
+ * gives every character a crouch, and 2-3 swims downward with it.
  *
  * **Run**, for the same reason and more sharply: the leaf blowers in 2-2 push
  * at 300 px/s^2 against Mendy's walking acceleration of 133 and his running
  * acceleration of 323. Walking into one, he goes backwards. Without a run
  * button there is a corridor in World 2 that a phone simply cannot cross.
  *
- * ## Sliding between buttons
+ * ## The held set is rebuilt from scratch on every event, and that is the point
  *
- * A thumb that presses left and then slides to right without lifting has to
- * end up pressing right, because that is what every thumb on every d-pad does.
- * The browser gives a touch's events to the element it started on, so the
- * button under the finger is found by asking the document what is at that
- * point on every move rather than by listening on each button.
+ * The first version of this tracked each touch in a map: a pointer went in on
+ * `pointerdown`, moved between buttons on `pointermove`, came out on
+ * `pointerup`. It got stuck — the button stayed on after the thumb came off —
+ * and the reason a design like that gets stuck is that it can only ever be
+ * corrected by an event it is still expecting. Miss one `pointerup`, or get a
+ * pointer id that does not match, and the entry stays in the map forever. And
+ * there are real ways to miss one: a browser that decides a touch was the start
+ * of a scroll takes the gesture and stops sending, a second finger can turn the
+ * first into a pinch candidate, and a touch that ends while the page is being
+ * put into the background may report nothing at all.
+ *
+ * A `touchstart`, `touchmove`, `touchend` or `touchcancel` all carry
+ * `event.touches`: **every finger on the glass at that moment**, not a delta.
+ * So the held set is thrown away and rebuilt from that list on each one. A
+ * finger that lifted is not in the list, so it cannot be held. A finger that
+ * slid off a button and back is resolved fresh against where it is now, so it
+ * cannot go dead. An event that never arrives is repaired by the next one,
+ * whatever it is. There is no accounting to get out of step, because there is
+ * no accounting.
+ *
+ * Mouse and stylus keep the old shape — a single pointer, tracked — because
+ * there is only ever one of them and its events are not the ones that go
+ * missing.
  */
 
 /** The actions a button can carry. Matches `data-act` in the markup. */
-type TouchAction = 'left' | 'right' | 'down' | 'jump' | 'run' | 'action' | 'swap' | 'menu';
+type TouchAction =
+  | 'left'
+  | 'right'
+  | 'down'
+  | 'jump'
+  | 'run'
+  | 'action'
+  | 'swap'
+  | 'menu'
+  | 'full';
 
 const ACTIONS: readonly TouchAction[] = [
   'left',
@@ -55,6 +81,7 @@ const ACTIONS: readonly TouchAction[] = [
   'action',
   'swap',
   'menu',
+  'full',
 ];
 
 function isAction(value: string | undefined): value is TouchAction {
@@ -63,8 +90,10 @@ function isAction(value: string | undefined): value is TouchAction {
 
 export class TouchInput {
   private readonly root: HTMLElement | undefined;
-  /** Which action each live touch is currently over. */
-  private readonly pointers = new Map<number, TouchAction>();
+  /** Every action currently under a finger. Rebuilt on every touch event. */
+  private held = new Set<TouchAction>();
+  /** The mouse or stylus, if one is on a button. There is only ever one. */
+  private mouse: TouchAction | undefined;
   /** Actions that went down since the last `update`, so a quick tap is never lost. */
   private readonly tapped = new Set<TouchAction>();
   private state: InputState = NEUTRAL_INPUT;
@@ -77,13 +106,21 @@ export class TouchInput {
     this.root = root;
     if (!root) return;
 
-    root.addEventListener('pointerdown', (event) => this.onDown(event));
-    root.addEventListener('pointermove', (event) => this.onMove(event));
-    root.addEventListener('pointerup', (event) => this.onUp(event));
-    root.addEventListener('pointercancel', (event) => this.onUp(event));
-    // A touch that ends outside the window never sends pointerup to the page.
-    // Without this, a finger dragged off the bottom edge leaves the character
-    // running right forever.
+    // Not passive: a touch that begins on a button must not also be offered to
+    // the browser as the start of a scroll. `touch-action: none` says the same
+    // thing, and saying it twice is cheap — it is the gesture being stolen that
+    // makes a browser stop sending the events this depends on.
+    const options = { passive: false } as const;
+    for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel'] as const) {
+      root.addEventListener(type, (event) => this.onTouch(event), options);
+    }
+
+    root.addEventListener('pointerdown', (event) => this.onMouseDown(event));
+    root.addEventListener('pointermove', (event) => this.onMouseMove(event));
+    root.addEventListener('pointerup', (event) => this.onMouseUp(event));
+    root.addEventListener('pointercancel', (event) => this.onMouseUp(event));
+
+    // A window that loses focus mid-press never reports the release.
     window.addEventListener('blur', () => this.releaseAll());
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) this.releaseAll();
@@ -115,16 +152,16 @@ export class TouchInput {
 
   /** Call once per frame, before anything reads `current`. */
   update(): void {
-    const held = new Set(this.pointers.values());
-    const down = (action: TouchAction): boolean => held.has(action) || this.tapped.has(action);
+    const down = (action: TouchAction): boolean =>
+      this.held.has(action) || this.mouse === action || this.tapped.has(action);
 
     this.state = {
       moveX: axis(down('left'), down('right')),
       moveY: axis(false, down('down')),
       // A tap shorter than a frame still has to jump, so a press counts if the
-      // button is down now or went down at any point since the last frame.
+      // button went down at any point since the last frame.
       jumpPressed: this.tapped.has('jump'),
-      jumpHeld: held.has('jump'),
+      jumpHeld: this.held.has('jump') || this.mouse === 'jump',
       run: down('run'),
       actionPressed: this.tapped.has('action'),
       swapPressed: this.tapped.has('swap'),
@@ -138,43 +175,83 @@ export class TouchInput {
     return this.state;
   }
 
-  private onDown(event: PointerEvent): void {
+  /**
+   * Every touch event, handled the same way: work out what is under each
+   * finger that is still down, and let that be the answer.
+   */
+  private onTouch(event: TouchEvent): void {
+    const next = new Set<TouchAction>();
+    for (const touch of Array.from(event.touches)) {
+      const action = this.actionAt(touch.clientX, touch.clientY);
+      if (action) next.add(action);
+    }
+
+    // Anything that was not held a moment ago and is now has just been pressed.
+    // This covers a tap too short to survive to the next frame, and a thumb
+    // that rolls off jump onto swap without lifting.
+    for (const action of next) {
+      if (this.held.has(action)) continue;
+      this.tapped.add(action);
+      if (action === 'menu') this.menuHandler?.();
+      if (action === 'full') toggleFullScreen();
+    }
+
+    // Stop the page treating a press on a button as a scroll or a zoom. Only
+    // when the touch is actually on one, so a tap on the game still reaches it.
+    if (event.cancelable && (next.size > 0 || this.overAButton(event.changedTouches))) {
+      event.preventDefault();
+    }
+
+    this.used = true;
+    document.body.dataset['touch'] = 'on';
+    this.held = next;
+    this.paint();
+  }
+
+  private overAButton(touches: TouchList): boolean {
+    for (const touch of Array.from(touches)) {
+      if (this.actionAt(touch.clientX, touch.clientY)) return true;
+    }
+    return false;
+  }
+
+  private onMouseDown(event: PointerEvent): void {
+    if (event.pointerType === 'touch') return;
     const action = this.actionAt(event.clientX, event.clientY);
     if (!action) return;
     event.preventDefault();
-    this.used = true;
-    document.body.dataset['touch'] = 'on';
-    this.pointers.set(event.pointerId, action);
+    this.mouse = action;
     this.tapped.add(action);
     this.paint();
     if (action === 'menu') this.menuHandler?.();
+    if (action === 'full') toggleFullScreen();
   }
 
-  private onMove(event: PointerEvent): void {
-    if (!this.pointers.has(event.pointerId)) return;
-    const action = this.actionAt(event.clientX, event.clientY);
-    const before = this.pointers.get(event.pointerId);
-    if (action === before) return;
-
-    if (action) {
-      this.pointers.set(event.pointerId, action);
-      // Sliding onto a button counts as pressing it — a thumb that rolls from
-      // jump onto swap meant to press swap.
-      this.tapped.add(action);
-    } else {
-      this.pointers.delete(event.pointerId);
+  private onMouseMove(event: PointerEvent): void {
+    if (event.pointerType === 'touch' || this.mouse === undefined) return;
+    // Buttons are only held while the button is held, so a move with nothing
+    // pressed is just the cursor passing over.
+    if (event.buttons === 0) {
+      this.onMouseUp(event);
+      return;
     }
+    const action = this.actionAt(event.clientX, event.clientY);
+    if (action === this.mouse) return;
+    if (action && !this.held.has(action)) this.tapped.add(action);
+    this.mouse = action;
     this.paint();
   }
 
-  private onUp(event: PointerEvent): void {
-    if (!this.pointers.delete(event.pointerId)) return;
+  private onMouseUp(event: PointerEvent): void {
+    if (event.pointerType === 'touch' || this.mouse === undefined) return;
+    this.mouse = undefined;
     this.paint();
   }
 
   private releaseAll(): void {
-    if (this.pointers.size === 0) return;
-    this.pointers.clear();
+    if (this.held.size === 0 && this.mouse === undefined) return;
+    this.held = new Set();
+    this.mouse = undefined;
     this.paint();
   }
 
@@ -186,17 +263,54 @@ export class TouchInput {
     return isAction(act) ? act : undefined;
   }
 
-  /** Light up whatever is held. Feedback matters more here than anywhere else:
-   *  a finger covers the button it is pressing, so the edge is the only part
-   *  of it you can see. */
+  /**
+   * Light up whatever is held.
+   *
+   * Feedback matters more here than anywhere else in the game: a finger covers
+   * the button it is pressing, so the edge is the only part of it you can see.
+   */
   private paint(): void {
     if (!this.root) return;
-    const held = new Set(this.pointers.values());
     for (const button of this.root.querySelectorAll<HTMLElement>('[data-act]')) {
       const act = button.dataset['act'];
-      button.classList.toggle('on', isAction(act) && held.has(act));
+      const on = isAction(act) && (this.held.has(act) || this.mouse === act);
+      button.classList.toggle('on', on);
     }
   }
+}
+
+/**
+ * Fill the screen, where the browser will allow it.
+ *
+ * Which is not everywhere, and the button that calls this is only shown when
+ * `fullScreenAvailable` says so — an iframe is not allowed to go fullscreen
+ * unless the page holding it says it may, and Safari on iPhone does not
+ * implement it at all. See `index.html` for what to do about that.
+ */
+export function toggleFullScreen(): void {
+  const root = document.documentElement as HTMLElement & {
+    webkitRequestFullscreen?: () => Promise<void> | void;
+  };
+  const owner = document as Document & {
+    webkitFullscreenElement?: Element | null;
+    webkitExitFullscreen?: () => Promise<void> | void;
+  };
+
+  const open = owner.fullscreenElement ?? owner.webkitFullscreenElement ?? null;
+  try {
+    if (open) void (owner.exitFullscreen?.() ?? owner.webkitExitFullscreen?.());
+    else void (root.requestFullscreen?.() ?? root.webkitRequestFullscreen?.());
+  } catch {
+    // Refused. The button is hidden when it is going to be refused, so this is
+    // only the case where a browser changes its mind, and there is nothing to
+    // say about it that would help.
+  }
+}
+
+/** Is there any point offering a fullscreen button on this page? */
+export function fullScreenAvailable(): boolean {
+  const owner = document as Document & { webkitFullscreenEnabled?: boolean };
+  return Boolean(owner.fullscreenEnabled ?? owner.webkitFullscreenEnabled);
 }
 
 function axis(negative: boolean, positive: boolean): -1 | 0 | 1 {
