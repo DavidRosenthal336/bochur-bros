@@ -75,6 +75,17 @@
         opacity: 0;
         pointer-events: none;
       }
+      /*
+        A phone held sideways has about three hundred and fifty pixels of
+        height for a card with a dozen rows on it, so the card has to scroll —
+        and `touch-action: none` on the body, which is there to stop the game
+        being dragged around, would otherwise stop the card scrolling too.
+      */
+      #start {
+        overflow-y: auto;
+        touch-action: pan-y;
+        justify-content: safe center;
+      }
       #start h1 {
         margin: 0;
         font-size: clamp(20px, 5vw, 34px);
@@ -122,23 +133,279 @@
         line-height: 1.5;
         color: #6f7aa8;
       }
-      /* Touch-only device: there are no on-screen controls until Milestone 7. */
-      #touch-note {
+      /*
+        The key table is a wall of text on a phone, and every row of it is
+        about a key that is not there. Thumbs get a shorter card instead.
+
+        Everything below keys off ONE thing: `data-touch="on"` on the body. An
+        inline script sets it at load on a coarse-pointer device, and the first
+        real touch sets it on anything else — so a touchscreen laptop gets a
+        keyboard game until somebody actually reaches for the screen, and a
+        phone never sees a frame without its controls. Repeating the media
+        query in every rule below instead would mean two copies of the same
+        layout, which would disagree with each other eventually.
+      */
+      #touch-note,
+      #thumb-note {
         display: none;
       }
-      @media (hover: none) and (pointer: coarse) {
-        #keys,
-        #start .go {
-          display: none;
+      body[data-touch='on'] #desk-note {
+        display: none;
+      }
+      body[data-touch='on'] #thumb-note {
+        display: block;
+      }
+      body[data-touch='on'] #keys {
+        display: none;
+      }
+      body[data-touch='on'] #touch-note {
+        display: table;
+        border-collapse: collapse;
+        font-size: clamp(11px, 3.2vw, 14px);
+      }
+
+      /*
+        ON-SCREEN CONTROLS (§8: "large hit areas, positioned for thumbs,
+        semi-transparent").
+
+        Two layouts, different in kind rather than in size.
+
+        PORTRAIT puts the deck BELOW the game. A phone held upright letterboxes
+        a 16:9 canvas into a strip anyway and the space under it is dead, so
+        the controls go where they cover nothing at all, and no thumb ever sits
+        on the level.
+
+        LANDSCAPE has no dead space, so the pads float over the bottom corners
+        at the transparency §8 asks for — out where the picture is pavement and
+        sky rather than where the action is.
+      */
+      #touch {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        touch-action: none;
+      }
+      body[data-touch='on'] #touch {
+        display: block;
+      }
+      #touch .pad {
+        position: absolute;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        display: flex;
+        gap: 10px;
+      }
+      #touch .pad.left {
+        left: calc(12px + env(safe-area-inset-left, 0px));
+        align-items: flex-end;
+      }
+      #touch .pad.right {
+        right: calc(12px + env(safe-area-inset-right, 0px));
+        align-items: center;
+      }
+      #touch button {
+        pointer-events: auto;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(141, 151, 201, 0.55);
+        border-radius: 12px;
+        background: rgba(20, 24, 42, 0.42);
+        color: #c8d0f0;
+        font-family: inherit;
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        /* 64px is about eleven millimetres, which is a thumb. */
+        width: 64px;
+        height: 64px;
+      }
+      /*
+        A finger covers the button it is pressing, so the edge is the only part
+        of it the player can see. That is the part that lights up.
+      */
+      #touch button.on {
+        background: rgba(78, 168, 222, 0.34);
+        border-color: #4ea8de;
+        color: #eaf2ff;
+      }
+      #touch button.big {
+        width: 88px;
+        height: 88px;
+        border-radius: 44px;
+        font-size: 15px;
+      }
+      #touch button.small {
+        width: 62px;
+        height: 40px;
+        font-size: 11px;
+      }
+      #touch .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      /*
+        Left, right, and down as a bar above them.
+        
+        Three buttons in a row is the obvious shape and it does not fit: a
+        phone held upright is 390 points wide, and two clusters of three
+        thumb-sized targets plus their margins comes to more than that — they
+        overlapped, and the one they overlapped on was FORM. Stacking down over
+        the pair gets the cluster to 138 points, which leaves room for the jump
+        hand and reads as a d-pad besides.
+      */
+      #touch .dpad {
+        display: grid;
+        grid-template-columns: repeat(2, auto);
+        gap: 10px;
+      }
+      #touch .dpad .bar {
+        grid-column: 1 / span 2;
+        width: 100%;
+        height: 42px;
+      }
+      #touch .corner {
+        position: absolute;
+        top: calc(8px + env(safe-area-inset-top, 0px));
+        right: calc(10px + env(safe-area-inset-right, 0px));
+      }
+      #touch .corner button {
+        width: 54px;
+        height: 32px;
+        border-radius: 8px;
+        font-size: 11px;
+        opacity: 0.72;
+      }
+
+      /*
+        PORTRAIT.
+
+        A 320x180 canvas across the full width of a phone is a strip 56.25% of
+        that width tall and nothing can change that, so the question is not how
+        big to make the game but where to put the space that is left over. It
+        goes in the middle: the picture sits at the very top, out from under the
+        hands, and the controls sit at the very bottom, where thumbs already
+        are. Sizing `#game` to the strip exactly rather than to a percentage of
+        the screen is what stops the canvas floating in the middle of a box with
+        dead space above it as well as below.
+
+        No separate deck colour here. In landscape the pads are over the game
+        and have to announce themselves; in portrait they are over nothing, and
+        a second shade of near-black would only draw a line for the sake of it.
+      */
+      @media (orientation: portrait) {
+        body[data-touch='on'] #game {
+          height: 56.25vw;
+          margin-top: env(safe-area-inset-top, 0px);
+          align-items: flex-start;
         }
-        #touch-note {
-          display: block;
+        /* Clear of the canvas, which has the character's name in that corner. */
+        body[data-touch='on'] #touch .corner {
+          top: calc(56.25vw + 14px + env(safe-area-inset-top, 0px));
+        }
+        /* Nothing is underneath them, so they need not be shy. */
+        body[data-touch='on'] #touch button {
+          background: rgba(32, 38, 64, 0.9);
+        }
+        /*
+          Room to be bigger, so they are — but only the pads. Writing this as
+          `#touch button` also caught the MAP button in the corner and blew it
+          up to seventy-two points square.
+        */
+        body[data-touch='on'] #touch .pad {
+          bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+        }
+        body[data-touch='on'] #touch .pad button {
+          width: 68px;
+          height: 68px;
+        }
+        body[data-touch='on'] #touch .pad button.bar {
+          width: 100%;
+          height: 46px;
+        }
+        body[data-touch='on'] #touch .pad button.big {
+          width: 92px;
+          height: 92px;
+          border-radius: 46px;
+        }
+        body[data-touch='on'] #touch .pad button.small {
+          width: 64px;
+          height: 44px;
+        }
+      }
+
+      /* A short landscape phone has no room for 88px of jump button. */
+      @media (orientation: landscape) and (max-height: 430px) {
+        #touch .pad button {
+          width: 54px;
+          height: 54px;
+        }
+        #touch .pad button.bar {
+          width: 100%;
+          height: 36px;
+        }
+        #touch .pad button.big {
+          width: 72px;
+          height: 72px;
+          border-radius: 36px;
+        }
+        #touch .pad button.small {
+          width: 54px;
+          height: 34px;
+        }
+        #touch .pad {
+          bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+          gap: 8px;
+        }
+        #touch .stack {
+          gap: 8px;
         }
       }
     </style>
   </head>
   <body>
     <div id="game"></div>
+
+    <!--
+      On-screen controls (§8). The markup lives here rather than being built in
+      TypeScript so that the buttons are on the page before a megabyte of
+      Phaser has finished loading — a phone should never see a frame of this
+      game without its controls — and so that their layout sits beside the rest
+      of the page's furniture.
+
+      `data-act` is the whole contract with `TouchInput`: it finds the button
+      under a finger by asking the document what is at that point, so nothing
+      here needs an id, and a thumb can slide from one button to the next.
+    -->
+    <div id="touch">
+      <div class="pad left">
+        <div class="dpad">
+          <button class="bar" data-act="down" aria-label="Duck, and Berel's ground pound">
+            &#9660;
+          </button>
+          <button data-act="left" aria-label="Left">&#9664;</button>
+          <button data-act="right" aria-label="Right">&#9654;</button>
+        </div>
+      </div>
+      <div class="pad right">
+        <div class="stack">
+          <button class="small" data-act="swap" aria-label="Swap brothers">SWAP</button>
+          <button class="small" data-act="action" aria-label="Use your form">FORM</button>
+        </div>
+        <div class="stack">
+          <button class="small" data-act="run" aria-label="Run">RUN</button>
+          <button class="big" data-act="jump" aria-label="Jump">JUMP</button>
+        </div>
+      </div>
+      <div class="corner">
+        <button data-act="menu" aria-label="Back to the map">MAP</button>
+      </div>
+    </div>
 
     <div id="start">
       <h1>BOCHUR BROS</h1>
@@ -176,12 +443,30 @@
         <tr><td>2-3, in the water</td><td>Jump is a stroke &mdash; press it again and again</td></tr>
         <tr><td>2-3, at the surface</td><td>A stroke with your head out is a jump onto the deck</td></tr>
       </table>
-      <p class="note" id="touch-note">
-        This build is keyboard-only &mdash; on-screen touch controls are
-        Milestone 7. Open it on a computer to play.
-      </p>
+      <table id="touch-note">
+        <tr><td colspan="2" class="group">ON YOUR THUMBS</td></tr>
+        <tr><td>&#9664; &#9654;</td><td>Move</td></tr>
+        <tr><td>&#9660;</td><td>Duck &mdash; and in mid-air, Berel's ground pound</td></tr>
+        <tr><td>JUMP</td><td>Hold it down to jump higher</td></tr>
+        <tr><td>RUN</td><td>Faster, and further through a leaf blower</td></tr>
+        <tr><td>SWAP</td><td><b>Swap brothers</b> &mdash; free, instant, unlimited</td></tr>
+        <tr><td>FORM</td><td>Menorah throws, Lulav swings</td></tr>
+        <tr><td>MAP</td><td>Top corner &mdash; back to the map</td></tr>
+        <tr><td colspan="2" class="group">IN THE WATER (2-3)</td></tr>
+        <tr><td>JUMP</td><td>A stroke. Press it again and again</td></tr>
+        <tr><td>&#9660;</td><td>Swim down, under the pool cover</td></tr>
+        <tr><td colspan="2" class="group">&nbsp;</td></tr>
+        <tr><td>Sideways</td><td>Turn the phone for a bigger picture</td></tr>
+      </table>
       <div class="go">CLICK HERE TO PLAY</div>
-      <p class="note">
+      <p class="note" id="thumb-note">
+        Turn the phone sideways for a bigger picture. World 1 is finished, and
+        World 2 is three levels in &mdash; the last of them, The Pool, is the
+        first water in the game: <b>JUMP</b> is a stroke, so keep pressing it.
+        Mendy swims higher and Berel walks along the bottom, and there are grey
+        blocks down there only Berel can open.
+      </p>
+      <p class="note" id="desk-note">
         World 1 is finished art and all &mdash; both brothers in five forms, the
         pigeons, the rats, the Pigeon King, and a Boro Park street that runs
         from daylight through dusk to the night of the boss fight. World 2 is
@@ -195,6 +480,12 @@
 
     <script type="module" src="/src/main.ts"></script>
     <script>
+      // A phone should not see a single frame without its controls, and the
+      // bundle is a megabyte of Phaser away. This runs now.
+      if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+        document.body.dataset.touch = 'on';
+      }
+
       // Dismiss the start card on the first click or key press, and make sure
       // the game window actually has focus so the keyboard reaches Phaser.
       (function () {

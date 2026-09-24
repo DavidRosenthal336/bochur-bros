@@ -37,6 +37,21 @@ const config: Phaser.Types.Core.GameConfig = {
 
 const game = new Phaser.Game(config);
 
+/**
+ * Re-fit when the box the canvas lives in changes shape.
+ *
+ * `Scale.FIT` watches the window, which is enough on a desktop and not enough
+ * on a phone. Two things resize `#game` without the window changing at all:
+ * the first touch, which turns the on-screen controls on and hands the top
+ * 58% of the screen to the game, and a browser's address bar sliding away. A
+ * canvas that has not re-fitted after either is either overlapped by the
+ * control deck or letterboxed into a band with a strip of dead space under it.
+ */
+const stage = document.getElementById('game');
+if (stage && 'ResizeObserver' in window) {
+  new ResizeObserver(() => game.scale.refresh()).observe(stage);
+}
+
 if (import.meta.env.DEV) {
   // Handy during tuning: `__game.scene.getScene('Level').player` in the browser
   // console lets you poke at the live character, and `__levels` shows what the

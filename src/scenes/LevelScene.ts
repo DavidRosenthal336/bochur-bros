@@ -28,7 +28,8 @@ import { HAZARDS } from '../config/hazards';
 import { Flame } from '../entities/Flame';
 import { Coin, PowerUpPickup } from '../entities/Pickup';
 import { Player } from '../entities/Player';
-import { KeyboardInput } from '../input/KeyboardInput';
+import { CombinedInput } from '../input/CombinedInput';
+import { touchControls } from '../input/TouchInput';
 import type { BounceKind, LevelDef, SolidKind } from '../levels/LevelDef';
 import { DEFAULT_LEVEL, GREYBOX_LEVELS, PROLOGUE_LEVEL, LEVELS } from '../levels';
 import { findLevel, worldOf } from '../levels/catalog';
@@ -152,7 +153,7 @@ export interface LevelSceneData {
 export class LevelScene extends Phaser.Scene {
   private level!: LevelDef;
   private player!: Player;
-  private controls!: KeyboardInput;
+  private controls!: CombinedInput;
   private overlay!: DebugOverlay;
   private hud!: Hud;
   private power!: PowerState;
@@ -359,7 +360,7 @@ export class LevelScene extends Phaser.Scene {
     this.registerCollisions();
     this.setUpCamera(widthPx, heightPx);
 
-    this.controls = new KeyboardInput(this);
+    this.controls = new CombinedInput(this);
     this.hud = new Hud(this);
     this.overlay = new DebugOverlay(this, this.player);
 
@@ -369,16 +370,57 @@ export class LevelScene extends Phaser.Scene {
       this.state === 'complete' ? this.restartFromStart() : this.restartFromCheckpoint(),
     );
     this.keyboard?.on('keydown-F3', () => this.cycleLevel());
-    this.keyboard?.on('keydown-ESC', () => {
-      // Skipping the prologue still counts as having seen it. Otherwise it
-      // reappears every launch until it is sat through, which is the surest
-      // way to make somebody resent it.
-      if (this.prologue) writeSave({ ...loadSave(), introSeen: true });
-      this.toWorldMap();
-    });
+    this.keyboard?.on('keydown-ESC', () => this.leaveLevel());
     this.keyboard?.on('keydown-SPACE', () => {
       if (this.state === 'complete' && !this.greybox) this.toWorldMap();
     });
+
+    /**
+     * The same two ways out, for thumbs.
+     *
+     * The MAP button in the corner of the touch deck is ESC and not a pause,
+     * deliberately: there is no pause menu yet, and a corner button that
+     * silently did nothing would be worse than no button at all.
+     *
+     * Tap-anywhere is live only once the level is over. During play the canvas
+     * has to stay inert — every tap that lands on it is a thumb reaching for a
+     * control and missing, and sending somebody back to the map for that would
+     * be the most infuriating thing in the game.
+     */
+    touchControls().onMenu(() => this.leaveLevel());
+    this.input.on('pointerup', () => {
+      if (this.state === 'complete' && !this.greybox) this.toWorldMap();
+    });
+    this.events.once('shutdown', () => touchControls().onMenu(undefined));
+  }
+
+  /**
+   * Back to the map.
+   *
+   * Skipping the prologue still counts as having seen it. Otherwise it
+   * reappears every launch until it is sat through, which is the surest way to
+   * make somebody resent it — and that rule has to hold for the button as well
+   * as for the key, which is why both come through here.
+   */
+  private leaveLevel(): void {
+    if (this.prologue) writeSave({ ...loadSave(), introSeen: true });
+    this.toWorldMap();
+  }
+
+  /**
+   * What a banner should tell you to press to carry on.
+   *
+   * "SPACE for the map" is wrong on a phone, and there is no one line that is
+   * right on both, so it is asked rather than assumed.
+   *
+   * Asked of the shared controls rather than through `this.controls`, because
+   * `controls` is the one thing the headless test rigs replace — they swap in
+   * an object with `update` and `current` and nothing else, and reaching
+   * through it for anything more would break every rig the moment a level
+   * finished.
+   */
+  private get continueHint(): string {
+    return touchControls().active ? 'TAP for the map' : 'SPACE for the map';
   }
 
   override update(_time: number, delta: number): void {
@@ -1500,7 +1542,7 @@ export class LevelScene extends Phaser.Scene {
     this.player.playDeath();
 
     if (this.lives <= 0) {
-      this.hud.showBanner('GAME OVER\nSPACE for the map');
+      this.hud.showBanner(`GAME OVER\n${this.continueHint}`);
       this.time.delayedCall(GAMEPLAY.deathPauseMs, () => {
         this.state = 'complete'; // lets SPACE take you back to the map
       });
@@ -1538,8 +1580,8 @@ export class LevelScene extends Phaser.Scene {
       const world = worldOf(this.levelId);
       this.hud.showBanner(
         entry?.isBoss === true && world
-          ? `YOU GOT ${world.prize.toUpperCase()} BACK!\nSPACE for the map`
-          : "L'CHAIM!\nSPACE for the map",
+          ? `YOU GOT ${world.prize.toUpperCase()} BACK!\n${this.continueHint}`
+          : `L'CHAIM!\n${this.continueHint}`,
       );
     } else {
       this.hud.showBanner("L'CHAIM!\nR to play again");

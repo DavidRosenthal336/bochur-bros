@@ -6,6 +6,7 @@ import { LEVEL_ORDER, WORLDS } from '../levels/catalog';
 import { GREYBOX_LEVELS, LEVELS, PROLOGUE_LEVEL } from '../levels';
 import type { SaveData } from '../systems/SaveGame';
 import { clearSave, currentLevel, isUnlocked, loadSave } from '../systems/SaveGame';
+import { touchControls } from '../input/TouchInput';
 import { SceneKey } from './SceneKey';
 
 /**
@@ -116,13 +117,53 @@ export class WorldMapScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0);
 
+    const thumbs = touchControls().active;
     this.add
-      .text(VIEW_WIDTH / 2, 166, 'ARROWS choose   SPACE play   G greybox   BKSP wipe save', {
-        fontFamily: 'monospace',
-        fontSize: '8px',
-        color: '#4c5478',
-      })
+      .text(
+        VIEW_WIDTH / 2,
+        166,
+        thumbs
+          ? 'TAP A LEVEL, THEN TAP IT AGAIN TO PLAY'
+          : 'ARROWS choose   SPACE play   G greybox   BKSP wipe save',
+        { fontFamily: 'monospace', fontSize: '8px', color: '#4c5478' },
+      )
       .setOrigin(0.5, 0);
+
+    if (thumbs) this.drawTouchButtons();
+  }
+
+  /**
+   * PLAY and STORY, for thumbs.
+   *
+   * The map's other two doors stay keyboard-only on purpose: G opens the
+   * greybox instruments, which are a developer's tool, and Backspace destroys
+   * your progress. Neither wants to be a button a thumb can find by accident.
+   * Watching the opening again does want to be reachable, because it is the
+   * only place the story is actually told.
+   */
+  private drawTouchButtons(): void {
+    const button = (x: number, y: number, label: string, onTap: () => void): void => {
+      this.add
+        .rectangle(x, y, 60, 18, 0x1d2338)
+        .setStrokeStyle(1, 0x4ea8de)
+        .setDepth(6)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerup', onTap);
+      this.add
+        .text(x, y, label, { fontFamily: 'monospace', fontSize: '8px', color: '#9fd0ef' })
+        .setOrigin(0.5)
+        .setDepth(7);
+    };
+
+    // In the margins beside the kiddush table, which is 64 wide and centred,
+    // so the space either side of it is the only part of this screen that is
+    // empty. The band under it belongs to the level description — the first
+    // version of these buttons sat on top of that, which made the one piece of
+    // text that says what you are about to play unreadable.
+    button(38, TABLE_Y + 16, 'PLAY', () => this.enter());
+    button(VIEW_WIDTH - 52, TABLE_Y + 16, 'STORY', () =>
+      this.scene.start(SceneKey.Level, { levelKey: PROLOGUE_LEVEL, prologue: true }),
+    );
   }
 
   private drawWorlds(): void {
@@ -156,7 +197,36 @@ export class WorldMapScene extends Phaser.Scene {
           }
         }
 
-        this.nodes.push(this.makeNode(x, y, world, nodeArt));
+        const node = this.makeNode(x, y, world, nodeArt);
+        this.nodes.push(node);
+
+        /**
+         * A thumb-sized target over a twelve-pixel node.
+         *
+         * The marker is drawn at its real size, because that is what the map is
+         * supposed to look like; what you touch is a good deal bigger than what
+         * you see. Thirty-four by sixteen of the virtual screen comes out around
+         * eighty by forty real pixels on a phone held sideways, which is a
+         * target — twelve by twelve is a dare.
+         *
+         * The first tap selects, so the line underneath tells you what you are
+         * about to play, and a second tap on the same one starts it. A mis-tap
+         * then costs you a look rather than a level.
+         */
+        const index = this.nodes.length - 1;
+        node.object
+          .setInteractive(
+            new Phaser.Geom.Rectangle(NODE_SIZE / 2 - 17, NODE_SIZE / 2 - 8, 34, 16),
+            Phaser.Geom.Rectangle.Contains,
+          )
+          .on('pointerup', () => {
+            if (this.selected === index) {
+              this.enter();
+              return;
+            }
+            this.selected = index;
+            this.refresh();
+          });
         void level;
       });
     });
@@ -291,7 +361,7 @@ export class WorldMapScene extends Phaser.Scene {
     if (level.isBoss) {
       return `${heading}\nboss — holds ${world.prize}`;
     }
-    return `${heading}\nSPACE to play`;
+    return `${heading}\n${touchControls().active ? 'TAP IT AGAIN, or PLAY' : 'SPACE to play'}`;
   }
 
   private enter(): void {

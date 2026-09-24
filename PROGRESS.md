@@ -805,3 +805,106 @@ moment a stroke cleared the floor, so it never came up; and testing "am I
 sinking" while resting on the bottom, where the velocity is zero and the answer
 is no. Diving and climbing are commitments that have to hold for a couple of
 seconds. That is true of the bot and it is true of the player.
+
+## The mobile version
+
+§3 calls phone play "a first-class requirement, not an afterthought" and §8
+spells out what that means: "on-screen left/right buttons, jump button, action
+button, swap button. Large hit areas, positioned for thumbs, semi-transparent."
+Here is what it took, and the two places the obvious answer was wrong.
+
+### The buttons are HTML, not sprites
+
+Everything else the game draws lives in a 320x180 canvas that is scaled to fill
+whatever window it is given. Controls drawn in there would be scaled with it —
+the size of the jump button would depend on the aspect ratio of the phone, and
+a thumb would land somewhere different in the level depending on how the canvas
+happened to be letterboxed. Elements in the page are the opposite: sized in
+real millimetres, outside the game's coordinate space entirely, hit-tested by
+the browser. They also load before Phaser does, so a phone never sees a frame
+of this game without its controls on it.
+
+The whole contract between the page and the code is one attribute. `TouchInput`
+finds the button under a finger by asking the document what is at that point,
+which is also what lets a thumb slide from left to right without lifting — the
+browser sends a touch's events to the element it started on, so listening per
+button would have left you pressing left until you let go.
+
+### Two buttons §8 does not list
+
+**Down**, because §4 gives Berel a ground pound on "Down, in mid-air", §5 gives
+everyone a crouch, and 2-3 swims downward with it.
+
+**Run**, and this one is not a convenience. The leaf blowers in 2-2 push at 300
+px/s² against Mendy's walking acceleration of 133 and his running acceleration
+of 323. Walking into one, he goes *backwards*. A control scheme without a run
+button has a corridor in World 2 that a phone cannot cross at all.
+
+### Keyboard and thumbs, not keyboard or thumbs
+
+`CombinedInput` reads both every frame and merges them. Deciding which one a
+player owns from a media query is exactly the sort of guess that leaves
+somebody unable to play — a tablet with a case keyboard is both, and so is a
+touchscreen laptop. A device with no keyboard simply contributes nothing from
+it. The on-screen deck appears on a coarse-pointer device at load and on
+anything else the first time a finger actually touches the screen, so a
+touchscreen laptop gets a keyboard game until somebody reaches for it.
+
+### Portrait is not landscape with less room
+
+The first portrait layout gave the game 58% of the screen height and the
+controls the rest. It looked broken, and the reason is arithmetic: a 320x180
+canvas across the full width of a phone is a strip 56.25% of that width tall,
+and no amount of box around it changes that. Handing it 58% of an 844-point
+screen just put a 219-point picture in the middle of a 489-point box with dead
+space above it as well as below.
+
+So portrait sizes `#game` to the strip exactly — picture at the very top, out
+from under the hands, controls at the very bottom where thumbs already are, and
+the leftover space in the middle where it belongs. Landscape has no leftover
+space, so there the pads float over the bottom corners at the transparency §8
+asks for, out where the picture is pavement and sky.
+
+`Scale.FIT` watches the window, which is enough on a desktop and not enough
+here: the first touch resizes `#game` without the window changing at all, and
+so does a phone's address bar sliding away. A `ResizeObserver` on the canvas's
+box re-fits for both.
+
+### Three sizing mistakes, all found by measuring
+
+Six buttons across a 390-point phone do not fit. Two clusters of three
+thumb-sized targets plus their margins came to more than the screen was wide,
+and the pair that overlapped was DOWN and FORM — so the left cluster became a
+d-pad shape, down as a bar over left and right, which is 138 points instead of
+236 and reads better anyway.
+
+`#touch button { width: 72px }` inside the portrait block also caught the MAP
+button in the corner and blew it up to seventy-two points square. Scoped to
+`.pad button` now.
+
+And the map screen's PLAY and STORY buttons were first placed in the band that
+holds the level description, which made the one line of text that says what you
+are about to play unreadable. They live in the margins beside the kiddush
+table, which is the only part of that screen that is actually empty.
+
+### Verified
+
+Driven as a phone — real touch events, no mouse — at seven screen sizes from a
+375-point iPhone SE to an iPad in both orientations: no button overlapping
+another, nothing off the edge, nothing under 32 points, and in portrait nothing
+over the canvas at all.
+
+Playing, on a phone in landscape: RIGHT walks at 90, RIGHT and RUN together at
+150 (two fingers at once), JUMP held gives 61.6px against 34.6px tapped, so
+variable jump height survives a button; SWAP swaps; DOWN crouches and, in
+mid-air as Berel, ground pounds; six taps of JUMP lift him from the bottom of
+2-3's shallow end and out through the surface. A thumb slid from LEFT to RIGHT
+without lifting ends up going right. Losing a touch off the edge of the window
+leaves him standing still rather than running forever.
+
+And the desktop is untouched: no deck, the key table still shown, walk 90, run
+150, jump 61.6px, and the headless test rigs — which replace `scene.controls`
+wholesale with an object that has `update` and `current` and nothing else —
+still drive a level from start to finish. That last one is why the hint text
+asks the shared controls whether a phone is in play rather than reaching
+through `this.controls` for it.
