@@ -1099,3 +1099,113 @@ the shared prize drop that this work pulled out of `onBossDefeated` — both
 bosses drop something that can be picked up and ends the level.
 
 World 2 is complete: Central Avenue, Backyards, The Pool and The Escalade.
+
+
+---
+
+## World 3 — The Catskills: 3-1, The Colony
+
+§6 changes the shape of the game in one line: "bungalow roofs as the main
+platforming route, with gaps between them". Boro Park was a street and The Five
+Towns was the gardens behind one, and both were level — the ground ran the
+length of them and everything interesting sat on top of it. Here the route is
+the roofs and the lawn is where you end up when you miss.
+
+### Four new things
+
+**The clothesline** has no physics body at all, and that is the interesting
+decision in it. A body you can stand on is a platform, which kills "or duck
+under them"; a body you cannot stand on reports overlaps for anybody walking
+past its post. What a rope needs to know is whether a pair of feet came down
+*through* it, which is a question about the two rows the feet were on either
+side of this frame rather than about volumes touching — and asking it that way
+makes both halves of §6's sentence the same rule. Measured at 195px/s, 171px in
+0.9s, identical for both brothers, and walking underneath never catches.
+
+**The rotting porch step** is solid, then a 420ms fuse, then gone for 2.6s. The
+beat is the whole mechanic: a tile that vanishes on contact is a hole that lies
+about being a floor, and there is no skill in it, because the information
+arrives after you are already falling. Measured 583ms from landing to falling
+through, back 2.5s later.
+
+**The raccoon** is §11's fifth behaviour kind and the only enemy in the game
+that takes something other than health. `PowerState.steal()` is a tier and no
+invulnerability — a hit earns immunity because a hit is one frame of a collision
+that will still be happening on the next four, while a theft happens once by
+construction, since the thief is carrying the thing afterwards. A Small player
+loses nothing at all: §6 describes the raccoon entirely as a thief and never as
+a danger, and a thief that kills you when your pockets are empty is a different
+animal. Verified end to end: robbed at 0.3s, chased down, pot back on the grass
+at 2.8s.
+
+**The golf cart and the wasp** came free, which is what §11 asked for — a roller
+and a diver with no gravity and a three-tile trigger, both config rows and no
+new code.
+
+### Three bugs, and one rule that caused two of them
+
+**Bungalows cannot be solid.** Built from shingle to lawn — which is what a
+bungalow looks like — eight of them made eight canyons, and the two-tile alley
+between two was six deep with six-tile walls either side. Walk in and you live
+there. The trap validator threw out the whole level. A bungalow is a two-tile
+roof with open air under it now, and only the porch reaches the ground.
+
+**A roller only turns at a wall, and a lawn has none.** The first golf cart
+drove the length of the level and ran a bot down two seconds in, before the sign
+was on screen. Both carts have a beat between two ends now. The near tree earns
+its place twice: it stops the cart reaching the spawn, and it is the first thing
+in the world you climb — so you meet your first golf cart from the top of a
+tree, looking down at the roof you are about to find out is solid.
+
+**A rise is only as possible as the run-up in front of it.** This one caused two
+separate bugs and is the lesson of the level. Measured, jumping at the level's
+own geometry:
+
+```
+Mendy walking   65px      Mendy running   77px
+Berel walking   48px      Berel running   59px
+```
+
+A three-tile ledge is a 48px rise and Berel's standing jump is 48px *exactly*,
+which fails. The porch-to-roof climb was also three tiles, taken from a porch
+two tiles wide — nowhere to build the run that would have carried him. Berel
+could not reach a single roof in the colony: a bot driving the level as him got
+fourteen tiles from the spawn and spent the next eighty-seven seconds at a tree.
+Then, having re-laid every rise at two tiles, I introduced the same bug again at
+the one deliberate four-tile rise, by leaving a two-tile shed to jump from —
+64px is past Mendy's *walking* 65px by a pixel, so it is a running jump, and
+32px of shed is not enough road to run on. Eight coins and a spare life,
+unreachable by anybody.
+
+So: every rise is two tiles and butted against what it climbs from, never a gap
+and a rise in the same jump. §4's difference is spent in exactly one place
+rather than by accident everywhere — the high roof at 226 is four tiles, past
+Berel's running 59 and inside Mendy's 77, with the coins and the spare life up
+there and a full route past it at roof height.
+
+### On harnesses, again
+
+The rig that produced those jump numbers is the second one written. The first
+built its own wall against a floor row it had assumed the greybox gym used, and
+reported that Mendy cannot climb two tiles — which a completed run of the same
+level disproves. Every harness needs a positive control before its results are
+believed, and Mendy is the control in this one.
+
+Two more rig lessons, both of which cost a run each. Editing a source file while
+a Playwright test is running triggers Vite HMR and destroys the execution
+context. And dying in a level calls `scene.restart`, which rebuilds the scene
+with a fresh `CombinedInput` and throws away both the rig's controls and its
+`postupdate` listener — so the bot stops moving, makes no further progress, and
+the promise it is waiting on can never settle. The runner replaces the
+checkpoint restart with a respawn in place, which keeps one continuous
+measurement across every death.
+
+### Verified
+
+Driving the real level end to end, with a bot that goes right and jumps at
+whatever is in front of it: **Mendy completes in 38.3s and Berel in 47.6s, both
+with no deaths, both riding both clotheslines.** Berel riding them is the proof
+that matters — the rope at 146 can only be boarded from the tall roof, so
+finishing with two rides means he climbed lawn, porch, roof, shed and tall roof
+for real. The four route-critical climbs were then measured one at a time, and
+the high roof is Mendy's alone as intended.
