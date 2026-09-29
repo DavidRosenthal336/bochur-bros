@@ -1314,3 +1314,80 @@ Both brothers complete it: **Mendy in 40.6s and Berel in 41.6s, 202 tiles, 48 an
 49 coins**, with swimming down to 195 and 26 frames from the 5065 of the version
 before. Four deaths each, every one of them at a frog, which is the level's
 difficulty rather than its geometry.
+
+
+---
+
+## 3-3 — Lights Out
+
+"Night level, timed. Visibility reduced to a circle of light around the player.
+Fireflies mark safe paths. Crickets on the soundtrack. Eyes blink in the dark
+just outside the light radius." (§6)
+
+### The night
+
+One screen-sized render texture, pinned to the camera, filled every frame and
+then erased: a soft round hole at the player and a smaller, fainter one under
+each firefly on screen. A radial gradient, not a hard circle, so it reads as a
+lantern rather than a porthole. Redrawn on the camera's follow-update rather
+than in the scene's update, because the camera moves after update runs and a
+lantern placed against last frame's scroll trails the player like a torch on a
+string.
+
+### The number that makes it a level
+
+The lantern reaches 58px. A walking jump carries about 64. So you cannot quite
+see where a jump lands, and that gap is the whole level: the fireflies close it.
+Each one shines through the dark and lights a little of the ground beneath it,
+so a line of them is a line of places that are there. One rule, taught in the
+first thirty tiles and never broken — every firefly is over something you can
+stand on. No decoys. A mechanic that exists so the player can trust the dark
+cannot also be the thing that lies to them.
+
+Nothing else in the level is new terrain. Porches, roofs, rotting steps, a
+clothesline and three-tile pits were all taught in daylight in 3-1, and that is
+the design: the only fair way to take sight away is from things the player
+already knows how to do.
+
+### Mosquitoes
+
+§6's swarms, saved for the night: "drift toward the player as a cloud. Cannot be
+stomped; outrun them or disperse them with a power-up." The last clause cost
+nothing — the flame and the Lulav swing already knock away whatever they touch
+without asking whether it can be stomped.
+
+"Outrun them" cost a redesign. The first swarms woke at 150px and hovered at
+head height, which put a homing cloud you cannot stomp in the path of a player
+walking towards it: a closing speed of 121px/s. Berel died to the first one
+ninety-eight times. Now they hang five tiles up and wake only when you pass
+underneath, so they come down behind you and you walk away at nearly twice
+their speed. Outrunning is something you do to a thing behind you.
+
+### Two things the screenshots caught
+
+The dark was checked by looking at it, and the first look found that signs sat
+under the night like all world text — so the one sign explaining how to read the
+dark was a smudge. Signs on dark levels now render above the night. Instructions
+are not scenery.
+
+### The clock
+
+140 seconds, from measurement: a perfect run is 27 to 34, walking the length is
+about 45, and stopping to read the lights at every pit takes a careful player to
+about 70. The first figure of 180 was six times the fastest run and would never
+have mattered to anyone.
+
+### What is not here
+
+The crickets. There is no audio in the game, and §10 asks for a system that
+tracks drop into as files. They belong to that, not to a sound engine built
+inside one level.
+
+### Verified
+
+Both brothers complete it with no deaths — Mendy in 26.9s and Berel in 33.7s,
+both riding the clothesline. The run before the swarm fix was reported by the
+test bot as COMPLETE after ninety-eight deaths; it was a game over, which the
+scene also marks as 'complete' so that SPACE returns you to the map. The bot now
+tells the two apart, and puts swarms home on respawn the way the real restart
+does, so it cannot manufacture a death loop the game itself cannot produce.

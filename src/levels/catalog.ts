@@ -69,7 +69,18 @@ export const WORLDS: readonly WorldEntry[] = [
     levels: [
       { id: '3-1', name: 'The Colony', map: '3-1' },
       { id: '3-2', name: 'The Lake', map: '3-2' },
-      { id: '3-3', name: 'Lights Out', map: '3-3', timeLimit: 180 },
+      /**
+       * 140 seconds, from measurement. A bot with perfect knowledge finishes in
+       * 27 (Mendy) and 34 (Berel); walking the whole length without running is
+       * about 45; stopping to read the fireflies at every pit and the rope adds
+       * perhaps half as much again. So a careful player finishes in about 70, a
+       * frightened one in a hundred, and the clock is there to stop the dark
+       * being solved by standing still in it rather than to race anybody. At 180
+       * it was six times the fastest run and would never once have mattered.
+       *
+       * It restarts from the full amount at each checkpoint, like 1-3's.
+       */
+      { id: '3-3', name: 'Lights Out', map: '3-3', timeLimit: 140 },
       { id: '3-4', name: 'The Bear', isBoss: true },
     ],
   },
