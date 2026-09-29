@@ -322,8 +322,8 @@ L.coinRow(208, on(ROOF), 4);
 L.ground(195, 13);
 L.ground(211, 31);
 
-L.block(216, FLOOR - 4, 'mystery', 'menorah');
-L.coinRow(214, on(FLOOR), 3);
+L.block(213, FLOOR - 4, 'mystery', 'menorah');
+L.coinRow(211, on(FLOOR), 3);
 
 /**
  * The high roof, and the two brothers going different ways.
@@ -333,9 +333,17 @@ L.coinRow(214, on(FLOOR), 3);
  * along the top and a spare life at the end of them, and a perfectly good route
  * past it at roof height. §4's split should be worth something without ever
  * being a locked door.
+ *
+ * The shed under it is eight tiles long, and that length is the whole reason
+ * this works. Sixty-four pixels is past Mendy's *walking* jump too — he needs
+ * the run — so a two-tile shed to start from would have made the high roof
+ * unreachable by anybody and turned eight coins and a spare life into
+ * decoration. This is the same mistake as the porch-to-roof climb, which is
+ * worth saying twice: a rise is only as possible as the run-up in front of it.
  */
-L.ledge(222, PORCH, 2);
-shed(224, 2);
+L.ledge(216, PORCH, 2);
+shed(218, 8);
+L.coinRow(219, on(ROOF), 6);
 bungalow(226, 10, HIGH, { porch: 0 });
 L.coinRow(227, on(HIGH), 8);
 L.block(234, on(HIGH) - 1, 'mystery', 'lchaim');
