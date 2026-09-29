@@ -21,6 +21,8 @@ import { Enemy } from '../entities/Enemy';
 import { WindZone } from '../entities/Hazard';
 import { Current, Water } from '../entities/Water';
 import { Clothesline } from '../entities/Clothesline';
+import { Mud } from '../entities/Mud';
+import { RopeSwing } from '../entities/RopeSwing';
 import { PorchStep } from '../entities/PorchStep';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
@@ -214,6 +216,8 @@ export class LevelScene extends Phaser.Scene {
   private currents: Current[] = [];
   private hazards!: Phaser.GameObjects.Group;
   private clotheslines: Clothesline[] = [];
+  private muds: Mud[] = [];
+  private swings: RopeSwing[] = [];
   private steps!: Phaser.Physics.Arcade.StaticGroup;
   private bouncers!: Phaser.Physics.Arcade.StaticGroup;
   /** The ones on a timer, and where they are in their cycle. */
@@ -386,6 +390,8 @@ export class LevelScene extends Phaser.Scene {
     this.buildEnemies();
     this.buildCrates();
     this.buildWater();
+    this.buildMud();
+    this.buildSwings();
     this.buildClotheslines();
     this.buildSteps();
     this.buildHazards();
@@ -472,6 +478,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     this.updateWater();
+    this.updateMud();
     this.player.tick(step, this.controls.current);
     this.applyWind(step / 1000);
     this.updateCrates();
@@ -484,6 +491,7 @@ export class LevelScene extends Phaser.Scene {
       pickup.tick();
     }
     this.updateLaunchers(now);
+    this.updateSwings(now, step / 1000);
     this.updateClotheslines(now);
     for (const step of this.steps.getChildren() as PorchStep[]) step.tick(now);
     this.updateHazards(now);
@@ -632,6 +640,62 @@ export class LevelScene extends Phaser.Scene {
     this.player.setWater(top, currentX, currentY);
   }
 
+  private buildMud(): void {
+    this.muds = [];
+    for (const def of this.level.mud ?? []) {
+      this.muds.push(new Mud(this, def.x, def.y, def.w, def.h));
+    }
+  }
+
+  private buildSwings(): void {
+    this.swings = [];
+    for (const def of this.level.swings ?? []) {
+      this.swings.push(new RopeSwing(this, def.x, def.y, def.length, (def.lean ?? 0) / 10));
+    }
+  }
+
+  /**
+   * Offer a rope to a hand that has come within reach of it (§6, World 3).
+   *
+   * Two jobs, and the second is the one that is easy to forget: a rope nobody is
+   * holding still has to be advanced, or every swing in the level ends the level
+   * stuck out at whatever angle it was abandoned at, like a row of broken
+   * signposts.
+   *
+   * The grab tests the player's upper body rather than the whole box, because
+   * you catch a rope with your hands. Testing the body's centre means walking
+   * along the shore and being yanked off your feet by a rope at head height.
+   */
+  private updateSwings(now: number, dt: number): void {
+    if (this.swings.length === 0) return;
+    const body = this.player.physicsBody;
+
+    if (this.player.isOnRope) {
+      // The rope the player holds is ticked by the player, since the rider's
+      // lean is what pumps it. Everything else settles.
+      for (const rope of this.swings) {
+        if (!rope.canBeGrabbedBy(body.center.x, body.top + 4)) rope.settle(dt);
+      }
+      return;
+    }
+
+    for (const rope of this.swings) rope.settle(dt);
+    if (this.state !== 'playing') return;
+    if (!this.player.canGrabRope(now)) return;
+
+    // Airborne only. A rope you can grab with your feet on the ground is a rope
+    // that grabs you as you walk under it.
+    if (body.blocked.down) return;
+
+    const handX = body.center.x;
+    const handY = body.top + 4;
+    for (const rope of this.swings) {
+      if (!rope.canBeGrabbedBy(handX, handY)) continue;
+      this.player.grabRope(rope, body.velocity.x, body.velocity.y);
+      return;
+    }
+  }
+
   private buildClotheslines(): void {
     this.clotheslines = [];
     for (const def of this.level.clotheslines ?? []) {
@@ -694,6 +758,19 @@ export class LevelScene extends Phaser.Scene {
     for (const def of this.level.steps ?? []) {
       this.steps.add(new PorchStep(this, def.x * TILE + TILE / 2, def.y * TILE + TILE / 2));
     }
+  }
+
+  /**
+   * Mud, asked once a frame, like the water above it.
+   *
+   * Cheap enough to test every patch every frame: a level has a handful, and
+   * the alternative — a body and a collider for something that does not collide
+   * — would be more machinery for less certainty.
+   */
+  private updateMud(): void {
+    if (this.muds.length === 0) return;
+    const body = this.player.physicsBody;
+    this.player.setMud(this.muds.some((mud) => mud.contains(body)));
   }
 
   private buildHazards(): void {
@@ -1611,8 +1688,18 @@ export class LevelScene extends Phaser.Scene {
       const recovered = enemy.dropLoot();
       enemy.stomp();
       if (recovered) this.returnLoot(recovered, enemy.x, enemy.y);
+      /**
+       * A bounceable creature throws you further than a stomp does (§6's frogs).
+       *
+       * Held-jump still matters on an ordinary stomp, because that is the
+       * difference between a hop off a pigeon and a real one. A creature with a
+       * bounce of its own ignores the button: the spring is the animal's, not
+       * yours.
+       */
+      const bounce = enemy.config.bounceVelocity;
       this.player.bounce(
-        this.controls.current.jumpHeld ? GAMEPLAY.stompBounceHeld : GAMEPLAY.stompBounce,
+        bounce ??
+          (this.controls.current.jumpHeld ? GAMEPLAY.stompBounceHeld : GAMEPLAY.stompBounce),
       );
       return;
     }

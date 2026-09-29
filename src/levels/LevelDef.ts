@@ -136,6 +136,36 @@ export interface CurrentDef extends WaterDef {
 }
 
 /**
+ * A rope swing (§6, World 3): "a rope swing to cross".
+ *
+ * `x`, `y` is where it is tied — the pivot — and `length` is how far down the
+ * knot hangs, in tiles. `lean` is which way it hangs when nobody is on it, in
+ * tenths of a radian, so a swing can be left reaching towards the shore you
+ * arrive from.
+ */
+export interface SwingDef {
+  readonly x: number;
+  readonly y: number;
+  readonly length: number;
+  readonly lean?: number;
+}
+
+/**
+ * A patch of mud (§6, World 3): "slows movement to a crawl."
+ *
+ * A region rather than a solid, for the same reason water is one: what it
+ * changes is how you move through it, not whether you can be there. It is also
+ * the one region in the game with no force of its own — wind pushes and a
+ * current carries, and mud only ever takes something away.
+ */
+export interface MudDef {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+}
+
+/**
  * A clothesline, strung between two points (§6, World 3).
  *
  * `x`, `y` is the high end and `w` is how far it reaches; `drop` is how many
@@ -238,6 +268,10 @@ export interface LevelDef {
   readonly water?: readonly WaterDef[];
   /** Water that pushes. Only meaningful where it overlaps water. */
   readonly currents?: readonly CurrentDef[];
+  /** Mud, which slows whoever is in it (§6, World 3). */
+  readonly mud?: readonly MudDef[];
+  /** Rope swings (§6, World 3). */
+  readonly swings?: readonly SwingDef[];
   /** Clotheslines to ride or duck under (§6, World 3). */
   readonly clotheslines?: readonly ClotheslineDef[];
   /** Rotting porch steps (§6, World 3). */

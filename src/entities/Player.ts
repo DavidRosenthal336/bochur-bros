@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { CharacterAbilities, CharacterId, CharacterStats, JumpBracket } from '../config/Tuning';
-import { CHARACTERS, GAMEPLAY, POWERS, SWIM, TIERS, TILE, ZIPLINE } from '../config/Tuning';
+import { CHARACTERS, GAMEPLAY, MUD, POWERS, SWIM, SWING, TIERS, TILE, ZIPLINE } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from '../input/InputState';
 import { NEUTRAL_INPUT } from '../input/InputState';
@@ -51,6 +51,20 @@ export interface PlayerDebugInfo {
  * has already worked out which of a line's two ends that is — so riding is
  * always "carry on toward x2".
  */
+/**
+ * The part of a rope swing the player needs (§6, World 3).
+ *
+ * It is the rope that owns the pendulum, not the player — a rope keeps swinging
+ * after it is let go, and two brothers swapping mid-swing must not reset it.
+ */
+export interface SwingableRope {
+  readonly handX: number;
+  readonly handY: number;
+  grab(velocityX: number, velocityY: number): void;
+  tick(dt: number, pump: number): void;
+  releaseVelocity(): { x: number; y: number };
+}
+
 export interface RidableLine {
   readonly x1: number;
   readonly y1: number;
@@ -121,6 +135,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private lineDirection: -1 | 1 = 1;
   /** No line may catch us again until this time. See ZIPLINE.regrabMs. */
   private lineBlockedUntil = 0;
+  /** Standing in mud this frame (§6, World 3). Set by the scene. */
+  private inMud = false;
+  /**
+   * The rope being held, if any (§6, World 3).
+   *
+   * Like the clothesline, this is an interface rather than the entity: the
+   * player knows what it is to hold a rope and nothing about trees or lakes.
+   */
+  private rope: SwingableRope | undefined;
+  private ropeBlockedUntil = 0;
   /** A little wedge showing which way we face, since a rectangle cannot. */
   private readonly nose: Phaser.GameObjects.Rectangle;
 
@@ -263,6 +287,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.updateTimers(delta, grounded, input);
       this.updateSwim(delta, dt, input);
       this.updateAppearance(grounded);
+      return;
+    }
+
+    if (this.rope) {
+      this.updateTimers(delta, grounded, input);
+      this.updateSwing(dt, input);
+      this.updateAppearance(false);
       return;
     }
 
@@ -471,6 +502,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
+   * Are we in mud (§6, World 3)?
+   *
+   * Told to us rather than worked out here, exactly like the water: the player
+   * does not know what regions a level contains, and it should not have to.
+   */
+  setMud(inMud: boolean): void {
+    this.inMud = inMud;
+  }
+
+  get isInMud(): boolean {
+    return this.inMud;
+  }
+
+  /**
    * Are we swimming, and what changed since last frame?
    *
    * The test is the body's *middle* against the surface, not its feet: wading
@@ -561,6 +606,107 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const sink =
       (input.moveY > 0 ? SWIM.diveSpeed : SWIM.sinkSpeed) + (this.currentY > 0 ? SWIM.maxDrift : 0);
     if (body.velocity.y > sink) body.setVelocityY(sink);
+  }
+
+  /** Holding a rope swing? */
+  get isOnRope(): boolean {
+    return this.rope !== undefined;
+  }
+
+  /** May a rope take us this frame? */
+  canGrabRope(now: number): boolean {
+    return (
+      this.rope === undefined &&
+      this.line === undefined &&
+      !this.submerged &&
+      !this.groundPounding &&
+      now >= this.ropeBlockedUntil
+    );
+  }
+
+  /**
+   * Take hold of a rope swing (§6, World 3).
+   *
+   * The arriving velocity is handed to the rope rather than thrown away, so a
+   * running jump onto a rope carries into the swing. Everything else a dry body
+   * was doing ends here, as it does on entering water or catching a line.
+   */
+  grabRope(rope: SwingableRope, velocityX: number, velocityY: number): void {
+    this.rope = rope;
+    this.rising = false;
+    this.jumpActive = false;
+    this.groundPounding = false;
+    this.crouching = false;
+    this.setFlying(false);
+
+    const body = this.physicsBody;
+    body.setAllowGravity(false);
+    body.setGravityY(0);
+    body.setVelocity(0, 0);
+    this.applyBodyHeight();
+    rope.grab(velocityX, velocityY);
+  }
+
+  /**
+   * Let go.
+   *
+   * What the release is worth comes from the rope, because the rope is the thing
+   * that knows how fast it is going and in which direction — which is the entire
+   * point of having built it as a pendulum. Let go at the bottom and you go fast
+   * and flat; let go near the top and you go slow and high.
+   */
+  releaseRope(): void {
+    const rope = this.rope;
+    if (!rope) return;
+    this.rope = undefined;
+    this.ropeBlockedUntil = this.scene.time.now + SWING.regrabMs;
+
+    const body = this.physicsBody;
+    body.setAllowGravity(true);
+    body.setGravityY(this.bracket.fallGravity);
+    const launch = rope.releaseVelocity();
+    body.setVelocity(launch.x, launch.y);
+  }
+
+  /**
+   * Hang off it, and lean.
+   *
+   * The rope is advanced here rather than by the scene because the rider's input
+   * is what pumps it, and the body is then moved to wherever the rope's end has
+   * got to — a hand on a rope does not have its own opinion about where it is.
+   *
+   * Written through `reset` rather than through a velocity, which is the one
+   * place in this codebase that is the right way round: a pendulum's position is
+   * the authority and its velocity is derived, so asking Arcade to integrate it
+   * would be asking the same question twice and getting two answers.
+   */
+  private updateSwing(dt: number, input: InputState): void {
+    const rope = this.rope;
+    if (!rope) return;
+
+    // Jump lets go. Down lets go without the lift, which is how you drop into
+    // a canoe rather than over it.
+    if (this.bufferMs > 0) {
+      this.bufferMs = 0;
+      this.releaseRope();
+      return;
+    }
+    if (input.moveY > 0) {
+      const rise = this.physicsBody;
+      this.rope = undefined;
+      this.ropeBlockedUntil = this.scene.time.now + SWING.regrabMs;
+      rise.setAllowGravity(true);
+      rise.setGravityY(this.bracket.fallGravity);
+      const launch = rope.releaseVelocity();
+      rise.setVelocity(launch.x, 0);
+      return;
+    }
+
+    rope.tick(dt, input.moveX);
+    if (input.moveX !== 0) this.facing = input.moveX;
+
+    const body = this.physicsBody;
+    body.reset(rope.handX, rope.handY + this.currentHeight(false));
   }
 
   /** Are we on a rope? The scene needs to know before it offers another. */
@@ -823,6 +969,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // held, which would drive the body along the washing instead of letting it
     // flop, and the ride sets its own velocity every frame.
     this.releaseLine(false);
+    this.rope = undefined;
     const body = this.physicsBody;
     body.setVelocity(0, GAMEPLAY.deathLaunchY);
     body.checkCollision.none = true;
@@ -913,11 +1060,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const body = this.physicsBody;
     const running = input.run && !this.crouching;
     this.running = running;
-    const topSpeed = this.crouching
+    const base = this.crouching
       ? this.stats.crouchSpeed
       : running
         ? this.stats.runSpeed
         : this.stats.walkSpeed;
+    /**
+     * Mud takes speed away, and it takes it away from whatever you had (§6).
+     *
+     * A fraction rather than a cap, so running through mud is still faster than
+     * walking through mud — the run button should never stop meaning anything —
+     * and so the brothers keep their difference relative to each other while
+     * both of them struggle.
+     *
+     * Only while your feet are in it. A jump out of a bog lands at whatever
+     * speed it was launched with, which is the one way to cross a patch quickly
+     * and is a fair thing to work out.
+     */
+    const mudded = this.inMud && grounded;
+    const topSpeed = mudded ? base * MUD.speedFactor : base;
     // A zero top speed (a character who is rooted while ducking) is expressed
     // as having no direction at all, so the friction branch below stops them.
     const dir = topSpeed === 0 ? 0 : input.moveX;
@@ -942,6 +1103,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       rate = running ? this.stats.runAcceleration : this.stats.walkAcceleration;
     }
 
+    if (mudded) rate *= MUD.accelFactor;
     if (!grounded) rate *= this.flying ? POWERS.peyos.airControl : this.stats.airControl;
     body.setVelocityX(approach(vx, dir * topSpeed, rate * dt));
   }
@@ -1075,6 +1237,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
      * safe.
      */
     this.releaseLine(false);
+    this.rope = undefined;
+    this.ropeBlockedUntil = 0;
     body.setAllowGravity(true);
     this.lineBlockedUntil = 0;
     this.endSwing();

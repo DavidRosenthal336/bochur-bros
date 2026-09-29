@@ -23,6 +23,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   const waters = [];
   const currents = [];
   const clotheslines = [];
+  const muds = [];
+  const swings = [];
   const steps = [];
   const checkpoints = [];
   let spawn = { x: 2, y: floorTop };
@@ -121,6 +123,20 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
       return api;
     },
     /**
+     * A rope swing (§6). `y` is where it is tied and `length` is how far the
+     * knot hangs below that, in tiles.
+     *
+     * Hang it so the knot is at about head height over the near shore: the grab
+     * is the hard part of a swing, and a rope you have to jump blind for is a
+     * rope people walk past.
+     */
+    swing(x, y, length = 3, lean) {
+      swings.push({ x, y, length, ...(lean === undefined ? {} : { lean }) });
+      return api;
+    },
+    /** A patch of mud, which slows whoever is standing in it (§6). */
+    mud(x, y, w, h = 1) { muds.push({ x, y, w, h }); return api; },
+    /**
      * A clothesline (§6). `drop` is how far the far end hangs below the near
      * one, and its sign is which way you ride: negative reaches back to the
      * left. A drop of zero is washing you can only walk under.
@@ -175,6 +191,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         water: waters,
         currents,
         clotheslines,
+        mud: muds,
+        swings,
         steps,
         bouncers,
         groundRow: floorTop,

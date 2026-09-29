@@ -20,7 +20,8 @@ export type HazardKind =
   | 'minivan'
   | 'mower'
   | 'blower'
-  | 'golfCart';
+  | 'golfCart'
+  | 'canoe';
 
 export type HazardBehavior =
   /** A region that pushes. Leaf blowers, the hamsin. */
@@ -251,5 +252,31 @@ export const HAZARDS = {
     harmful: true,
     speed: 74,
     affectedByGravity: true,
+  },
+  /**
+   * The canoe (§6): "canoes as floating platforms".
+   *
+   * The first hazard in the game that cannot hurt you, which makes "hazard" the
+   * wrong word and the right system: §11 separates hazards from enemies because
+   * a hazard is "survived, avoided, or ridden", and this is the pure third case.
+   * Everything that makes it work already existed — a roller turns at the ends
+   * of its water the way a cart turns at a wall, `rideable` already carries the
+   * player along on top of it, and `harmful: false` is already checked before
+   * anything is allowed to do damage.
+   *
+   * Gravity is off so that it stays on the water it was placed on. A canoe with
+   * gravity sinks to the bottom of the lake, which is a boat with a hole in it.
+   */
+  canoe: {
+    label: 'Canoe',
+    behavior: 'roller',
+    art: 'canoe',
+    bodyWidth: 28,
+    bodyHeight: 7,
+    color: 0xa9825a,
+    rideable: true,
+    harmful: false,
+    speed: 26,
+    affectedByGravity: false,
   },
 } as const satisfies Record<string, HazardConfig>;

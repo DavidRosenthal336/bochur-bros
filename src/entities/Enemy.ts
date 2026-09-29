@@ -33,7 +33,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     | 'noticing'
     | 'chasing'
     | 'fleeing'
-    | 'denned' = 'patrol';
+    | 'denned'
+    | 'resting'
+    | 'hopping' = 'patrol';
   /** When the current emerge phase ends. */
   private phaseEndsAt = 0;
   private nextDiveAllowedAt = 0;
@@ -119,6 +121,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'thief':
         this.tickThief(now, playerX);
         break;
+      case 'hop':
+        this.tickHop(now);
+        break;
     }
 
     this.updatePose();
@@ -151,6 +156,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         break;
       case 'fleeing':
         playPose(this, art, 'run');
+        break;
+      case 'resting':
+        playPose(this, art, 'idle');
+        break;
+      case 'hopping':
+        playPose(this, art, 'jump');
         break;
       case 'chasing':
         // A goose that has been stood on once is angry about it, and says so
@@ -275,6 +286,59 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       default:
         this.tickPatrol();
     }
+  }
+
+  /**
+   * The frog (§6): "hop in arcs near the lake."
+   *
+   * Sit, hop, land, sit. The sitting is most of it — a frog that hopped
+   * continuously would be a moving target with no rhythm to read, and §6 also
+   * calls a frog bounceable, which means it has to be something a player can
+   * plan to land on. You cannot plan to land on something that never holds
+   * still.
+   *
+   * The arc is left entirely to gravity. Set the launch and let the physics
+   * draw the curve: that is what makes it read as a hop rather than as a glide,
+   * and it means a frog lands where a stone thrown the same way would.
+   */
+  private tickHop(now: number): void {
+    const hop = this.config.hop;
+    const body = this.physicsBody;
+    if (!hop) {
+      this.tickPatrol();
+      return;
+    }
+
+    if (this.phase === 'patrol') {
+      this.phase = 'resting';
+      this.phaseEndsAt = now + hop.restMs;
+    }
+
+    if (this.phase === 'hopping') {
+      // Down and settled is the end of the hop. `blocked.down` alone is true on
+      // the first frame of the launch as well, before the body has left.
+      if (body.blocked.down && body.velocity.y >= 0) {
+        this.phase = 'resting';
+        this.phaseEndsAt = now + hop.restMs;
+        body.setVelocityX(0);
+      }
+      return;
+    }
+
+    // Resting. Nothing moves, which is also what makes it a platform.
+    body.setVelocityX(0);
+    if (now < this.phaseEndsAt) return;
+
+    // Turn at the edges of its beat and at walls, then go. Measured from where
+    // it started, like a patrol, so a frog stays by its bit of shore.
+    const strayed = Math.abs(this.x - this.homeX) >= this.config.patrolRange;
+    if (strayed) this.facing = this.x > this.homeX ? -1 : 1;
+    else if (body.blocked.left) this.facing = 1;
+    else if (body.blocked.right) this.facing = -1;
+
+    this.phase = 'hopping';
+    body.setVelocityX(this.facing * hop.speedX);
+    body.setVelocityY(hop.speedY);
   }
 
   /**

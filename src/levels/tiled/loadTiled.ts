@@ -7,7 +7,9 @@ import type { BlockContents, BlockKind } from '../../entities/Block';
 import type {
   BlockPlacement,
   ClotheslineDef,
+  MudDef,
   StepDef,
+  SwingDef,
   BossPlacement,
   BounceKind,
   BouncePlacement,
@@ -48,6 +50,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const water: WaterDef[] = [];
   const currents: CurrentDef[] = [];
   const clotheslines: ClotheslineDef[] = [];
+  const mud: MudDef[] = [];
+  const swings: SwingDef[] = [];
   const steps: StepDef[] = [];
   const checkpoints: TilePoint[] = [];
   const perches: TilePoint[] = [];
@@ -120,6 +124,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
         case 'minivan':
         case 'mower':
         case 'golfCart':
+        case 'canoe':
           hazards.push({
             x,
             y,
@@ -140,6 +145,24 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
             ...(isBounceKind(kind) ? { kind } : {}),
             ...(periodMs === undefined ? {} : { periodMs }),
             ...(offsetMs === undefined ? {} : { offsetMs }),
+          });
+          break;
+        }
+        case 'mud':
+          mud.push({
+            x,
+            y,
+            w: Math.max(1, Math.round(object.width / tile)),
+            h: Math.max(1, Math.round(object.height / tile)),
+          });
+          break;
+        case 'swing': {
+          const lean = readNumber(object, 'lean');
+          swings.push({
+            x,
+            y,
+            length: Math.max(1, readNumber(object, 'length') ?? 3),
+            ...(lean === undefined ? {} : { lean }),
           });
           break;
         }
@@ -215,6 +238,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     water,
     currents,
     clotheslines,
+    mud,
+    swings,
     steps,
     bouncers,
     checkpoints,

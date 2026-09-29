@@ -575,6 +575,76 @@ export const SWIM = {
 } as const;
 
 /**
+ * Mud (§6, World 3): "slows movement to a crawl."
+ *
+ * A crawl and not a wall. Forty per cent of a walk is slow enough that crossing
+ * a patch is a decision — you are in it for a second and a half and anything
+ * chasing you is not — and fast enough that it never reads as the controls
+ * having stopped working.
+ *
+ * The jump is left alone on purpose, and that is a safety property rather than
+ * a stylistic one: mud that shortened a jump would make a low-walled mud pit
+ * somewhere you cannot climb out of, which is the exact class of bug the
+ * build-time trap validator exists to catch and which it cannot see, because
+ * mud is not geometry.
+ *
+ * Both brothers are slowed identically. §4's weight difference would be a
+ * tempting thing to spend here, and §6 does not ask for it — the line is about
+ * mud, not about who is in it.
+ */
+export const MUD = {
+  /** Top speed, as a fraction of whatever you would otherwise manage. */
+  speedFactor: 0.4,
+  /** Acceleration, likewise. Getting going is the slow part of a bog. */
+  accelFactor: 0.55,
+} as const;
+
+/**
+ * The rope swing (§6, World 3): "a rope swing to cross".
+ *
+ * A pendulum, integrated properly rather than faked with a tween, because the
+ * whole appeal of a rope swing is that what you get out of it depends on when
+ * you let go — and a tween has no state you can ask that question of.
+ *
+ * `gravity` here is the pendulum's own, not the world's: 1800 makes a
+ * three-tile rope swing about as fast as a person does, and the world's 2000+
+ * makes it whip. It is a separate number because the rope is not falling, it is
+ * a rod with a weight on it, and the two only look the same in the equations.
+ */
+export const SWING = {
+  /** Pendulum gravity, px/s^2. Decides the period, with the rope's length. */
+  gravity: 1800,
+  /** Bleed per second, as a multiplier. A rope is not frictionless. */
+  damping: 0.82,
+  /**
+   * The push a held direction adds, radians/s^2.
+   *
+   * Pumping a swing is the one input that matters while you are on it, and it
+   * has to be worth doing: from a standing start this builds to a useful arc in
+   * about two swings.
+   */
+  pump: 5.2,
+  /** How fast the angle may ever go, radians/s, so a pump cannot wind up forever. */
+  maxRate: 4.2,
+  /** What a release is worth, as a fraction of the tangential speed. */
+  releaseFactor: 1,
+  /** Upward help on release, px/s. A swing you jump off, not fall off. */
+  releaseLift: -150,
+  /** How long before a rope will take you again, ms. */
+  regrabMs: 400,
+  /** How far from the rope a hand will reach, px. A rope is a big target. */
+  grabRadius: 16,
+  /**
+   * How far down the rope is catchable, as a fraction of its length.
+   *
+   * 0.35 means the top third belongs to the tree and everything below it is
+   * rope. Generous on purpose: the grab is the hard part of a swing, and a swing
+   * nobody can catch is scenery.
+   */
+  grabFrom: 0.35,
+} as const;
+
+/**
  * Riding a clothesline (§6, World 3).
  *
  * Faster than either brother can run, on purpose. A zipline whose whole appeal

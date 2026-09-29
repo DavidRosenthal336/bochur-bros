@@ -12,7 +12,7 @@
  */
 import type { ActorSpriteName } from './sprites';
 
-export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase' | 'thief';
+export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase' | 'thief' | 'hop';
 
 export interface EnemyConfig {
   readonly label: string;
@@ -29,6 +29,15 @@ export interface EnemyConfig {
   readonly hits: number;
   /** Can it be stomped at all? Mosquito swarms cannot (§6, World 3). */
   readonly stompable: boolean;
+  /**
+   * What landing on it throws you upward at, px/s, if that is more than a stomp.
+   *
+   * §6 calls frogs "bounceable", and in a game with no double jump that word
+   * means a creature is a way to get somewhere you otherwise could not. A stomp
+   * is worth 260 and gets you nothing; this is for the ones where the bounce is
+   * the point. Left off, a stomp is a stomp.
+   */
+  readonly bounceVelocity?: number;
   /**
    * What touching it costs you.
    *
@@ -71,6 +80,17 @@ export interface EnemyConfig {
     readonly hissMs: number;
     /** Chasing speed, px/s. */
     readonly speed: number;
+  };
+  /**
+   * Extra settings for `hop`: §6's frogs, which "hop in arcs near the lake".
+   */
+  readonly hop?: {
+    /** How long it sits between hops, ms. A frog is mostly a thing that sits. */
+    readonly restMs: number;
+    /** Sideways speed during a hop, px/s. */
+    readonly speedX: number;
+    /** Upward launch, px/s. This and gravity decide how high the arc goes. */
+    readonly speedY: number;
   };
   /**
    * Extra settings for `thief`: §6's raccoon, which "steals the player's
@@ -258,6 +278,37 @@ export const ENEMIES = {
     color: 0xd8bf4a,
     patrolRange: 22,
     dive: { triggerRange: 54, windUpMs: 380, speed: 130, recoverSpeed: 95, cooldownMs: 1100 },
+  },
+  /**
+   * The frog (§6): "hop in arcs near the lake. Bounceable."
+   *
+   * Bounceable is the interesting word. Everything else in this game that can
+   * be stomped dies of it; §6 asks for a frog to be a thing you land on, which
+   * in a game with no double jump is a thing that gets you somewhere you could
+   * not otherwise reach. So it takes two hits rather than one — the first stomp
+   * is a trampoline and the second finishes it — and the arc it travels in is
+   * the timing puzzle.
+   *
+   * It sits for most of its life. A frog that hopped continuously would be a
+   * moving target with no rhythm to read, and the rest between hops is what
+   * makes one a platform you can plan on.
+   */
+  frog: {
+    label: 'Frog',
+    behavior: 'hop',
+    speed: 60,
+    hits: 2,
+    stompable: true,
+    affectedByGravity: true,
+    art: 'frog',
+    bodyWidth: 12,
+    bodyHeight: 8,
+    color: 0x5f8f4f,
+    patrolRange: 64,
+    // Between a trampoline's 640 and a stomp's 260, and nearer the trampoline:
+    // a frog has to be worth crossing the lake on rather than worth avoiding.
+    bounceVelocity: -520,
+    hop: { restMs: 900, speedX: 60, speedY: -260 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

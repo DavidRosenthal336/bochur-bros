@@ -60,6 +60,14 @@ export function levelDefToTiled(def) {
         ...(c.force === undefined ? [] : [prop('force', c.force)]),
       ]),
     );
+  for (const w of def.swings ?? [])
+    entities.push(
+      rect(w.x, w.y, 1, 1, 'swing', [
+        prop('length', w.length),
+        ...(w.lean === undefined ? [] : [prop('lean', w.lean)]),
+      ]),
+    );
+  for (const m of def.mud ?? []) entities.push(rect(m.x, m.y, m.w, m.h, 'mud'));
   for (const c of def.clotheslines ?? [])
     entities.push(rect(c.x, c.y, c.w, 1, 'clothesline', [prop('drop', c.drop)]));
   for (const s of def.steps ?? []) entities.push(rect(s.x, s.y, 1, 1, 'step'));
