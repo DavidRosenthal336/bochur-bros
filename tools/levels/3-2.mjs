@@ -97,7 +97,32 @@ const rock = (x, w, top = STEP) => L.slab(x, top, w, 1, 'platform');
  * so climbing out of the lake onto one is sixteen pixels and within anybody's
  * jump out of the water (§6, 2-3).
  */
-const island = (x, w) => L.slab(x, FLOOR, w, BED - FLOOR, 'ground');
+const island = (x, w) => {
+  L.slab(x, FLOOR, w, BED - FLOOR, 'ground');
+  /**
+   * The shoreline, and the reason both brothers used to drown here.
+   *
+   * An island whose sides are sheer from the waterline to the bed is a wall to a
+   * swimmer. Driven end to end, Mendy stalled at the island before the jetty and
+   * Berel at the one in the first inlet, and each spent the rest of the run —
+   * eighty seconds — bobbing against a rock it could not get onto. Getting out
+   * of water is the one thing 2-3 had to solve too, and it solved it with pool
+   * edges built for it; a lake needs the same courtesy.
+   *
+   * So every island gets a shelf a tile wide on each side, one tile thick, whose
+   * top sits exactly on the water's surface. A swimmer bumping into it is
+   * already standing on it — nothing to climb — and from there the island top is
+   * a sixteen-pixel step.
+   *
+   * Deliberately one tile thick rather than solid to the bed. A canoe's hull
+   * occupies the seven pixels directly above the surface, so its bottom edge and
+   * this shelf's top edge meet at exactly the same line and never overlap:
+   * Arcade needs real overlap to collide, so the shelf catches swimmers without
+   * beaching the boats.
+   */
+  L.slab(x - 1, WATER, 1, 1, 'pool');
+  L.slab(x + w, WATER, 1, 1, 'pool');
+};
 
 /**
  * A stretch of lake.
