@@ -104,18 +104,40 @@ const rock = (x, w, top = STEP) => L.slab(x, top, w, 1, 'platform');
  * the same line and never overlap. Arcade needs real overlap to collide, so the
  * shelves catch swimmers without beaching the boats.
  */
+/**
+ * A bank: one tile of shore at the water's edge, from the surface to the bed.
+ *
+ * Full depth, and that is the entire point of it. The first version was a single
+ * tile *at* the surface with open water underneath, which read as a helpful
+ * ledge and was in fact a trap with a roof: a swimmer walking the bottom into the
+ * corner ended up beneath the shelf, with solid above, the shore's underwater
+ * face to one side, and no way to rise. Both brothers found it and neither got
+ * out — one spent eighty-five seconds there.
+ *
+ * Traced from open water a single tile away, the same swimmer reaches the
+ * surface in half a second and the shore in two. The swim system was never the
+ * problem; the ledge I added to help was.
+ *
+ * Solid to the bed leaves no pocket to get under, and its top still sits exactly
+ * on the surface, so hauling out is the same sixteen-pixel step it was meant to
+ * be. It still does not disturb the boats: a canoe's hull occupies the seven
+ * pixels above the surface, so hull bottom and bank top meet on one line and
+ * never overlap, and Arcade needs real overlap to collide.
+ */
+const bank = (x) => L.slab(x, WATER, 1, BED - WATER, 'pool');
+
 const crossing = (x, w) => {
   L.slab(x, BED, w, HEIGHT - BED, 'pool');
   L.water(x, WATER, w, BED - WATER);
-  L.slab(x, WATER, 1, 1, 'pool');
-  L.slab(x + w - 1, WATER, 1, 1, 'pool');
+  bank(x);
+  bank(x + w - 1);
 };
 
 /** An island in a crossing: standable on top, with a shelf on each side. */
 const island = (x, w) => {
   L.slab(x, FLOOR, w, BED - FLOOR, 'ground');
-  L.slab(x - 1, WATER, 1, 1, 'pool');
-  L.slab(x + w, WATER, 1, 1, 'pool');
+  bank(x - 1);
+  bank(x + w);
 };
 
 // ---------------------------------------------------------------------------
