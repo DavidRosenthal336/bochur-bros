@@ -84,6 +84,22 @@ L.spawnAt(3);
 const rock = (x, w, top = STEP) => L.slab(x, top, w, 1, 'platform');
 
 /**
+ * An island: solid from just above the waterline all the way to the bed.
+ *
+ * These are what make the canoes work, and they were the level's second
+ * golf-cart bug. A canoe is a roller, a roller only turns at a wall, and a lake
+ * has no walls — so the first draft's four canoes drifted away from their
+ * compartments and out of the level, exactly as the first draft's golf cart drove
+ * the length of 3-1. Water is not a boundary to anything.
+ *
+ * So every canoe has an island at each end of its run, and every island is a
+ * place to stand: their tops are level with the shore, one row above the water,
+ * so climbing out of the lake onto one is sixteen pixels and within anybody's
+ * jump out of the water (§6, 2-3).
+ */
+const island = (x, w) => L.slab(x, FLOOR, w, BED - FLOOR, 'ground');
+
+/**
  * A stretch of lake.
  *
  * The bed and both walls, then the water in the hole they make. A pool needs
@@ -143,9 +159,17 @@ L.coinRow(32, on(STEP), 3);
 L.enemy(33, STEP, 'frog');
 L.label(30, on(HIGH) - 1, 'LAND ON IT');
 
-L.hazard('canoe', 40, WATER, 1);
-rock(44, 4);
-L.coinRow(44, on(STEP), 4);
+/**
+ * The first canoe, in an inlet six tiles wide.
+ *
+ * Deliberately the shortest beat in the level: the shore walls it on the left
+ * and the island at 44 walls it on the right, so it crosses its water in about
+ * five seconds and comes back. A first canoe should be a thing you can stand and
+ * watch a full cycle of before you step onto it.
+ */
+L.hazard('canoe', 38, WATER, 1);
+island(44, 2);
+L.coinRow(44, on(FLOOR), 2);
 
 // ---------------------------------------------------------------------------
 // The jetty, and the rope over the deep water.
@@ -155,8 +179,12 @@ L.slab(50, STEP, 8, 1, 'platform');
 L.coinRow(51, on(STEP), 6);
 L.enemy(54, STEP, 'frog');
 
-L.hazard('canoe', 62, WATER, -1);
-L.coinRow(60, on(FLOOR), 4);
+// The second canoe, between the island at 60 and the one under the jetty's
+// near end at 68. Twelve tiles, which is long enough that you wait for it.
+island(60, 2);
+L.coinRow(60, on(FLOOR), 2);
+L.hazard('canoe', 64, WATER, -1);
+island(68, 2);
 
 /**
  * The jetty, and the rope.
@@ -192,8 +220,17 @@ L.coinRow(80, STEP - 4, 3);
 // The middle of the lake: two canoes going opposite ways.
 // ---------------------------------------------------------------------------
 lake(76, 34);
-rock(84, 3);
-L.coinRow(84, on(STEP), 3);
+/**
+ * Where the rope puts you.
+ *
+ * Five tiles wide rather than three. Measured, a swing off the jetty lands
+ * anywhere between tile 76 and tile 91 depending on when you let go — that
+ * spread is the mechanic and not a fault — but a three-tile island inside a
+ * sixteen-tile spread is a level asking for frame-accurate timing on the first
+ * rope in the game. Five tiles makes a decent release land and a poor one swim.
+ */
+island(84, 5);
+L.coinRow(84, on(FLOOR), 5);
 
 /**
  * The crossing.
@@ -203,7 +240,9 @@ L.coinRow(84, on(STEP), 3);
  * commit to it. Neither can hurt you and neither sinks; the cost of a mistake is
  * a swim, and the swim is always there.
  */
-L.hazard('canoe', 90, WATER, 1);
+L.hazard('canoe', 92, WATER, 1);
+island(98, 3);
+L.coinRow(98, on(FLOOR), 3);
 L.hazard('canoe', 102, WATER, -1);
 
 /**
@@ -217,8 +256,8 @@ L.block(96, BED - 1, 'reinforced', 'lchaim');
 L.coin(94, BED - 1);
 L.coin(98, BED - 1);
 
-rock(106, 4);
-L.coinRow(106, on(STEP), 4);
+island(106, 4);
+L.coinRow(106, on(FLOOR), 4);
 
 L.checkpoint(112);
 
@@ -253,7 +292,10 @@ L.slab(146, STEP, 4, 1, 'platform');
 L.enemy(148, STEP, 'frog');
 L.swing(149, STEP - 10, 9, -2);
 L.coinRow(158, STEP - 5, 4);
-L.hazard('canoe', 166, WATER, 1);
+island(160, 2);
+L.coinRow(160, on(FLOOR), 2);
+L.hazard('canoe', 164, WATER, 1);
+island(170, 2);
 
 L.ground(172, WIDTH - 172);
 L.mud(176, FLOOR, 5);
