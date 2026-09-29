@@ -377,7 +377,9 @@ export const ENEMIES = {
     bodyHeight: 8,
     color: 0x2a2a30,
     patrolRange: 0,
-    drift: { triggerRange: 150, wobble: 6 },
+    // Wakes when you are within three tiles sideways — about when you are
+    // passing underneath — so that it chases rather than blocks. See tickDrift.
+    drift: { triggerRange: 48, wobble: 6 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

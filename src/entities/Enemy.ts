@@ -314,7 +314,21 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       // Hanging about, humming, on the spot.
       const hover = Math.sin(now / 260 + this.homeX) * drift.wobble;
       body.setVelocity(0, hover);
-      if (distance <= drift.triggerRange) this.phase = 'chasing';
+      /**
+       * It wakes when you pass *under* it, not when it sees you coming.
+       *
+       * Measured sideways only, and short. The first version woke at 150px in
+       * any direction, which put a homing cloud you cannot stomp directly in the
+       * path of a player walking towards it — a closing speed of 121px/s with
+       * nothing to be done about it. Berel walked into the first one every time.
+       * That is a wall, and §6 says "outrun them", which only means something
+       * when the swarm is behind you.
+       *
+       * So it hangs high and notices late, and by the time it has come down to
+       * where you were, you are ahead of it and walking away at nearly twice its
+       * speed. That is what outrunning a swarm is.
+       */
+      if (Math.abs(dx) <= drift.triggerRange) this.phase = 'chasing';
       return;
     }
 

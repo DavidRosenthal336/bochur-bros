@@ -65,6 +65,13 @@ const TALL = ROOF - 2;
 
 const on = (top) => top - 1;
 
+/**
+ * Where a swarm hangs: five tiles up, above anybody's head and out of reach of
+ * a walk. It notices you as you pass beneath it and comes down after you, which
+ * is what makes "outrun them" (§6) a thing you do rather than a thing you read.
+ */
+const SWARM = FLOOR - 5;
+
 const L = level({
   key: '3-3',
   name: 'Lights Out',
@@ -148,7 +155,7 @@ L.coinRow(38, on(FLOOR), 2);
  * one teaches the only thing a swarm needs teaching: it is slower than you, and
  * it does not stop.
  */
-L.enemy(50, FLOOR - 3, 'mosquito');
+L.enemy(50, SWARM, 'mosquito');
 pitThenGround(56, 92);
 
 // ---------------------------------------------------------------------------
@@ -196,7 +203,7 @@ L.coinRow(102, on(PORCH), 3);
 L.ground(100, 2);
 L.ground(105, 25);
 
-L.enemy(114, FLOOR - 3, 'mosquito');
+L.enemy(114, SWARM, 'mosquito');
 L.coinRow(112, on(FLOOR), 4);
 L.fireflyRow(110, on(FLOOR) - 1, 4, 4);
 
@@ -238,13 +245,13 @@ L.firefly(166, FLOOR - 6);
 L.checkpoint(172);
 tree(176);
 L.firefly(176, on(PORCH) - 1);
-L.enemy(182, FLOOR - 3, 'mosquito');
+L.enemy(182, SWARM, 'mosquito');
 L.coinRow(178, on(FLOOR), 4);
 
 pitThenGround(186, 210);
 tree(196);
 L.firefly(196, on(PORCH) - 1);
-L.enemy(202, FLOOR - 3, 'mosquito');
+L.enemy(202, SWARM, 'mosquito');
 
 pitThenGround(210, WIDTH);
 L.fireflyRow(214, on(FLOOR) - 1, 5, 3);
