@@ -287,7 +287,14 @@ export class Bear extends Phaser.Physics.Arcade.Sprite {
           body.setVelocity((middle > this.x ? 1 : -1) * HOP_VX, CLIMB_VY);
           this.enter('climbing', now + 1400);
         } else {
-          body.setVelocityX(dir * this.config.walkSpeed * 1.6);
+          /**
+           * At a lope, not a walk. Measured, a bear going back to its bin at an
+           * amble spent fourteen seconds of a fifty-second fight crossing the
+           * clearing — more than a quarter of the fight with nothing happening
+           * in it. The trip home is a breather for the player, and a breather
+           * should be a breath.
+           */
+          body.setVelocityX(dir * this.config.walkSpeed * 2.8);
         }
         break;
       }
