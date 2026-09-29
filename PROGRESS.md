@@ -1391,3 +1391,78 @@ test bot as COMPLETE after ninety-eight deaths; it was a game over, which the
 scene also marks as 'complete' so that SPACE returns you to the map. The bot now
 tells the two apart, and puts swarms home on respawn the way the real restart
 does, so it cannot manufacture a death loop the game itself cannot produce.
+
+
+---
+
+## 3-4 — The Bear, and World 3 is done
+
+"Lives behind the canteen dumpster with the kugel. Charges, swipes, climbs the
+dumpster and hurls garbage bags, and calls in raccoons when wounded." (§6) Four
+verbs, each a mode of one state machine.
+
+**The charge is the window.** It rears — the only telegraph — and runs until it
+hits something, and it can only be hurt once it has. Landing on it otherwise
+bounces you off and hurts neither of you. That split is the whole rule of the
+fight: you can always try the stomp, and the daze is when it works.
+
+**The swipe** is for standing in front of it while it paces, after a 380ms
+wind-up, because a melee hit with no warning is a coin toss.
+
+**The dumpster** comes after every daze: up it goes, throwing bags aimed by
+solving the lob for where you are. They land where you were.
+
+**The raccoons** are the part that makes the fight answer back rather than just
+speed up. Every hit calls in more of the one enemy in the game that takes your
+power-up instead of your life — so the better the fight is going, the more there
+is to lose.
+
+The arena falls out of the charge rule: two perches, the woodpile and the bear's
+own dumpster, each exactly two tiles high. Both brothers climb that from
+standing, and the bear, at two and a half tiles, can neither run under nor over
+either — so a charge at one always ends against it, dazed, one short drop below
+you. Nothing else lives in the clearing.
+
+It is not killed. It sits, thinks better of it, and lumbers off into the woods,
+leaving the kugel on the dumpster lid where it was the whole time.
+
+### One tuning change, from the timings
+
+The first clean run broke the fight down by mode, and fourteen of its fifty
+seconds were the bear walking back across the clearing to its dumpster after
+each daze — over a quarter of a boss fight with nothing in it. It lopes home now
+rather than ambling, and the same fight takes about forty-four seconds with the
+trip home at eight.
+
+### Verified
+
+Both brothers beat it with no deaths: Mendy in 43.0s and Berel in 44.8s, three
+hits one per phase, nine bags thrown (two, three and four — the stages exactly),
+raccoons called in, and the kugel collected off the lid.
+
+## World 3 — The Catskills, complete
+
+3-1 The Colony, 3-2 The Lake, 3-3 Lights Out and 3-4 The Bear, each completed
+end to end by both brothers.
+
+What it added to the game: bungalow roofs as a route, clotheslines, rotting
+porch steps, raccoons, golf carts and wasps (3-1); mud, canoes, bounceable frogs
+and a real pendulum rope swing (3-2); darkness, fireflies, eyes and mosquito
+swarms (3-3); and a boss built from four verbs (3-4).
+
+What it taught about building levels, which is the part worth keeping:
+
+- **A rise is only as possible as the run-up in front of it.** Two bugs in 3-1,
+  both with every height correct and the route still closed.
+- **A roller only turns at a wall, and neither a lawn nor a lake is one.** The
+  golf-cart bug, three times.
+- **Anything added at a water's edge must be checked from underneath.** A helpful
+  ledge and an inescapable pocket are the same geometry seen from two sides, and
+  the trap validator cannot see either.
+- **An enemy you cannot stomp must be behind you**, or "outrun them" means nothing.
+- **Make the instrument explain itself before the first fix, not after the third.**
+  Most of this world's wasted cycles were spent fixing the level for faults that
+  belonged to the test bot.
+
+Not built: §6's crickets, which belong to the audio system §10 asks for and the
+game does not have yet.
