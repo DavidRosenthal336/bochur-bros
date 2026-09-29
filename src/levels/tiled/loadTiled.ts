@@ -6,6 +6,7 @@ import { TILE } from '../../config/Tuning';
 import type { BlockContents, BlockKind } from '../../entities/Block';
 import type {
   BlockPlacement,
+  BossPlacement,
   BounceKind,
   BouncePlacement,
   CurrentDef,
@@ -48,7 +49,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const perches: TilePoint[] = [];
   let spawn: TilePoint = { x: 2, y: map.height - 8 };
   let goal: TilePoint | undefined;
-  let boss: TilePoint | undefined;
+  let boss: BossPlacement | undefined;
   let thief: TilePoint | undefined;
 
   for (const layer of map.layers) {
@@ -158,9 +159,11 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
           });
           break;
         }
-        case 'boss':
-          boss = { x, y };
+        case 'boss': {
+          const which = readString(object, 'kind');
+          boss = { x, y, ...(which === 'escalade' ? { kind: 'escalade' as const } : {}) };
           break;
+        }
         case 'thief':
           thief = { x, y };
           break;

@@ -118,7 +118,11 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
       currents.push({ x, y, w, h, dx: 0, dy: -1, ...(force === undefined ? {} : { force }) });
       return api;
     },
-    bossAt(x, y) { boss = { x, y }; return api; },
+    /**
+     * The level's boss. `kind` picks the fight; leaving it off means the
+     * Pigeon King, which is what 1-4 has always meant by a boss marker.
+     */
+    bossAt(x, y, kind) { boss = { x, y, ...(kind ? { kind } : {}) }; return api; },
     /** The Yetzer Hara, in the prologue. He runs; he is not fought. */
     thiefAt(x, y = floorTop) { thief = { x, y }; return api; },
     perch(x, y) { perches.push({ x, y }); return api; },

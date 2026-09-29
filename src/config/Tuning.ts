@@ -391,6 +391,23 @@ export const GAMEPLAY = {
   coinPopHeight: 18,
   /** How fast a pushed crate moves, px/s. */
   cratePushSpeed: 45,
+  /**
+   * What the crash does to whoever is riding the Escalade's roof (§6, 2-4).
+   *
+   * A stomp's bounce was the first attempt at this and it was worth eighteen
+   * pixels — you came straight back down on the roof in the same tenth of a
+   * second, which meant the first dent won the whole fight: you were already
+   * standing up there for every stall after it, phase 3's included, and the
+   * two hardest phases never asked you for anything.
+   *
+   * Forty-eight pixels and a shove forward puts you off it and on the stoop,
+   * with the rest of the stall to climb back on in. Riding stays the best line
+   * in the fight — it should, it is what §6's "climb the thing trying to kill
+   * them" is for — but it stops being the whole answer to it.
+   */
+  escaladeCrashThrow: -430,
+  escaladeCrashSlide: 200,
+
   /** Sideways push from a wind zone, px/s^2. */
   windForce: 620,
   /** The most wind can carry you against your own walking, px/s. */

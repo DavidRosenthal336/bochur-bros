@@ -128,6 +128,13 @@ export interface CurrentDef extends WaterDef {
   readonly force?: number;
 }
 
+/** Which boss a level's `boss` marker means. */
+export type BossKind = 'pigeonKing' | 'escalade';
+
+export interface BossPlacement extends TilePoint {
+  readonly kind?: BossKind;
+}
+
 export interface LevelDef {
   readonly key: string;
   readonly name: string;
@@ -159,8 +166,13 @@ export interface LevelDef {
   readonly bouncers?: readonly BouncePlacement[];
   /** Where the level's floor is, for hazards that cast a shadow on it. */
   readonly groundRow?: number;
-  /** A boss, and the perches it retreats to between attacks (§6). */
-  readonly boss?: TilePoint;
+  /**
+   * A boss, and the perches it retreats to between attacks (§6).
+   *
+   * `kind` picks which fight. It defaults to the Pigeon King because he was
+   * the only one when this field was added and 1-4's map does not name him.
+   */
+  readonly boss?: BossPlacement;
   readonly perches?: readonly TilePoint[];
   /**
    * Where the Yetzer Hara starts, in the prologue.

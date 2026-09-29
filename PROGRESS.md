@@ -1030,3 +1030,72 @@ without a viewport meta lays the page out at 980 points and scales it down.
 Vercel Authentication was on by default, which would have put a login in front
 of the URL. Turned off deliberately: the link is public now, which is what a
 link you can open on a phone means.
+
+## 2-4 — The Escalade, and World 2 is finished
+
+§6's own emphasis: **"the player fights the vehicle, never the driver."** She
+is never harmed, never stomped, and never once acknowledges that any of this is
+happening. That is enforced by construction rather than by being careful —
+nothing in `Escalade.ts` knows she is there. She is drawn into the sheet, she
+has no hitbox, and the damage is a dent in a roof.
+
+### It needed its own class, not a bigger `BossConfig`
+
+Every field of the Pigeon King's row describes a bird: perches, dive speed,
+sweep height, hover. Reusing the shape would have produced a table where two
+thirds of each row was ignored. A boss is "real health, named phases, and a
+script"; the script is the part that differs, so it got its own row type.
+
+### The roof is the answer, which is the whole point
+
+§6 says of this world's minivans that "the player must climb the thing trying
+to kill them". The game has been teaching it since the shopping cart in 1-1 and
+four vans nose to tail in 2-1. Here it is the exam: the roof is solid at any
+speed, and riding it into the hydrant leaves you already standing where the
+dent goes. So the hitbox is the drawn height rather than something shorter — a
+shorter one would let a running jump clear the whole car, which is an easier
+answer than the one the fight is about.
+
+The stoops at either end are the other answer. Three tiles up, butted onto the
+hydrants, outside the lane. They get you through a charge and nothing more.
+
+### Four things found by playing it
+
+**A goose is not scenery.** The first arena had one on each stoop, because §6
+has geese scattering in phase 2. §6 also says they "hiss, chase on foot,
+relentless, don't scare off" — so the near one walked to the spawn point and
+killed the player five times before the Escalade had moved at all. Game over in
+a boss arena without a fight. The geese are a visual event now: four with no
+bodies that run off the screen when phase 2 opens. 1-4 is empty for the same
+reason. A boss arena should contain the boss.
+
+**The far stoop was one tile clear of its hydrant**, and that tile was the
+fight. A player on the stoop is four pixels above the crashed roof and twenty
+across — you step onto it. With a gap, that step became a jump over a hole,
+next to a car, on a clock.
+
+**"PRESS DOWN" is not an instruction that works.** A ground pound happens in
+mid-air (§4) — `updateGroundPound` returns immediately if you are grounded — so
+a player stood on the roof pressing down gets nothing at all. It took watching
+a bot fail the fight fourteen times in seventy seconds to see that the hint I
+had written was incomplete. It says JUMP, THEN DOWN now, in the level's sign
+and in the hint that appears over your head when you are up there as Mendy.
+
+**The crash has to throw you off, and then the car has to settle.** Riding is
+the best line and should stay that way, but without a jolt the first dent won
+the whole fight: you were already standing on the roof for every stall after
+it, phase 3's included. A stomp's bounce was worth eighteen pixels and you came
+straight back down. Forty-eight and a shove forward puts you on the stoop —
+except that then the throw put you airborne directly over an already-vulnerable
+car and the pound landed on the next frame, which was worse. So the stall takes
+420ms to settle before a dent will take. With both, the fight went from 21
+seconds to 30, and phase 3 went from four seconds to ten.
+
+### Verified
+
+Driving the real fight: three dents through all three phases, no damage taken,
+prize collected, level complete, in 30 seconds. The Pigeon King re-checked on
+the shared prize drop that this work pulled out of `onBossDefeated` — both
+bosses drop something that can be picked up and ends the level.
+
+World 2 is complete: Central Avenue, Backyards, The Pool and The Escalade.

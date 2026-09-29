@@ -22,6 +22,7 @@ import { WindZone } from '../entities/Hazard';
 import { Current, Water } from '../entities/Water';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
+import { Escalade } from '../entities/Escalade';
 import { Thief } from '../entities/Thief';
 import { ENEMIES as ENEMY_TABLE } from '../config/enemies';
 import { HAZARDS } from '../config/hazards';
@@ -198,8 +199,16 @@ export class LevelScene extends Phaser.Scene {
     wasUp: boolean;
   }[] = [];
   /** The hazard the player is currently standing on, if any. */
-  private riding: MovingHazard | undefined;
+  /** Whatever the player is stood on that moves: a cart, a van roof, the Escalade. */
+  private riding: Phaser.Physics.Arcade.Sprite | undefined;
   private boss: Boss | undefined;
+  private escalade: Escalade | undefined;
+  /** The phase the Escalade was in last frame, so a change can be noticed once. */
+  private escaladePhase = 1;
+  /** Its mode last frame, so the crash can be noticed exactly once. */
+  private escaladeMode = '';
+  /** Shown over the player's head when the wrong brother is stood on the roof. */
+  private dentHint: Phaser.GameObjects.Text | undefined;
   private thief: Thief | undefined;
   private prologue = false;
   private perches: Phaser.Math.Vector2[] = [];
@@ -447,6 +456,7 @@ export class LevelScene extends Phaser.Scene {
     this.updateLaunchers(now);
     this.updateHazards(now);
     this.updateBoss(now);
+    this.updateEscalade(now);
     this.dismissFlock(now);
     this.thief?.tick(step, this.player.x);
     this.watchForTheGetaway();
@@ -735,10 +745,20 @@ export class LevelScene extends Phaser.Scene {
     // before would go on being ticked here with a destroyed body under it —
     // beat 1-4, go back to the map, start 1-1, crash.
     this.boss = undefined;
+    this.escalade = undefined;
+    this.escaladePhase = 1;
+    this.escaladeMode = '';
+    this.dentHint?.destroy();
+    this.dentHint = undefined;
     this.perches = (this.level.perches ?? []).map(
       (p) => new Phaser.Math.Vector2(p.x * TILE + TILE / 2, p.y * TILE),
     );
     if (!this.level.boss) return;
+
+    if (this.level.boss.kind === 'escalade') {
+      this.buildEscalade(this.level.boss.x * TILE + TILE / 2, this.level.boss.y * TILE);
+      return;
+    }
 
     this.boss = new Boss(this, this.level.boss.x * TILE + TILE / 2, this.level.boss.y * TILE);
     if (this.perches.length === 0) {
@@ -748,6 +768,215 @@ export class LevelScene extends Phaser.Scene {
     this.boss.setLane(lane.left, lane.right);
 
     this.physics.add.overlap(this.player, this.boss, () => this.onBossContact());
+  }
+
+  /**
+   * The Escalade (§6, 2-4).
+   *
+   * A collider rather than an overlap, unlike the Pigeon King: the roof is a
+   * floor you stand on, so Arcade has to separate the two bodies. Everything
+   * else about the fight — who is hurt, what makes a dent — is decided in the
+   * callback.
+   */
+  private buildEscalade(x: number, y: number): void {
+    this.escalade = new Escalade(this, x, y);
+    const lane = this.driveLane(this.escalade);
+    this.escalade.setLane(lane.left, lane.right);
+
+    this.physics.add.collider(this.player, this.escalade, () => this.onEscaladeContact());
+    // The other traffic in the cul-de-sac gets out of the way of it, rather
+    // than being driven through: a goose standing inside a charging car is the
+    // one thing in this fight that would look like a bug.
+    this.physics.add.collider(this.enemies, this.escalade);
+  }
+
+  /**
+   * How far the cul-de-sac runs, in pixels.
+   *
+   * The two hydrants are the ends, and they are wherever the arena's floor
+   * stops being flat — the stoops at either end. Measuring it from the
+   * geometry rather than writing it into the level twice means the arena can
+   * be resized without the car being told separately.
+   */
+  private driveLane(car: Escalade): { left: number; right: number } {
+    const roof = car.y - car.config.bodyHeight;
+    let left = 0;
+    let right = this.level.widthInTiles * TILE;
+
+    for (const solid of this.level.solids) {
+      const y0 = solid.y * TILE;
+      if (y0 >= car.y) continue; // the road itself
+      if (y0 > roof + car.config.bodyHeight) continue; // too low to be in the way
+      const x0 = solid.x * TILE;
+      const x1 = (solid.x + solid.w) * TILE;
+      if (x1 <= car.x) left = Math.max(left, x1);
+      else if (x0 >= car.x) right = Math.min(right, x0);
+    }
+    return { left, right };
+  }
+
+  /**
+   * Touching the Escalade.
+   *
+   * On the roof you are safe at any speed and carried along with it, because
+   * the roof is where §6 wants you — "the player must climb the thing trying
+   * to kill them". A ground pound up there while it is stalled is the dent.
+   * Anywhere else on it while it is moving costs you a life.
+   *
+   * There is deliberately no case for the driver. She has no hitbox and this
+   * function does not know she exists.
+   */
+  private onEscaladeContact(): void {
+    const car = this.escalade;
+    if (!car?.isAlive || this.state !== 'playing') return;
+
+    const body = this.player.physicsBody;
+    const onRoof = body.bottom <= car.physicsBody.top + GAMEPLAY.stompFootMargin + 6;
+
+    if (onRoof) {
+      this.riding = car;
+      if (this.player.isGroundPounding && car.isVulnerable) {
+        if (car.takeDent(this.time.now)) this.onEscaladeDefeated();
+      }
+      return;
+    }
+    if (car.isDangerous) this.hurtPlayer(car.x);
+  }
+
+  /**
+   * Everything the fight does once a frame, and the hint.
+   *
+   * The hint is here rather than on a sign because the moment it is useful is
+   * a moment you can be in: stood on a stalled Escalade as Mendy, with the one
+   * thing that would work belonging to his brother. A sign on a wall thirty
+   * tiles away cannot say that at the time it matters.
+   *
+   * It says JUMP, THEN DOWN and not just DOWN, which took watching a bot fail
+   * the fight fourteen times in seventy seconds to notice. A ground pound is a
+   * thing you do in mid-air (§4) — `updateGroundPound` returns immediately if
+   * you are on the ground — so a player stood on the roof pressing down gets
+   * nothing at all, and the instruction that omits the jump is an instruction
+   * that does not work.
+   */
+  private updateEscalade(now: number): void {
+    const car = this.escalade;
+    if (!car) return;
+
+    car.tick(now);
+    if (car.isAlive) this.hud.showBossHealth(car.healthFraction);
+    else this.hud.hideBossHealth();
+
+    if (car.phase !== this.escaladePhase) {
+      this.escaladePhase = car.phase;
+      if (car.phase === 2) this.scatterGeese();
+    }
+
+    /**
+     * The crash throws you off.
+     *
+     * Riding the roof into the hydrant is the fight's best line and it should
+     * stay that way — but a crash you can sleep through is not a crash, and
+     * without this the first dent wins the whole fight: you would already be
+     * standing on the roof for every stall after it, including phase 3's, and
+     * the two hardest phases would never ask you for anything.
+     *
+     * So it pitches you forward, the way anything unsecured in a car that has
+     * just hit a hydrant goes forward. It is stationary and harmless by then,
+     * so what it costs you is a couple of seconds of the window getting back
+     * on — which is the difference between a ride being rewarded and a ride
+     * being the answer to everything.
+     */
+    if (car.mode !== this.escaladeMode) {
+      const crashed = car.mode === 'stalled' && this.escaladeMode === 'charging';
+      this.escaladeMode = car.mode;
+      if (crashed && this.riding === car && this.state === 'playing') {
+        this.riding = undefined;
+        this.player.bounce(GAMEPLAY.escaladeCrashThrow);
+        this.player.physicsBody.setVelocityX(car.facing * GAMEPLAY.escaladeCrashSlide);
+      }
+    }
+
+    const body = this.player.physicsBody;
+    const aboard =
+      car.isVulnerable &&
+      body.blocked.down &&
+      body.bottom <= car.physicsBody.top + 6 &&
+      body.right > car.physicsBody.left &&
+      body.left < car.physicsBody.right;
+    const wantHint = aboard && this.player.character !== 'berel';
+
+    if (wantHint && !this.dentHint) {
+      this.dentHint = this.add
+        .text(0, 0, 'SWAP TO BEREL\nJUMP, THEN DOWN', {
+          fontFamily: 'monospace',
+          fontSize: '8px',
+          color: '#ffd77a',
+          align: 'center',
+          backgroundColor: '#1a1020cc',
+          padding: { x: 3, y: 2 },
+        })
+        .setOrigin(0.5, 1)
+        .setDepth(12);
+    } else if (!wantHint && this.dentHint) {
+      this.dentHint.destroy();
+      this.dentHint = undefined;
+    }
+    this.dentHint?.setPosition(this.player.x, this.player.y - 30);
+  }
+
+  /**
+   * §6, phase 2: "Backup beeping, sprinklers kicking on, geese scattering."
+   *
+   * Scenery, and deliberately not enemies. A goose in this game hisses, chases
+   * on foot and does not scare off — that is §6's own description of them and
+   * it is the opposite of scattering. The first draft of this arena had two
+   * real ones on the stoops, and the near one walked over to the spawn point
+   * and killed the player five times before the Escalade had moved at all.
+   *
+   * So these have no bodies, no collision and no behaviour. They appear, they
+   * leave, and the cul-de-sac contains nothing that can hurt you but the car.
+   */
+  private scatterGeese(): void {
+    const art = actorArt('goose');
+    const ground = (this.level.groundRow ?? this.level.heightInTiles - 7) * TILE;
+    const camera = this.cameras.main;
+
+    for (let i = 0; i < 4; i += 1) {
+      const away: -1 | 1 = i % 2 === 0 ? -1 : 1;
+      const from = this.player.x + away * (40 + i * 26);
+      const goose = art
+        ? this.add.sprite(from, ground, art.key, Array.isArray(art.poses.run) ? (art.poses.run[0] ?? 0) : 0).setOrigin(0.5, 1)
+        : this.add.rectangle(from, ground, 14, 16, 0xe8e4d8).setOrigin(0.5, 1);
+      goose.setDepth(6);
+      if (art && 'setFlipX' in goose) goose.setFlipX(away < 0);
+
+      this.tweens.add({
+        targets: goose,
+        x: from + away * 190,
+        duration: 1500 + i * 130,
+        ease: 'Sine.easeOut',
+        onComplete: () => goose.destroy(),
+      });
+      // A run, badly done, which is what a startled goose looks like.
+      this.tweens.add({
+        targets: goose,
+        y: ground - 6,
+        duration: 150,
+        yoyo: true,
+        repeat: 9,
+      });
+    }
+    camera.shake(120, 0.003);
+  }
+
+  /** The Escalade drives off, and the poppers slide out the back hatch (§6). */
+  private onEscaladeDefeated(): void {
+    const car = this.escalade;
+    if (!car) return;
+    this.hud.hideBossHealth();
+    this.dentHint?.destroy();
+    this.dentHint = undefined;
+    this.dropPrize(car.x, car.y - 10);
   }
 
   /**
@@ -986,9 +1215,20 @@ export class LevelScene extends Phaser.Scene {
     if (!boss) return;
     this.hud.hideBossHealth();
 
+    this.dropPrize(boss.x, boss.y - 10);
+  }
+
+  /**
+   * The kiddush item the boss was sitting on comes loose (§6).
+   *
+   * Shared by both fights: a beaten Pigeon King drops the meat board and a
+   * beaten Escalade slides the pan of poppers out of its back hatch, and from
+   * here those are the same event at different coordinates.
+   */
+  private dropPrize(x: number, y: number): void {
     const world = worldOf(this.levelId ?? '');
     const prize = this.add
-      .rectangle(boss.x, boss.y - 10, 22, 14, world?.color ?? 0xe8d9b0)
+      .rectangle(x, y, 22, 14, world?.color ?? 0xe8d9b0)
       .setStrokeStyle(1, 0xffffff)
       .setDepth(8);
     this.physics.add.existing(prize);
@@ -1413,13 +1653,14 @@ export class LevelScene extends Phaser.Scene {
     // carry a body on top of a moving platform by itself.
     if (this.riding && this.riding.active) {
       const body = this.player.physicsBody;
+      const under = this.riding.body as Phaser.Physics.Arcade.Body;
       const stillOn =
         body.blocked.down &&
-        body.bottom <= this.riding.physicsBody.top + 4 &&
-        body.right > this.riding.physicsBody.left &&
-        body.left < this.riding.physicsBody.right;
+        body.bottom <= under.top + 4 &&
+        body.right > under.left &&
+        body.left < under.right;
 
-      if (stillOn) this.player.x += (this.riding.physicsBody.velocity.x * this.game.loop.delta) / 1000;
+      if (stillOn) this.player.x += (under.velocity.x * this.game.loop.delta) / 1000;
       else this.riding = undefined;
     } else {
       this.riding = undefined;

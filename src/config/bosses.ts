@@ -136,3 +136,136 @@ export const BOSSES = {
     summonCount: 2,
   },
 } as const satisfies Record<string, BossConfig>;
+
+/**
+ * A boss that drives (§6, 2-4).
+ *
+ * Nothing in `BossConfig` above means anything to a car. Perches, dive speed,
+ * sweep height, hover — every field of it describes a bird, and reusing the
+ * shape would have meant a table where two thirds of each row was ignored. A
+ * boss is "real health, named phases, and a script"; the script is the part
+ * that differs, so the script gets its own row shape.
+ *
+ * ## The one rule this fight is built on
+ *
+ * **The player fights the vehicle, never the driver.** §6 is explicit, and the
+ * joke only works if it is absolute: she is never harmed, never stomped, and
+ * never once acknowledges that any of this is happening. So there is no
+ * hitbox on her, no reaction from her, and the damage is a dent in a roof.
+ *
+ * ## Why the roof is the answer
+ *
+ * §6 says of the minivans that "the player must climb the thing trying to kill
+ * them", and World 2 has been teaching that since the carpool line: a shopping
+ * cart in 1-1, four minivans in 2-1. This is the exam. Getting onto the roof
+ * is both the dodge and the setup — there is nowhere else to be while it is
+ * moving, and once it has clipped the hydrant you are already standing where
+ * the dent goes.
+ *
+ * The hitbox is the drawn height rather than something shorter, because of
+ * that. A shorter one would let a running jump clear the whole car, which is
+ * an easier answer than the one the fight is about.
+ */
+export interface VehicleBossStage {
+  /** How long it sits before it starts revving, ms. */
+  readonly waitMs: number;
+  /** The rev. This is the telegraph, and the fairness lives in it. */
+  readonly revMs: number;
+  readonly chargeSpeed: number;
+  /** The window after it clips the hydrant: the whole fight, in one number. */
+  readonly stallMs: number;
+  readonly returnSpeed: number;
+  /** Does the leg back also come at you, or is it a crawl you can walk around? */
+  readonly reverseCharges: boolean;
+  /**
+   * §6: "She sets the salad in the cupholder. The music drops out for one
+   * beat. Then she drives like she means it."
+   *
+   * A dead stop, after the rev, with everything else still going. There is no
+   * music yet to drop, so the beat is silence of a different kind — the one
+   * moment in the fight where the car is not doing anything at all.
+   */
+  readonly beatMs: number;
+}
+
+export interface VehicleBossConfig {
+  readonly label: string;
+  readonly art?: ActorSpriteName;
+  readonly hits: number;
+  readonly phases: number;
+  readonly bodyWidth: number;
+  readonly bodyHeight: number;
+  readonly color: number;
+  /**
+   * How long after the crash before a dent will take, ms.
+   *
+   * The car has stopped but it has not finished stopping — it is rocking on
+   * its springs and there is steam coming off it. Mechanically this is what
+   * stops the best line in the fight from also being an instant win: riding
+   * the roof in means the crash throws you off it, and without a settling beat
+   * you are airborne directly over a car that is already vulnerable, so the
+   * throw lands the dent for you on the next frame. With one, you come down,
+   * and then you have to jump and pound like anyone else — from the best place
+   * in the arena to be doing it from, which is the reward for the ride.
+   */
+  readonly settleMs: number;
+  /** One per phase, in order. */
+  readonly stages: readonly VehicleBossStage[];
+}
+
+export const VEHICLE_BOSSES = {
+  /**
+   * The Escalade (§6): "A mother in sunglasses, on the phone, eating a salad,
+   * driving an enormous Escalade around a cul-de-sac."
+   *
+   * Eighty pixels by forty-four is five tiles long and nearly three tall,
+   * which is the joke stated in numbers: it is larger than both brothers put
+   * together and it is being driven with one hand.
+   */
+  escalade: {
+    label: 'The Escalade',
+    art: 'escalade',
+    hits: 3,
+    phases: 3,
+    bodyWidth: 80,
+    bodyHeight: 44,
+    color: 0x2f3444,
+    settleMs: 420,
+    stages: [
+      // Phase 1. It charges one way and crawls back, so half the cycle is
+      // free time — this is where you learn that the roof is a place.
+      {
+        waitMs: 1700,
+        revMs: 950,
+        chargeSpeed: 250,
+        stallMs: 2800,
+        returnSpeed: 110,
+        reverseCharges: false,
+        beatMs: 0,
+      },
+      // Phase 2. §6: "Reverse. Backup beeping." The leg back is a charge now,
+      // so there is no longer a safe half of the cycle.
+      {
+        waitMs: 1400,
+        revMs: 820,
+        chargeSpeed: 305,
+        stallMs: 2400,
+        returnSpeed: 305,
+        reverseCharges: true,
+        beatMs: 0,
+      },
+      // Phase 3. The salad goes in the cupholder.
+      {
+        waitMs: 1100,
+        revMs: 620,
+        chargeSpeed: 375,
+        stallMs: 2050,
+        returnSpeed: 375,
+        reverseCharges: true,
+        beatMs: 620,
+      },
+    ],
+  },
+} as const satisfies Record<string, VehicleBossConfig>;
+
+export type VehicleBossKind = keyof typeof VEHICLE_BOSSES;
