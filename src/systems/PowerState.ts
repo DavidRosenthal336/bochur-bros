@@ -99,6 +99,30 @@ export class PowerState extends Phaser.Events.EventEmitter {
     return 'dropped';
   }
 
+  /**
+   * Robbed (§6's raccoon): the tier comes off, and that is all that happens.
+   *
+   * Deliberately not `takeHit`. A hit is worth a second of invulnerability,
+   * because a hit is one frame of a collision that will still be happening on
+   * the next four; a theft happens once by construction, since the thief is
+   * carrying the thing afterwards and cannot take a second. Handing out
+   * immunity for being robbed would also make a raccoon a *useful* thing to
+   * walk into on the way past a goose, which is a strategy no level should
+   * have to be designed against.
+   *
+   * Returns what was taken, or undefined if there was nothing to take. At
+   * Small there is nothing: §5's bottom rung is not a possession, and a thief
+   * that could take your last rung would be taking a life, which is not what
+   * §6 gives the raccoon.
+   */
+  steal(): PowerTier | undefined {
+    const below = TIER_BELOW[this.tier];
+    if (below === null) return undefined;
+    const taken = this.tier;
+    this.set(below);
+    return taken;
+  }
+
   /** Back to Small with no grace period — used when respawning. */
   reset(): void {
     this.invulnerableUntil = 0;

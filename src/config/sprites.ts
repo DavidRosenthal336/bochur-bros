@@ -187,6 +187,24 @@ export const ACTOR_SPRITES = {
   stroller: actor('stroller', 28, 30, { idle: 0 }),
   van: actor('van', 50, 32, { idle: 0 }),
 
+  // --- World 3, The Catskills (§6) ------------------------------------------
+  /**
+   * The raccoon. "Steal the player's power-up and bolt under a porch. Chase
+   * one down and it drops what it took."
+   *
+   * Two frames and both of them running, which is the whole animal: it is
+   * either on its way to your pot or on its way out with it.
+   */
+  raccoon: actor('raccoon', 22, 15, { run: [0, 1] }, { fps: 11 }),
+  /** The post a clothesline is strung between. Scenery; the line is the thing. */
+  clotheslinePost: actor('clothesline_post', 12, 20, { idle: 0 }),
+  /** A sheet pegged to one. Also World 4's alley lines. */
+  laundryLine: actor('laundry_line', 16, 8, { idle: 0 }, { originY: 0.5 }),
+  /** Circles a bin; attacks if you come to it (§6). One frame, and it buzzes. */
+  wasp: actor('wasp', 12, 12, { perch: 0, rear: 0, fly: 0, swoop: 0 }, { originY: 0.5 }),
+  /** A porch step, whole and cracked. The crack is the warning (§6). */
+  porchStep: actor('porch_step', 16, 16, { ok: 0, cracked: 1 }),
+
   coin: actor('coin', 8, 10, { spin: [0, 1, 2, 3] }, { fps: 8, originY: 0.5 }),
   flame: actor('menorah_flame', 8, 8, { burn: [0, 1] }, { fps: 12, originY: 0.5 }),
   lchaim: actor('lchaim', 10, 14, { idle: 0 }),
@@ -231,6 +249,21 @@ export const TILE_TEXTURES = {
   poolWater: 'tiles/five_towns_pool_water.png',
   poolTile: 'tiles/five_towns_pool_tile.png',
   deck: 'tiles/five_towns_deck.png',
+
+  // --- World 3, The Catskills ----------------------------------------------
+  //
+  // A colony is wood and weather. Where The Five Towns is mown grass over
+  // asphalt, this is patchy lawn over bare dirt, and every structure in it is
+  // a bungalow: painted board walls, a shingled roof, a porch floor worn grey.
+  colonyLawn: 'tiles/catskills_lawn.png',
+  colonyDirt: 'tiles/catskills_dirt.png',
+  colonyShingle: 'tiles/catskills_shingle.png',
+  porchWood: 'tiles/catskills_porch_wood.png',
+  bungalowWall: 'tiles/catskills_bungalow_wall.png',
+  leaves: 'tiles/catskills_leaves.png',
+  trunk: 'tiles/catskills_trunk.png',
+  mud: 'tiles/catskills_mud.png',
+  lake: 'tiles/catskills_lake.png',
 } as const;
 
 export type TileTextureName = keyof typeof TILE_TEXTURES;

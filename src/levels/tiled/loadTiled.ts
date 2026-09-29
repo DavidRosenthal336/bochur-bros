@@ -6,6 +6,8 @@ import { TILE } from '../../config/Tuning';
 import type { BlockContents, BlockKind } from '../../entities/Block';
 import type {
   BlockPlacement,
+  ClotheslineDef,
+  StepDef,
   BossPlacement,
   BounceKind,
   BouncePlacement,
@@ -45,6 +47,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const bouncers: BouncePlacement[] = [];
   const water: WaterDef[] = [];
   const currents: CurrentDef[] = [];
+  const clotheslines: ClotheslineDef[] = [];
+  const steps: StepDef[] = [];
   const checkpoints: TilePoint[] = [];
   const perches: TilePoint[] = [];
   let spawn: TilePoint = { x: 2, y: map.height - 8 };
@@ -115,6 +119,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
         case 'stroller':
         case 'minivan':
         case 'mower':
+        case 'golfCart':
           hazards.push({
             x,
             y,
@@ -138,6 +143,17 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
           });
           break;
         }
+        case 'clothesline':
+          clotheslines.push({
+            x,
+            y,
+            w: Math.max(1, Math.round(object.width / tile)),
+            drop: readNumber(object, 'drop') ?? 3,
+          });
+          break;
+        case 'step':
+          steps.push({ x, y });
+          break;
         case 'water':
           water.push({
             x,
@@ -198,6 +214,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     hazards,
     water,
     currents,
+    clotheslines,
+    steps,
     bouncers,
     checkpoints,
     perches,

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { EnemyConfig } from '../config/enemies';
 import type { ActorSpriteSet } from '../config/sprites';
 import { GAMEPLAY } from '../config/Tuning';
+import type { PowerTier } from '../systems/PowerState';
 import { actorArt, applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 
@@ -30,7 +31,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     | 'rising'
     | 'scurrying'
     | 'noticing'
-    | 'chasing' = 'patrol';
+    | 'chasing'
+    | 'fleeing'
+    | 'denned' = 'patrol';
   /** When the current emerge phase ends. */
   private phaseEndsAt = 0;
   private nextDiveAllowedAt = 0;
@@ -41,6 +44,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private stunnedUntil = 0;
   /** The drawn sheet, if this creature has been drawn. */
   private readonly art: ActorSpriteSet | undefined;
+  /**
+   * What it has taken off you, if it is a thief and it has (§6's raccoon).
+   *
+   * Held as the tier itself rather than as a flag, because what it is carrying
+   * is what it drops, and a raccoon that stole a Lulav must not hand back a
+   * Cholent.
+   */
+  private loot: PowerTier | undefined;
+  /** The pot on its back, drawn so a carrying raccoon is worth chasing. */
+  private lootMark: Phaser.GameObjects.Rectangle | undefined;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig) {
     super(scene, x, y, solidTextureKey(scene, config.bodyWidth, config.bodyHeight));
@@ -82,6 +95,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   tick(now: number, playerX: number, playerY: number): void {
     if (this.dying) return;
     if (this.tell) this.tell.setPosition(this.x, this.y - this.config.bodyHeight / 2);
+    this.lootMark?.setPosition(this.x, this.y - this.config.bodyHeight - 5);
 
     if (now < this.stunnedUntil) {
       this.physicsBody.setVelocityX(0);
@@ -101,6 +115,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         break;
       case 'chase':
         this.tickChase(now, playerX);
+        break;
+      case 'thief':
+        this.tickThief(now, playerX);
         break;
     }
 
@@ -131,6 +148,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         break;
       case 'noticing':
         playPose(this, art, 'hiss');
+        break;
+      case 'fleeing':
+        playPose(this, art, 'run');
         break;
       case 'chasing':
         // A goose that has been stood on once is angry about it, and says so
@@ -195,6 +215,128 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.facing = playerX >= this.x ? 1 : -1;
     body.setVelocityX(this.facing * chase.speed);
+  }
+
+  /**
+   * The raccoon (§6): amble, rob, bolt, hide, come back out.
+   *
+   * It has no attack and no interest in the player beyond what the player is
+   * carrying, so there is nothing here that watches for you — the theft happens
+   * in the scene's contact handler and this only deals with the aftermath. That
+   * asymmetry is the animal: a goose decides to come for you, a raccoon
+   * notices an unattended pot.
+   *
+   * The den is wherever the bolt runs out, and the level is built so that is
+   * under a porch. Making it hunt for a particular porch would mean the run
+   * home crossing the player's path, and a thief that runs *at* you to escape
+   * reads as an attack in something that cannot hurt you.
+   */
+  private tickThief(now: number, playerX: number): void {
+    const steal = this.config.steal;
+    const body = this.physicsBody;
+    if (!steal) {
+      this.tickPatrol();
+      return;
+    }
+
+    switch (this.phase) {
+      case 'fleeing': {
+        // Blocked is the end of the run as much as the clock is: a raccoon
+        // grinding its nose into a bungalow wall for a second looks broken.
+        const walled = body.blocked.left || body.blocked.right;
+        if (now >= this.phaseEndsAt || walled) {
+          this.phase = 'denned';
+          this.phaseEndsAt = now + steal.denMs;
+          this.setVisible(false);
+          body.enable = false;
+          this.lootMark?.setVisible(false);
+          return;
+        }
+        body.setVelocityX(this.facing * steal.fleeSpeed);
+        return;
+      }
+
+      case 'denned': {
+        if (now < this.phaseEndsAt) return;
+        /**
+         * Out again, and out on the far side of the player if it can manage it.
+         *
+         * A raccoon that reappears facing the way it came in walks straight
+         * back into the player and is robbed of its own theft within a frame.
+         */
+        this.phase = 'patrol';
+        this.facing = playerX >= this.x ? -1 : 1;
+        this.setVisible(true);
+        body.enable = true;
+        this.lootMark?.setVisible(true);
+        return;
+      }
+
+      default:
+        this.tickPatrol();
+    }
+  }
+
+  /**
+   * Is there any point robbing this player?
+   *
+   * One thief, one pot: a raccoon already carrying something walks past you.
+   */
+  get canSteal(): boolean {
+    return (
+      this.config.contact === 'steal' &&
+      this.loot === undefined &&
+      !this.dying &&
+      (this.phase === 'patrol' || this.phase === 'noticing' || this.phase === 'chasing')
+    );
+  }
+
+  /** What it is carrying, if anything. */
+  get carrying(): PowerTier | undefined {
+    return this.loot;
+  }
+
+  /**
+   * Take the player's power-up and bolt.
+   *
+   * Away from the player, always — the direction is the only thing that makes
+   * this legible as a robbery rather than a collision, and it is also what
+   * makes the chase a chase.
+   */
+  takeLoot(tier: PowerTier, now: number, awayFrom: number): void {
+    const steal = this.config.steal;
+    if (!steal || this.loot !== undefined) return;
+
+    this.loot = tier;
+    this.phase = 'fleeing';
+    this.phaseEndsAt = now + steal.fleeMs;
+    this.facing = this.x >= awayFrom ? 1 : -1;
+    this.endWindUp();
+
+    // The pot, riding on its back. Deliberately not the power-up sprite: this
+    // is a thing being carried off, and it has to be visible at the distance a
+    // bolting raccoon puts between you within half a second.
+    this.lootMark = this.scene.add
+      .rectangle(this.x, this.y - this.config.bodyHeight - 5, 10, 8, 0xffd27a)
+      .setStrokeStyle(1, 0x3a2a14)
+      .setDepth(10);
+  }
+
+  /**
+   * Hand it back. Returns what it was carrying, once.
+   *
+   * §6: "chase one down and it drops what it took." Dropping is the scene's
+   * job — it is the thing that knows how to make a power-up — so this only
+   * gives up the tier and stops looking like it has one.
+   */
+  dropLoot(): PowerTier | undefined {
+    const tier = this.loot;
+    this.loot = undefined;
+    if (this.lootMark) {
+      this.lootMark.destroy();
+      this.lootMark = undefined;
+    }
+    return tier;
   }
 
   private tickPatrol(): void {
@@ -448,6 +590,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   override destroy(fromScene?: boolean): void {
     this.endWindUp();
+    this.lootMark?.destroy();
+    this.lootMark = undefined;
     super.destroy(fromScene);
   }
 }

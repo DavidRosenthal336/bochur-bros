@@ -67,7 +67,7 @@ export const WORLDS: readonly WorldEntry[] = [
     prizeIcon: 'kugel',
     color: 0xc98b4a,
     levels: [
-      { id: '3-1', name: 'The Colony' },
+      { id: '3-1', name: 'The Colony', map: '3-1' },
       { id: '3-2', name: 'The Lake' },
       { id: '3-3', name: 'Lights Out' },
       { id: '3-4', name: 'The Bear', isBoss: true },

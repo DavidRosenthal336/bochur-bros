@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { CharacterAbilities, CharacterId, CharacterStats, JumpBracket } from '../config/Tuning';
-import { CHARACTERS, GAMEPLAY, POWERS, SWIM, TIERS, TILE } from '../config/Tuning';
+import { CHARACTERS, GAMEPLAY, POWERS, SWIM, TIERS, TILE, ZIPLINE } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from '../input/InputState';
 import { NEUTRAL_INPUT } from '../input/InputState';
@@ -44,6 +44,22 @@ export interface PlayerDebugInfo {
  * every characteristic already comes from an injected `CharacterStats`, that is
  * a matter of pointing this class at a different stat block.
  */
+/**
+ * The part of a clothesline the player needs to know about (§6, World 3).
+ *
+ * `x1,y1` is where the rope starts and `x2,y2` is its low end, and the scene
+ * has already worked out which of a line's two ends that is — so riding is
+ * always "carry on toward x2".
+ */
+export interface RidableLine {
+  readonly x1: number;
+  readonly y1: number;
+  readonly x2: number;
+  readonly y2: number;
+  heightAt(x: number): number;
+  isPastEnd(x: number): boolean;
+}
+
 export class Player extends Phaser.Physics.Arcade.Sprite {
   /**
    * Who is currently on screen.
@@ -94,6 +110,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private tier: PowerTier = 'small';
   /** While false, input is ignored — during a death, or a level-complete walk-off. */
   private controllable = true;
+  /**
+   * The clothesline being ridden, if any (§6, World 3).
+   *
+   * Held as bare geometry rather than as the entity, so that the player knows
+   * about ropes without knowing about clotheslines, porches or The Catskills.
+   */
+  private line: RidableLine | undefined;
+  /** Which way along it: +1 rightward. Fixed at the moment of the grab. */
+  private lineDirection: -1 | 1 = 1;
+  /** No line may catch us again until this time. See ZIPLINE.regrabMs. */
+  private lineBlockedUntil = 0;
   /** A little wedge showing which way we face, since a rectangle cannot. */
   private readonly nose: Phaser.GameObjects.Rectangle;
 
@@ -236,6 +263,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.updateTimers(delta, grounded, input);
       this.updateSwim(delta, dt, input);
       this.updateAppearance(grounded);
+      return;
+    }
+
+    if (this.line) {
+      this.updateTimers(delta, grounded, input);
+      this.updateLineRide(dt, input);
+      this.updateAppearance(false);
       return;
     }
 
@@ -529,6 +563,119 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (body.velocity.y > sink) body.setVelocityY(sink);
   }
 
+  /** Are we on a rope? The scene needs to know before it offers another. */
+  get isOnLine(): boolean {
+    return this.line !== undefined;
+  }
+
+  /** Is a line allowed to catch us at all, this frame? */
+  canGrabLine(now: number): boolean {
+    return (
+      this.line === undefined &&
+      !this.submerged &&
+      !this.groundPounding &&
+      now >= this.lineBlockedUntil
+    );
+  }
+
+  /**
+   * Take hold of a clothesline (§6, World 3).
+   *
+   * Everything a dry body was in the middle of ends here, exactly as it does
+   * on entering water: a jump you were still climbing, a flight, a crouch. A
+   * rope is a different way of being in the air and it cannot inherit the
+   * bookkeeping of the last one.
+   */
+  grabLine(line: RidableLine, direction: -1 | 1): void {
+    this.line = line;
+    this.lineDirection = direction;
+    this.rising = false;
+    this.jumpActive = false;
+    this.groundPounding = false;
+    this.crouching = false;
+    this.setFlying(false);
+
+    const body = this.physicsBody;
+    body.setAllowGravity(false);
+    body.setGravityY(0);
+    this.applyBodyHeight();
+  }
+
+  /**
+   * Let go.
+   *
+   * `jump` is the difference between stepping off and pushing off, and it is
+   * the reason to ride a line down to its end rather than bail early: the
+   * release jump keeps the rope's speed and adds a jump to it, which is the
+   * furthest any single movement in the game will carry you.
+   */
+  releaseLine(jump: boolean): void {
+    if (!this.line) return;
+    this.line = undefined;
+    this.lineBlockedUntil = this.scene.time.now + ZIPLINE.regrabMs;
+
+    const body = this.physicsBody;
+    body.setAllowGravity(true);
+    body.setGravityY(this.bracket.fallGravity);
+    if (jump) {
+      body.setVelocityY(ZIPLINE.releaseVelocity);
+      body.setVelocityX(this.lineDirection * ZIPLINE.speed);
+    } else {
+      body.setVelocityY(0);
+    }
+  }
+
+  /**
+   * Slide along the rope.
+   *
+   * The body is driven with velocities rather than by writing its position,
+   * for the reason that keeps coming up in this codebase: Arcade moves a body
+   * from its velocity and then writes that position over the sprite's, so a
+   * position set here is overwritten before anybody sees it. Giving the
+   * vertical velocity the rope's own slope means the feet track the rope
+   * exactly while remaining a normal physics body — which matters, because
+   * riding a line into the side of a bungalow has to stop you.
+   *
+   * Steering does nothing on purpose. A rope goes where it goes; the two
+   * decisions available are when to let go and whether to jump.
+   */
+  private updateLineRide(dt: number, input: InputState): void {
+    const line = this.line;
+    if (!line) return;
+    const body = this.physicsBody;
+
+    // Stepping off: down drops you, jump throws you. Both are deliberate, and
+    // both beat arriving at the end of the rope with no plan.
+    if (this.bufferMs > 0) {
+      this.bufferMs = 0;
+      this.releaseLine(true);
+      return;
+    }
+    if (input.moveY > 0) {
+      this.releaseLine(false);
+      return;
+    }
+
+    const slope = (line.y2 - line.y1) / (line.x2 - line.x1);
+    body.setVelocityX(this.lineDirection * ZIPLINE.speed);
+    body.setVelocityY(Math.abs(ZIPLINE.speed * slope));
+    this.facing = this.lineDirection;
+
+    // Ridden into something, or ridden off the end. Either way the rope is done
+    // with us; falling from here is an ordinary fall.
+    const stuck = body.blocked.left || body.blocked.right;
+    if (stuck || line.isPastEnd(body.center.x)) {
+      this.releaseLine(false);
+      return;
+    }
+
+    // Hold the feet on the rope. Small corrections only — this is a nudge
+    // against drift, not the thing doing the moving.
+    const wanted = line.heightAt(body.center.x) + ZIPLINE.hangOffset;
+    const error = wanted - body.bottom;
+    if (Math.abs(error) > 0.5) body.setVelocityY(body.velocity.y + error / Math.max(dt, 0.0001) * 0.2);
+  }
+
   /**
    * Is this a stroke or a jump out?
    *
@@ -672,6 +819,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Stop responding to input and flop upward. The scene handles what comes next. */
   playDeath(): void {
     this.controllable = false;
+    // Off the rope first. `tick` short-circuits into the ride while a line is
+    // held, which would drive the body along the washing instead of letting it
+    // flop, and the ride sets its own velocity every frame.
+    this.releaseLine(false);
     const body = this.physicsBody;
     body.setVelocity(0, GAMEPLAY.deathLaunchY);
     body.checkCollision.none = true;
@@ -913,6 +1064,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.groundPounding = false;
     this.flightMs = POWERS.peyos.durationMs;
     this.setFlying(false);
+    /**
+     * Let go of any rope, and put gravity back.
+     *
+     * Riding a clothesline turns gravity off, so a respawn that left the rope
+     * attached would hand back a player who floats. Nothing on the ropes in
+     * 3-1 can kill you, but a wasp can reach one, the clock can run out on a
+     * timed level, and `restartFromCheckpoint` comes through here — a state
+     * that is only safe because of what happens to be in one level is not
+     * safe.
+     */
+    this.releaseLine(false);
+    body.setAllowGravity(true);
+    this.lineBlockedUntil = 0;
     this.endSwing();
     this.controllable = true;
     this.physicsBody.checkCollision.none = false;

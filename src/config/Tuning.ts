@@ -573,3 +573,30 @@ export const SWIM = {
   /** The most a current can carry you against your own swimming, px/s. */
   maxDrift: 150,
 } as const;
+
+/**
+ * Riding a clothesline (§6, World 3).
+ *
+ * Faster than either brother can run, on purpose. A zipline whose whole appeal
+ * is that it is quicker than walking has to actually be quicker than walking,
+ * and Mendy's run tops out at 150 — so 195 makes the line worth the risk of
+ * stepping off a roof onto one. Both brothers ride at the same speed: the rope
+ * is doing the work, and §4's weight difference has nothing to push against
+ * here.
+ */
+export const ZIPLINE = {
+  /** Travel along the rope, px/s. */
+  speed: 195,
+  /** How high a jump off the rope is, px/s upward. */
+  releaseVelocity: -300,
+  /**
+   * How long after letting go before a line can catch you again, ms.
+   *
+   * Without it, jumping off a rope puts your feet through the same rope on the
+   * way back down and you are stuck on it forever. Long enough to clear the
+   * arc of a release jump.
+   */
+  regrabMs: 320,
+  /** How far below the rope the feet ride, px. Enough that the pose sits on it. */
+  hangOffset: 2,
+} as const;

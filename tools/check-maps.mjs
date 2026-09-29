@@ -40,6 +40,11 @@ for (const file of files) {
         w: o.width / map.tilewidth,
         h: o.height / map.tileheight,
       })),
+    // Porch steps are floor when you arrive at one, and they rebuild. Without
+    // them a rotting porch reads as a row of holes.
+    steps: (entityLayer?.objects ?? [])
+      .filter((o) => o.class === 'step')
+      .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight })),
     // Blocks are solid to the player, so they are part of the geometry as far
     // as "is there room to stand here" is concerned.
     blocks: (entityLayer?.objects ?? [])

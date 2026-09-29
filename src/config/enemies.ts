@@ -12,7 +12,7 @@
  */
 import type { ActorSpriteName } from './sprites';
 
-export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase';
+export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase' | 'thief';
 
 export interface EnemyConfig {
   readonly label: string;
@@ -29,6 +29,17 @@ export interface EnemyConfig {
   readonly hits: number;
   /** Can it be stomped at all? Mosquito swarms cannot (§6, World 3). */
   readonly stompable: boolean;
+  /**
+   * What touching it costs you.
+   *
+   * `hurt` is the default and the only thing World 1 and 2 have: contact drops
+   * a power tier, or a life at the bottom. `steal` is the raccoon — it takes
+   * the power-up itself and runs off with it, which costs a tier and no life,
+   * and costs a player who has nothing to take precisely nothing. §6 describes
+   * the raccoon entirely as a thief and never as a danger, and a thief that
+   * kills you when your pockets are empty is a different animal.
+   */
+  readonly contact?: 'hurt' | 'steal';
   /** Does gravity apply? Fliers say no and hold their altitude. */
   readonly affectedByGravity: boolean;
   readonly bodyWidth: number;
@@ -60,6 +71,18 @@ export interface EnemyConfig {
     readonly hissMs: number;
     /** Chasing speed, px/s. */
     readonly speed: number;
+  };
+  /**
+   * Extra settings for `thief`: §6's raccoon, which "steals the player's
+   * power-up and bolts under a porch".
+   */
+  readonly steal?: {
+    /** How fast it runs off with it, px/s. */
+    readonly fleeSpeed: number;
+    /** How long it keeps running before it goes to ground, ms. */
+    readonly fleeMs: number;
+    /** How long it stays under the porch, out of reach, ms. */
+    readonly denMs: number;
   };
   readonly dive?: {
     /** How close the player must get, horizontally, to trigger a swoop, px. */
@@ -173,6 +196,68 @@ export const ENEMIES = {
     bodyHeight: 10,
     color: 0x9a7448,
     patrolRange: 56,
+  },
+  // --- World 3, The Catskills ------------------------------------------------
+
+  /**
+   * The raccoon (§6): "steal the player's power-up and bolt under a porch.
+   * Chase one down and it drops what it took."
+   *
+   * The only enemy in the game that takes something other than your health,
+   * and the numbers are chosen so that it is a robbery rather than an
+   * execution. It ambles — 52px/s, slower than either brother's walk — so
+   * bumping into one is always your own doing and never an ambush. Then it
+   * bolts at 168, which is faster than Mendy's run of 150, because a thief you
+   * can simply outpace from a standing start is not a thief. What makes the
+   * chase winnable is that the bolt has an end: eleven hundred milliseconds of
+   * it, then it goes to ground under the nearest porch for two seconds, and
+   * then it comes back out ambling with your pot still on its back.
+   *
+   * So nothing is ever lost for good. §5's tiers are the game's whole economy
+   * and losing a Lulav to a bad step would sting for the rest of the level;
+   * what this costs you is the time to go and get it, which is the right price
+   * for not looking where you are going.
+   */
+  raccoon: {
+    label: 'Raccoon',
+    behavior: 'thief',
+    speed: 52,
+    hits: 1,
+    stompable: true,
+    affectedByGravity: true,
+    art: 'raccoon',
+    bodyWidth: 18,
+    bodyHeight: 11,
+    color: 0x6b6a72,
+    patrolRange: 40,
+    contact: 'steal',
+    steal: { fleeSpeed: 168, fleeMs: 1100, denMs: 2000 },
+  },
+  /**
+   * The wasp (§6): "circle garbage cans, attack if approached."
+   *
+   * Not one line of new code — a diver with no gravity and a short fuse, which
+   * is what that sentence describes. It drifts a tile and a half either side of
+   * whatever it was spawned over, which reads as circling, and it commits from
+   * much closer than a pigeon does: a pigeon is guarding the sky and sees you
+   * coming, a wasp is guarding a bin and only cares once you are at it.
+   *
+   * Stompable, because everything that flies at you in this game can be landed
+   * on, and the wind-up is what makes that possible.
+   */
+  wasp: {
+    label: 'Wasp',
+    behavior: 'dive',
+    speed: 46,
+    hits: 1,
+    stompable: true,
+    affectedByGravity: false,
+    art: 'wasp',
+    bodyWidth: 8,
+    bodyHeight: 8,
+    color: 0xd8bf4a,
+    patrolRange: 22,
+    dive: { triggerRange: 54, windUpMs: 380, speed: 130, recoverSpeed: 95, cooldownMs: 1100 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

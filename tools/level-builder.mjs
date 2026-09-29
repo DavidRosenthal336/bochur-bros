@@ -22,6 +22,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   const hazards = [];
   const waters = [];
   const currents = [];
+  const clotheslines = [];
+  const steps = [];
   const checkpoints = [];
   let spawn = { x: 2, y: floorTop };
   let goal;
@@ -119,6 +121,25 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
       return api;
     },
     /**
+     * A clothesline (§6). `drop` is how far the far end hangs below the near
+     * one, and its sign is which way you ride: negative reaches back to the
+     * left. A drop of zero is washing you can only walk under.
+     *
+     * Ride it or duck under it — which of the two happens is decided by the
+     * player's feet, not by anything written here.
+     */
+    clothesline(x, y, w, drop = 3) {
+      clotheslines.push({ x, y, w, drop });
+      return api;
+    },
+    /** A rotting porch step: solid until it is stood on (§6). */
+    step(x, y) { steps.push({ x, y }); return api; },
+    /** A run of them, which is how a porch rots. */
+    stepRow(x, y, count) {
+      for (let i = 0; i < count; i += 1) steps.push({ x: x + i, y });
+      return api;
+    },
+    /**
      * The level's boss. `kind` picks the fight; leaving it off means the
      * Pigeon King, which is what 1-4 has always meant by a boss marker.
      */
@@ -153,6 +174,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         hazards,
         water: waters,
         currents,
+        clotheslines,
+        steps,
         bouncers,
         groundRow: floorTop,
         perches,

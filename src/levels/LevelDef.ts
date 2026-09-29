@@ -31,7 +31,14 @@ export interface SolidDef {
  * it. It is a solid like any other; it is a separate kind only because grass
  * on the bottom of a swimming pool reads as a bug.
  */
-export type SolidKind = 'ground' | 'platform' | 'wall' | 'pool';
+/**
+ * `roof` is a surface you were never meant to be on.
+ *
+ * §6 makes bungalow roofs "the main platforming route" of The Catskills, so
+ * the shingle has to read as differently from a porch floor as a porch floor
+ * reads from the lawn — a route you can see is a route you can plan.
+ */
+export type SolidKind = 'ground' | 'platform' | 'wall' | 'pool' | 'roof';
 
 /** A bit of in-world text. Greybox signage, so the test level explains itself. */
 export interface LabelDef {
@@ -128,6 +135,36 @@ export interface CurrentDef extends WaterDef {
   readonly force?: number;
 }
 
+/**
+ * A clothesline, strung between two points (§6, World 3).
+ *
+ * `x`, `y` is the high end and `w` is how far it reaches; `drop` is how many
+ * tiles lower the far end hangs, and its sign is which way you ride — a
+ * negative drop reaches back to the left. A line with no drop is a line you
+ * can only walk under, which is a legitimate thing for a colony to have.
+ *
+ * It is not a solid and never becomes one. §6 asks for two things from a
+ * clothesline — "ride them like ziplines, or duck under them" — and both are
+ * the same rule stated twice: it catches feet that are falling onto it and
+ * ignores a head passing beneath it.
+ */
+export interface ClotheslineDef {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  /** Tiles of descent from the near end to the far end. Negative rides left. */
+  readonly drop: number;
+}
+
+/**
+ * A rotting porch step (§6): "crumble a beat after the player lands."
+ *
+ * One tile, solid until it is stood on, and then solid for a moment longer.
+ * The beat is the mechanic — a floor that vanishes on contact is a trap, and a
+ * floor that gives you half a second to be somewhere else is a puzzle.
+ */
+export interface StepDef extends TilePoint {}
+
 /** Which boss a level's `boss` marker means. */
 export type BossKind = 'pigeonKing' | 'escalade';
 
@@ -201,6 +238,10 @@ export interface LevelDef {
   readonly water?: readonly WaterDef[];
   /** Water that pushes. Only meaningful where it overlaps water. */
   readonly currents?: readonly CurrentDef[];
+  /** Clotheslines to ride or duck under (§6, World 3). */
+  readonly clotheslines?: readonly ClotheslineDef[];
+  /** Rotting porch steps (§6, World 3). */
+  readonly steps?: readonly StepDef[];
   /** The end of the level. Without one, the level cannot be completed. */
   readonly goal?: TilePoint;
 }

@@ -71,6 +71,18 @@ function buildGrid(def, { includeBlocks = false } = {}) {
   // as a wall you cannot climb would fail levels that are perfectly passable.
   if (includeBlocks) for (const b of def.blocks ?? []) mark(b.x, b.y);
 
+  /**
+   * Rotting porch steps are floor (§6, World 3).
+   *
+   * They are floor when you arrive at one, which is what every check in this
+   * file is asking about, and they come back a couple of seconds after they
+   * give way — so a step is never the reason a level cannot be finished. Left
+   * out of the grid they would read as holes in a porch, and a porch made of
+   * them would fail as an unjumpable pit that is in fact a floor you run
+   * across.
+   */
+  for (const step of def.steps ?? []) mark(step.x, step.y);
+
   return grid;
 }
 

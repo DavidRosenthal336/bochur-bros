@@ -20,6 +20,8 @@ import { Crate } from '../entities/Crate';
 import { Enemy } from '../entities/Enemy';
 import { WindZone } from '../entities/Hazard';
 import { Current, Water } from '../entities/Water';
+import { Clothesline } from '../entities/Clothesline';
+import { PorchStep } from '../entities/PorchStep';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
 import { Escalade } from '../entities/Escalade';
@@ -71,6 +73,7 @@ const SOLID_COLORS: Record<SolidKind, number> = {
   platform: 0x565f8c,
   wall: 0x2b3050,
   pool: 0x3f6f8c,
+  roof: 0x7a6a5c,
 };
 
 /**
@@ -88,9 +91,11 @@ const BORO_PARK: TileSet = {
   ground: { top: 'tile-sidewalk', fill: 'tile-asphalt' },
   platform: { top: 'tile-scaffoldPlank', fill: 'tile-brick' },
   wall: { top: 'tile-brick', fill: 'tile-brick' },
-  // Boro Park has no pools. The row has to exist because the record is total;
-  // if one ever turns up there it can be brick, like everything else.
+  // Boro Park has no pools and no bungalows. The rows have to exist because the
+  // record is total; if one ever turns up there it can be brick, like
+  // everything else.
   pool: { top: 'tile-brick', fill: 'tile-brick' },
+  roof: { top: 'tile-scaffoldPlank', fill: 'tile-brick' },
 };
 
 /**
@@ -106,6 +111,26 @@ const FIVE_TOWNS: TileSet = {
   platform: { top: 'tile-deck', fill: 'tile-siding' },
   wall: { top: 'tile-hedge', fill: 'tile-hedge' },
   pool: { top: 'tile-poolTile', fill: 'tile-poolTile' },
+  roof: { top: 'tile-shingle', fill: 'tile-siding' },
+};
+
+/**
+ * The Catskills: patchy lawn over bare dirt, and everything above it is a
+ * bungalow.
+ *
+ * The same trick as the two before it — the floor says where you are — but
+ * with one addition that matters here. This is the first world whose route is
+ * *on the buildings* rather than past them (§6: "bungalow roofs as the main
+ * platforming route"), so the shingle is its own kind rather than sharing the
+ * platform's deck. A porch you walk along and a roof you cross to get anywhere
+ * are different promises, and they should not be the same colour.
+ */
+const CATSKILLS: TileSet = {
+  ground: { top: 'tile-colonyLawn', fill: 'tile-colonyDirt' },
+  platform: { top: 'tile-porchWood', fill: 'tile-bungalowWall' },
+  wall: { top: 'tile-leaves', fill: 'tile-trunk' },
+  pool: { top: 'tile-lake', fill: 'tile-lake' },
+  roof: { top: 'tile-colonyShingle', fill: 'tile-bungalowWall' },
 };
 
 /**
@@ -117,6 +142,7 @@ const FIVE_TOWNS: TileSet = {
  */
 function tilesFor(backdrop: BackdropVariant): TileSet {
   if (backdrop.startsWith('five_towns')) return FIVE_TOWNS;
+  if (backdrop.startsWith('catskills')) return CATSKILLS;
   return BORO_PARK;
 }
 
@@ -187,6 +213,8 @@ export class LevelScene extends Phaser.Scene {
   private waters: Water[] = [];
   private currents: Current[] = [];
   private hazards!: Phaser.GameObjects.Group;
+  private clotheslines: Clothesline[] = [];
+  private steps!: Phaser.Physics.Arcade.StaticGroup;
   private bouncers!: Phaser.Physics.Arcade.StaticGroup;
   /** The ones on a timer, and where they are in their cycle. */
   private launchers: {
@@ -358,6 +386,8 @@ export class LevelScene extends Phaser.Scene {
     this.buildEnemies();
     this.buildCrates();
     this.buildWater();
+    this.buildClotheslines();
+    this.buildSteps();
     this.buildHazards();
     this.buildBouncers();
     this.buildBoss();
@@ -454,6 +484,8 @@ export class LevelScene extends Phaser.Scene {
       pickup.tick();
     }
     this.updateLaunchers(now);
+    this.updateClotheslines(now);
+    for (const step of this.steps.getChildren() as PorchStep[]) step.tick(now);
     this.updateHazards(now);
     this.updateBoss(now);
     this.updateEscalade(now);
@@ -598,6 +630,70 @@ export class LevelScene extends Phaser.Scene {
     }
 
     this.player.setWater(top, currentX, currentY);
+  }
+
+  private buildClotheslines(): void {
+    this.clotheslines = [];
+    for (const def of this.level.clotheslines ?? []) {
+      this.clotheslines.push(new Clothesline(this, def.x, def.y, def.w, def.drop));
+    }
+  }
+
+  /**
+   * Offer a rope to a pair of feet that are coming down through one.
+   *
+   * The test is the crossing and not the overlap: the feet have to be above the
+   * rope at the top of the frame and at or below it now. That is the difference
+   * between a line that catches you as you drop onto it and a line that grabs
+   * you as you walk past its post, and it is also — for free — the whole of
+   * §6's "or duck under them", since a head passing beneath a rope never
+   * crosses it downward.
+   *
+   * Descending only, for the same reason: jumping up through your own washing
+   * and being yanked backwards along it would be a punishment for going the
+   * other way.
+   */
+  private updateClotheslines(now: number): void {
+    if (this.state !== 'playing' || this.clotheslines.length === 0) return;
+
+    if (this.player.isOnLine) return;
+    if (!this.player.canGrabLine(now)) return;
+
+    const body = this.player.physicsBody;
+    if (body.velocity.y <= 20) return;
+
+    const x = body.center.x;
+    const wasBottom = body.prev.y + body.height;
+
+    for (const line of this.clotheslines) {
+      if (!line.rideable) continue;
+      if (x < line.minX || x > line.maxX) continue;
+
+      const rope = line.heightAt(x);
+      if (wasBottom > rope + 2) continue;
+      if (body.bottom < rope - 1) continue;
+
+      // Already at the far end: there is no ride left in it, and snapping
+      // somebody onto the last pixel of a rope only to drop them is worse than
+      // letting them fall past it.
+      if (line.isPastEnd(x)) continue;
+
+      this.player.grabLine(line, line.direction);
+      return;
+    }
+  }
+
+  /**
+   * The rotting steps (§6).
+   *
+   * A group of their own rather than part of the terrain, because each one has
+   * a timer and terrain is built once and never touched again.
+   */
+  private buildSteps(): void {
+    this.steps = this.physics.add.staticGroup();
+    for (const def of this.level.steps ?? []) {
+      this.steps.add(new PorchStep(this, def.x * TILE + TILE / 2, def.y * TILE + TILE / 2));
+    }
   }
 
   private buildHazards(): void {
@@ -1356,6 +1452,25 @@ export class LevelScene extends Phaser.Scene {
   private registerCollisions(): void {
     this.physics.add.collider(this.player, this.solids);
     this.physics.add.collider(this.enemies, this.solids);
+
+    /**
+     * A porch step is a floor until somebody stands on it (§6).
+     *
+     * It is a full solid rather than a land-on-only pad, unlike the awnings
+     * above: a step is part of a porch, and walking into the side of one has to
+     * stop you the way the rest of the porch does. What the callback adds is the
+     * fuse, and only for weight coming down onto it — brushing a step's side on
+     * the way past is not standing on it.
+     */
+    this.physics.add.collider(this.player, this.steps, (_player, stepObject) => {
+      const step = stepObject as PorchStep;
+      const body = this.player.physicsBody;
+      if (body.bottom <= step.staticBody.top + GAMEPLAY.stompFootMargin + 2) {
+        step.standOn(this.time.now);
+      }
+    });
+    this.physics.add.collider(this.enemies, this.steps);
+    this.physics.add.collider(this.pickups, this.steps);
     this.physics.add.collider(this.pickups, this.solids);
     this.physics.add.collider(this.pickups, this.blocks);
     this.physics.add.collider(this.crates, this.solids);
@@ -1491,14 +1606,52 @@ export class LevelScene extends Phaser.Scene {
       body.bottom <= enemy.physicsBody.center.y + GAMEPLAY.stompFootMargin;
 
     if (enemy.config.stompable && falling && aboveMidline) {
+      // §6: "chase one down and it drops what it took." Before the stomp, so
+      // the tier is recovered from the animal rather than from its corpse.
+      const recovered = enemy.dropLoot();
       enemy.stomp();
+      if (recovered) this.returnLoot(recovered, enemy.x, enemy.y);
       this.player.bounce(
         this.controls.current.jumpHeld ? GAMEPLAY.stompBounceHeld : GAMEPLAY.stompBounce,
       );
       return;
     }
 
+    /**
+     * A raccoon does not hurt you. It robs you (§6).
+     *
+     * Which means walking into one while holding nothing is a bump and no
+     * more, and walking into one while holding a Lulav costs the Lulav and not
+     * a life. That is the whole animal, and it is why the tier comes off
+     * through `steal` rather than through `takeHit`: a hit would also hand out
+     * a second of invulnerability, and a free second of immunity is a strange
+     * thing to be given by being robbed.
+     */
+    if (enemy.canSteal) {
+      const taken = this.power.steal();
+      if (taken) {
+        enemy.takeLoot(taken, this.time.now, this.player.x);
+        this.hud.showBanner('IT TOOK YOUR POT');
+        this.cameras.main.shake(120, 0.004);
+      }
+      return;
+    }
+
+    if (enemy.config.contact === 'steal') return;
+
     this.hurtPlayer(enemy.x);
+  }
+
+  /**
+   * Put a stolen power-up back on the ground where the thief was caught.
+   *
+   * A loose pickup rather than the tier handed straight back, because the
+   * pickup is already the thing that says "this is yours again" — it pops, it
+   * slides, and you walk into it. Granting it silently would make catching a
+   * raccoon feel like nothing happened.
+   */
+  private returnLoot(tier: PowerTier, x: number, y: number): void {
+    this.pickups.add(new PowerUpPickup(this, x, y, tier, TIERS[tier].tint ?? 0xffffff));
   }
 
   /**

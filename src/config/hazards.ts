@@ -19,7 +19,8 @@ export type HazardKind =
   | 'stroller'
   | 'minivan'
   | 'mower'
-  | 'blower';
+  | 'blower'
+  | 'golfCart';
 
 export type HazardBehavior =
   /** A region that pushes. Leaf blowers, the hamsin. */
@@ -224,6 +225,31 @@ export const HAZARDS = {
     rideable: false,
     harmful: true,
     speed: 104,
+    affectedByGravity: true,
+  },
+  // --- World 3, The Catskills -----------------------------------------------
+
+  /**
+   * The golf cart — "puttering along the colony road" (§6).
+   *
+   * A roller, like the cart and the mower before it, and the third member of
+   * that family for a reason: a colony road has traffic on it and the traffic
+   * is not in a hurry. Faster than the mower because it is going somewhere,
+   * slower than a shopping cart because nobody in a bungalow colony has
+   * anywhere to be. Its roof carries you, which makes it the gentlest possible
+   * restatement of this game's oldest rule — the thing in your way is also a
+   * platform.
+   */
+  golfCart: {
+    label: 'Golf cart',
+    behavior: 'roller',
+    art: 'golfCart',
+    bodyWidth: 24,
+    bodyHeight: 16,
+    color: 0xcfd8c2,
+    rideable: true,
+    harmful: true,
+    speed: 74,
     affectedByGravity: true,
   },
 } as const satisfies Record<string, HazardConfig>;
