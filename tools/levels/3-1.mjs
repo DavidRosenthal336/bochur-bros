@@ -14,24 +14,34 @@ import { level } from '../level-builder.mjs';
  * roofs, and the lawn underneath is where you end up when you miss.
  *
  * Which is why this level can afford to be gentle. Almost every gap up here has
- * grass under it, and the ground is a slower, duller, perfectly safe way to
- * reach the same place. A world that moves the route into the air has to teach
- * the route before it starts charging for mistakes.
+ * grass under it, and the ground is a slower, duller, safer way to the same
+ * place. A world that moves the route into the air has to teach the route
+ * before it starts charging for mistakes.
  *
- * ## A bungalow is a roof and a porch, and nothing in between
+ * ## Two tiles at a time, and why that number is measured
  *
- * The first draft built each one as a solid block from the shingle to the lawn,
- * which is what a bungalow looks like, and the build-time trap check threw out
- * the whole level: eight bungalows meant eight canyons, and the two-tile alley
- * between two of them was six tiles deep with a six-tile wall on either side.
- * Walk in and you live there.
+ * Every step up in this level is **two tiles**, and every one of them is butted
+ * against what it climbs from — you are never asked to clear a gap and a rise
+ * at the same moment. That is not a style choice, it is arithmetic, and the
+ * first draft got it wrong in a way that made the whole level Mendy's.
  *
- * So the roof is a roof — two tiles of shingle with open air beneath it — and
- * the only part that reaches the ground is the porch, three tiles up, which is
- * Berel's standing jump and therefore never a wall. The lawn runs unbroken
- * under every house in the colony. That is also, as it happens, how a bungalow
- * porch actually feels: the front of the house is a veranda you can walk right
- * through.
+ * Driven in the real game, jumping at this level's own geometry:
+ *
+ *     Mendy walking   65px      Mendy running   77px
+ *     Berel walking   48px      Berel running   59px
+ *
+ * A three-tile ledge is a 48px rise. Berel's standing jump is 48px **exactly**,
+ * which fails — and worse, the climb from a porch to a roof was also three
+ * tiles, taken from a porch two tiles wide, where there is no room to build the
+ * run that would have carried him. Berel could not get onto a single roof in
+ * the colony. A bot driving the level as him got fourteen tiles from the spawn
+ * and stopped at a tree for the remaining eighty-seven seconds.
+ *
+ * So the routine step is 32px, which both brothers clear from standing with
+ * sixteen pixels to spare, and §4's difference is spent where it belongs: on
+ * the high roof at 226, a four-tile rise that Mendy makes with a run-up and
+ * Berel cannot make at all. The coins and the spare life are up there. The
+ * route past is not.
  *
  * ## The four new things, in order, one at a time
  *
@@ -40,51 +50,45 @@ import { level } from '../level-builder.mjs';
  *
  * **A rotting step** (tile 88). §6: "crumble a beat after the player lands."
  * The first is one board in the middle of a run with whole boards either side
- * and the lawn a metre below, so the lesson is the shudder and the sound. The
- * second is a run of three over a hole, where standing still is the mistake.
+ * and the lawn below, so the lesson is the shudder and the sound. The second,
+ * at 127, is three of them over a hole in the ground.
  *
- * **A raccoon** (tile 104), right after the only Cholent in the first half — so
+ * **A raccoon** (tile 106), right after the only Cholent in the first half — so
  * there is something to steal and the theft is the demonstration. §6: "steal
  * the player's power-up and bolt under a porch. Chase one down and it drops
  * what it took."
  *
- * **A clothesline** (tile 146). From the tall roof down to the next porch, with
- * coins strung under the middle of it, and walkable lawn the whole way beneath.
- * §6 says "ride them like ziplines, or duck under them", and the first one has
- * to be a thing you are shown rather than a thing you are made to do. The one
- * at 263 crosses a hole.
+ * **A clothesline** (tile 146). From the tall roof down to the lawn, with coins
+ * strung under the middle of it. §6 says "ride them like ziplines, or duck
+ * under them", and the first one has to be shown rather than demanded: walkable
+ * grass runs the whole way beneath it. The one at 263 crosses a hole.
  *
  * ## The colony road
  *
  * Golf carts putter along it and wasps circle the bins outside the canteen,
  * because §6 puts both there. Both are old mechanics in local clothes: the cart
  * is 1-1's shopping cart at half speed with its roof still solid, and the wasp
- * is a pigeon that only minds you once you are at its bin. That is deliberate.
- * The new vocabulary here is the terrain, so the things moving about on it
- * should be readable on sight.
+ * is a pigeon that only minds you once you are at its bin. The new vocabulary
+ * here is the terrain, so the things moving about on it should be readable on
+ * sight.
  *
- * ## Both brothers
- *
- * Nothing here needs a particular brother, which is right for the first level
- * of a world whose novelty is already the ground. What it does instead is make
- * them feel different on it: the tall roofs are three tiles above the low ones,
- * which either can manage, and the high roof at 226 is four, which is inside
- * Mendy's jump and outside Berel's. The coins and the life are up there. The
- * route past is not.
+ * Each cart has two ends to its beat, because a roller only turns at a wall and
+ * an open lawn has none — the first draft's cart drove the length of the level
+ * and ran the player down at the front door, two seconds in.
  */
 const HEIGHT = 28;
 const WIDTH = 296;
 
-/** The lawn. Everything else in the level is measured off it. */
+/** The lawn: occupies row 21 down, so you stand at the top of row 21. */
 const FLOOR = 21;
-/** The top row of a porch: three tiles up, which is Berel's standing jump. */
-const PORCH = FLOOR - 3;
-/** The top row of an ordinary bungalow roof. Three above a porch. */
-const ROOF = FLOOR - 6;
-/** A taller one. Three above an ordinary roof, so either brother can get up. */
-const TALL = FLOOR - 9;
-/** The one Mendy can reach and Berel cannot: four above an ordinary roof. */
-const HIGH = FLOOR - 10;
+/** A porch. Two tiles up, which both brothers clear from a standstill. */
+const PORCH = FLOOR - 2;
+/** An ordinary bungalow roof. Two above a porch. */
+const ROOF = PORCH - 2;
+/** A taller one. Two above an ordinary roof. */
+const TALL = ROOF - 2;
+/** Four above a roof: Mendy with a run-up, and Berel not at all. */
+const HIGH = ROOF - 4;
 
 /** Where feet rest on a surface whose top row is `top`. Coins go here. */
 const on = (top) => top - 1;
@@ -102,10 +106,17 @@ const L = level({
 L.spawnAt(3);
 
 /**
- * A bungalow: two tiles of shingle, and a porch under the near end of it.
+ * A bungalow: two tiles of shingle, and a porch butted against the near end.
  *
- * The roof is deliberately thin and deliberately floating. See the note above
- * about what happened when it was not.
+ * The roof is deliberately thin and deliberately floating. Built solid from
+ * shingle to lawn — which is what a bungalow looks like — eight of them made
+ * eight canyons, and the two-tile alley between two was six deep with six-tile
+ * walls on both sides. Walk in and you live there. The build-time trap check
+ * threw out the whole level, and was right to.
+ *
+ * So only the porch reaches the ground, and the lawn runs unbroken under every
+ * house in the colony. Which is also how a bungalow porch feels: the front of
+ * the house is a veranda you can walk straight through.
  */
 const bungalow = (x, w, top, { porch = 2 } = {}) => {
   L.slab(x, top, w, 2, 'roof');
@@ -116,14 +127,14 @@ const bungalow = (x, w, top, { porch = 2 } = {}) => {
 /** A porch board. One tile thick, so the lawn under it stays walkable. */
 const board = (x, w) => L.slab(x, PORCH, w, 1, 'platform');
 
+/** A shed roof: roof height, open underneath, and something to climb from. */
+const shed = (x, w) => L.slab(x, ROOF, w, 2, 'roof');
+
 /**
- * A tree: two tiles of trunk, exactly as tall as a porch.
- *
- * Three tiles, so it is Berel's standing jump and therefore something you climb
- * rather than something you are stopped by — and something a golf cart bounces
- * off, which is the other half of its job.
+ * A tree. Two tiles, like every porch here, so it is something both brothers go
+ * over — and something a golf cart bounces off, which is its other job.
  */
-const tree = (x) => L.slab(x, PORCH, 2, 3, 'wall');
+const tree = (x) => L.slab(x, PORCH, 2, 2, 'wall');
 
 // ---------------------------------------------------------------------------
 // The road in. Lawn, a sign, and the first thing that moves.
@@ -134,29 +145,22 @@ L.sign(2, [
   'THE BUNGALOW COLONY',
   'the roofs are the road up here.',
   'PORCH, THEN ROOF, THEN THE NEXT ROOF.',
-]);
+], 14);
 
 L.coinRow(8, on(FLOOR), 4);
 
 /**
  * The first golf cart, and the two trees that keep it on its road.
  *
- * §6 has golf carts "puttering along the colony road", and puttering along
- * means going up and down it — but a roller only turns at a wall, and an open
- * lawn has none. The first draft had one on bare grass pointed at the spawn: it
- * drove the length of the level and killed a bot two seconds in, before the
- * player had read the sign. That is not difficulty, it is an ambush at the front
- * door.
- *
- * So the road has a tree at either end of the cart's beat. The tree at 14 is the
- * first thing in the world you climb, it is three tiles like every porch in the
- * colony, and it means the cart can never reach the spawn — you meet it from the
- * top of a tree, looking down at the roof you are about to learn is solid.
+ * The near tree earns its place twice: it stops the cart ever reaching the
+ * spawn, and it is the first thing in the world you climb. You meet your first
+ * golf cart from the top of a tree, looking down at the roof you are about to
+ * find out is solid.
  */
 tree(14);
 tree(30);
 L.hazard('golfCart', 22, FLOOR, 1);
-L.coinRow(16, on(PORCH), 2);
+L.coinRow(14, on(PORCH), 2);
 L.coinArc(24, on(FLOOR) - 2, 6);
 
 /**
@@ -186,18 +190,21 @@ L.coinRow(67, on(ROOF), 6);
 
 // Two tiles of air between the roofs, at the same height. A walking jump
 // crosses four, so this is the gentlest possible statement of the idea — and
-// the lawn is six tiles below, not a pit.
+// the lawn is below, not a pit.
 bungalow(76, 7, ROOF, { porch: 0 });
 L.coinRow(77, on(ROOF), 5);
 
 /**
  * The first rotting step.
  *
- * One board in the middle of a run, with whole boards either side of it and
- * open lawn below. §6 gives it "a beat", and the beat is four hundred and
- * twenty milliseconds: long enough to walk off, not long enough to stand and
- * think about it. There is nothing to lose here. The point is to learn what the
- * shudder means somewhere it costs nothing.
+ * One board in the middle of a run, with whole boards either side and open lawn
+ * below. §6 gives it "a beat", and the beat is four hundred and twenty
+ * milliseconds — long enough to walk off, not long enough to stand and think.
+ * Measured: five hundred and eighty-three milliseconds from landing on it to
+ * falling through it, and it is back two and a half seconds later.
+ *
+ * There is nothing to lose here. The point is to learn what the shudder means
+ * somewhere it costs nothing.
  */
 board(86, 2);
 L.step(88, PORCH);
@@ -207,13 +214,13 @@ L.coin(88, on(PORCH));
 
 // A pot on the way past. Everything after this assumes you are carrying
 // something, because the next thing along wants to take it.
-L.block(94, FLOOR - 5, 'mystery', 'cholent');
+L.block(94, FLOOR - 4, 'mystery', 'cholent');
 L.coinRow(92, on(FLOOR), 2);
 
 // ---------------------------------------------------------------------------
 // The raccoon, and the porch it bolts under.
 // ---------------------------------------------------------------------------
-L.ground(102, 52);
+L.ground(102, 25);
 
 /**
  * §6: "steal the player's power-up and bolt under a porch. Chase one down and
@@ -221,67 +228,72 @@ L.ground(102, 52);
  *
  * It ambles at fifty-two, slower than either brother walks, so the collision is
  * always your own doing. What follows costs no health at all: the pot comes off,
- * it bolts for eleven hundred milliseconds, goes to ground under the porch at
- * 112 for two seconds, then wanders back out with your Cholent still on its
+ * it bolts for eleven hundred milliseconds, goes to ground against the porch at
+ * 110 for two seconds, then wanders back out with your Cholent still on its
  * back. Stomp it and it drops what it took where it stood.
  *
- * On open lawn with its escape route in plain sight, and the porch it runs for
- * is one you were going to cross anyway.
+ * Measured end to end: robbed at 0.3s, caught and the pot back on the grass at
+ * 2.8s. A Small player it ignores entirely — there is nothing to take, and §6
+ * describes the raccoon as a thief and never as a danger.
  */
 L.enemy(106, FLOOR, 'raccoon');
 L.label(103, on(FLOOR) - 3, 'MIND YOUR POT');
 
-const third = bungalow(112, 9, ROOF);
+bungalow(112, 9, ROOF);
 L.coinRow(113, on(ROOF), 7);
 
 /**
- * The run of three, and the first one that can drop you.
+ * The run of three, over a real hole.
  *
- * Three rotting boards over a three-tile hole in the lawn. Any one of them
+ * Three rotting boards across a three-tile gap in the lawn. Any one of them
  * holds long enough to stand on and none of them holds long enough to stand on
- * twice, so the crossing is a sentence with one verb in it: keep going. The
- * hole is three tiles wide, which a walking jump clears — so the boards are the
- * comfortable way across and not the only one.
+ * twice, so the crossing is a sentence with one verb in it: keep going. Three
+ * tiles is what a walking jump clears, so the hole is survivable without the
+ * boards — but only from up here, and only if you are moving.
  */
-L.slab(124, PORCH, 3, 1, 'platform');
+board(124, 3);
 L.stepRow(127, PORCH, 3);
-L.slab(130, PORCH, 3, 1, 'platform');
+board(130, 3);
 L.coinRow(127, on(PORCH), 3);
 L.label(123, on(PORCH) - 2, 'DO NOT STOP');
+
+L.ground(130, 24);
 
 // ---------------------------------------------------------------------------
 // The first clothesline. Shown, not demanded.
 // ---------------------------------------------------------------------------
+// The way up: the third bungalow's roof, then a shed two tiles above it.
+shed(132, 4);
+L.coinRow(132, on(ROOF), 2);
 bungalow(136, 10, TALL, { porch: 0 });
 L.coinRow(137, on(TALL), 8);
-// The way up to it: the third bungalow's roof is three tiles below this one.
-L.coinRow(133, on(ROOF), 2);
-L.slab(132, ROOF, 4, 2, 'roof');
 
 /**
  * §6: "clotheslines — ride them like ziplines, or duck under them."
  *
- * Twelve tiles of rope from the tall roof down to the next porch, which is
- * about a second of riding. Both readings of the thing are available on the
- * same walk: step off the roof onto it and you ride, stroll along the lawn
- * beneath it and nothing at all happens — a rope catches feet that come down
- * through it and ignores a head going under.
+ * Ten tiles of rope from the tall roof down to the grass, which is about a
+ * second of riding at 195px/s — measured, and the same for both brothers, since
+ * the rope does the work and §4's weight has nothing to push against.
  *
- * Nothing is being crossed here, and the coins are strung under the middle of
- * the rope where only a rider collects them. A missed grab costs six tiles of
- * climbing and no more, which is the right price for the first one.
+ * Both readings of the thing are available on the same walk: step off the roof
+ * onto it and you ride, stroll along the lawn beneath it and nothing at all
+ * happens. A rope catches feet that come down through it and ignores a head
+ * going under, which is one rule doing both jobs.
+ *
+ * The coins are strung under the middle of the rope where only a rider collects
+ * them, and a missed grab costs the climb back up and nothing else.
  */
-L.clothesline(146, TALL + 1, 12, 4);
-L.coinRow(149, TALL + 3, 6);
+L.clothesline(146, TALL + 1, 10, 4);
+L.coinRow(149, TALL + 3, 5);
 
-const low = bungalow(160, 8, ROOF);
+bungalow(160, 8, ROOF);
 L.coinRow(161, on(ROOF), 6);
-L.sign(158, ['RIDE IT. OR DUCK UNDER IT.'], on(PORCH) - 3);
+L.sign(157, ['RIDE IT. OR DUCK UNDER IT.'], on(PORCH) - 3);
 
 L.checkpoint(157);
 
 // ---------------------------------------------------------------------------
-// The woods, and three roofs with holes between them.
+// The woods, and three roofs with holes under them.
 // ---------------------------------------------------------------------------
 L.ground(154, 38);
 
@@ -291,48 +303,53 @@ L.coinRow(174, on(FLOOR), 4);
 L.enemy(178, FLOOR, 'raccoon');
 
 /**
- * Three roofs, and three holes in the lawn under them.
+ * Three roofs, and three-tile holes in the lawn under them.
  *
- * The first stretch where the ground is not an answer. Each hole is three tiles
- * — what a walking jump clears, and the widest pit this game allows itself
- * anywhere — and the roofs above are spaced the same three tiles apart, so the
- * route up top and the route down below cost the same jump. Up top pays in
- * coins.
+ * The first stretch where the ground is not an answer — or rather, where it is
+ * the harder answer: the holes are exactly what a walking jump clears, and the
+ * roofs above them are spaced the same, so both routes cost the same jump and
+ * only one pays in coins. The porch at 189 is the way up, butted against the
+ * first roof the way everything in this colony is.
  */
-L.ground(195, 14);
-L.ground(212, 30);
+L.ledge(189, PORCH, 2);
+shed(191, 5);
+L.coinRow(192, on(ROOF), 3);
+shed(199, 5);
+L.coinArc(199, on(ROOF) - 1, 5);
+shed(207, 6);
+L.coinRow(208, on(ROOF), 4);
 
-L.slab(192, ROOF, 5, 2, 'roof');
-L.coinRow(193, on(ROOF), 3);
-L.slab(200, ROOF, 5, 2, 'roof');
-L.coinArc(200, on(ROOF) - 1, 5);
-L.slab(208, ROOF, 6, 2, 'roof');
-L.coinRow(209, on(ROOF), 4);
+L.ground(195, 13);
+L.ground(211, 31);
 
-L.block(218, FLOOR - 5, 'mystery', 'menorah');
-L.coinRow(216, on(FLOOR), 3);
+L.block(216, FLOOR - 4, 'mystery', 'menorah');
+L.coinRow(214, on(FLOOR), 3);
 
 /**
  * The high roof, and the two brothers going different ways.
  *
- * Four tiles above the roof beside it, which Mendy clears and Berel does not.
- * Eight coins along the top and a life at the end of them, and a perfectly good
- * route past one roof lower. §4's split should be worth something without ever
+ * Porch, shed, and then four tiles — sixty-four pixels, which is past Berel's
+ * running jump of fifty-nine and inside Mendy's of seventy-seven. Eight coins
+ * along the top and a spare life at the end of them, and a perfectly good route
+ * past it at roof height. §4's split should be worth something without ever
  * being a locked door.
  */
-bungalow(226, 10, HIGH);
+L.ledge(222, PORCH, 2);
+shed(224, 2);
+bungalow(226, 10, HIGH, { porch: 0 });
 L.coinRow(227, on(HIGH), 8);
-L.block(236, on(HIGH) - 1, 'mystery', 'lchaim');
+L.block(234, on(HIGH) - 1, 'mystery', 'lchaim');
+
+L.ledge(236, PORCH, 2);
 bungalow(238, 6, ROOF, { porch: 0 });
 L.coinRow(239, on(ROOF), 4);
 
 /**
- * The second cart, on a beat between two porches that were already there: the
- * high bungalow's at 224 and the shed porch at 246. Nineteen tiles of road and
- * nothing added to make it — this is what building the colony out of one shape
- * buys you.
+ * The second cart, on a beat between the porch at 236 and the one at 246.
+ * Nine tiles of road and nothing added to make it — the dividend of building
+ * the colony out of one shape.
  */
-L.hazard('golfCart', 232, FLOOR, -1);
+L.hazard('golfCart', 241, FLOOR, -1);
 L.crate(244);
 L.enemy(244, FLOOR - 3, 'wasp');
 
@@ -342,29 +359,28 @@ L.enemy(244, FLOOR - 3, 'wasp');
 L.ground(242, 22);
 
 /**
- * The climb to the last roof: porch, shed, roof.
+ * The climb to the last roof: porch, shed, roof, each butted against the last.
  *
- * Three tiles at a time, twice, which is the same staircase the level opened
- * with. The shed in the middle has nothing under it on purpose — a porch
- * directly beneath a roof leaves sixteen pixels to stand up in, and the trap
- * check is right to call that somewhere nobody fits.
+ * Nothing here asks for a gap and a rise in the same jump. That combination is
+ * what makes a two-tile step impossible from a two-tile porch — there is no
+ * room to build the speed that carries you across — and it is the quiet reason
+ * a level can measure every rise correctly and still be impassable.
  */
 L.ledge(246, PORCH, 2);
-L.slab(250, ROOF, 3, 2, 'roof');
-L.coinRow(250, on(ROOF), 3);
-
-bungalow(254, 9, TALL, { porch: 0 });
-L.coinRow(255, on(TALL), 7);
+shed(248, 3);
+L.coinRow(248, on(ROOF), 3);
+bungalow(251, 12, TALL, { porch: 0 });
+L.coinRow(252, on(TALL), 10);
 
 /**
  * The exam: the same rope, over a hole in the ground.
  *
  * Eleven tiles from the tall roof down to the lawn on the far side of a
- * three-tile pit. It is still not the only way across — the pit is a walking
- * jump like every other pit in the game — but from up here the rope is by some
+ * three-tile pit. Still not the only way across — the pit is a walking jump
+ * like every other pit in this game — but from up here the rope is by some
  * distance the best one, and by now it is a thing you know how to use.
  */
-L.clothesline(263, TALL + 1, 11, 6);
+L.clothesline(263, TALL + 1, 11, 5);
 
 L.ground(267, WIDTH - 267);
 L.enemy(272, FLOOR, 'raccoon');
