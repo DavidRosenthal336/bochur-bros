@@ -124,6 +124,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'hop':
         this.tickHop(now);
         break;
+      case 'drift':
+        this.tickDrift(now, playerX, playerY);
+        break;
     }
 
     this.updatePose();
@@ -289,7 +292,44 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * The frog (§6): "hop in arcs near the lake."
+   * The mosquito swarm (§6): drift toward the player as a cloud.
+   *
+   * It homes on the player's middle rather than the feet, since a cloud goes for
+   * your face, and it wanders a few pixels either side of its line so it reads
+   * as a swarm rather than as a homing missile. Until you come within range it
+   * hangs where it was put, humming — a swarm that set off from the far side of
+   * the screen the moment the level loaded would arrive as a surprise.
+   */
+  private tickDrift(now: number, playerX: number, playerY: number): void {
+    const drift = this.config.drift;
+    const body = this.physicsBody;
+    if (!drift) return;
+
+    const targetY = playerY - 12;
+    const dx = playerX - this.x;
+    const dy = targetY - this.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (this.phase === 'patrol') {
+      // Hanging about, humming, on the spot.
+      const hover = Math.sin(now / 260 + this.homeX) * drift.wobble;
+      body.setVelocity(0, hover);
+      if (distance <= drift.triggerRange) this.phase = 'chasing';
+      return;
+    }
+
+    if (distance < 1) {
+      body.setVelocity(0, 0);
+      return;
+    }
+    const speed = this.config.speed;
+    const wobble = Math.sin(now / 180 + this.homeY) * drift.wobble * 4;
+    this.facing = dx >= 0 ? 1 : -1;
+    body.setVelocity((dx / distance) * speed, (dy / distance) * speed + wobble);
+  }
+
+  /**
+   * The frog (§6): "hop in arcs near the lake.
    *
    * Sit, hop, land, sit. The sitting is most of it — a frog that hopped
    * continuously would be a moving target with no rhythm to read, and §6 also

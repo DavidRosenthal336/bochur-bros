@@ -52,6 +52,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const clotheslines: ClotheslineDef[] = [];
   const mud: MudDef[] = [];
   const swings: SwingDef[] = [];
+  const fireflies: TilePoint[] = [];
   const steps: StepDef[] = [];
   const checkpoints: TilePoint[] = [];
   const perches: TilePoint[] = [];
@@ -156,6 +157,9 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
             h: Math.max(1, Math.round(object.height / tile)),
           });
           break;
+        case 'firefly':
+          fireflies.push({ x, y });
+          break;
         case 'swing': {
           const lean = readNumber(object, 'lean');
           swings.push({
@@ -248,6 +252,10 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     ...(boss ? { boss } : {}),
     ...(thief ? { thief } : {}),
     ...(readMapString(map, 'autoScroll') ? { autoScroll: Number(readMapString(map, 'autoScroll')) } : {}),
+    ...(fireflies.length ? { fireflies } : {}),
+    ...(readMapString(map, 'lightRadius')
+      ? { lightRadius: Number(readMapString(map, 'lightRadius')) }
+      : {}),
     ...(readMapString(map, 'autoScrollUp')
       ? { autoScrollUp: Number(readMapString(map, 'autoScrollUp')) }
       : {}),

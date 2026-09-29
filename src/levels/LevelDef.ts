@@ -262,6 +262,20 @@ export interface LevelDef {
   readonly autoScrollUp?: number;
   /** Scroll the level along by itself, px/s. 1-3 is a chase (§6). */
   readonly autoScroll?: number;
+  /**
+   * A night level: everything outside this many pixels of the player is dark
+   * (§6, 3-3 — "visibility reduced to a circle of light around the player").
+   * Absent means the lights are on.
+   */
+  readonly lightRadius?: number;
+  /**
+   * Fireflies (§6, 3-3): "fireflies mark safe paths".
+   *
+   * Placed over the things worth landing on. They shine through the dark and
+   * light a little of what is under them, which is the whole mechanic: in a
+   * level where you cannot see where a jump ends, they are where it ends.
+   */
+  readonly fireflies?: readonly TilePoint[];
   /** Wind and anything else that acts on a region rather than on contact. */
   readonly hazards?: readonly HazardPlacement[];
   /** Swimmable water (§6, 2-3). */

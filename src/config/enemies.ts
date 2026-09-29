@@ -12,7 +12,7 @@
  */
 import type { ActorSpriteName } from './sprites';
 
-export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase' | 'thief' | 'hop';
+export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase' | 'thief' | 'hop' | 'drift';
 
 export interface EnemyConfig {
   readonly label: string;
@@ -80,6 +80,16 @@ export interface EnemyConfig {
     readonly hissMs: number;
     /** Chasing speed, px/s. */
     readonly speed: number;
+  };
+  /**
+   * Extra settings for `drift`: §6's mosquito swarms, which "drift toward the
+   * player as a cloud".
+   */
+  readonly drift?: {
+    /** How close you have to be before it notices you, px. */
+    readonly triggerRange: number;
+    /** How far it wobbles about its line of travel, px. It is a cloud. */
+    readonly wobble: number;
   };
   /**
    * Extra settings for `hop`: §6's frogs, which "hop in arcs near the lake".
@@ -329,6 +339,45 @@ export const ENEMIES = {
      */
     bounceVelocity: -560,
     hop: { restMs: 900, speedX: 55, speedY: -430 },
+  },
+  /**
+   * The mosquito swarm (§6): "drift toward the player as a cloud. Cannot be
+   * stomped; outrun them or disperse them with a power-up."
+   *
+   * Each clause of that is a number here.
+   *
+   * *Drift toward the player* — it homes in both axes, with no gravity, because a
+   * cloud does not walk.
+   *
+   * *Outrun them* — 46px/s, which is slower than either brother walks (90 and
+   * 75). So getting away is always a matter of moving, never of speed, and a
+   * player who stops to think in the dark is the player it catches up with.
+   *
+   * *Cannot be stomped* — landing on one hurts, the same as walking into one.
+   * There is no way through a swarm from above.
+   *
+   * *Disperse them with a power-up* — the Menorah's flame and the Lulav's swing
+   * already knock away anything they touch without asking whether it can be
+   * stomped, so that clause cost nothing: it was true the moment the swarm was
+   * an enemy. The Cholent's landing stun holds one in place as well.
+   *
+   * It collides with the level, deliberately. A swarm drifting through a porch
+   * would be a thing you cannot put anything between yourself and, and "outrun
+   * them" would become "outrun them in the open or not at all".
+   */
+  mosquito: {
+    label: 'Mosquito swarm',
+    behavior: 'drift',
+    speed: 46,
+    hits: 1,
+    stompable: false,
+    affectedByGravity: false,
+    art: 'mosquito',
+    bodyWidth: 16,
+    bodyHeight: 8,
+    color: 0x2a2a30,
+    patrolRange: 0,
+    drift: { triggerRange: 150, wobble: 6 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

@@ -13,6 +13,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   let thief;
   let autoScroll;
   let autoScrollUp;
+  let lightRadius;
+  const fireflies = [];
   const solids = [];
   const labels = [];
   const coins = [];
@@ -164,6 +166,22 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
     thiefAt(x, y = floorTop) { thief = { x, y }; return api; },
     perch(x, y) { perches.push({ x, y }); return api; },
     scrolls(pxPerSecond) { autoScroll = pxPerSecond; return api; },
+    /** A night level: only this many pixels around the player can be seen (§6, 3-3). */
+    dark(radius) { lightRadius = radius; return api; },
+    /** A firefly, hovering over something worth landing on (§6, 3-3). */
+    firefly(x, y) { fireflies.push({ x, y }); return api; },
+    /**
+     * A run of fireflies along a surface, one every `every` tiles.
+     *
+     * The common case: a roof or a ledge that has to be findable in the dark.
+     * Spaced rather than solid, because a string of lights reads as a path and
+     * a solid bar of light reads as a platform — and the platform is already
+     * there.
+     */
+    fireflyRow(x, y, count, every = 2) {
+      for (let i = 0; i < count; i += 1) fireflies.push({ x: x + i * every, y });
+      return api;
+    },
     /** A climbing level whose camera rises by itself, px/s. */
     rises(pxPerSecond) { autoScrollUp = pxPerSecond; return api; },
     label(x, y, text) { labels.push({ x, y, text }); return api; },
@@ -202,6 +220,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         ...(thief ? { thief } : {}),
         ...(autoScroll === undefined ? {} : { autoScroll }),
         ...(autoScrollUp === undefined ? {} : { autoScrollUp }),
+        ...(lightRadius === undefined ? {} : { lightRadius }),
+        ...(fireflies.length ? { fireflies } : {}),
         ...(goal ? { goal } : {}),
       };
     },

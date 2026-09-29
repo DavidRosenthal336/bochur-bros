@@ -60,6 +60,7 @@ export function levelDefToTiled(def) {
         ...(c.force === undefined ? [] : [prop('force', c.force)]),
       ]),
     );
+  for (const f of def.fireflies ?? []) entities.push(rect(f.x, f.y, 1, 1, 'firefly'));
   for (const w of def.swings ?? [])
     entities.push(
       rect(w.x, w.y, 1, 1, 'swing', [
@@ -100,6 +101,7 @@ export function levelDefToTiled(def) {
       ...(def.groundRow === undefined ? [] : [prop('groundRow', String(def.groundRow))]),
       ...(def.autoScroll === undefined ? [] : [prop('autoScroll', String(def.autoScroll))]),
       ...(def.autoScrollUp === undefined ? [] : [prop('autoScrollUp', String(def.autoScrollUp))]),
+      ...(def.lightRadius === undefined ? [] : [prop('lightRadius', String(def.lightRadius))]),
       ...(def.backdrop === undefined ? [] : [prop('backdrop', def.backdrop)]),
     ],
     layers: [

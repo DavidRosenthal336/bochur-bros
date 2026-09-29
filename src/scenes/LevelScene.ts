@@ -23,6 +23,7 @@ import { Current, Water } from '../entities/Water';
 import { Clothesline } from '../entities/Clothesline';
 import { Mud } from '../entities/Mud';
 import { RopeSwing } from '../entities/RopeSwing';
+import { Darkness } from '../entities/Darkness';
 import { PorchStep } from '../entities/PorchStep';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
@@ -218,6 +219,7 @@ export class LevelScene extends Phaser.Scene {
   private clotheslines: Clothesline[] = [];
   private muds: Mud[] = [];
   private swings: RopeSwing[] = [];
+  private darkness: Darkness | undefined;
   private steps!: Phaser.Physics.Arcade.StaticGroup;
   private bouncers!: Phaser.Physics.Arcade.StaticGroup;
   /** The ones on a timer, and where they are in their cycle. */
@@ -404,6 +406,7 @@ export class LevelScene extends Phaser.Scene {
 
     this.registerCollisions();
     this.setUpCamera(widthPx, heightPx);
+    this.buildDarkness();
 
     this.controls = new CombinedInput(this);
     this.hud = new Hud(this);
@@ -645,6 +648,30 @@ export class LevelScene extends Phaser.Scene {
     for (const def of this.level.mud ?? []) {
       this.muds.push(new Mud(this, def.x, def.y, def.w, def.h));
     }
+  }
+
+  /**
+   * The night, on a level that asks for it (§6, 3-3).
+   *
+   * Redrawn when the camera has finished following the player for the frame,
+   * not in `update`. The camera moves in its own pre-render step, after the
+   * scene's update, so a lantern positioned in `update` is placed against last
+   * frame's scroll — at a run that is two and a half pixels of the hole sliding
+   * off the player every frame, which reads as the light lagging behind like a
+   * torch on a string.
+   */
+  private buildDarkness(): void {
+    this.darkness = undefined;
+    const radius = this.level.lightRadius;
+    if (radius === undefined) return;
+
+    this.darkness = new Darkness(this, radius, this.level.fireflies ?? []);
+    const camera = this.cameras.main;
+    camera.on(Phaser.Cameras.Scene2D.Events.FOLLOW_UPDATE, () => {
+      if (!this.darkness) return;
+      const body = this.player.physicsBody;
+      this.darkness.update(this.time.now, body.center.x, body.center.y);
+    });
   }
 
   private buildSwings(): void {
@@ -2304,6 +2331,18 @@ export class LevelScene extends Phaser.Scene {
    * were lit windows and fire escapes behind it.
    */
   private drawLabels(): void {
+    /**
+     * Above the night, on a dark level.
+     *
+     * Signs are world text like any other and used to sit under the darkness
+     * with everything else — so in 3-3 the one sign that explains how to read
+     * the dark ("the fireflies are over the ground") was a smudge at the top of
+     * the screen. Instructions are not scenery. They are lit.
+     */
+    const lit = this.level.lightRadius !== undefined;
+    const textDepth = lit ? 905 : 5;
+    const plateDepth = lit ? 904.5 : 4.5;
+
     for (const label of this.level.labels) {
       const text = this.add
         .text(label.x * TILE, label.y * TILE, label.text, {
@@ -2312,7 +2351,7 @@ export class LevelScene extends Phaser.Scene {
           color: '#e8ecff',
         })
         .setShadow(1, 1, '#0d0f1a', 0, true, true)
-        .setDepth(5);
+        .setDepth(textDepth);
 
       /**
        * A plate behind the words.
@@ -2326,7 +2365,7 @@ export class LevelScene extends Phaser.Scene {
       this.add
         .rectangle(text.x - 2, text.y - 1, text.width + 4, text.height + 2, 0x0d0f1a, 0.66)
         .setOrigin(0, 0)
-        .setDepth(4.5);
+        .setDepth(plateDepth);
     }
   }
 
