@@ -191,6 +191,13 @@ L.coin(98, BED - 1);
 L.coin(102, BED - 1);
 
 L.ground(106, 24);
+/**
+ * §7 asks for checkpoints to be generous, and the second half of this level had
+ * one. Driving it, a death at tile 137 sent the player back to tile 74 — sixty
+ * tiles and two crossings of rewalking for one bad step near a frog. Three more,
+ * so no crossing is ever more than one crossing from a respawn.
+ */
+L.checkpoint(108);
 L.enemy(110, FLOOR, 'frog');
 L.coinRow(112, on(FLOOR), 4);
 
@@ -218,6 +225,7 @@ L.coinRow(134, on(FLOOR), 3);
 L.hazard('canoe', 139, WATER, -1);
 
 L.ground(142, 18);
+L.checkpoint(144);
 rock(146, 4);
 L.swing(148, STEP - 10, 9, -2);
 L.coinRow(150, STEP - 4, 4);
@@ -231,6 +239,7 @@ L.hazard('canoe', 162, WATER, 1);
 // The far shore, and the way out.
 // ---------------------------------------------------------------------------
 L.ground(170, WIDTH - 170);
+L.checkpoint(172);
 L.mud(174, FLOOR, 5);
 L.enemy(180, FLOOR, 'frog');
 L.coinRow(182, on(FLOOR), 4);
