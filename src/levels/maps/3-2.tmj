@@ -1,6 +1,6 @@
 {
  "compressionlevel": -1,
- "width": 252,
+ "width": 208,
  "height": 30,
  "tilewidth": 16,
  "tileheight": 16,
@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 156,
+ "nextobjectid": 158,
  "tilesets": [],
  "properties": [
   {
@@ -52,7 +52,7 @@
      "class": "",
      "x": 0,
      "y": 352,
-     "width": 416,
+     "width": 480,
      "height": 128,
      "rotation": 0,
      "visible": true,
@@ -68,10 +68,28 @@
      "id": 2,
      "name": "",
      "class": "",
-     "x": 416,
-     "y": 432,
-     "width": 320,
-     "height": 48,
+     "x": 352,
+     "y": 320,
+     "width": 64,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "",
+     "class": "",
+     "x": 480,
+     "y": 416,
+     "width": 160,
+     "height": 64,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -83,64 +101,10 @@
      ]
     },
     {
-     "id": 3,
-     "name": "",
-     "class": "",
-     "x": 416,
-     "y": 320,
-     "width": 32,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
      "id": 4,
      "name": "",
      "class": "",
-     "x": 512,
-     "y": 320,
-     "width": 48,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 5,
-     "name": "",
-     "class": "",
-     "x": 704,
-     "y": 352,
-     "width": 32,
-     "height": 80,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "ground"
-      }
-     ]
-    },
-    {
-     "id": 6,
-     "name": "",
-     "class": "",
-     "x": 688,
+     "x": 480,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -155,10 +119,46 @@
      ]
     },
     {
+     "id": 5,
+     "name": "",
+     "class": "",
+     "x": 624,
+     "y": 368,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "pool"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "",
+     "class": "",
+     "x": 544,
+     "y": 352,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
      "id": 7,
      "name": "",
      "class": "",
-     "x": 736,
+     "x": 528,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -176,10 +176,10 @@
      "id": 8,
      "name": "",
      "class": "",
-     "x": 736,
-     "y": 432,
-     "width": 480,
-     "height": 48,
+     "x": 576,
+     "y": 368,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -194,9 +194,27 @@
      "id": 9,
      "name": "",
      "class": "",
-     "x": 800,
+     "x": 640,
+     "y": 352,
+     "width": 320,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "",
+     "class": "",
+     "x": 832,
      "y": 320,
-     "width": 128,
+     "width": 96,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -209,30 +227,12 @@
      ]
     },
     {
-     "id": 10,
-     "name": "",
-     "class": "",
-     "x": 960,
-     "y": 352,
-     "width": 32,
-     "height": 80,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "ground"
-      }
-     ]
-    },
-    {
      "id": 11,
      "name": "",
      "class": "",
-     "x": 944,
-     "y": 368,
-     "width": 16,
+     "x": 896,
+     "y": 320,
+     "width": 64,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -240,7 +240,7 @@
       {
        "name": "kind",
        "type": "string",
-       "value": "pool"
+       "value": "platform"
       }
      ]
     },
@@ -248,10 +248,10 @@
      "id": 12,
      "name": "",
      "class": "",
-     "x": 992,
-     "y": 368,
-     "width": 16,
-     "height": 16,
+     "x": 960,
+     "y": 416,
+     "width": 192,
+     "height": 64,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -266,17 +266,17 @@
      "id": 13,
      "name": "",
      "class": "",
-     "x": 1088,
-     "y": 352,
-     "width": 32,
-     "height": 80,
+     "x": 960,
+     "y": 368,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
       {
        "name": "kind",
        "type": "string",
-       "value": "ground"
+       "value": "pool"
       }
      ]
     },
@@ -284,7 +284,7 @@
      "id": 14,
      "name": "",
      "class": "",
-     "x": 1072,
+     "x": 1136,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -302,7 +302,25 @@
      "id": 15,
      "name": "",
      "class": "",
-     "x": 1120,
+     "x": 1056,
+     "y": 352,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "name": "",
+     "class": "",
+     "x": 1040,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -317,31 +335,13 @@
      ]
     },
     {
-     "id": 16,
-     "name": "",
-     "class": "",
-     "x": 1120,
-     "y": 320,
-     "width": 96,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
      "id": 17,
      "name": "",
      "class": "",
-     "x": 1216,
-     "y": 432,
-     "width": 544,
-     "height": 48,
+     "x": 1088,
+     "y": 368,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -356,10 +356,10 @@
      "id": 18,
      "name": "",
      "class": "",
-     "x": 1344,
+     "x": 1152,
      "y": 352,
-     "width": 80,
-     "height": 80,
+     "width": 352,
+     "height": 128,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -374,9 +374,9 @@
      "id": 19,
      "name": "",
      "class": "",
-     "x": 1328,
-     "y": 368,
-     "width": 16,
+     "x": 1408,
+     "y": 320,
+     "width": 64,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -384,7 +384,7 @@
       {
        "name": "kind",
        "type": "string",
-       "value": "pool"
+       "value": "platform"
       }
      ]
     },
@@ -392,10 +392,10 @@
      "id": 20,
      "name": "",
      "class": "",
-     "x": 1424,
-     "y": 368,
-     "width": 16,
-     "height": 16,
+     "x": 1504,
+     "y": 416,
+     "width": 192,
+     "height": 64,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -410,76 +410,22 @@
      "id": 21,
      "name": "",
      "class": "",
-     "x": 1568,
-     "y": 352,
-     "width": 48,
-     "height": 80,
+     "x": 1504,
+     "y": 368,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
       {
        "name": "kind",
        "type": "string",
-       "value": "ground"
+       "value": "pool"
       }
      ]
     },
     {
      "id": 22,
-     "name": "",
-     "class": "",
-     "x": 1552,
-     "y": 368,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "pool"
-      }
-     ]
-    },
-    {
-     "id": 23,
-     "name": "",
-     "class": "",
-     "x": 1616,
-     "y": 368,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "pool"
-      }
-     ]
-    },
-    {
-     "id": 24,
-     "name": "",
-     "class": "",
-     "x": 1696,
-     "y": 352,
-     "width": 64,
-     "height": 80,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "ground"
-      }
-     ]
-    },
-    {
-     "id": 25,
      "name": "",
      "class": "",
      "x": 1680,
@@ -497,30 +443,12 @@
      ]
     },
     {
-     "id": 26,
+     "id": 23,
      "name": "",
      "class": "",
-     "x": 1760,
-     "y": 368,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "pool"
-      }
-     ]
-    },
-    {
-     "id": 27,
-     "name": "",
-     "class": "",
-     "x": 1760,
+     "x": 1696,
      "y": 352,
-     "width": 576,
+     "width": 384,
      "height": 128,
      "rotation": 0,
      "visible": true,
@@ -533,10 +461,10 @@
      ]
     },
     {
-     "id": 28,
+     "id": 24,
      "name": "",
      "class": "",
-     "x": 2048,
+     "x": 1920,
      "y": 288,
      "width": 64,
      "height": 16,
@@ -551,10 +479,10 @@
      ]
     },
     {
-     "id": 29,
+     "id": 25,
      "name": "",
      "class": "",
-     "x": 2176,
+     "x": 2016,
      "y": 320,
      "width": 64,
      "height": 16,
@@ -569,13 +497,85 @@
      ]
     },
     {
+     "id": 26,
+     "name": "",
+     "class": "",
+     "x": 2080,
+     "y": 416,
+     "width": 192,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "pool"
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "name": "",
+     "class": "",
+     "x": 2080,
+     "y": 368,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "pool"
+      }
+     ]
+    },
+    {
+     "id": 28,
+     "name": "",
+     "class": "",
+     "x": 2256,
+     "y": 368,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "pool"
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "name": "",
+     "class": "",
+     "x": 2144,
+     "y": 352,
+     "width": 48,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
      "id": 30,
      "name": "",
      "class": "",
-     "x": 2336,
-     "y": 432,
-     "width": 416,
-     "height": 48,
+     "x": 2128,
+     "y": 368,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -590,6 +590,42 @@
      "id": 31,
      "name": "",
      "class": "",
+     "x": 2192,
+     "y": 368,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "pool"
+      }
+     ]
+    },
+    {
+     "id": 32,
+     "name": "",
+     "class": "",
+     "x": 2272,
+     "y": 352,
+     "width": 288,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 33,
+     "name": "",
+     "class": "",
      "x": 2336,
      "y": 320,
      "width": 64,
@@ -605,49 +641,13 @@
      ]
     },
     {
-     "id": 32,
-     "name": "",
-     "class": "",
-     "x": 2560,
-     "y": 352,
-     "width": 32,
-     "height": 80,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "ground"
-      }
-     ]
-    },
-    {
-     "id": 33,
-     "name": "",
-     "class": "",
-     "x": 2544,
-     "y": 368,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "pool"
-      }
-     ]
-    },
-    {
      "id": 34,
      "name": "",
      "class": "",
-     "x": 2592,
-     "y": 368,
-     "width": 16,
-     "height": 16,
+     "x": 2560,
+     "y": 416,
+     "width": 160,
+     "height": 64,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -662,17 +662,17 @@
      "id": 35,
      "name": "",
      "class": "",
-     "x": 2720,
-     "y": 352,
-     "width": 32,
-     "height": 80,
+     "x": 2560,
+     "y": 368,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
       {
        "name": "kind",
        "type": "string",
-       "value": "ground"
+       "value": "pool"
       }
      ]
     },
@@ -698,7 +698,25 @@
      "id": 37,
      "name": "",
      "class": "",
-     "x": 2752,
+     "x": 2624,
+     "y": 352,
+     "width": 32,
+     "height": 64,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 38,
+     "name": "",
+     "class": "",
+     "x": 2608,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -713,12 +731,30 @@
      ]
     },
     {
-     "id": 38,
+     "id": 39,
      "name": "",
      "class": "",
-     "x": 2752,
+     "x": 2656,
+     "y": 368,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "pool"
+      }
+     ]
+    },
+    {
+     "id": 40,
+     "name": "",
+     "class": "",
+     "x": 2720,
      "y": 352,
-     "width": 1280,
+     "width": 608,
      "height": 128,
      "rotation": 0,
      "visible": true,
@@ -731,10 +767,10 @@
      ]
     },
     {
-     "id": 39,
+     "id": 41,
      "name": "",
      "class": "",
-     "x": 3040,
+     "x": 2976,
      "y": 320,
      "width": 80,
      "height": 16,
@@ -761,7 +797,7 @@
    "y": 0,
    "objects": [
     {
-     "id": 40,
+     "id": 42,
      "name": "",
      "class": "spawn",
      "x": 48,
@@ -772,32 +808,10 @@
      "visible": true
     },
     {
-     "id": 41,
-     "name": "",
-     "class": "goal",
-     "x": 3520,
-     "y": 352,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 42,
-     "name": "",
-     "class": "checkpoint",
-     "x": 384,
-     "y": 352,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
      "id": 43,
      "name": "",
-     "class": "checkpoint",
-     "x": 1792,
+     "class": "goal",
+     "x": 3232,
      "y": 352,
      "width": 16,
      "height": 16,
@@ -807,9 +821,9 @@
     {
      "id": 44,
      "name": "",
-     "class": "coin",
-     "x": 128,
-     "y": 336,
+     "class": "checkpoint",
+     "x": 448,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -818,9 +832,9 @@
     {
      "id": 45,
      "name": "",
-     "class": "coin",
-     "x": 144,
-     "y": 336,
+     "class": "checkpoint",
+     "x": 1184,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -830,7 +844,7 @@
      "id": 46,
      "name": "",
      "class": "coin",
-     "x": 160,
+     "x": 112,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -841,7 +855,7 @@
      "id": 47,
      "name": "",
      "class": "coin",
-     "x": 176,
+     "x": 128,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -852,7 +866,7 @@
      "id": 48,
      "name": "",
      "class": "coin",
-     "x": 320,
+     "x": 144,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -863,7 +877,7 @@
      "id": 49,
      "name": "",
      "class": "coin",
-     "x": 336,
+     "x": 160,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -874,7 +888,7 @@
      "id": 50,
      "name": "",
      "class": "coin",
-     "x": 352,
+     "x": 288,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -885,8 +899,8 @@
      "id": 51,
      "name": "",
      "class": "coin",
-     "x": 512,
-     "y": 304,
+     "x": 304,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -896,8 +910,8 @@
      "id": 52,
      "name": "",
      "class": "coin",
-     "x": 528,
-     "y": 304,
+     "x": 320,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -907,7 +921,7 @@
      "id": 53,
      "name": "",
      "class": "coin",
-     "x": 544,
+     "x": 352,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -918,8 +932,8 @@
      "id": 54,
      "name": "",
      "class": "coin",
-     "x": 704,
-     "y": 336,
+     "x": 368,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -929,8 +943,8 @@
      "id": 55,
      "name": "",
      "class": "coin",
-     "x": 720,
-     "y": 336,
+     "x": 384,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -940,7 +954,7 @@
      "id": 56,
      "name": "",
      "class": "coin",
-     "x": 816,
+     "x": 400,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -951,8 +965,8 @@
      "id": 57,
      "name": "",
      "class": "coin",
-     "x": 832,
-     "y": 304,
+     "x": 544,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -962,8 +976,8 @@
      "id": 58,
      "name": "",
      "class": "coin",
-     "x": 848,
-     "y": 304,
+     "x": 560,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -973,7 +987,7 @@
      "id": 59,
      "name": "",
      "class": "coin",
-     "x": 864,
+     "x": 672,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -984,8 +998,8 @@
      "id": 60,
      "name": "",
      "class": "coin",
-     "x": 880,
-     "y": 304,
+     "x": 688,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -995,8 +1009,8 @@
      "id": 61,
      "name": "",
      "class": "coin",
-     "x": 896,
-     "y": 304,
+     "x": 704,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1006,8 +1020,8 @@
      "id": 62,
      "name": "",
      "class": "coin",
-     "x": 960,
-     "y": 336,
+     "x": 720,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1017,8 +1031,8 @@
      "id": 63,
      "name": "",
      "class": "coin",
-     "x": 976,
-     "y": 336,
+     "x": 736,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1028,8 +1042,8 @@
      "id": 64,
      "name": "",
      "class": "coin",
-     "x": 1120,
-     "y": 304,
+     "x": 752,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1039,8 +1053,8 @@
      "id": 65,
      "name": "",
      "class": "coin",
-     "x": 1136,
-     "y": 304,
+     "x": 768,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1050,7 +1064,7 @@
      "id": 66,
      "name": "",
      "class": "coin",
-     "x": 1152,
+     "x": 784,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -1061,8 +1075,8 @@
      "id": 67,
      "name": "",
      "class": "coin",
-     "x": 1280,
-     "y": 256,
+     "x": 832,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1072,8 +1086,8 @@
      "id": 68,
      "name": "",
      "class": "coin",
-     "x": 1296,
-     "y": 256,
+     "x": 848,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1083,8 +1097,8 @@
      "id": 69,
      "name": "",
      "class": "coin",
-     "x": 1312,
-     "y": 256,
+     "x": 864,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1094,8 +1108,8 @@
      "id": 70,
      "name": "",
      "class": "coin",
-     "x": 1344,
-     "y": 336,
+     "x": 880,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1105,8 +1119,8 @@
      "id": 71,
      "name": "",
      "class": "coin",
-     "x": 1360,
-     "y": 336,
+     "x": 896,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1116,8 +1130,8 @@
      "id": 72,
      "name": "",
      "class": "coin",
-     "x": 1376,
-     "y": 336,
+     "x": 912,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1127,8 +1141,8 @@
      "id": 73,
      "name": "",
      "class": "coin",
-     "x": 1392,
-     "y": 336,
+     "x": 1024,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1138,8 +1152,8 @@
      "id": 74,
      "name": "",
      "class": "coin",
-     "x": 1408,
-     "y": 336,
+     "x": 1040,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1149,8 +1163,8 @@
      "id": 75,
      "name": "",
      "class": "coin",
-     "x": 1568,
-     "y": 336,
+     "x": 1056,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1160,8 +1174,8 @@
      "id": 76,
      "name": "",
      "class": "coin",
-     "x": 1584,
-     "y": 336,
+     "x": 1072,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1171,7 +1185,7 @@
      "id": 77,
      "name": "",
      "class": "coin",
-     "x": 1600,
+     "x": 1056,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -1182,8 +1196,8 @@
      "id": 78,
      "name": "",
      "class": "coin",
-     "x": 1504,
-     "y": 416,
+     "x": 1072,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1193,8 +1207,8 @@
      "id": 79,
      "name": "",
      "class": "coin",
-     "x": 1568,
-     "y": 416,
+     "x": 1248,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1204,8 +1218,8 @@
      "id": 80,
      "name": "",
      "class": "coin",
-     "x": 1696,
-     "y": 336,
+     "x": 1264,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1215,8 +1229,8 @@
      "id": 81,
      "name": "",
      "class": "coin",
-     "x": 1712,
-     "y": 336,
+     "x": 1280,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1226,8 +1240,8 @@
      "id": 82,
      "name": "",
      "class": "coin",
-     "x": 1728,
-     "y": 336,
+     "x": 1296,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1237,8 +1251,8 @@
      "id": 83,
      "name": "",
      "class": "coin",
-     "x": 1744,
-     "y": 336,
+     "x": 1312,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1248,7 +1262,7 @@
      "id": 84,
      "name": "",
      "class": "coin",
-     "x": 1920,
+     "x": 1408,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -1259,7 +1273,7 @@
      "id": 85,
      "name": "",
      "class": "coin",
-     "x": 1936,
+     "x": 1424,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -1270,7 +1284,7 @@
      "id": 86,
      "name": "",
      "class": "coin",
-     "x": 1952,
+     "x": 1440,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -1281,7 +1295,7 @@
      "id": 87,
      "name": "",
      "class": "coin",
-     "x": 1968,
+     "x": 1456,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -1292,8 +1306,8 @@
      "id": 88,
      "name": "",
      "class": "coin",
-     "x": 1984,
-     "y": 304,
+     "x": 1568,
+     "y": 400,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1303,8 +1317,8 @@
      "id": 89,
      "name": "",
      "class": "coin",
-     "x": 2000,
-     "y": 304,
+     "x": 1632,
+     "y": 400,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1314,8 +1328,8 @@
      "id": 90,
      "name": "",
      "class": "coin",
-     "x": 2016,
-     "y": 304,
+     "x": 1792,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1325,8 +1339,8 @@
      "id": 91,
      "name": "",
      "class": "coin",
-     "x": 2048,
-     "y": 272,
+     "x": 1808,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1336,8 +1350,8 @@
      "id": 92,
      "name": "",
      "class": "coin",
-     "x": 2064,
-     "y": 272,
+     "x": 1824,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1347,8 +1361,8 @@
      "id": 93,
      "name": "",
      "class": "coin",
-     "x": 2080,
-     "y": 272,
+     "x": 1840,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1358,7 +1372,7 @@
      "id": 94,
      "name": "",
      "class": "coin",
-     "x": 2096,
+     "x": 1920,
      "y": 272,
      "width": 16,
      "height": 16,
@@ -1369,8 +1383,8 @@
      "id": 95,
      "name": "",
      "class": "coin",
-     "x": 2176,
-     "y": 304,
+     "x": 1936,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1380,8 +1394,8 @@
      "id": 96,
      "name": "",
      "class": "coin",
-     "x": 2192,
-     "y": 304,
+     "x": 1952,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1391,8 +1405,8 @@
      "id": 97,
      "name": "",
      "class": "coin",
-     "x": 2208,
-     "y": 304,
+     "x": 1968,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1402,7 +1416,7 @@
      "id": 98,
      "name": "",
      "class": "coin",
-     "x": 2224,
+     "x": 2016,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -1413,8 +1427,8 @@
      "id": 99,
      "name": "",
      "class": "coin",
-     "x": 2528,
-     "y": 240,
+     "x": 2032,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1424,8 +1438,8 @@
      "id": 100,
      "name": "",
      "class": "coin",
-     "x": 2544,
-     "y": 240,
+     "x": 2048,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1435,8 +1449,8 @@
      "id": 101,
      "name": "",
      "class": "coin",
-     "x": 2560,
-     "y": 240,
+     "x": 2064,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1446,8 +1460,8 @@
      "id": 102,
      "name": "",
      "class": "coin",
-     "x": 2576,
-     "y": 240,
+     "x": 2144,
+     "y": 336,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1457,7 +1471,7 @@
      "id": 103,
      "name": "",
      "class": "coin",
-     "x": 2560,
+     "x": 2160,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -1468,7 +1482,7 @@
      "id": 104,
      "name": "",
      "class": "coin",
-     "x": 2576,
+     "x": 2176,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -1479,6 +1493,94 @@
      "id": 105,
      "name": "",
      "class": "coin",
+     "x": 2400,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 106,
+     "name": "",
+     "class": "coin",
+     "x": 2416,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 107,
+     "name": "",
+     "class": "coin",
+     "x": 2432,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 108,
+     "name": "",
+     "class": "coin",
+     "x": 2448,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 109,
+     "name": "",
+     "class": "coin",
+     "x": 2624,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 110,
+     "name": "",
+     "class": "coin",
+     "x": 2640,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 111,
+     "name": "",
+     "class": "coin",
+     "x": 2912,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 112,
+     "name": "",
+     "class": "coin",
+     "x": 2928,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 113,
+     "name": "",
+     "class": "coin",
      "x": 2944,
      "y": 336,
      "width": 16,
@@ -1487,7 +1589,7 @@
      "visible": true
     },
     {
-     "id": 106,
+     "id": 114,
      "name": "",
      "class": "coin",
      "x": 2960,
@@ -1498,29 +1600,51 @@
      "visible": true
     },
     {
-     "id": 107,
+     "id": 115,
      "name": "",
      "class": "coin",
      "x": 2976,
-     "y": 336,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
      "visible": true
     },
     {
-     "id": 108,
+     "id": 116,
      "name": "",
      "class": "coin",
      "x": 2992,
-     "y": 336,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
      "visible": true
     },
     {
-     "id": 109,
+     "id": 117,
+     "name": "",
+     "class": "coin",
+     "x": 3008,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 118,
+     "name": "",
+     "class": "coin",
+     "x": 3024,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 119,
      "name": "",
      "class": "coin",
      "x": 3040,
@@ -1531,18 +1655,7 @@
      "visible": true
     },
     {
-     "id": 110,
-     "name": "",
-     "class": "coin",
-     "x": 3056,
-     "y": 304,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 111,
+     "id": 120,
      "name": "",
      "class": "coin",
      "x": 3072,
@@ -1553,110 +1666,11 @@
      "visible": true
     },
     {
-     "id": 112,
-     "name": "",
-     "class": "coin",
-     "x": 3088,
-     "y": 304,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 113,
-     "name": "",
-     "class": "coin",
-     "x": 3104,
-     "y": 304,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 114,
-     "name": "",
-     "class": "coin",
-     "x": 3232,
-     "y": 304,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 115,
-     "name": "",
-     "class": "coin",
-     "x": 3248,
-     "y": 288,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 116,
-     "name": "",
-     "class": "coin",
-     "x": 3264,
-     "y": 272,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 117,
-     "name": "",
-     "class": "coin",
-     "x": 3280,
-     "y": 272,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 118,
-     "name": "",
-     "class": "coin",
-     "x": 3296,
-     "y": 272,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 119,
-     "name": "",
-     "class": "coin",
-     "x": 3312,
-     "y": 272,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 120,
-     "name": "",
-     "class": "coin",
-     "x": 3328,
-     "y": 288,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
      "id": 121,
      "name": "",
      "class": "coin",
-     "x": 3344,
-     "y": 304,
+     "x": 3088,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1666,8 +1680,8 @@
      "id": 122,
      "name": "",
      "class": "coin",
-     "x": 3392,
-     "y": 336,
+     "x": 3104,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1677,8 +1691,8 @@
      "id": 123,
      "name": "",
      "class": "coin",
-     "x": 3408,
-     "y": 336,
+     "x": 3120,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1688,8 +1702,8 @@
      "id": 124,
      "name": "",
      "class": "coin",
-     "x": 3424,
-     "y": 336,
+     "x": 3136,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1699,8 +1713,8 @@
      "id": 125,
      "name": "",
      "class": "coin",
-     "x": 3440,
-     "y": 336,
+     "x": 3152,
+     "y": 272,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1710,8 +1724,8 @@
      "id": 126,
      "name": "",
      "class": "coin",
-     "x": 3456,
-     "y": 336,
+     "x": 3168,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1721,8 +1735,8 @@
      "id": 127,
      "name": "",
      "class": "coin",
-     "x": 3472,
-     "y": 336,
+     "x": 3184,
+     "y": 304,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1732,8 +1746,8 @@
      "id": 128,
      "name": "",
      "class": "block",
-     "x": 1536,
-     "y": 416,
+     "x": 1600,
+     "y": 400,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1755,7 +1769,7 @@
      "id": 129,
      "name": "",
      "class": "block",
-     "x": 2112,
+     "x": 1984,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1778,8 +1792,8 @@
      "id": 130,
      "name": "",
      "class": "enemy",
-     "x": 528,
-     "y": 320,
+     "x": 416,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1796,8 +1810,8 @@
      "id": 131,
      "name": "",
      "class": "enemy",
-     "x": 864,
-     "y": 320,
+     "x": 768,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1814,7 +1828,7 @@
      "id": 132,
      "name": "",
      "class": "enemy",
-     "x": 1888,
+     "x": 1344,
      "y": 352,
      "width": 16,
      "height": 16,
@@ -1832,8 +1846,8 @@
      "id": 133,
      "name": "",
      "class": "enemy",
-     "x": 2368,
-     "y": 320,
+     "x": 1760,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1850,7 +1864,7 @@
      "id": 134,
      "name": "",
      "class": "enemy",
-     "x": 2912,
+     "x": 1888,
      "y": 352,
      "width": 16,
      "height": 16,
@@ -1868,7 +1882,7 @@
      "id": 135,
      "name": "",
      "class": "enemy",
-     "x": 3136,
+     "x": 2160,
      "y": 352,
      "width": 16,
      "height": 16,
@@ -1885,18 +1899,18 @@
     {
      "id": 136,
      "name": "",
-     "class": "canoe",
-     "x": 608,
-     "y": 368,
+     "class": "enemy",
+     "x": 2880,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
       {
-       "name": "direction",
-       "type": "int",
-       "value": 1
+       "name": "enemy",
+       "type": "string",
+       "value": "frog"
       }
      ]
     },
@@ -1904,7 +1918,7 @@
      "id": 137,
      "name": "",
      "class": "canoe",
-     "x": 1024,
+     "x": 512,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -1914,7 +1928,7 @@
       {
        "name": "direction",
        "type": "int",
-       "value": -1
+       "value": 1
       }
      ]
     },
@@ -1922,25 +1936,7 @@
      "id": 138,
      "name": "",
      "class": "canoe",
-     "x": 1472,
-     "y": 368,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": 1
-      }
-     ]
-    },
-    {
-     "id": 139,
-     "name": "",
-     "class": "canoe",
-     "x": 1632,
+     "x": 592,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -1955,10 +1951,10 @@
      ]
     },
     {
-     "id": 140,
+     "id": 139,
      "name": "",
      "class": "canoe",
-     "x": 2624,
+     "x": 1552,
      "y": 368,
      "width": 16,
      "height": 16,
@@ -1973,35 +1969,67 @@
      ]
     },
     {
+     "id": 140,
+     "name": "",
+     "class": "canoe",
+     "x": 1648,
+     "y": 368,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
      "id": 141,
      "name": "",
-     "class": "water",
-     "x": 416,
+     "class": "canoe",
+     "x": 2224,
      "y": 368,
-     "width": 320,
-     "height": 64,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
     },
     {
      "id": 142,
      "name": "",
-     "class": "water",
-     "x": 736,
+     "class": "canoe",
+     "x": 2592,
      "y": 368,
-     "width": 480,
-     "height": 64,
+     "width": 16,
+     "height": 16,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": 1
+      }
+     ]
     },
     {
      "id": 143,
      "name": "",
      "class": "water",
-     "x": 1216,
+     "x": 480,
      "y": 368,
-     "width": 544,
-     "height": 64,
+     "width": 160,
+     "height": 48,
      "rotation": 0,
      "visible": true
     },
@@ -2009,41 +2037,51 @@
      "id": 144,
      "name": "",
      "class": "water",
-     "x": 2336,
+     "x": 960,
      "y": 368,
-     "width": 416,
-     "height": 64,
+     "width": 192,
+     "height": 48,
      "rotation": 0,
      "visible": true
     },
     {
      "id": 145,
      "name": "",
-     "class": "swing",
-     "x": 1184,
-     "y": 160,
-     "width": 16,
-     "height": 16,
+     "class": "water",
+     "x": 1504,
+     "y": 368,
+     "width": 192,
+     "height": 48,
      "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "length",
-       "type": "int",
-       "value": 9
-      },
-      {
-       "name": "lean",
-       "type": "int",
-       "value": -2
-      }
-     ]
+     "visible": true
     },
     {
      "id": 146,
      "name": "",
+     "class": "water",
+     "x": 2080,
+     "y": 368,
+     "width": 192,
+     "height": 48,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 147,
+     "name": "",
+     "class": "water",
+     "x": 2560,
+     "y": 368,
+     "width": 160,
+     "height": 48,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 148,
+     "name": "",
      "class": "swing",
-     "x": 2384,
+     "x": 928,
      "y": 160,
      "width": 16,
      "height": 16,
@@ -2063,10 +2101,33 @@
      ]
     },
     {
-     "id": 147,
+     "id": 149,
+     "name": "",
+     "class": "swing",
+     "x": 2368,
+     "y": 160,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "length",
+       "type": "int",
+       "value": 9
+      },
+      {
+       "name": "lean",
+       "type": "int",
+       "value": -2
+      }
+     ]
+    },
+    {
+     "id": 150,
      "name": "",
      "class": "mud",
-     "x": 224,
+     "x": 192,
      "y": 352,
      "width": 96,
      "height": 16,
@@ -2074,21 +2135,10 @@
      "visible": true
     },
     {
-     "id": 148,
+     "id": 151,
      "name": "",
      "class": "mud",
-     "x": 1920,
-     "y": 352,
-     "width": 112,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 149,
-     "name": "",
-     "class": "mud",
-     "x": 2816,
+     "x": 1248,
      "y": 352,
      "width": 80,
      "height": 16,
@@ -2096,7 +2146,18 @@
      "visible": true
     },
     {
-     "id": 150,
+     "id": 152,
+     "name": "",
+     "class": "mud",
+     "x": 2784,
+     "y": 352,
+     "width": 80,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 153,
      "name": "",
      "class": "label",
      "x": 32,
@@ -2114,7 +2175,7 @@
      ]
     },
     {
-     "id": 151,
+     "id": 154,
      "name": "",
      "class": "label",
      "x": 32,
@@ -2132,7 +2193,7 @@
      ]
     },
     {
-     "id": 152,
+     "id": 155,
      "name": "",
      "class": "label",
      "x": 32,
@@ -2150,10 +2211,10 @@
      ]
     },
     {
-     "id": 153,
+     "id": 156,
      "name": "",
      "class": "label",
-     "x": 224,
+     "x": 192,
      "y": 304,
      "width": 16,
      "height": 16,
@@ -2168,28 +2229,10 @@
      ]
     },
     {
-     "id": 154,
+     "id": 157,
      "name": "",
      "class": "label",
-     "x": 480,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "text",
-       "type": "string",
-       "value": "LAND ON IT"
-      }
-     ]
-    },
-    {
-     "id": 155,
-     "name": "",
-     "class": "label",
-     "x": 1088,
+     "x": 800,
      "y": 240,
      "width": 16,
      "height": 16,
