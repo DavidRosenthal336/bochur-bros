@@ -304,11 +304,31 @@ export const ENEMIES = {
     bodyWidth: 12,
     bodyHeight: 8,
     color: 0x5f8f4f,
-    patrolRange: 64,
-    // Between a trampoline's 640 and a stomp's 260, and nearer the trampoline:
-    // a frog has to be worth crossing the lake on rather than worth avoiding.
-    bounceVelocity: -520,
-    hop: { restMs: 900, speedX: 60, speedY: -260 },
+    /**
+     * Measured, and then fixed twice over.
+     *
+     * The first numbers gave a hop of 24px up and 22px along — arithmetic says
+     * 260 against the enemy gravity of 1400 rises 260²/2800, and watching six
+     * frogs for twelve seconds confirmed it. That is a twitch, not §6's "arcs":
+     * a creature you are meant to time your jump against has to visibly leave
+     * the ground. 430 rises 66px, which is four tiles, and takes six hundred
+     * milliseconds to do it — long enough to watch and plan against.
+     *
+     * The travel came *down* rather than up. A tall short hop reads as a frog; a
+     * long flat one reads as a thrown rock. 55 carries it about 43px, and with a
+     * patrol range of 24 a frog stays inside four tiles of where it was put —
+     * which matters because three of the six were hopping off their rocks into
+     * the lake and out of the level.
+     */
+    patrolRange: 24,
+    /**
+     * Between a trampoline's 640 and a stomp's 260, and nearer the trampoline: a
+     * frog has to be worth crossing the lake on rather than worth avoiding.
+     * Measured at 560 it throws you about 87px, which clears the four-tile rock
+     * at 128 with margin — a stomp is worth 19px, which clears nothing.
+     */
+    bounceVelocity: -560,
+    hop: { restMs: 900, speedX: 55, speedY: -430 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 
