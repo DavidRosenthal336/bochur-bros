@@ -116,6 +116,15 @@ const bungalow = (x, w, top, { porch = 2 } = {}) => {
 /** A porch board. One tile thick, so the lawn under it stays walkable. */
 const board = (x, w) => L.slab(x, PORCH, w, 1, 'platform');
 
+/**
+ * A tree: two tiles of trunk, exactly as tall as a porch.
+ *
+ * Three tiles, so it is Berel's standing jump and therefore something you climb
+ * rather than something you are stopped by — and something a golf cart bounces
+ * off, which is the other half of its job.
+ */
+const tree = (x) => L.slab(x, PORCH, 2, 3, 'wall');
+
 // ---------------------------------------------------------------------------
 // The road in. Lawn, a sign, and the first thing that moves.
 // ---------------------------------------------------------------------------
@@ -128,10 +137,27 @@ L.sign(2, [
 ]);
 
 L.coinRow(8, on(FLOOR), 4);
-// Puttering, both of them, slowly enough that you can stand and watch one
-// arrive. The roof is solid: ride it along if you like.
-L.hazard('golfCart', 20, FLOOR, -1);
-L.coinArc(24, on(FLOOR) - 2, 8);
+
+/**
+ * The first golf cart, and the two trees that keep it on its road.
+ *
+ * §6 has golf carts "puttering along the colony road", and puttering along
+ * means going up and down it — but a roller only turns at a wall, and an open
+ * lawn has none. The first draft had one on bare grass pointed at the spawn: it
+ * drove the length of the level and killed a bot two seconds in, before the
+ * player had read the sign. That is not difficulty, it is an ambush at the front
+ * door.
+ *
+ * So the road has a tree at either end of the cart's beat. The tree at 14 is the
+ * first thing in the world you climb, it is three tiles like every porch in the
+ * colony, and it means the cart can never reach the spawn — you meet it from the
+ * top of a tree, looking down at the roof you are about to learn is solid.
+ */
+tree(14);
+tree(30);
+L.hazard('golfCart', 22, FLOOR, 1);
+L.coinRow(16, on(PORCH), 2);
+L.coinArc(24, on(FLOOR) - 2, 6);
 
 /**
  * The bins outside the canteen, and what lives on them.
@@ -259,8 +285,6 @@ L.checkpoint(157);
 // ---------------------------------------------------------------------------
 L.ground(154, 38);
 
-/** A tree: two tiles of trunk, and a wall exactly as tall as the porch. */
-const tree = (x) => L.slab(x, PORCH, 2, 3, 'wall');
 tree(170);
 tree(186);
 L.coinRow(174, on(FLOOR), 4);
@@ -302,7 +326,13 @@ L.block(236, on(HIGH) - 1, 'mystery', 'lchaim');
 bungalow(238, 6, ROOF, { porch: 0 });
 L.coinRow(239, on(ROOF), 4);
 
-L.hazard('golfCart', 246, FLOOR, -1);
+/**
+ * The second cart, on a beat between two porches that were already there: the
+ * high bungalow's at 224 and the shed porch at 246. Nineteen tiles of road and
+ * nothing added to make it — this is what building the colony out of one shape
+ * buys you.
+ */
+L.hazard('golfCart', 232, FLOOR, -1);
 L.crate(244);
 L.enemy(244, FLOOR - 3, 'wasp');
 

@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 184,
+ "nextobjectid": 186,
  "tilesets": [],
  "properties": [
   {
@@ -68,6 +68,42 @@
      "id": 2,
      "name": "",
      "class": "",
+     "x": 224,
+     "y": 288,
+     "width": 32,
+     "height": 48,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "",
+     "class": "",
+     "x": 480,
+     "y": 288,
+     "width": 32,
+     "height": 48,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "",
+     "class": "",
      "x": 992,
      "y": 336,
      "width": 640,
@@ -83,7 +119,7 @@
      ]
     },
     {
-     "id": 3,
+     "id": 5,
      "name": "",
      "class": "",
      "x": 1056,
@@ -101,7 +137,7 @@
      ]
     },
     {
-     "id": 4,
+     "id": 6,
      "name": "",
      "class": "",
      "x": 1024,
@@ -119,7 +155,7 @@
      ]
     },
     {
-     "id": 5,
+     "id": 7,
      "name": "",
      "class": "",
      "x": 1216,
@@ -137,7 +173,7 @@
      ]
     },
     {
-     "id": 6,
+     "id": 8,
      "name": "",
      "class": "",
      "x": 1376,
@@ -155,7 +191,7 @@
      ]
     },
     {
-     "id": 7,
+     "id": 9,
      "name": "",
      "class": "",
      "x": 1424,
@@ -173,7 +209,7 @@
      ]
     },
     {
-     "id": 8,
+     "id": 10,
      "name": "",
      "class": "",
      "x": 1632,
@@ -191,7 +227,7 @@
      ]
     },
     {
-     "id": 9,
+     "id": 11,
      "name": "",
      "class": "",
      "x": 1792,
@@ -209,7 +245,7 @@
      ]
     },
     {
-     "id": 10,
+     "id": 12,
      "name": "",
      "class": "",
      "x": 1760,
@@ -227,7 +263,7 @@
      ]
     },
     {
-     "id": 11,
+     "id": 13,
      "name": "",
      "class": "",
      "x": 1984,
@@ -245,7 +281,7 @@
      ]
     },
     {
-     "id": 12,
+     "id": 14,
      "name": "",
      "class": "",
      "x": 2080,
@@ -263,7 +299,7 @@
      ]
     },
     {
-     "id": 13,
+     "id": 15,
      "name": "",
      "class": "",
      "x": 2176,
@@ -281,7 +317,7 @@
      ]
     },
     {
-     "id": 14,
+     "id": 16,
      "name": "",
      "class": "",
      "x": 2112,
@@ -299,7 +335,7 @@
      ]
     },
     {
-     "id": 15,
+     "id": 17,
      "name": "",
      "class": "",
      "x": 2560,
@@ -317,7 +353,7 @@
      ]
     },
     {
-     "id": 16,
+     "id": 18,
      "name": "",
      "class": "",
      "x": 2528,
@@ -335,7 +371,7 @@
      ]
     },
     {
-     "id": 17,
+     "id": 19,
      "name": "",
      "class": "",
      "x": 2464,
@@ -353,7 +389,7 @@
      ]
     },
     {
-     "id": 18,
+     "id": 20,
      "name": "",
      "class": "",
      "x": 2720,
@@ -371,7 +407,7 @@
      ]
     },
     {
-     "id": 19,
+     "id": 21,
      "name": "",
      "class": "",
      "x": 2976,
@@ -389,7 +425,7 @@
      ]
     },
     {
-     "id": 20,
+     "id": 22,
      "name": "",
      "class": "",
      "x": 3120,
@@ -407,7 +443,7 @@
      ]
     },
     {
-     "id": 21,
+     "id": 23,
      "name": "",
      "class": "",
      "x": 3392,
@@ -425,7 +461,7 @@
      ]
     },
     {
-     "id": 22,
+     "id": 24,
      "name": "",
      "class": "",
      "x": 3072,
@@ -443,7 +479,7 @@
      ]
     },
     {
-     "id": 23,
+     "id": 25,
      "name": "",
      "class": "",
      "x": 3200,
@@ -461,7 +497,7 @@
      ]
     },
     {
-     "id": 24,
+     "id": 26,
      "name": "",
      "class": "",
      "x": 3328,
@@ -479,7 +515,7 @@
      ]
     },
     {
-     "id": 25,
+     "id": 27,
      "name": "",
      "class": "",
      "x": 3616,
@@ -497,7 +533,7 @@
      ]
     },
     {
-     "id": 26,
+     "id": 28,
      "name": "",
      "class": "",
      "x": 3584,
@@ -515,7 +551,7 @@
      ]
     },
     {
-     "id": 27,
+     "id": 29,
      "name": "",
      "class": "",
      "x": 3808,
@@ -533,7 +569,7 @@
      ]
     },
     {
-     "id": 28,
+     "id": 30,
      "name": "",
      "class": "",
      "x": 3872,
@@ -551,7 +587,7 @@
      ]
     },
     {
-     "id": 29,
+     "id": 31,
      "name": "",
      "class": "",
      "x": 3936,
@@ -569,7 +605,7 @@
      ]
     },
     {
-     "id": 30,
+     "id": 32,
      "name": "",
      "class": "",
      "x": 4000,
@@ -587,7 +623,7 @@
      ]
     },
     {
-     "id": 31,
+     "id": 33,
      "name": "",
      "class": "",
      "x": 4064,
@@ -605,7 +641,7 @@
      ]
     },
     {
-     "id": 32,
+     "id": 34,
      "name": "",
      "class": "",
      "x": 4272,
@@ -623,7 +659,7 @@
      ]
     },
     {
-     "id": 33,
+     "id": 35,
      "name": "",
      "class": "",
      "x": 4416,
@@ -641,7 +677,7 @@
      ]
     },
     {
-     "id": 34,
+     "id": 36,
      "name": "",
      "class": "",
      "x": 4496,
@@ -671,7 +707,7 @@
    "y": 0,
    "objects": [
     {
-     "id": 35,
+     "id": 37,
      "name": "",
      "class": "spawn",
      "x": 48,
@@ -682,7 +718,7 @@
      "visible": true
     },
     {
-     "id": 36,
+     "id": 38,
      "name": "",
      "class": "goal",
      "x": 4672,
@@ -693,7 +729,7 @@
      "visible": true
     },
     {
-     "id": 37,
+     "id": 39,
      "name": "",
      "class": "checkpoint",
      "x": 896,
@@ -704,7 +740,7 @@
      "visible": true
     },
     {
-     "id": 38,
+     "id": 40,
      "name": "",
      "class": "checkpoint",
      "x": 2512,
@@ -715,7 +751,7 @@
      "visible": true
     },
     {
-     "id": 39,
+     "id": 41,
      "name": "",
      "class": "coin",
      "x": 128,
@@ -726,7 +762,7 @@
      "visible": true
     },
     {
-     "id": 40,
+     "id": 42,
      "name": "",
      "class": "coin",
      "x": 144,
@@ -737,7 +773,7 @@
      "visible": true
     },
     {
-     "id": 41,
+     "id": 43,
      "name": "",
      "class": "coin",
      "x": 160,
@@ -748,7 +784,7 @@
      "visible": true
     },
     {
-     "id": 42,
+     "id": 44,
      "name": "",
      "class": "coin",
      "x": 176,
@@ -759,7 +795,29 @@
      "visible": true
     },
     {
-     "id": 43,
+     "id": 45,
+     "name": "",
+     "class": "coin",
+     "x": 256,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 46,
+     "name": "",
+     "class": "coin",
+     "x": 272,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 47,
      "name": "",
      "class": "coin",
      "x": 384,
@@ -770,7 +828,7 @@
      "visible": true
     },
     {
-     "id": 44,
+     "id": 48,
      "name": "",
      "class": "coin",
      "x": 400,
@@ -781,7 +839,7 @@
      "visible": true
     },
     {
-     "id": 45,
+     "id": 49,
      "name": "",
      "class": "coin",
      "x": 416,
@@ -792,7 +850,7 @@
      "visible": true
     },
     {
-     "id": 46,
+     "id": 50,
      "name": "",
      "class": "coin",
      "x": 432,
@@ -803,7 +861,7 @@
      "visible": true
     },
     {
-     "id": 47,
+     "id": 51,
      "name": "",
      "class": "coin",
      "x": 448,
@@ -814,7 +872,7 @@
      "visible": true
     },
     {
-     "id": 48,
+     "id": 52,
      "name": "",
      "class": "coin",
      "x": 464,
@@ -825,29 +883,7 @@
      "visible": true
     },
     {
-     "id": 49,
-     "name": "",
-     "class": "coin",
-     "x": 480,
-     "y": 272,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 50,
-     "name": "",
-     "class": "coin",
-     "x": 496,
-     "y": 288,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 51,
+     "id": 53,
      "name": "",
      "class": "coin",
      "x": 672,
@@ -858,7 +894,7 @@
      "visible": true
     },
     {
-     "id": 52,
+     "id": 54,
      "name": "",
      "class": "coin",
      "x": 688,
@@ -869,7 +905,7 @@
      "visible": true
     },
     {
-     "id": 53,
+     "id": 55,
      "name": "",
      "class": "coin",
      "x": 704,
@@ -880,7 +916,7 @@
      "visible": true
     },
     {
-     "id": 54,
+     "id": 56,
      "name": "",
      "class": "coin",
      "x": 720,
@@ -891,7 +927,7 @@
      "visible": true
     },
     {
-     "id": 55,
+     "id": 57,
      "name": "",
      "class": "coin",
      "x": 1024,
@@ -902,7 +938,7 @@
      "visible": true
     },
     {
-     "id": 56,
+     "id": 58,
      "name": "",
      "class": "coin",
      "x": 1040,
@@ -913,7 +949,7 @@
      "visible": true
     },
     {
-     "id": 57,
+     "id": 59,
      "name": "",
      "class": "coin",
      "x": 1072,
@@ -924,7 +960,7 @@
      "visible": true
     },
     {
-     "id": 58,
+     "id": 60,
      "name": "",
      "class": "coin",
      "x": 1088,
@@ -935,7 +971,7 @@
      "visible": true
     },
     {
-     "id": 59,
+     "id": 61,
      "name": "",
      "class": "coin",
      "x": 1104,
@@ -946,7 +982,7 @@
      "visible": true
     },
     {
-     "id": 60,
+     "id": 62,
      "name": "",
      "class": "coin",
      "x": 1120,
@@ -957,7 +993,7 @@
      "visible": true
     },
     {
-     "id": 61,
+     "id": 63,
      "name": "",
      "class": "coin",
      "x": 1136,
@@ -968,7 +1004,7 @@
      "visible": true
     },
     {
-     "id": 62,
+     "id": 64,
      "name": "",
      "class": "coin",
      "x": 1152,
@@ -979,7 +1015,7 @@
      "visible": true
     },
     {
-     "id": 63,
+     "id": 65,
      "name": "",
      "class": "coin",
      "x": 1232,
@@ -990,7 +1026,7 @@
      "visible": true
     },
     {
-     "id": 64,
+     "id": 66,
      "name": "",
      "class": "coin",
      "x": 1248,
@@ -1001,7 +1037,7 @@
      "visible": true
     },
     {
-     "id": 65,
+     "id": 67,
      "name": "",
      "class": "coin",
      "x": 1264,
@@ -1012,7 +1048,7 @@
      "visible": true
     },
     {
-     "id": 66,
+     "id": 68,
      "name": "",
      "class": "coin",
      "x": 1280,
@@ -1023,7 +1059,7 @@
      "visible": true
     },
     {
-     "id": 67,
+     "id": 69,
      "name": "",
      "class": "coin",
      "x": 1296,
@@ -1034,7 +1070,7 @@
      "visible": true
     },
     {
-     "id": 68,
+     "id": 70,
      "name": "",
      "class": "coin",
      "x": 1408,
@@ -1045,7 +1081,7 @@
      "visible": true
     },
     {
-     "id": 69,
+     "id": 71,
      "name": "",
      "class": "coin",
      "x": 1472,
@@ -1056,7 +1092,7 @@
      "visible": true
     },
     {
-     "id": 70,
+     "id": 72,
      "name": "",
      "class": "coin",
      "x": 1488,
@@ -1067,7 +1103,7 @@
      "visible": true
     },
     {
-     "id": 71,
+     "id": 73,
      "name": "",
      "class": "coin",
      "x": 1808,
@@ -1078,7 +1114,7 @@
      "visible": true
     },
     {
-     "id": 72,
+     "id": 74,
      "name": "",
      "class": "coin",
      "x": 1824,
@@ -1089,7 +1125,7 @@
      "visible": true
     },
     {
-     "id": 73,
+     "id": 75,
      "name": "",
      "class": "coin",
      "x": 1840,
@@ -1100,7 +1136,7 @@
      "visible": true
     },
     {
-     "id": 74,
+     "id": 76,
      "name": "",
      "class": "coin",
      "x": 1856,
@@ -1111,7 +1147,7 @@
      "visible": true
     },
     {
-     "id": 75,
+     "id": 77,
      "name": "",
      "class": "coin",
      "x": 1872,
@@ -1122,7 +1158,7 @@
      "visible": true
     },
     {
-     "id": 76,
+     "id": 78,
      "name": "",
      "class": "coin",
      "x": 1888,
@@ -1133,7 +1169,7 @@
      "visible": true
     },
     {
-     "id": 77,
+     "id": 79,
      "name": "",
      "class": "coin",
      "x": 1904,
@@ -1144,7 +1180,7 @@
      "visible": true
     },
     {
-     "id": 78,
+     "id": 80,
      "name": "",
      "class": "coin",
      "x": 2032,
@@ -1155,7 +1191,7 @@
      "visible": true
     },
     {
-     "id": 79,
+     "id": 81,
      "name": "",
      "class": "coin",
      "x": 2048,
@@ -1166,7 +1202,7 @@
      "visible": true
     },
     {
-     "id": 80,
+     "id": 82,
      "name": "",
      "class": "coin",
      "x": 2064,
@@ -1177,7 +1213,7 @@
      "visible": true
     },
     {
-     "id": 81,
+     "id": 83,
      "name": "",
      "class": "coin",
      "x": 2192,
@@ -1188,7 +1224,7 @@
      "visible": true
     },
     {
-     "id": 82,
+     "id": 84,
      "name": "",
      "class": "coin",
      "x": 2208,
@@ -1199,7 +1235,7 @@
      "visible": true
     },
     {
-     "id": 83,
+     "id": 85,
      "name": "",
      "class": "coin",
      "x": 2224,
@@ -1210,7 +1246,7 @@
      "visible": true
     },
     {
-     "id": 84,
+     "id": 86,
      "name": "",
      "class": "coin",
      "x": 2240,
@@ -1221,7 +1257,7 @@
      "visible": true
     },
     {
-     "id": 85,
+     "id": 87,
      "name": "",
      "class": "coin",
      "x": 2256,
@@ -1232,7 +1268,7 @@
      "visible": true
     },
     {
-     "id": 86,
+     "id": 88,
      "name": "",
      "class": "coin",
      "x": 2272,
@@ -1243,7 +1279,7 @@
      "visible": true
     },
     {
-     "id": 87,
+     "id": 89,
      "name": "",
      "class": "coin",
      "x": 2288,
@@ -1254,7 +1290,7 @@
      "visible": true
     },
     {
-     "id": 88,
+     "id": 90,
      "name": "",
      "class": "coin",
      "x": 2304,
@@ -1265,7 +1301,7 @@
      "visible": true
     },
     {
-     "id": 89,
+     "id": 91,
      "name": "",
      "class": "coin",
      "x": 2128,
@@ -1276,7 +1312,7 @@
      "visible": true
     },
     {
-     "id": 90,
+     "id": 92,
      "name": "",
      "class": "coin",
      "x": 2144,
@@ -1287,7 +1323,7 @@
      "visible": true
     },
     {
-     "id": 91,
+     "id": 93,
      "name": "",
      "class": "coin",
      "x": 2384,
@@ -1298,7 +1334,7 @@
      "visible": true
     },
     {
-     "id": 92,
+     "id": 94,
      "name": "",
      "class": "coin",
      "x": 2400,
@@ -1309,7 +1345,7 @@
      "visible": true
     },
     {
-     "id": 93,
+     "id": 95,
      "name": "",
      "class": "coin",
      "x": 2416,
@@ -1320,7 +1356,7 @@
      "visible": true
     },
     {
-     "id": 94,
+     "id": 96,
      "name": "",
      "class": "coin",
      "x": 2432,
@@ -1331,7 +1367,7 @@
      "visible": true
     },
     {
-     "id": 95,
+     "id": 97,
      "name": "",
      "class": "coin",
      "x": 2448,
@@ -1342,7 +1378,7 @@
      "visible": true
     },
     {
-     "id": 96,
+     "id": 98,
      "name": "",
      "class": "coin",
      "x": 2464,
@@ -1353,7 +1389,7 @@
      "visible": true
     },
     {
-     "id": 97,
+     "id": 99,
      "name": "",
      "class": "coin",
      "x": 2576,
@@ -1364,7 +1400,7 @@
      "visible": true
     },
     {
-     "id": 98,
+     "id": 100,
      "name": "",
      "class": "coin",
      "x": 2592,
@@ -1375,7 +1411,7 @@
      "visible": true
     },
     {
-     "id": 99,
+     "id": 101,
      "name": "",
      "class": "coin",
      "x": 2608,
@@ -1386,7 +1422,7 @@
      "visible": true
     },
     {
-     "id": 100,
+     "id": 102,
      "name": "",
      "class": "coin",
      "x": 2624,
@@ -1397,7 +1433,7 @@
      "visible": true
     },
     {
-     "id": 101,
+     "id": 103,
      "name": "",
      "class": "coin",
      "x": 2640,
@@ -1408,7 +1444,7 @@
      "visible": true
     },
     {
-     "id": 102,
+     "id": 104,
      "name": "",
      "class": "coin",
      "x": 2656,
@@ -1419,7 +1455,7 @@
      "visible": true
     },
     {
-     "id": 103,
+     "id": 105,
      "name": "",
      "class": "coin",
      "x": 2784,
@@ -1430,7 +1466,7 @@
      "visible": true
     },
     {
-     "id": 104,
+     "id": 106,
      "name": "",
      "class": "coin",
      "x": 2800,
@@ -1441,7 +1477,7 @@
      "visible": true
     },
     {
-     "id": 105,
+     "id": 107,
      "name": "",
      "class": "coin",
      "x": 2816,
@@ -1452,7 +1488,7 @@
      "visible": true
     },
     {
-     "id": 106,
+     "id": 108,
      "name": "",
      "class": "coin",
      "x": 2832,
@@ -1463,7 +1499,7 @@
      "visible": true
     },
     {
-     "id": 107,
+     "id": 109,
      "name": "",
      "class": "coin",
      "x": 3088,
@@ -1474,7 +1510,7 @@
      "visible": true
     },
     {
-     "id": 108,
+     "id": 110,
      "name": "",
      "class": "coin",
      "x": 3104,
@@ -1485,7 +1521,7 @@
      "visible": true
     },
     {
-     "id": 109,
+     "id": 111,
      "name": "",
      "class": "coin",
      "x": 3120,
@@ -1496,7 +1532,7 @@
      "visible": true
     },
     {
-     "id": 110,
+     "id": 112,
      "name": "",
      "class": "coin",
      "x": 3200,
@@ -1507,7 +1543,7 @@
      "visible": true
     },
     {
-     "id": 111,
+     "id": 113,
      "name": "",
      "class": "coin",
      "x": 3216,
@@ -1518,7 +1554,7 @@
      "visible": true
     },
     {
-     "id": 112,
+     "id": 114,
      "name": "",
      "class": "coin",
      "x": 3232,
@@ -1529,7 +1565,7 @@
      "visible": true
     },
     {
-     "id": 113,
+     "id": 115,
      "name": "",
      "class": "coin",
      "x": 3248,
@@ -1540,7 +1576,7 @@
      "visible": true
     },
     {
-     "id": 114,
+     "id": 116,
      "name": "",
      "class": "coin",
      "x": 3264,
@@ -1551,7 +1587,7 @@
      "visible": true
     },
     {
-     "id": 115,
+     "id": 117,
      "name": "",
      "class": "coin",
      "x": 3344,
@@ -1562,7 +1598,7 @@
      "visible": true
     },
     {
-     "id": 116,
+     "id": 118,
      "name": "",
      "class": "coin",
      "x": 3360,
@@ -1573,7 +1609,7 @@
      "visible": true
     },
     {
-     "id": 117,
+     "id": 119,
      "name": "",
      "class": "coin",
      "x": 3376,
@@ -1584,7 +1620,7 @@
      "visible": true
     },
     {
-     "id": 118,
+     "id": 120,
      "name": "",
      "class": "coin",
      "x": 3392,
@@ -1595,7 +1631,7 @@
      "visible": true
     },
     {
-     "id": 119,
+     "id": 121,
      "name": "",
      "class": "coin",
      "x": 3456,
@@ -1606,7 +1642,7 @@
      "visible": true
     },
     {
-     "id": 120,
+     "id": 122,
      "name": "",
      "class": "coin",
      "x": 3472,
@@ -1617,7 +1653,7 @@
      "visible": true
     },
     {
-     "id": 121,
+     "id": 123,
      "name": "",
      "class": "coin",
      "x": 3488,
@@ -1628,7 +1664,7 @@
      "visible": true
     },
     {
-     "id": 122,
+     "id": 124,
      "name": "",
      "class": "coin",
      "x": 3632,
@@ -1639,7 +1675,7 @@
      "visible": true
     },
     {
-     "id": 123,
+     "id": 125,
      "name": "",
      "class": "coin",
      "x": 3648,
@@ -1650,7 +1686,7 @@
      "visible": true
     },
     {
-     "id": 124,
+     "id": 126,
      "name": "",
      "class": "coin",
      "x": 3664,
@@ -1661,7 +1697,7 @@
      "visible": true
     },
     {
-     "id": 125,
+     "id": 127,
      "name": "",
      "class": "coin",
      "x": 3680,
@@ -1672,7 +1708,7 @@
      "visible": true
     },
     {
-     "id": 126,
+     "id": 128,
      "name": "",
      "class": "coin",
      "x": 3696,
@@ -1683,7 +1719,7 @@
      "visible": true
     },
     {
-     "id": 127,
+     "id": 129,
      "name": "",
      "class": "coin",
      "x": 3712,
@@ -1694,7 +1730,7 @@
      "visible": true
     },
     {
-     "id": 128,
+     "id": 130,
      "name": "",
      "class": "coin",
      "x": 3728,
@@ -1705,7 +1741,7 @@
      "visible": true
     },
     {
-     "id": 129,
+     "id": 131,
      "name": "",
      "class": "coin",
      "x": 3744,
@@ -1716,7 +1752,7 @@
      "visible": true
     },
     {
-     "id": 130,
+     "id": 132,
      "name": "",
      "class": "coin",
      "x": 3824,
@@ -1727,7 +1763,7 @@
      "visible": true
     },
     {
-     "id": 131,
+     "id": 133,
      "name": "",
      "class": "coin",
      "x": 3840,
@@ -1738,7 +1774,7 @@
      "visible": true
     },
     {
-     "id": 132,
+     "id": 134,
      "name": "",
      "class": "coin",
      "x": 3856,
@@ -1749,7 +1785,7 @@
      "visible": true
     },
     {
-     "id": 133,
+     "id": 135,
      "name": "",
      "class": "coin",
      "x": 3872,
@@ -1760,7 +1796,7 @@
      "visible": true
     },
     {
-     "id": 134,
+     "id": 136,
      "name": "",
      "class": "coin",
      "x": 4000,
@@ -1771,7 +1807,7 @@
      "visible": true
     },
     {
-     "id": 135,
+     "id": 137,
      "name": "",
      "class": "coin",
      "x": 4016,
@@ -1782,7 +1818,7 @@
      "visible": true
     },
     {
-     "id": 136,
+     "id": 138,
      "name": "",
      "class": "coin",
      "x": 4032,
@@ -1793,7 +1829,7 @@
      "visible": true
     },
     {
-     "id": 137,
+     "id": 139,
      "name": "",
      "class": "coin",
      "x": 4080,
@@ -1804,7 +1840,7 @@
      "visible": true
     },
     {
-     "id": 138,
+     "id": 140,
      "name": "",
      "class": "coin",
      "x": 4096,
@@ -1815,7 +1851,7 @@
      "visible": true
     },
     {
-     "id": 139,
+     "id": 141,
      "name": "",
      "class": "coin",
      "x": 4112,
@@ -1826,7 +1862,7 @@
      "visible": true
     },
     {
-     "id": 140,
+     "id": 142,
      "name": "",
      "class": "coin",
      "x": 4128,
@@ -1837,7 +1873,7 @@
      "visible": true
     },
     {
-     "id": 141,
+     "id": 143,
      "name": "",
      "class": "coin",
      "x": 4144,
@@ -1848,7 +1884,7 @@
      "visible": true
     },
     {
-     "id": 142,
+     "id": 144,
      "name": "",
      "class": "coin",
      "x": 4160,
@@ -1859,7 +1895,7 @@
      "visible": true
     },
     {
-     "id": 143,
+     "id": 145,
      "name": "",
      "class": "coin",
      "x": 4176,
@@ -1870,7 +1906,7 @@
      "visible": true
     },
     {
-     "id": 144,
+     "id": 146,
      "name": "",
      "class": "coin",
      "x": 4432,
@@ -1881,7 +1917,7 @@
      "visible": true
     },
     {
-     "id": 145,
+     "id": 147,
      "name": "",
      "class": "coin",
      "x": 4448,
@@ -1892,7 +1928,7 @@
      "visible": true
     },
     {
-     "id": 146,
+     "id": 148,
      "name": "",
      "class": "coin",
      "x": 4464,
@@ -1903,7 +1939,7 @@
      "visible": true
     },
     {
-     "id": 147,
+     "id": 149,
      "name": "",
      "class": "coin",
      "x": 4480,
@@ -1914,7 +1950,7 @@
      "visible": true
     },
     {
-     "id": 148,
+     "id": 150,
      "name": "",
      "class": "coin",
      "x": 4496,
@@ -1925,7 +1961,7 @@
      "visible": true
     },
     {
-     "id": 149,
+     "id": 151,
      "name": "",
      "class": "coin",
      "x": 4576,
@@ -1936,7 +1972,7 @@
      "visible": true
     },
     {
-     "id": 150,
+     "id": 152,
      "name": "",
      "class": "coin",
      "x": 4592,
@@ -1947,7 +1983,7 @@
      "visible": true
     },
     {
-     "id": 151,
+     "id": 153,
      "name": "",
      "class": "coin",
      "x": 4608,
@@ -1958,7 +1994,7 @@
      "visible": true
     },
     {
-     "id": 152,
+     "id": 154,
      "name": "",
      "class": "coin",
      "x": 4624,
@@ -1969,7 +2005,7 @@
      "visible": true
     },
     {
-     "id": 153,
+     "id": 155,
      "name": "",
      "class": "crate",
      "x": 576,
@@ -1980,7 +2016,7 @@
      "visible": true
     },
     {
-     "id": 154,
+     "id": 156,
      "name": "",
      "class": "crate",
      "x": 592,
@@ -1991,7 +2027,7 @@
      "visible": true
     },
     {
-     "id": 155,
+     "id": 157,
      "name": "",
      "class": "crate",
      "x": 768,
@@ -2002,7 +2038,7 @@
      "visible": true
     },
     {
-     "id": 156,
+     "id": 158,
      "name": "",
      "class": "crate",
      "x": 3904,
@@ -2013,7 +2049,7 @@
      "visible": true
     },
     {
-     "id": 157,
+     "id": 159,
      "name": "",
      "class": "block",
      "x": 1504,
@@ -2036,7 +2072,7 @@
      ]
     },
     {
-     "id": 158,
+     "id": 160,
      "name": "",
      "class": "block",
      "x": 3488,
@@ -2059,7 +2095,7 @@
      ]
     },
     {
-     "id": 159,
+     "id": 161,
      "name": "",
      "class": "block",
      "x": 3776,
@@ -2082,7 +2118,7 @@
      ]
     },
     {
-     "id": 160,
+     "id": 162,
      "name": "",
      "class": "enemy",
      "x": 576,
@@ -2100,7 +2136,7 @@
      ]
     },
     {
-     "id": 161,
+     "id": 163,
      "name": "",
      "class": "enemy",
      "x": 768,
@@ -2118,7 +2154,7 @@
      ]
     },
     {
-     "id": 162,
+     "id": 164,
      "name": "",
      "class": "enemy",
      "x": 1696,
@@ -2136,7 +2172,7 @@
      ]
     },
     {
-     "id": 163,
+     "id": 165,
      "name": "",
      "class": "enemy",
      "x": 2848,
@@ -2154,7 +2190,7 @@
      ]
     },
     {
-     "id": 164,
+     "id": 166,
      "name": "",
      "class": "enemy",
      "x": 3904,
@@ -2172,7 +2208,7 @@
      ]
     },
     {
-     "id": 165,
+     "id": 167,
      "name": "",
      "class": "enemy",
      "x": 4352,
@@ -2190,43 +2226,43 @@
      ]
     },
     {
-     "id": 166,
-     "name": "",
-     "class": "golfCart",
-     "x": 320,
-     "y": 336,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 167,
-     "name": "",
-     "class": "golfCart",
-     "x": 3936,
-     "y": 336,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
      "id": 168,
+     "name": "",
+     "class": "golfCart",
+     "x": 352,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 169,
+     "name": "",
+     "class": "golfCart",
+     "x": 3712,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 170,
      "name": "",
      "class": "clothesline",
      "x": 2336,
@@ -2244,7 +2280,7 @@
      ]
     },
     {
-     "id": 169,
+     "id": 171,
      "name": "",
      "class": "clothesline",
      "x": 4208,
@@ -2262,7 +2298,7 @@
      ]
     },
     {
-     "id": 170,
+     "id": 172,
      "name": "",
      "class": "step",
      "x": 1408,
@@ -2273,7 +2309,7 @@
      "visible": true
     },
     {
-     "id": 171,
+     "id": 173,
      "name": "",
      "class": "step",
      "x": 2032,
@@ -2284,7 +2320,7 @@
      "visible": true
     },
     {
-     "id": 172,
+     "id": 174,
      "name": "",
      "class": "step",
      "x": 2048,
@@ -2295,7 +2331,7 @@
      "visible": true
     },
     {
-     "id": 173,
+     "id": 175,
      "name": "",
      "class": "step",
      "x": 2064,
@@ -2306,7 +2342,7 @@
      "visible": true
     },
     {
-     "id": 174,
+     "id": 176,
      "name": "",
      "class": "step",
      "x": 4448,
@@ -2317,7 +2353,7 @@
      "visible": true
     },
     {
-     "id": 175,
+     "id": 177,
      "name": "",
      "class": "step",
      "x": 4464,
@@ -2328,7 +2364,7 @@
      "visible": true
     },
     {
-     "id": 176,
+     "id": 178,
      "name": "",
      "class": "step",
      "x": 4480,
@@ -2339,7 +2375,7 @@
      "visible": true
     },
     {
-     "id": 177,
+     "id": 179,
      "name": "",
      "class": "label",
      "x": 32,
@@ -2357,7 +2393,7 @@
      ]
     },
     {
-     "id": 178,
+     "id": 180,
      "name": "",
      "class": "label",
      "x": 32,
@@ -2375,7 +2411,7 @@
      ]
     },
     {
-     "id": 179,
+     "id": 181,
      "name": "",
      "class": "label",
      "x": 32,
@@ -2393,7 +2429,7 @@
      ]
     },
     {
-     "id": 180,
+     "id": 182,
      "name": "",
      "class": "label",
      "x": 1360,
@@ -2411,7 +2447,7 @@
      ]
     },
     {
-     "id": 181,
+     "id": 183,
      "name": "",
      "class": "label",
      "x": 1648,
@@ -2429,7 +2465,7 @@
      ]
     },
     {
-     "id": 182,
+     "id": 184,
      "name": "",
      "class": "label",
      "x": 1968,
@@ -2447,7 +2483,7 @@
      ]
     },
     {
-     "id": 183,
+     "id": 185,
      "name": "",
      "class": "label",
      "x": 2528,
