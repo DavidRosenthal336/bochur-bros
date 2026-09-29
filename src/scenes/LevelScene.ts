@@ -28,6 +28,7 @@ import { PorchStep } from '../entities/PorchStep';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
 import { Escalade } from '../entities/Escalade';
+import { Bear } from '../entities/Bear';
 import { Thief } from '../entities/Thief';
 import { ENEMIES as ENEMY_TABLE } from '../config/enemies';
 import { HAZARDS } from '../config/hazards';
@@ -237,6 +238,9 @@ export class LevelScene extends Phaser.Scene {
   private riding: Phaser.Physics.Arcade.Sprite | undefined;
   private boss: Boss | undefined;
   private escalade: Escalade | undefined;
+  private bear: Bear | undefined;
+  private bearPhase = 1;
+  private bags: Phaser.Physics.Arcade.Group | undefined;
   /** The phase the Escalade was in last frame, so a change can be noticed once. */
   private escaladePhase = 1;
   /** Its mode last frame, so the crash can be noticed exactly once. */
@@ -500,6 +504,7 @@ export class LevelScene extends Phaser.Scene {
     this.updateHazards(now);
     this.updateBoss(now);
     this.updateEscalade(now);
+    this.updateBear(now);
     this.dismissFlock(now);
     this.thief?.tick(step, this.player.x);
     this.watchForTheGetaway();
@@ -946,6 +951,9 @@ export class LevelScene extends Phaser.Scene {
     // beat 1-4, go back to the map, start 1-1, crash.
     this.boss = undefined;
     this.escalade = undefined;
+    this.bear = undefined;
+    this.bearPhase = 1;
+    this.bags = undefined;
     this.escaladePhase = 1;
     this.escaladeMode = '';
     this.dentHint?.destroy();
@@ -957,6 +965,10 @@ export class LevelScene extends Phaser.Scene {
 
     if (this.level.boss.kind === 'escalade') {
       this.buildEscalade(this.level.boss.x * TILE + TILE / 2, this.level.boss.y * TILE);
+      return;
+    }
+    if (this.level.boss.kind === 'bear') {
+      this.buildBear(this.level.boss.x * TILE + TILE / 2, this.level.boss.y * TILE);
       return;
     }
 
@@ -1026,6 +1038,158 @@ export class LevelScene extends Phaser.Scene {
    * There is deliberately no case for the driver. She has no hitbox and this
    * function does not know she exists.
    */
+  /**
+   * The Bear's clearing (§6, 3-4): the bear, its dumpster, and its bags.
+   *
+   * The dumpster is level geometry — a solid the map places, so the trap check
+   * sees it like anything else — and the perch on its lid is how the scene knows
+   * which solid is the bin. The drawing goes over the top of it, because a
+   * dumpster built out of the Catskills' tree tiles reads as a hedge.
+   */
+  private buildBear(x: number, y: number): void {
+    const lid = this.perches[0];
+    const dumpster = lid ? this.solidUnder(lid.x, lid.y) : undefined;
+
+    const bags = this.physics.add.group({ allowGravity: true });
+    this.bags = bags;
+
+    const bear = new Bear(this, x, y, (bx, by, vx, vy) => this.throwBag(bx, by, vx, vy));
+    this.bear = bear;
+    if (dumpster) {
+      bear.setDumpster(dumpster.left, dumpster.right, dumpster.top);
+      this.drawDumpster(dumpster.left, dumpster.top, dumpster.right - dumpster.left, dumpster.bottom - dumpster.top);
+    }
+
+    this.physics.add.collider(bear, this.solids);
+    this.physics.add.overlap(this.player, bear, () => this.onBearContact());
+    this.physics.add.collider(bags, this.solids, (bag) => this.burstBag(bag as Phaser.GameObjects.Arc));
+    this.physics.add.overlap(this.player, bags, (_player, bag) => {
+      if (this.state !== 'playing') return;
+      this.burstBag(bag as Phaser.GameObjects.Arc);
+      this.hurtPlayer((bag as Phaser.GameObjects.Arc).x);
+    });
+  }
+
+  /** The static solid whose lid a point sits on, if any. */
+  private solidUnder(x: number, y: number): Phaser.Geom.Rectangle | undefined {
+    for (const child of this.solids.getChildren()) {
+      const body = (child as Phaser.GameObjects.Rectangle).body as Phaser.Physics.Arcade.StaticBody;
+      if (x >= body.left && x <= body.right && Math.abs(body.top - y) <= TILE) {
+        return new Phaser.Geom.Rectangle(body.left, body.top, body.width, body.height);
+      }
+    }
+    return undefined;
+  }
+
+  /** A green steel bin with a lid and a dent in it. */
+  private drawDumpster(x: number, y: number, w: number, h: number): void {
+    this.add.rectangle(x + w / 2, y + h / 2, w, h, 0x2f5a3a).setDepth(1.5).setStrokeStyle(1, 0x1b3322);
+    this.add.rectangle(x + w / 2, y + 2, w + 4, 4, 0x3d7049).setDepth(1.6).setStrokeStyle(1, 0x1b3322);
+    for (let i = 1; i < 4; i += 1) {
+      this.add.rectangle(x + (w * i) / 4, y + h / 2 + 2, 1, h - 8, 0x24472d).setDepth(1.6);
+    }
+  }
+
+  /**
+   * A garbage bag, lobbed (§6). A lump of dark plastic on an arc, which bursts
+   * wherever it comes down and hurts whoever it comes down on.
+   */
+  private throwBag(x: number, y: number, vx: number, vy: number): void {
+    const bags = this.bags;
+    if (!bags) return;
+    const bag = this.add.circle(x, y, 5, 0x1f2a24).setStrokeStyle(1, 0x55624f).setDepth(9);
+    bags.add(bag);
+    const body = bag.body as Phaser.Physics.Arcade.Body;
+    body.setCircle(5);
+    body.setGravityY(Bear.bagGravity);
+    body.setVelocity(vx, vy);
+  }
+
+  private burstBag(bag: Phaser.GameObjects.Arc): void {
+    if (!bag.active) return;
+    const { x, y } = bag;
+    bag.destroy();
+    for (let i = 0; i < 5; i += 1) {
+      const bit = this.add.rectangle(x, y, 3, 2, i % 2 ? 0x9a8b6a : 0x55624f).setDepth(9);
+      this.tweens.add({
+        targets: bit,
+        x: x + Phaser.Math.Between(-14, 14),
+        y: y - Phaser.Math.Between(4, 14),
+        alpha: 0,
+        duration: 420,
+        onComplete: () => bit.destroy(),
+      });
+    }
+  }
+
+  /**
+   * Touching the bear.
+   *
+   * From above, always a bounce — and a hit, if it is dazed. From the side,
+   * whatever it is doing to you. The split is the whole rule of the fight: you
+   * can always try the stomp, and the daze is when it works.
+   */
+  private onBearContact(): void {
+    const bear = this.bear;
+    if (!bear?.isAlive || this.state !== 'playing') return;
+    const body = this.player.physicsBody;
+    const fromAbove =
+      body.velocity.y > 0 && body.bottom <= bear.physicsBody.top + GAMEPLAY.stompFootMargin + 6;
+
+    if (fromAbove) {
+      if (bear.isVulnerable(this.time.now) && bear.takeHit(this.time.now)) this.onBearDefeated();
+      this.player.bounce(GAMEPLAY.stompBounceHeld);
+      return;
+    }
+    if (bear.isDangerous) this.hurtPlayer(bear.x);
+  }
+
+  private updateBear(now: number): void {
+    const bear = this.bear;
+    if (!bear) return;
+
+    bear.tick(now, this.player.x, this.player.physicsBody.bottom);
+    if (bear.isAlive) this.hud.showBossHealth(bear.healthFraction);
+    else this.hud.hideBossHealth();
+
+    // The swipe is a place, not a collision: standing in front of a live paw.
+    const zone = bear.swipeZone();
+    if (zone && this.state === 'playing') {
+      const b = this.player.physicsBody;
+      const box = new Phaser.Geom.Rectangle(b.x, b.y, b.width, b.height);
+      if (Phaser.Geom.Rectangle.Overlaps(zone, box)) this.hurtPlayer(bear.x);
+    }
+
+    /**
+     * "Calls in raccoons when wounded" (§6).
+     *
+     * Each hit brings more of the one enemy in the game that takes your
+     * power-up rather than your life. So the better the fight is going, the
+     * more there is to lose — the fight answers back rather than just speeding
+     * up. They come in from the fence end, away from the dumpster, so they
+     * arrive across open ground where they can be seen coming.
+     */
+    if (bear.isAlive && bear.phase !== this.bearPhase) {
+      this.bearPhase = bear.phase;
+      const count = bear.stageRaccoons;
+      for (let i = 0; i < count; i += 1) {
+        // Out on the open grass past the woodpile, not inside it.
+        const fromX = (9 + i * 3) * TILE;
+        this.enemies.add(new Enemy(this, fromX, bear.y, ENEMY_TABLE.raccoon));
+      }
+      if (count > 0) this.hud.showBanner(count === 1 ? 'IT CALLED A RACCOON' : 'IT CALLED RACCOONS');
+    }
+  }
+
+  /** Off into the woods, and the kugel left on the dumpster where it always was. */
+  private onBearDefeated(): void {
+    const lid = this.perches[0];
+    this.time.delayedCall(1300, () => {
+      if (this.state !== 'playing') return;
+      this.dropPrize(lid ? lid.x : this.player.x, (lid ? lid.y : this.player.y) - TILE * 2);
+    });
+  }
+
   private onEscaladeContact(): void {
     const car = this.escalade;
     if (!car?.isAlive || this.state !== 'playing') return;

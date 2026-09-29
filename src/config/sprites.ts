@@ -200,6 +200,8 @@ export const ACTOR_SPRITES = {
   clotheslinePost: actor('clothesline_post', 12, 20, { idle: 0 }),
   /** A sheet pegged to one. Also World 4's alley lines. */
   laundryLine: actor('laundry_line', 16, 8, { idle: 0 }, { originY: 0.5 }),
+  /** The bear (§6, 3-4): standing, swiping, and hurt. */
+  bear: actor('bear', 34, 42, { idle: 0, walk: 0, rear: 1, swipe: 1, charge: 0, hurt: 2 }),
   /** A cloud of them. Two frames, swapped fast, so it hums. */
   mosquito: actor('mosquito_swarm', 20, 12, { idle: [0, 1], run: [0, 1] }, { fps: 14, originY: 0.5 }),
   /** Hops in arcs near the lake, and can be landed on (§6). */

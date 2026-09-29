@@ -269,3 +269,72 @@ export const VEHICLE_BOSSES = {
 } as const satisfies Record<string, VehicleBossConfig>;
 
 export type VehicleBossKind = keyof typeof VEHICLE_BOSSES;
+
+// --------------------------------------------------------------- the bear ---
+
+/** One phase of the bear fight. The fight escalates by swapping stages. */
+export interface BearStage {
+  /** How long it paces between attacks, ms. */
+  readonly paceMs: number;
+  /** The rear before a charge — the telegraph, and the only one there is, ms. */
+  readonly rearMs: number;
+  /** Charging speed, px/s. */
+  readonly chargeSpeed: number;
+  /** How long it is dazed after running into something, ms. This is the window. */
+  readonly dazeMs: number;
+  /** Garbage bags thrown from the dumpster, per visit. */
+  readonly bags: number;
+  /** Time between throws, ms. */
+  readonly throwEveryMs: number;
+  /** Raccoons called in when it is hit into this phase. */
+  readonly raccoons: number;
+}
+
+export interface BearConfig {
+  readonly label: string;
+  readonly art: ActorSpriteName;
+  readonly hits: number;
+  readonly bodyWidth: number;
+  readonly bodyHeight: number;
+  readonly color: number;
+  /** Pacing speed, px/s. */
+  readonly walkSpeed: number;
+  /** How close in front of it you have to be to be swiped at, px. */
+  readonly swipeRange: number;
+  /** The wind-up of a swipe, ms: the paw goes back before it comes round. */
+  readonly swipeWindUpMs: number;
+  /** How long the swipe is live for, ms. */
+  readonly swipeMs: number;
+  readonly stages: readonly BearStage[];
+}
+
+/**
+ * The Bear (§6, 3-4): "Lives behind the canteen dumpster with the kugel.
+ * Charges, swipes, climbs the dumpster and hurls garbage bags, and calls in
+ * raccoons when wounded."
+ *
+ * Four verbs in §6's sentence and one number each. The charge is the window —
+ * it runs into the fence and is dazed, and a dazed bear can be landed on. The
+ * swipe is the reason not to stand next to it. The dumpster is the round's
+ * second half, a rain of bags that makes the arena smaller. And the raccoons are
+ * the fight answering back: every hit brings more of the one enemy in the game
+ * that takes your power-up rather than your life, so the better you are doing,
+ * the more there is to lose.
+ */
+export const BEAR = {
+  label: 'The Bear',
+  art: 'bear',
+  hits: 3,
+  bodyWidth: 29,
+  bodyHeight: 38,
+  color: 0x4a3526,
+  walkSpeed: 42,
+  swipeRange: 30,
+  swipeWindUpMs: 380,
+  swipeMs: 180,
+  stages: [
+    { paceMs: 1500, rearMs: 760, chargeSpeed: 210, dazeMs: 1900, bags: 2, throwEveryMs: 700, raccoons: 0 },
+    { paceMs: 1200, rearMs: 600, chargeSpeed: 255, dazeMs: 1600, bags: 3, throwEveryMs: 600, raccoons: 1 },
+    { paceMs: 950, rearMs: 460, chargeSpeed: 300, dazeMs: 1350, bags: 4, throwEveryMs: 520, raccoons: 2 },
+  ],
+} as const satisfies BearConfig;

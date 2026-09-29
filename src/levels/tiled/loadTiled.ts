@@ -204,7 +204,11 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
         }
         case 'boss': {
           const which = readString(object, 'kind');
-          boss = { x, y, ...(which === 'escalade' ? { kind: 'escalade' as const } : {}) };
+          boss = {
+            x,
+            y,
+            ...(which === 'escalade' || which === 'bear' ? { kind: which } : {}),
+          };
           break;
         }
         case 'thief':

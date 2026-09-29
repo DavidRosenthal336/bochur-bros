@@ -81,7 +81,7 @@ export const WORLDS: readonly WorldEntry[] = [
        * It restarts from the full amount at each checkpoint, like 1-3's.
        */
       { id: '3-3', name: 'Lights Out', map: '3-3', timeLimit: 140 },
-      { id: '3-4', name: 'The Bear', isBoss: true },
+      { id: '3-4', name: 'The Bear', map: '3-4', isBoss: true },
     ],
   },
   {

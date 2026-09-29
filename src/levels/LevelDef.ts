@@ -196,7 +196,7 @@ export interface ClotheslineDef {
 export interface StepDef extends TilePoint {}
 
 /** Which boss a level's `boss` marker means. */
-export type BossKind = 'pigeonKing' | 'escalade';
+export type BossKind = 'pigeonKing' | 'escalade' | 'bear';
 
 export interface BossPlacement extends TilePoint {
   readonly kind?: BossKind;
