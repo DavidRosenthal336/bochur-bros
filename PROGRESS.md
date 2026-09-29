@@ -1209,3 +1209,108 @@ that matters — the rope at 146 can only be boarded from the tall roof, so
 finishing with two rides means he climbed lawn, porch, roof, shed and tall roof
 for real. The four route-critical climbs were then measured one at a time, and
 the high roof is Mendy's alone as intended.
+
+
+---
+
+## 3-2 — The Lake
+
+"Canoes, rope swing, frogs, mud." (§6) Three of the four cost almost nothing,
+which is §11's architecture finally paying out in full, and the fourth is the
+only piece of genuinely new physics in World 3.
+
+### The canoe is a config row
+
+It is the first hazard in the game that cannot hurt you, which makes "hazard"
+the wrong word and exactly the right system. §11 separates hazards from enemies
+because a hazard is "survived, avoided, or ridden", and a canoe is the pure third
+case: `rideable` already carries a player on top of a moving body, `harmful:
+false` is already checked before anything does damage, and a roller already turns
+at the ends of its water the way a shopping cart turns at a wall. Gravity off, so
+it stays on the lake. Measured, a rider is carried with the gap held to 3px.
+
+### The frog took two goes
+
+A config row plus a small behaviour — sit, hop, land, sit — where the sitting is
+most of it, because §6 also calls frogs bounceable and you cannot plan to land on
+something that never holds still. The first numbers gave a hop of 24px up and
+22px along, which arithmetic predicts exactly (260 against the enemy gravity of
+1400 rises 260²/2800) and which is a twitch rather than §6's "arcs". At 430 it
+rises 66px and spends six hundred milliseconds doing it. The travel came *down*
+to 55: a tall short hop reads as a frog, a long flat one as a thrown rock.
+
+Bounceable earned one new field. A stomp is worth 260 and clears 19px; a frog is
+worth 560 and clears about 87px, which is what makes the four-tile rock at 120
+reachable by either brother and only by using the animal. Two hits, so the first
+landing is a trampoline and not a kill.
+
+### The rope swing is a pendulum, not a tween
+
+Everything interesting about a rope swing is deciding when to let go: at the
+bottom of the arc you go flat and fast, near the top high and short, and holding
+a direction pumps it higher than the rope was hung to reach. A tween can be made
+to *look* like all of that and can answer none of it, because the only state it
+has is a number between nought and one. So it integrates an angle and an angular
+rate — four lines of arithmetic — and gives every one of those outcomes,
+including the one nobody designs and everybody tries.
+
+Measured: holding on four frames puts you back where you started, twelve reaches
+tile 85, twenty-eight reaches 87.
+
+### Six bugs, and the shape they share
+
+**Mud was never detected.** `contains` tested two pixels above the feet, and mud
+is authored on the row the ground's surface occupies — which is where it must be
+drawn, because it is the mud you can see — so a body standing on it has every
+pixel of itself above the rectangle. It read as mud slowing a run but not a walk,
+which is not a thing mud can do: the "slow" run was a player sprinting off the
+shore into the lake.
+
+**The rope was never caught**, six attempts out of six, because it tested two
+circles around the knot and a player arrives on a jump, crossing the rope's line
+at whatever height it has reached. The hand was passing 48px above the knot.
+Distance to the rope as a line segment now, over its lower two thirds, and it is
+caught thirteen times out of fourteen from anywhere on the planking.
+
+**The canoes drifted away**, which is the golf-cart bug for the third time. A
+roller only ever turns at a wall, and neither a lawn nor a lake is one.
+
+**The lake was 44% of the level**, and two bots spent 80% and 94% of their runs
+swimming. That number is the whole level report, and the answer was a rebuild:
+four crossings of ten or twelve tiles with twenty tiles of ground between them,
+and a lake three rows deep instead of four.
+
+**The islands that bounded the canoes were walls to a swimmer**, sheer from the
+waterline to the bed.
+
+**The shelves that fixed that were traps with roofs.** One tile thick at the
+surface with open water underneath, so a swimmer walking the bottom into the
+corner ended up beneath the shelf with solid above and the shore's face beside:
+eighty-five seconds, no way out. Banks are full depth now.
+
+The last two are the same mistake twice, and worth a rule: anything added at a
+water's edge has to be checked from underneath as well as from above. The
+build-time trap validator cannot help there, because it treats water as "not a
+pit" and stops looking.
+
+### On harnesses, once more
+
+Three of those six were diagnosed only after the stalls were made to explain
+themselves — feet row, swimming, on a rope, grounded, walled. Before that I fixed
+the water three times when the fault was a test bot that only presses jump while
+grounded, and is therefore never able to let go of a rope: one run hung off the
+last swing for fifty seconds and reported the level unfinishable. The instrument
+should have come before the first fix, not after the third.
+
+Two other rig faults cost a cycle each: a "broken" canoe carry that was really
+net displacement measured on an oscillating platform (the constant 3px gap is the
+right statistic), and a frog rise measured against each frog's final position
+rather than its take-off, which reported the three frogs that had fallen into the
+lake as the ones making the biggest leaps.
+
+### Verified
+
+Both brothers complete it: **Mendy in 40.6s and Berel in 41.6s, 202 tiles, 48 and
+49 coins**, with swimming down to 195 and 26 frames from the 5065 of the version
+before. Four deaths each, every one of them at a frog, which is the level's
+difficulty rather than its geometry.

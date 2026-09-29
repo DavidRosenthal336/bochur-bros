@@ -21,3 +21,4 @@ assets/index-CwgRFFpE.js
 assets/index-DDTTQHQs.js
 assets/index-DsE--_So.js
 assets/index-T1QFpzbu.js
+assets/index-VGcvJrjh.js
