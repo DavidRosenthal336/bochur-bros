@@ -288,6 +288,17 @@ function findLeaps(def) {
      * climb is a wall, and walls are the trap analysis's business, not this.
      */
     if (grid[floor] && grid[floor][x] === 1) return true;
+    /**
+     * A laundry line across a gap is a bridge (§6, World 4).
+     *
+     * Not in the grid, because it is not terrain: you jump up through one, so
+     * as a wall or a ceiling it would fail the trap and pocket checks for
+     * something that stops nobody. But it is a floor from above, and a gap with
+     * one strung across it at a height you could land on is not a pit.
+     */
+    for (const line of def.laundry ?? []) {
+      if (x >= line.x && x < line.x + line.w && line.y <= floor && line.y >= floor - MAX_JUMP) return true;
+    }
     for (let y = floor; y >= Math.max(1, floor - MAX_JUMP); y -= 1) {
       if (!grid[y][x] && grid[y + 1] && grid[y + 1][x] === 1) return true;
     }

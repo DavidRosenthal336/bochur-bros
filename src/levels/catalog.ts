@@ -93,7 +93,7 @@ export const WORLDS: readonly WorldEntry[] = [
     levels: [
       { id: '4-1', name: 'The Alleys', map: '4-1' },
       { id: '4-2', name: 'The Shuk', map: '4-2' },
-      { id: '4-3', name: 'Rooftops' },
+      { id: '4-3', name: 'Rooftops', map: '4-3', timeLimit: 90 },
       { id: '4-4', name: 'The Yetzer Hara', isBoss: true },
     ],
   },

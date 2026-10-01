@@ -9,6 +9,7 @@ import type {
   ClotheslineDef,
   MudDef,
   StepDef,
+  LaundryDef,
   SwingDef,
   BossPlacement,
   BounceKind,
@@ -55,6 +56,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const swings: SwingDef[] = [];
   const fireflies: TilePoint[] = [];
   const steps: StepDef[] = [];
+  const tanks: TilePoint[] = [];
+  const laundry: LaundryDef[] = [];
   const checkpoints: TilePoint[] = [];
   const perches: TilePoint[] = [];
   let spawn: TilePoint = { x: 2, y: map.height - 8 };
@@ -187,6 +190,14 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
         case 'step':
           steps.push({ x, y });
           break;
+        case 'tank':
+          // Unrounded across: a tank can sit astride two tiles, in the middle of
+          // a two-tile chimney stack.
+          tanks.push({ x: object.x / tile, y });
+          break;
+        case 'laundry':
+          laundry.push({ x, y, w: Math.max(1, Math.round(object.width / tile)) });
+          break;
         case 'water':
           water.push({
             x,
@@ -256,6 +267,8 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     mud,
     swings,
     steps,
+    ...(tanks.length ? { tanks } : {}),
+    ...(laundry.length ? { laundry } : {}),
     bouncers,
     checkpoints,
     perches,

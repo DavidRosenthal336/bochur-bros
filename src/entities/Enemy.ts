@@ -152,6 +152,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'cling':
         this.tickCling(now, playerX, playerY);
         break;
+      case 'flutter':
+        this.tickFlutter(now);
+        break;
     }
 
     this.updatePose();
@@ -461,6 +464,35 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const wobble = Math.sin(now / 180 + this.homeY) * drift.wobble * 4;
     this.facing = dx >= 0 ? 1 : -1;
     body.setVelocity((dx / distance) * speed, (dy / distance) * speed + wobble);
+  }
+
+  /**
+   * The sparrow (§6): "quick and erratic, hard to hit."
+   *
+   * Pick a heading, flit along it for a moment, pick another. The only rule on
+   * the choice is the leash: once it has strayed past it, the next heading is
+   * back towards home, with a little scatter so even the return is not a
+   * straight line. It ignores the player entirely — a sparrow is not hunting
+   * you, it is simply in the air you need.
+   */
+  private tickFlutter(now: number): void {
+    const flutter = this.config.flutter;
+    if (!flutter) return;
+    if (now < this.phaseEndsAt) return;
+
+    const body = this.physicsBody;
+    const awayX = this.x - this.homeX;
+    const awayY = this.y - this.homeY;
+    let angle: number;
+    if (Math.hypot(awayX, awayY) > flutter.leash) {
+      angle = Math.atan2(-awayY, -awayX) + Phaser.Math.FloatBetween(-0.6, 0.6);
+    } else {
+      angle = Phaser.Math.FloatBetween(-Math.PI, Math.PI);
+    }
+    const speed = this.config.speed * Phaser.Math.FloatBetween(0.75, 1.15);
+    body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+    this.facing = body.velocity.x >= 0 ? 1 : -1;
+    this.phaseEndsAt = now + Phaser.Math.Between(flutter.minMs, flutter.maxMs);
   }
 
   /**

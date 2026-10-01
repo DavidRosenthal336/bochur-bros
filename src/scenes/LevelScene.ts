@@ -25,6 +25,8 @@ import { Mud } from '../entities/Mud';
 import { RopeSwing } from '../entities/RopeSwing';
 import { Darkness } from '../entities/Darkness';
 import { PorchStep } from '../entities/PorchStep';
+import { SolarTank } from '../entities/SolarTank';
+import { LaundryLine } from '../entities/LaundryLine';
 import { MovingHazard } from '../entities/MovingHazard';
 import { Boss } from '../entities/Boss';
 import { Escalade } from '../entities/Escalade';
@@ -244,6 +246,10 @@ export class LevelScene extends Phaser.Scene {
   private swings: RopeSwing[] = [];
   private darkness: Darkness | undefined;
   private steps!: Phaser.Physics.Arcade.StaticGroup;
+  /** Solar water tanks on the roofs (§6, World 4). */
+  private tanks!: Phaser.Physics.Arcade.StaticGroup;
+  /** Laundry lines: floor from above, nothing from below (§6, World 4). */
+  private laundry!: Phaser.Physics.Arcade.StaticGroup;
   private bouncers!: Phaser.Physics.Arcade.StaticGroup;
   /** The ones on a timer, and where they are in their cycle. */
   private launchers: {
@@ -422,6 +428,7 @@ export class LevelScene extends Phaser.Scene {
     this.buildSwings();
     this.buildClotheslines();
     this.buildSteps();
+    this.buildRooftops();
     this.buildHazards();
     this.buildBouncers();
     this.buildBoss();
@@ -510,6 +517,7 @@ export class LevelScene extends Phaser.Scene {
     this.updateMud();
     this.player.tick(step, this.controls.current);
     this.applyWind(step / 1000);
+    this.updateTanks(step / 1000);
     this.updateCrates();
     this.updatePowers(now);
 
@@ -817,6 +825,42 @@ export class LevelScene extends Phaser.Scene {
     this.steps = this.physics.add.staticGroup();
     for (const def of this.level.steps ?? []) {
       this.steps.add(new PorchStep(this, def.x * TILE + TILE / 2, def.y * TILE + TILE / 2));
+    }
+  }
+
+  /** The rooftops' furniture: solar tanks and laundry lines (§6, World 4). */
+  private buildRooftops(): void {
+    this.tanks = this.physics.add.staticGroup();
+    for (const def of this.level.tanks ?? []) {
+      this.tanks.add(new SolarTank(this, def.x * TILE + TILE / 2, def.y * TILE));
+    }
+    this.laundry = this.physics.add.staticGroup();
+    for (const def of this.level.laundry ?? []) {
+      new LaundryLine(this, this.laundry, def.x, def.y, def.w);
+    }
+  }
+
+  /**
+   * A solar tank is a drum, and a drum rolls you off it (§6: "round, awkward").
+   *
+   * Asked of whoever is standing on one, by position, the way mud is: the tank
+   * is an ordinary static body to the physics, and the curve is this push,
+   * proportional to how far from the top of it you are standing.
+   *
+   * Applied to both brothers. Berel is too heavy for the hamsin to move, but a
+   * curve is not a wind — weight is exactly what takes you down one.
+   */
+  private updateTanks(dt: number): void {
+    if (this.state !== 'playing') return;
+    const body = this.player.physicsBody;
+    if (!body.blocked.down && !body.touching.down) return;
+    for (const tank of this.tanks.getChildren() as SolarTank[]) {
+      const top = tank.staticBody;
+      if (Math.abs(body.bottom - top.top) > 2) continue;
+      if (body.right <= top.left || body.left >= top.right) continue;
+      const limit = this.player.stats.walkSpeed + GAMEPLAY.windMaxDrift;
+      body.setVelocityX(Phaser.Math.Clamp(body.velocity.x + tank.slideAt(this.player.x) * dt, -limit, limit));
+      return;
     }
   }
 
@@ -1418,10 +1462,41 @@ export class LevelScene extends Phaser.Scene {
    */
   private watchForTheGetaway(): void {
     const thief = this.thief;
-    if (!thief || !this.prologue || this.state !== 'playing') return;
+    if (!thief || this.state !== 'playing') return;
+    if (!this.prologue) this.keepThiefOnTheRoofs(thief);
     if (!thief.isAtExit || thief.isLeaving) return;
     if (thief.x - this.player.x > TILE * 4) return;
-    this.completeLevel();
+    if (this.prologue) {
+      this.completeLevel();
+      return;
+    }
+    /**
+     * Anywhere but the prologue, he gets away and the level does not end.
+     *
+     * 4-3 is a chase you cannot win (§6: he is waiting at the end of World 4,
+     * not on a roof halfway there), so closing on him is the moment he goes,
+     * over the last wall towards the fight — and the flag past it is still the
+     * flag. The level is finished by reaching it, as every other level is.
+     */
+    thief.escape(() => {
+      if (this.thief === thief) this.thief = undefined;
+    });
+  }
+
+  /**
+   * On a level that is not flat, he runs along the roofs rather than through
+   * them: whatever is under him, he is on top of it. Over a gap there is
+   * nothing under him and he keeps his height — he is smoke, and smoke does
+   * not fall.
+   */
+  private keepThiefOnTheRoofs(thief: Thief): void {
+    let top: number | undefined;
+    for (const child of this.solids.getChildren()) {
+      const body = (child as Phaser.GameObjects.Rectangle).body as Phaser.Physics.Arcade.StaticBody;
+      if (thief.x < body.left || thief.x > body.right) continue;
+      if (top === undefined || body.top < top) top = body.top;
+    }
+    if (top !== undefined) thief.followGround(top);
   }
 
   /**
@@ -1437,9 +1512,13 @@ export class LevelScene extends Phaser.Scene {
     if (!placement) return;
 
     const goalX = (this.level.goal?.x ?? this.level.widthInTiles - 6) * TILE;
+    // Back from a checkpoint, he is a lead ahead of where you are rather than
+    // where he started: a chase that resets him to the first roof is a chase
+    // that has to be run again before it can be run at all.
+    const startX = Math.max(placement.x * TILE + TILE / 2, this.prologue ? 0 : this.respawnAt.x + TILE * 7);
     this.thief = new Thief(
       this,
-      placement.x * TILE + TILE / 2,
+      Math.min(startX, goalX - TILE * 3),
       placement.y * TILE,
       // Short of the goal, so the escape happens in front of the player rather
       // than off the edge of the screen while they are still running at it.
@@ -1769,6 +1848,20 @@ export class LevelScene extends Phaser.Scene {
     });
     this.physics.add.collider(this.enemies, this.steps);
     this.physics.add.collider(this.pickups, this.steps);
+    this.physics.add.collider(this.player, this.tanks);
+    this.physics.add.collider(this.enemies, this.tanks);
+    this.physics.add.collider(this.pickups, this.tanks);
+    /**
+     * A laundry line holds whoever comes down onto it and nobody else (§6:
+     * "above and below the player"). The awnings' rule, and for the awnings'
+     * reason: the line is strung at head height across the alley you are
+     * running along, and as a plain solid it would be a wall at head height.
+     */
+    this.physics.add.collider(this.player, this.laundry, undefined, (playerObject, lineObject) => {
+      const body = (playerObject as Player).body as Phaser.Physics.Arcade.Body;
+      const line = (lineObject as Phaser.GameObjects.Rectangle).body as Phaser.Physics.Arcade.StaticBody;
+      return body.velocity.y >= 0 && body.bottom <= line.top + GAMEPLAY.stompFootMargin + 4;
+    });
     this.physics.add.collider(this.pickups, this.solids);
     this.physics.add.collider(this.pickups, this.blocks);
     this.physics.add.collider(this.crates, this.solids);

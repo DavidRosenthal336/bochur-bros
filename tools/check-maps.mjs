@@ -45,6 +45,11 @@ for (const file of files) {
     steps: (entityLayer?.objects ?? [])
       .filter((o) => o.class === 'step')
       .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight })),
+    // Laundry lines are floor from above, so a gap with one across it is not a
+    // pit. See the validator.
+    laundry: (entityLayer?.objects ?? [])
+      .filter((o) => o.class === 'laundry')
+      .map((o) => ({ x: o.x / map.tilewidth, y: o.y / map.tileheight, w: o.width / map.tilewidth })),
     // Blocks are solid to the player, so they are part of the geometry as far
     // as "is there room to stand here" is concerned.
     blocks: (entityLayer?.objects ?? [])

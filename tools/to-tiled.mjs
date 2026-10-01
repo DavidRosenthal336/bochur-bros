@@ -73,6 +73,8 @@ export function levelDefToTiled(def) {
   for (const c of def.clotheslines ?? [])
     entities.push(rect(c.x, c.y, c.w, 1, 'clothesline', [prop('drop', c.drop)]));
   for (const s of def.steps ?? []) entities.push(rect(s.x, s.y, 1, 1, 'step'));
+  for (const t of def.tanks ?? []) entities.push(rect(t.x, t.y, 1, 1, 'tank'));
+  for (const l of def.laundry ?? []) entities.push(rect(l.x, l.y, l.w, 1, 'laundry'));
   for (const p of def.perches ?? []) entities.push(rect(p.x, p.y, 1, 1, 'perch'));
   if (def.boss)
     entities.push(

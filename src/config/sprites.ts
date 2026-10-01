@@ -200,6 +200,10 @@ export const ACTOR_SPRITES = {
   clotheslinePost: actor('clothesline_post', 12, 20, { idle: 0 }),
   /** A sheet pegged to one. Also World 4's alley lines. */
   laundryLine: actor('laundry_line', 16, 8, { idle: 0 }, { originY: 0.5 }),
+  /** A solar water tank on a roof (§6): round, awkward, one place to stand. */
+  solarTank: actor('solar_tank', 24, 16, { idle: 0 }),
+  /** Quick and erratic (§6). Two frames, flapping. */
+  sparrow: actor('sparrow', 16, 11, { idle: [0, 1], fly: [0, 1], perch: [0, 1] }, { fps: 14, originY: 0.5 }),
   /** A shuk cart (§6): on wheels, so a shove sends it rolling. */
   shukCart: actor('shuk_cart', 28, 17, { idle: 0 }),
   /** A shuk crate: the market's own, for the market's levels. */

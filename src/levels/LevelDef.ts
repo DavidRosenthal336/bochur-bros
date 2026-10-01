@@ -201,6 +201,19 @@ export interface ClotheslineDef {
  */
 export interface StepDef extends TilePoint {}
 
+/**
+ * A laundry line strung across a Meah Shearim alley (§6, World 4): "strung
+ * across alleys, above and below the player".
+ *
+ * Flat, unlike a clothesline, and something you stand on rather than ride: a
+ * floor from above and nothing at all from below. `y` is the row the rope is on.
+ */
+export interface LaundryDef {
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+}
+
 /** Which boss a level's `boss` marker means. */
 export type BossKind = 'pigeonKing' | 'escalade' | 'bear';
 
@@ -298,6 +311,13 @@ export interface LevelDef {
   readonly clotheslines?: readonly ClotheslineDef[];
   /** Rotting porch steps (§6, World 3). */
   readonly steps?: readonly StepDef[];
+  /**
+   * Solar water tanks (§6, World 4): "round, awkward platforms". Each is the
+   * bottom-centre of a drum, in tiles — set one on a roof with `y` the roof's top.
+   */
+  readonly tanks?: readonly TilePoint[];
+  /** Laundry lines to run along (§6, World 4). */
+  readonly laundry?: readonly LaundryDef[];
   /** The end of the level. Without one, the level cannot be completed. */
   readonly goal?: TilePoint;
 }

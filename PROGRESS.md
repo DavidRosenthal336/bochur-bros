@@ -1541,3 +1541,45 @@ stopped cart into a wall forever), and before that it could not swap at all.
 
 Both brothers complete it with no deaths: Berel 42.1s; Mendy 41.5s, swapping once
 at the passage, which is what the sign at the shuk's entrance tells you to do.
+
+### 4-3 — "Timed chase across solar water tanks and laundry lines"
+
+Ninety seconds on the clock, and the Yetzer Hara on the roofs ahead — the same
+uncatchable rubber band as the prologue, now standing on whatever roof is under
+him. As you close on him at the far end he goes over the last wall towards the
+final fight; the flag past it still ends the level. Back from a checkpoint, he
+starts a lead ahead of you rather than back at the first roof.
+
+**Solar tanks** are drums on their side: a static body, plus a push off the
+curve for whoever is standing on it, proportional to how far from the top they
+are (360px/s² at the edge). Let go and it rolls you off; hold a direction and
+you win, because a skid (361) beats it. So it takes anyone who stops and nobody
+who keeps going. At 520 it took you back into the gap you had just cleared
+whatever you pressed.
+
+**Laundry lines** are a floor from above and nothing from below — the awnings'
+one-way rule. A bridge at roof height first, then a line with a second line of
+coins three tiles over it, then two stacked up an alley as a ladder to the high
+roof. The validator counts a line across a gap as something to land on; the trap
+and pocket checks ignore them, since you jump straight up through one.
+
+**Sparrows** are a new `flutter` behaviour: a new random heading every quarter
+to half second, inside 28px of home, no gravity, one stomp. They never follow.
+
+Two finds, both by driving it:
+
+- **The tank stacks were one tile wide**, a twenty-pixel target, and a running
+  jump sailed over the second into the gap behind (Berel twenty-five deaths,
+  then Mendy thirty-two). Two tiles now, the tank across the middle, a tile
+  below the roof line and three tiles apart: every jump in the game, from
+  Berel's walk to Mendy's run, comes down on one.
+- **Sparrows hung in the middle of a jump** made each gap a coin toss — one
+  death on one run, six on the next. Hung higher, a plain jump passes under.
+
+And one rig fault: the bot's look-ahead for floor was 34px wide, which spans a
+two-tile gap, so it walked into every one and reported the first roof
+impassable.
+
+Both brothers finish: Mendy 30.6–32.2s with one or two deaths to sparrows,
+Berel 31.8s clean on one run and 42.5s with two on another. The thief goes over
+the wall about half a second before the flag.

@@ -29,6 +29,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   const muds = [];
   const swings = [];
   const steps = [];
+  const tanks = [];
+  const laundry = [];
   const checkpoints = [];
   let spawn = { x: 2, y: floorTop };
   let goal;
@@ -169,6 +171,16 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
       return api;
     },
     /**
+     * A solar water tank on a roof (§6): a drum lying on its side, with one
+     * place to stand on it. `y` is the top of whatever it sits on.
+     */
+    tank(x, y = floorTop) { tanks.push({ x, y }); return api; },
+    /**
+     * A laundry line (§6), `w` tiles long with its rope on row `y`. Jump up
+     * through it; land on it from above. Tie each end to something.
+     */
+    laundry(x, y, w) { laundry.push({ x, y, w }); return api; },
+    /**
      * The level's boss. `kind` picks the fight; leaving it off means the
      * Pigeon King, which is what 1-4 has always meant by a boss marker.
      */
@@ -224,6 +236,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         mud: muds,
         swings,
         steps,
+        ...(tanks.length ? { tanks } : {}),
+        ...(laundry.length ? { laundry } : {}),
         bouncers,
         groundRow: floorTop,
         perches,

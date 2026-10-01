@@ -159,6 +159,15 @@ export class Thief extends Phaser.GameObjects.Sprite {
   }
 
   /**
+   * Stand on whatever is under him (4-3's roofs): ease towards a new height
+   * rather than jumping to it, so a step up reads as a bound and not a glitch.
+   */
+  followGround(y: number): void {
+    if (this.leaving) return;
+    this.baseY += (y - this.baseY) * 0.18;
+  }
+
+  /**
    * Over the wall and gone.
    *
    * Up and away rather than off the right-hand edge, so the last thing the

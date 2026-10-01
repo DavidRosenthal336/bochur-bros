@@ -21,7 +21,8 @@ export type EnemyBehaviorKind =
   | 'hop'
   | 'drift'
   | 'dart'
-  | 'cling';
+  | 'cling'
+  | 'flutter';
 
 export interface EnemyConfig {
   readonly label: string;
@@ -126,6 +127,16 @@ export interface EnemyConfig {
     readonly triggerRange: number;
     /** How far it wobbles about its line of travel, px. It is a cloud. */
     readonly wobble: number;
+  };
+  /**
+   * Extra settings for `flutter`: §6's sparrows, "quick and erratic, hard to hit".
+   */
+  readonly flutter?: {
+    /** How far from where it was put it will wander, px. */
+    readonly leash: number;
+    /** Shortest and longest it keeps one heading before picking another, ms. */
+    readonly minMs: number;
+    readonly maxMs: number;
   };
   /**
    * Extra settings for `hop`: §6's frogs, which "hop in arcs near the lake".
@@ -478,6 +489,39 @@ export const ENEMIES = {
     color: 0x7a8f4a,
     patrolRange: 0,
     cling: { range: 20, triggerRange: 64, scurrySpeed: 140, scurryMs: 420 },
+  },
+  /**
+   * The sparrow (§6, World 4): "quick and erratic, hard to hit."
+   *
+   * The rooftop pigeon is the opposite bird, and that is why both are here. A
+   * pigeon holds a line and commits to a dive, so it is read and then dodged; a
+   * sparrow never holds anything. Every quarter- to half-second it picks a new
+   * heading at random and flits off along it, inside a small patch of air it
+   * never leaves.
+   *
+   * *Quick* is 95px/s, faster than Mendy walks. *Erratic* is the random heading.
+   * *Hard to hit* is both of those and a body barely bigger than a coin. It can
+   * be stomped — once — but landing on a thing that will not be where you
+   * aimed is a skill, and the honest alternative is to wait for it to flit out
+   * of the way, which it always does within half a second.
+   *
+   * The leash is what keeps it fair. It hangs about one spot, so a sparrow over
+   * a gap is a sparrow over *that* gap: you see it from a screen away, and the
+   * question is when to go, never whether it will follow.
+   */
+  sparrow: {
+    label: 'Sparrow',
+    behavior: 'flutter',
+    speed: 95,
+    hits: 1,
+    stompable: true,
+    affectedByGravity: false,
+    art: 'sparrow',
+    bodyWidth: 10,
+    bodyHeight: 8,
+    color: 0x8a6a4a,
+    patrolRange: 0,
+    flutter: { leash: 28, minMs: 250, maxMs: 450 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 
