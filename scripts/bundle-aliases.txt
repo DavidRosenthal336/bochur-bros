@@ -21,6 +21,7 @@ assets/index-CYqUpLbl.js
 assets/index-CrUtgKP-.js
 assets/index-CwgRFFpE.js
 assets/index-DDTTQHQs.js
+assets/index-DYF5IxCL.js
 assets/index-DgIGOHZz.js
 assets/index-Drpq7_pe.js
 assets/index-DsE--_So.js
