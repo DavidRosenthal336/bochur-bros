@@ -46,6 +46,7 @@ import { completeLevel as recordCompletion, loadSave, writeSave } from '../syste
 import type { PowerTier } from '../systems/PowerState';
 import { PowerState } from '../systems/PowerState';
 import { actorArt } from '../util/art';
+import { flipMode } from '../util/flip';
 import { ACTOR_SPRITES, actorAnimKey } from '../config/sprites';
 import { YETZER_HARA } from '../config/bosses';
 import { solidTextureKey } from '../util/textures';
@@ -484,6 +485,12 @@ export class LevelScene extends Phaser.Scene {
     this.keyboard?.on('keydown-SPACE', () => {
       if (this.state === 'complete' && !this.greybox) this.toWorldMap();
     });
+    // The phone's OK button and its 5, for the same thing.
+    for (const key of ['keydown-ENTER', 'keydown-FIVE']) {
+      this.keyboard?.on(key, () => {
+        if (this.state === 'complete' && !this.greybox) this.toWorldMap();
+      });
+    }
 
     /**
      * The same two ways out, for thumbs.
@@ -530,7 +537,16 @@ export class LevelScene extends Phaser.Scene {
    * finished.
    */
   private get continueHint(): string {
+    if (flipMode()) return 'OK for the map';
     return touchControls().active ? 'TAP for the map' : 'SPACE for the map';
+  }
+
+  /**
+   * The phone's Back button (see `main.ts`): out of a level to the map, the
+   * same as ESC and the MAP button.
+   */
+  goBack(): void {
+    this.leaveLevel();
   }
 
   override update(_time: number, delta: number): void {

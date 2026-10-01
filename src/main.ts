@@ -39,6 +39,19 @@ const config: Phaser.Types.Core.GameConfig = {
 const game = new Phaser.Game(config);
 
 /**
+ * The phone's Back button, which the Android app routes here.
+ *
+ * In a level it goes to the map, like ESC. Anywhere else it answers false, and
+ * the app takes that as leave: Back from the map is how you put a phone game
+ * away.
+ */
+(window as unknown as { bochurBack: () => boolean }).bochurBack = () => {
+  if (!game.scene.isActive('Level')) return false;
+  (game.scene.getScene('Level') as LevelScene).goBack();
+  return true;
+};
+
+/**
  * Re-fit when the box the canvas lives in changes shape.
  *
  * `Scale.FIT` watches the window, which is enough on a desktop and not enough

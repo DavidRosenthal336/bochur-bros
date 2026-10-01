@@ -1627,3 +1627,31 @@ Both brothers beat the whole fight: Berel in 129s, Mendy in 173s.
 
 All sixteen levels across four worlds, plus the prologue. Not built: §6's
 crickets, which wait on §10's audio.
+
+## The flip-phone app
+
+A build for flip phones with no browser — the CAT S22 Flip in particular, an
+Android 11 phone with a keypad that is common as a filtered phone. See
+FLIP_PHONE.md for installing it and the keys.
+
+- **An APK, offline.** `npm run build:apk` packs the game into an Android app
+  with no permissions at all. A small Java activity shows it in a WebView and
+  answers every request for the game's files from inside the app, at a made-up
+  https address — module scripts will not run from a plain file. Built with
+  Ubuntu's Android tools; no Gradle, no Android Studio.
+- **For an old WebView.** A filtered phone may never have updated its WebView,
+  so the phone build targets Chrome 69. Checked by parsing the bundle as ES2019:
+  the phone build passes, the normal one does not (the positive control).
+- **One key per move.** Number pad: 4/6 walk, 2/5 jump, 1/3 jump left/right, 7
+  toggles run, 8 ducks (and ground-pounds in the air), 9 uses your form, 0 swaps.
+  The D-pad moves and its up and middle buttons jump. Measured key by key in
+  the game. The number keys work on a computer as well.
+- **Portrait.** The game across the top of the screen, the key guide in the
+  space under it, with 7 lit while run is on. The map and banners say OK and 5
+  instead of SPACE. Back leaves a level for the map and closes the app from the
+  map. The clear key cannot wipe the save on the phone, because it arrives as
+  Backspace.
+
+Not tested on a real phone: there is no Android device or emulator here. What is
+verified is the APK's structure and signatures (`aapt`, `apksigner`, v1–v3) and
+the phone build itself running in a 320×427 screen with the phone's user agent.

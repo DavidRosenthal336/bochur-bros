@@ -7,6 +7,7 @@ import { GREYBOX_LEVELS, LEVELS, PROLOGUE_LEVEL } from '../levels';
 import type { SaveData } from '../systems/SaveGame';
 import { clearSave, currentLevel, isUnlocked, loadSave } from '../systems/SaveGame';
 import { touchControls } from '../input/TouchInput';
+import { flipMode } from '../util/flip';
 import { SceneKey } from './SceneKey';
 
 /**
@@ -87,7 +88,16 @@ export class WorldMapScene extends Phaser.Scene {
     keyboard?.on('keydown-I', () =>
       this.scene.start(SceneKey.Level, { levelKey: PROLOGUE_LEVEL, prologue: true }),
     );
-    keyboard?.on('keydown-BACKSPACE', () => this.wipe());
+    // The phone's number pad, the same way round as its keys: 4 and 6 along a
+    // world, 2 and 8 between worlds, 5 to play.
+    keyboard?.on('keydown-SIX', () => this.move(1));
+    keyboard?.on('keydown-FOUR', () => this.move(-1));
+    keyboard?.on('keydown-EIGHT', () => this.move(4));
+    keyboard?.on('keydown-TWO', () => this.move(-4));
+    keyboard?.on('keydown-FIVE', () => this.enter());
+    // Not on the phone. A flip phone's clear key arrives as Backspace, and one
+    // press of it wiping a whole game's progress is not a thing to risk.
+    if (!flipMode()) keyboard?.on('keydown-BACKSPACE', () => this.wipe());
   }
 
   private drawChrome(): void {
@@ -122,9 +132,11 @@ export class WorldMapScene extends Phaser.Scene {
       .text(
         VIEW_WIDTH / 2,
         166,
-        thumbs
-          ? 'TAP A LEVEL, THEN TAP IT AGAIN TO PLAY'
-          : 'ARROWS choose   SPACE play   G greybox   BKSP wipe save',
+        flipMode()
+          ? 'ARROWS or 2 4 6 8 choose    OK or 5 play'
+          : thumbs
+            ? 'TAP A LEVEL, THEN TAP IT AGAIN TO PLAY'
+            : 'ARROWS choose   SPACE play   G greybox   BKSP wipe save',
         { fontFamily: 'monospace', fontSize: '8px', color: '#4c5478' },
       )
       .setOrigin(0.5, 0);
@@ -361,7 +373,8 @@ export class WorldMapScene extends Phaser.Scene {
     if (level.isBoss) {
       return `${heading}\nboss — holds ${world.prize}`;
     }
-    return `${heading}\n${touchControls().active ? 'TAP IT AGAIN, or PLAY' : 'SPACE to play'}`;
+    const play = flipMode() ? 'OK or 5 to play' : touchControls().active ? 'TAP IT AGAIN, or PLAY' : 'SPACE to play';
+    return `${heading}\n${play}`;
   }
 
   private enter(): void {

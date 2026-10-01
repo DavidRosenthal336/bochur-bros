@@ -86,7 +86,13 @@ export default defineConfig({
     port: 5173,
   },
   build: {
-    target: 'es2022',
+    /**
+     * The flip-phone app (`npm run build:apk`) runs in the phone's own Android
+     * WebView, and a filtered phone may never have updated it from the one it
+     * shipped with — Chrome 83 or so on Android 11. Chrome 69 leaves a margin,
+     * and is the oldest the game's own code can go (it uses `flatMap`).
+     */
+    target: process.env.BOCHUR_FLIP ? 'chrome69' : 'es2022',
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {

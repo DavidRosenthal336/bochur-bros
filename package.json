@@ -15,7 +15,8 @@
     "check:art": "node tools/check-art.mjs",
     "art": "python3 tools/art/generate.py --out public/sprites",
     "art:scenery": "python3 tools/art/scenery.py --out public/sprites",
-    "art:icon": "python3 tools/art/icon.py"
+    "art:icon": "python3 tools/art/icon.py",
+    "build:apk": "bash scripts/build-apk.sh"
   },
   "dependencies": {
     "phaser": "^3.90.0"

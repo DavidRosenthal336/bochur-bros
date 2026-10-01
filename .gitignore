@@ -18,3 +18,7 @@ playtest/
 *.tmp.mjs
 
 # Sprite sheets are generated from tools/art/generate.py
+
+# The flip-phone build (scripts/build-apk.sh).
+dist-flip/
+build/

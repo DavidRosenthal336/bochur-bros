@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Bochur Bros for a flip phone: the whole game, offline, in one Android app.
+
+  No INTERNET permission. Everything the game loads is inside the app and is
+  served to it by MainActivity, so it runs on a phone with no browser, no data
+  and a filter on everything.
+
+  minSdk 21 is the oldest Android that has the WebView calls MainActivity uses.
+  targetSdk 30 is Android 11, which is what the CAT S22 Flip runs.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.bochurbros.game">
+    <!-- No version here: scripts/build-apk.sh stamps one on every build. -->
+
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
+
+    <application
+        android:label="Bochur Bros"
+        android:icon="@drawable/icon"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation|screenLayout"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

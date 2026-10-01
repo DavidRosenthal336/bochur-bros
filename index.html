@@ -411,6 +411,84 @@
           gap: 8px;
         }
       }
+
+      /*
+        THE FLIP PHONE (see src/util/flip.ts).
+
+        An upright screen about 320 CSS pixels wide, a number pad and a D-pad,
+        and no thumbs on the glass. The game goes across the top, as in portrait
+        on a touch phone, and the space under it — where a touch phone puts its
+        buttons — holds the key guide instead, because on a keypad nobody can
+        see which key does what.
+      */
+      #flip-keys,
+      #flip-card {
+        display: none;
+      }
+      body[data-flip='on'] #game {
+        height: 56.25vw;
+        align-items: flex-start;
+      }
+      body[data-flip='on'] #touch {
+        display: none !important;
+      }
+      body[data-flip='on'] #flip-keys {
+        display: grid;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: calc(56.25vw + 6px);
+        bottom: 0;
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: min-content;
+        gap: 4px;
+        padding: 4px 6px;
+        color: #aab3d6;
+        font-size: 11px;
+        line-height: 1.2;
+        text-align: center;
+      }
+      #flip-keys div {
+        padding: 4px 2px;
+        border: 1px solid #262c48;
+        border-radius: 4px;
+        background: #141830;
+      }
+      #flip-keys b {
+        display: block;
+        color: #ffd77a;
+        font-size: 15px;
+      }
+      #flip-keys .wide {
+        grid-column: span 3;
+        border: none;
+        background: none;
+        color: #6c7499;
+      }
+      /* Run is a toggle on 7, so 7 shows whether it is on. */
+      body[data-run='on'] #flip-keys .run {
+        border-color: #ffd77a;
+        color: #ffd77a;
+      }
+      body[data-flip='on'] #start > :not(#flip-card):not(h1) {
+        display: none;
+      }
+      body[data-flip='on'] #flip-card {
+        display: block;
+        color: #aab3d6;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      /* Solid: the key guide is under it, and showed through. */
+      body[data-flip='on'] #start {
+        gap: 10px;
+        padding: 12px;
+        background: #0d0f1a;
+      }
+      body[data-flip='on'] #start h1 {
+        font-size: 24px;
+        margin: 0;
+      }
     </style>
   </head>
   <body>
@@ -477,8 +555,31 @@
       </div>
     </div>
 
+    <div id="flip-keys">
+      <div><b>1</b>jump left</div>
+      <div><b>2</b>jump</div>
+      <div><b>3</b>jump right</div>
+      <div><b>4</b>left</div>
+      <div><b>5</b>jump</div>
+      <div><b>6</b>right</div>
+      <div class="run"><b>7</b>run on/off</div>
+      <div><b>8</b>duck</div>
+      <div><b>9</b>use form</div>
+      <div class="wide">D-pad moves too &middot; <b style="display:inline;font-size:11px">0</b> swaps brothers &middot; Back for the map</div>
+    </div>
+
     <div id="start">
       <h1>BOCHUR BROS</h1>
+      <div id="flip-card">
+        Get the kiddush back.<br />
+        <b>4 6</b> walk &middot; <b>5</b> jump<br />
+        <b>1 3</b> jump left or right<br />
+        <b>7</b> run on/off &middot; <b>0</b> swap brothers<br />
+        <b>8</b> in the air: Berel's ground pound<br />
+        The keys stay on screen under the game.<br />
+        <br />
+        PRESS ANY KEY
+      </div>
       <p class="sub">ALL FOUR WORLDS</p>
       <table id="keys">
         <tr><td colspan="2" class="group">ON THE MAP</td></tr>
@@ -618,7 +719,10 @@
     <script>
       // A phone should not see a single frame without its controls, and the
       // bundle is a megabyte of Phaser away. This runs now.
-      if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+      // The flip-phone app says so in its user agent; ?flip tries it on a computer.
+      if (/BochurBrosFlip/.test(navigator.userAgent) || /[?&]flip\b/.test(location.search)) {
+        document.body.dataset.flip = 'on';
+      } else if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
         document.body.dataset.touch = 'on';
       }
 
