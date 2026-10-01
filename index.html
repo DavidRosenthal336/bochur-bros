@@ -432,6 +432,20 @@
       body[data-flip='on'] #touch {
         display: none !important;
       }
+      /*
+        The power button: dim when there is nothing to use, lit gold when the
+        power-up you have does something with it (see TouchInput.showPower).
+      */
+      #touch button.power {
+        opacity: 0.55;
+      }
+      #touch button.power.ready {
+        opacity: 1;
+        color: #1a1020;
+        background: #ffd77a;
+        border-color: #fff2c4;
+        font-weight: bold;
+      }
       body[data-flip='on'] #flip-keys {
         display: grid;
         position: fixed;
@@ -558,7 +572,7 @@
       <div class="pad right">
         <div class="stack">
           <button class="small" data-act="swap" aria-label="Swap brothers">SWAP</button>
-          <button class="small" data-act="action" aria-label="Use your form">FORM</button>
+          <button class="small power" data-act="action" aria-label="Use your power-up">POWER</button>
         </div>
         <button class="big" data-act="jump" aria-label="Jump">JUMP</button>
       </div>
@@ -595,13 +609,13 @@
       <div><b>6</b>right</div>
       <div class="run"><b>7</b>run on/off</div>
       <div><b>8</b>duck</div>
-      <div><b>9</b>use form</div>
+      <div><b>9</b>power-up</div>
       <div class="wide">
         <b>Call</b> or <b>&#10033;</b> run on/off &middot; <b>0</b> swap &middot; <b>Back</b> map
       </div>
     </div>
     <!-- Labels over the two soft keys, the way a flip phone shows what they do. -->
-    <div id="softkeys"><span>SWAP</span><span>JUMP</span><span>FORM</span></div>
+    <div id="softkeys"><span>SWAP</span><span>JUMP</span><span>POWER</span></div>
 
     <div id="start">
       <h1>BOCHUR BROS</h1>
@@ -610,7 +624,7 @@
         <b>&#9664; &#9654;</b> walk &middot; <b>&#9650;</b> or <b>OK</b> jump<br />
         <b>&#9660;</b> duck &mdash; in the air, Berel's ground pound<br />
         <b>left soft key</b> swap brothers<br />
-        <b>right soft key</b> use your form<br />
+        <b>right soft key</b> use your power-up<br />
         <b>Call</b> run on/off &middot; <b>Back</b> to the map<br />
         The number keys work too, and the guide<br />
         stays on screen under the game.<br />
@@ -697,7 +711,9 @@
             <td>Tap once to run, tap again to stop &mdash; it stays on, so you
                 are never holding two things at once</td></tr>
         <tr><td>SWAP</td><td><b>Swap brothers</b> &mdash; free, instant, unlimited</td></tr>
-        <tr><td>FORM</td><td>Menorah throws, Lulav swings</td></tr>
+        <tr><td>POWER</td>
+            <td>Lights up when your power-up has a button: THROW (Menorah),
+                SWING (Lulav), FLY (Peyos, hold it)</td></tr>
         <tr><td>MAP</td><td>Top corner &mdash; back to the map</td></tr>
         <tr><td colspan="2" class="group">IN THE WATER (2-3)</td></tr>
         <tr><td>JUMP</td><td>A stroke. Press it again and again</td></tr>

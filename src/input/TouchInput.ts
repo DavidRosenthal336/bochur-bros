@@ -1,3 +1,4 @@
+import type { PowerTier } from '../systems/PowerState';
 import type { InputState } from './InputState';
 import { NEUTRAL_INPUT } from './InputState';
 
@@ -114,6 +115,8 @@ export class TouchInput {
   /** True once a real touch has happened, which is what reveals the controls. */
   private used = false;
   private menuHandler: (() => void) | undefined;
+  /** The power form the button is labelled for. See `showPower`. */
+  private power: PowerTier = 'small';
 
   constructor() {
     const root = document.getElementById('touch') ?? undefined;
@@ -164,20 +167,45 @@ export class TouchInput {
     this.menuHandler = handler;
   }
 
+  /**
+   * The power button says what it does, for the form you are in.
+   *
+   * It said FORM, whatever you were, and players did not find it: "there's no
+   * button that lets you use power ups." So it is named for the action — THROW
+   * with the Menorah, SWING with the Lulav, FLY with the Peyos — and lit up
+   * when there is something to do with it. Small or in the Cholent there is
+   * nothing to press (the Cholent's power is being big), and it says POWER,
+   * dimmed. The scene calls this every frame; it only touches the page on a
+   * change.
+   */
+  showPower(tier: PowerTier): void {
+    if (tier === this.power) return;
+    this.power = tier;
+    const label = { small: 'POWER', cholent: 'POWER', menorah: 'THROW', lulav: 'SWING', peyos: 'FLY' }[tier];
+    for (const button of this.root?.querySelectorAll<HTMLElement>('[data-act="action"]') ?? []) {
+      button.textContent = label;
+      button.classList.toggle('ready', tier === 'menorah' || tier === 'lulav' || tier === 'peyos');
+    }
+  }
+
   /** Call once per frame, before anything reads `current`. */
   update(): void {
     const down = (action: TouchAction): boolean =>
       this.held.has(action) || this.mouse === action || this.tapped.has(action);
+    // With the Peyos, the power button is a second jump button: hold it in the
+    // air to fly, which is what the Peyos do with a held jump.
+    const flying = this.power === 'peyos';
+    const powerHeld = this.held.has('action') || this.mouse === 'action';
 
     this.state = {
       moveX: axis(down('left'), down('right')),
       moveY: axis(false, down('down')),
       // A tap shorter than a frame still has to jump, so a press counts if the
       // button went down at any point since the last frame.
-      jumpPressed: this.tapped.has('jump'),
-      jumpHeld: this.held.has('jump') || this.mouse === 'jump',
+      jumpPressed: this.tapped.has('jump') || (flying && this.tapped.has('action')),
+      jumpHeld: this.held.has('jump') || this.mouse === 'jump' || (flying && powerHeld),
       run: this.running || down('run'),
-      actionPressed: this.tapped.has('action'),
+      actionPressed: this.tapped.has('action') && !flying,
       swapPressed: this.tapped.has('swap'),
       pausePressed: this.tapped.has('menu'),
     };

@@ -592,6 +592,7 @@ export class LevelScene extends Phaser.Scene {
     this.updateCameraLookAhead();
     this.updateBackdrop();
     this.flashWhileInvulnerable(now);
+    touchControls().showPower(this.power.current);
     this.hud.update(
       this.coinCount,
       this.power.current,

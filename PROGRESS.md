@@ -1701,3 +1701,15 @@ Both brothers now finish 1-2 with no deaths: Mendy 64s, Berel 80s.
 
 And 1-1's ledge at tile 38 was three tiles tall, the first thing in the game a
 standing Berel could not climb; it is two, like every rise since World 3.
+
+## The power button on phones
+
+Reported: "there's no button on mobile that lets you use power ups." There was
+one — FORM, under SWAP — and it worked, but nothing about it said power-up, it
+looked like every other button, and with half the powers it did nothing. Now it
+is named for what it does and lights up gold when it does something: **THROW**
+with the Menorah, **SWING** with the Lulav, **FLY** with the Peyos (hold it in
+the air; it is a second jump button for them), and a dimmed **POWER** when small
+or in the Cholent, whose power is passive. Checked on an emulated phone, form
+by form: the label and the lighting change, THROW throws, SWING swings, and
+holding FLY flew 118px. The flip phone's soft-key bar and guide say POWER too.
