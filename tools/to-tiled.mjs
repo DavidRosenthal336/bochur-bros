@@ -37,6 +37,7 @@ export function levelDefToTiled(def) {
   for (const c of def.checkpoints ?? []) entities.push(rect(c.x, c.y, 1, 1, 'checkpoint'));
   for (const c of def.coins ?? []) entities.push(rect(c.x, c.y, 1, 1, 'coin'));
   for (const c of def.crates ?? []) entities.push(rect(c.x, c.y, 1, 1, 'crate'));
+  for (const c of def.carts ?? []) entities.push(rect(c.x, c.y, 1, 1, 'shukCart'));
   for (const b of def.blocks ?? [])
     entities.push(rect(b.x, b.y, 1, 1, 'block', [prop('block', b.kind), prop('contents', b.contents ?? 'coin')]));
   for (const e of def.enemies ?? []) entities.push(rect(e.x, e.y, 1, 1, 'enemy', [prop('enemy', e.kind)]));

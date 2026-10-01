@@ -20,7 +20,8 @@ export type EnemyBehaviorKind =
   | 'thief'
   | 'hop'
   | 'drift'
-  | 'dart';
+  | 'dart'
+  | 'cling';
 
 export interface EnemyConfig {
   readonly label: string;
@@ -88,6 +89,20 @@ export interface EnemyConfig {
     readonly hissMs: number;
     /** Chasing speed, px/s. */
     readonly speed: number;
+  };
+  /**
+   * Extra settings for `cling`: §6's geckos, which "cling to stone walls,
+   * scurry when approached".
+   */
+  readonly cling?: {
+    /** How far it creeps up and down the wall, either side of where it was put, px. */
+    readonly range: number;
+    /** How close you have to come before it bolts, px. */
+    readonly triggerRange: number;
+    /** How fast it bolts, px/s. */
+    readonly scurrySpeed: number;
+    /** How long it keeps bolting, ms. */
+    readonly scurryMs: number;
   };
   /**
    * Extra settings for `dart`: §6's cats, "darting across the player's path".
@@ -435,6 +450,34 @@ export const ENEMIES = {
     color: 0x8a7a5a,
     patrolRange: 0,
     dart: { triggerRange: 80, hissMs: 460, runMs: 1000, restMs: 1700 },
+  },
+  /**
+   * The gecko (§6): "cling to stone walls, scurry when approached."
+   *
+   * The only creature in the game that lives on a vertical surface. It creeps
+   * up and down the face of a wall, slowly, and when you come within four tiles
+   * it bolts — up the wall, away from you — and then creeps back. It is never
+   * trying to reach you, which is §6's "scurry": the danger is that a wall you
+   * are jumping past has something on it, and that the thing moves when you
+   * arrive.
+   *
+   * No gravity, of course. A gecko on a wall is the point of a gecko.
+   */
+  gecko: {
+    label: 'Gecko',
+    behavior: 'cling',
+    speed: 22,
+    hits: 1,
+    stompable: true,
+    affectedByGravity: false,
+    art: 'gecko',
+    // Upright: it is drawn lying flat and turned to climb, so its hitbox is the
+    // drawing's width and height swapped.
+    bodyWidth: 6,
+    bodyHeight: 12,
+    color: 0x7a8f4a,
+    patrolRange: 0,
+    cling: { range: 20, triggerRange: 64, scurrySpeed: 140, scurryMs: 420 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

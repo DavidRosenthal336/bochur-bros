@@ -21,6 +21,7 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
   const blocks = [];
   const enemies = [];
   const crates = [];
+  const carts = [];
   const hazards = [];
   const waters = [];
   const currents = [];
@@ -69,6 +70,8 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
     },
     enemy(x, y, kind = 'pigeon') { enemies.push({ x, y, kind }); return api; },
     crate(x, y = floorTop) { crates.push({ x, y }); return api; },
+    /** A shuk cart (§6): Berel shoves it and it rolls on by itself. */
+    cart(x, y = floorTop) { carts.push({ x, y }); return api; },
     wind(x, y, w, h, direction) { hazards.push({ x, y, w, h, kind: 'wind', direction }); return api; },
     /** A leaf blower: a wind zone with the machine drawn at its mouth (§6). */
     blower(x, y, w, h, direction = -1) {
@@ -213,6 +216,7 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
         blocks,
         enemies,
         crates,
+        ...(carts.length ? { carts } : {}),
         hazards,
         water: waters,
         currents,

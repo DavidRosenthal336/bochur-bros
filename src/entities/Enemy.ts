@@ -84,6 +84,25 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     body.setAllowGravity(config.affectedByGravity);
     if (config.affectedByGravity) body.setGravityY(1400);
     body.setVelocityX(this.facing * config.speed);
+
+    /**
+     * A gecko climbs: the drawing is turned upright, and the hitbox is set
+     * round its middle by hand.
+     *
+     * Arcade bodies do not rotate with their sprites, so a rotated drawing with
+     * the usual inset would put the hitbox across the gecko instead of along it.
+     * With the origin at the middle, the body is centred on the same point the
+     * drawing turns about.
+     */
+    if (config.cling && this.art) {
+      this.setAngle(-90);
+      body.setSize(config.bodyWidth, config.bodyHeight);
+      body.setOffset(
+        (this.art.frameWidth - config.bodyWidth) / 2,
+        (this.art.frameHeight - config.bodyHeight) / 2,
+      );
+    }
+    if (config.cling) body.setVelocity(0, 0);
   }
 
   get physicsBody(): Phaser.Physics.Arcade.Body {
@@ -129,6 +148,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         break;
       case 'dart':
         this.tickDart(now, playerX);
+        break;
+      case 'cling':
+        this.tickCling(now, playerX, playerY);
         break;
     }
 
@@ -292,6 +314,53 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       default:
         this.tickPatrol();
     }
+  }
+
+  /**
+   * The gecko (§6): creep up and down the wall; bolt away when you come near.
+   *
+   * Away means up the wall if you are below it and down if you are above —
+   * and in practice up, since you are almost always below a gecko. Its travel
+   * is held to a band either side of where it was placed, so a gecko that bolts
+   * stays on its own wall rather than climbing off the top of the level.
+   */
+  private tickCling(now: number, playerX: number, playerY: number): void {
+    const cling = this.config.cling;
+    const body = this.physicsBody;
+    if (!cling) return;
+    body.setVelocityX(0);
+
+    const low = this.homeY + cling.range * 1.6;
+    const high = this.homeY - cling.range * 1.6;
+
+    if (this.phase === 'scurrying') {
+      const pastBand = (body.velocity.y < 0 && this.y <= high) || (body.velocity.y > 0 && this.y >= low);
+      if (now >= this.phaseEndsAt || pastBand || body.blocked.up || body.blocked.down) {
+        this.phase = 'patrol';
+        body.setVelocityY(0);
+        // A breather before it will bolt again, or a player standing beneath
+        // it sets off a bolt every frame and it shivers at the top of its band.
+        this.phaseEndsAt = now + 900;
+      }
+      return;
+    }
+
+    const near = Math.abs(playerX - this.x) < cling.triggerRange && Math.abs(playerY - this.y) < cling.triggerRange * 1.5;
+    if (near && now >= this.phaseEndsAt) {
+      // Bolt away. Up unless you are above it.
+      const away = playerY < this.y ? 1 : -1;
+      this.phase = 'scurrying';
+      this.phaseEndsAt = now + cling.scurryMs;
+      body.setVelocityY(away * cling.scurrySpeed);
+      this.setFlipX(away > 0);
+      return;
+    }
+
+    // Creep: up to the top of its band, down to the bottom, and back.
+    if (this.y <= this.homeY - cling.range) this.facing = 1;
+    else if (this.y >= this.homeY + cling.range) this.facing = -1;
+    body.setVelocityY(this.facing * this.config.speed);
+    this.setFlipX(this.facing > 0);
   }
 
   /**

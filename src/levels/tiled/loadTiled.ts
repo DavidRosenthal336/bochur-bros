@@ -45,6 +45,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
   const blocks: BlockPlacement[] = [];
   const enemies: EnemyPlacement[] = [];
   const crates: TilePoint[] = [];
+  const carts: TilePoint[] = [];
   const hazards: HazardPlacement[] = [];
   const bouncers: BouncePlacement[] = [];
   const water: WaterDef[] = [];
@@ -100,6 +101,10 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
           break;
         case 'crate':
           crates.push({ x, y });
+          break;
+        // Not 'cart': that is the shopping cart, a hazard, since 1-1.
+        case 'shukCart':
+          carts.push({ x, y });
           break;
         case 'block':
           blocks.push({
@@ -243,6 +248,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
     blocks,
     enemies,
     crates,
+    ...(carts.length ? { carts } : {}),
     hazards,
     water,
     currents,

@@ -16,7 +16,7 @@ import {
   VIEW_WIDTH,
 } from '../config/Tuning';
 import { Block } from '../entities/Block';
-import { Crate } from '../entities/Crate';
+import { CRATE, Crate, SHUK_CART } from '../entities/Crate';
 import { Enemy } from '../entities/Enemy';
 import { WindZone } from '../entities/Hazard';
 import { Current, Water } from '../entities/Water';
@@ -622,8 +622,14 @@ export class LevelScene extends Phaser.Scene {
 
   private buildCrates(): void {
     this.crates = this.add.group();
+    // The shuk's own crates in the shuk; Boro Park's everywhere else.
+    const inTheShuk = (this.level.backdrop ?? '').startsWith('meah_shearim');
+    const crate = inTheShuk ? { ...CRATE, art: 'shukCrate' as const } : CRATE;
     for (const point of this.level.crates ?? []) {
-      this.crates.add(new Crate(this, point.x * TILE + TILE / 2, point.y * TILE));
+      this.crates.add(new Crate(this, point.x * TILE + TILE / 2, point.y * TILE, crate));
+    }
+    for (const point of this.level.carts ?? []) {
+      this.crates.add(new Crate(this, point.x * TILE + TILE / 2, point.y * TILE, SHUK_CART));
     }
   }
 
@@ -875,9 +881,11 @@ export class LevelScene extends Phaser.Scene {
       pad.setData('bounceKind', kind);
       this.bouncers.add(pad);
 
-      if (kind === 'awning' && this.textures.exists('tile-awning')) {
+      // The shuk's awnings are its own, not Boro Park's striped canvas.
+      const awning = (this.level.backdrop ?? '').startsWith('meah_shearim') ? 'tile-msAwning' : 'tile-awning';
+      if (kind === 'awning' && this.textures.exists(awning)) {
         pad.setVisible(false);
-        this.add.tileSprite(x, y, w, TILE, 'tile-awning').setOrigin(0, 0).setDepth(4);
+        this.add.tileSprite(x, y, w, TILE, awning).setOrigin(0, 0).setDepth(4);
       }
 
       if (kind === 'trampoline') {

@@ -235,6 +235,8 @@ export interface LevelDef {
   readonly checkpoints?: readonly TilePoint[];
   /** Crates. Berel shoves them; Mendy cannot budge them. */
   readonly crates?: readonly TilePoint[];
+  /** Shuk carts (§6, World 4): Berel shoves them and they roll on by themselves. */
+  readonly carts?: readonly TilePoint[];
   /** Awnings and rubbish bags — land on one and you are launched (§6). */
   readonly bouncers?: readonly BouncePlacement[];
   /** Where the level's floor is, for hazards that cast a shadow on it. */

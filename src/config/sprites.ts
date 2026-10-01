@@ -200,6 +200,12 @@ export const ACTOR_SPRITES = {
   clotheslinePost: actor('clothesline_post', 12, 20, { idle: 0 }),
   /** A sheet pegged to one. Also World 4's alley lines. */
   laundryLine: actor('laundry_line', 16, 8, { idle: 0 }, { originY: 0.5 }),
+  /** A shuk cart (§6): on wheels, so a shove sends it rolling. */
+  shukCart: actor('shuk_cart', 28, 17, { idle: 0 }),
+  /** A shuk crate: the market's own, for the market's levels. */
+  shukCrate: actor('shuk_crate', 16, 16, { idle: 0 }),
+  /** Clings to the stone and scurries when you come near (§6). */
+  gecko: actor('gecko', 16, 9, { idle: [0, 1], run: [0, 1] }, { fps: 10, originY: 0.5 }),
   /** World 4's signature (§6): sitting, darting, and hissing first. */
   cat: actor('cat', 22, 16, { idle: 0, sit: 0, run: [1, 2], hiss: 3, squash: 3 }, { fps: 12 }),
   /** A pashkevil, one of the wall posters a hamsin tears loose (§6). */
