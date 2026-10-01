@@ -1466,3 +1466,78 @@ What it taught about building levels, which is the part worth keeping:
 
 Not built: §6's crickets, which belong to the audio system §10 asks for and the
 game does not have yet.
+
+
+---
+
+## 1-2 without its rats
+
+At the developer's request, 1-2 is easier: its six rats are gone and nothing
+replaces them. A rat runs a scaffold board in about a second, on a climb where
+the screen is already rising beneath you and the board it runs along is the only
+thing to stand on. The pigeons and falling pipes stay — those are the
+telegraphed hazards the level exists to teach — and rats remain in 1-1 and 1-3.
+§6 lists rats for 1-2, so the level file says why they are not there.
+
+---
+
+## World 4 — Meah Shearim: 4-1 The Alleys and 4-2 The Shuk
+
+"Jerusalem. Stone, arches, bright sun, narrow alleys. Visually the furthest
+thing from Brooklyn." (§6) One material, pale stone, for the floor and the walls
+alike, and the arch as a solid kind of its own.
+
+### 4-1 — "Stone stairs, arches, cats, hamsin gusts"
+
+Built on a slope: terraces joined by flights of single-tile stone stairs, arches
+over the passages with three tiles of headroom.
+
+**The cat** sits, hisses when you come close, and runs flat out in one direction
+straight through where you were. It does not chase; it has somewhere to be. One,
+then two, then three on a wall, where the answer is the gap between darts.
+
+**The hamsin** is a wind zone that gusts on the clock: 2.25s calm, 0.7s of
+pashkevilin lifting off the walls, 1.3s of wind at 420 — more than Mendy's footing
+of 177. Measured: a gust shoves a Mendy standing on the narrow stone 54px back
+into the pit, and pushes a jump into it short; Berel, immune, does not move at
+all. The narrow stretches between pits are a swap test against the clock, with a
+sign before them that says so.
+
+Two finds: the trap check called the terraces a seventy-tile pit (a pit is a
+hole, not a hill — a column solid at the floor row no longer counts as one), and
+the first slope opened a parallax gap every flat level hid, now filled with the
+backdrop's own base colour.
+
+Both brothers complete it: Mendy 28.5s with no deaths, Berel 53.5s with four, all
+to cats.
+
+### 4-2 — "Crates, carts, awnings, geckos. Heavy Berel usage."
+
+Berel's level, by §6's instruction. The **cart** is the crate on wheels — pushed at
+110 against Berel's walk of 75, barely slowed by the stone, so a shove sends it
+rolling about five tiles. The **gecko** creeps on stall walls and bolts away when
+you come near.
+
+Four bugs, all found by driving the level:
+
+- **The gecko stalls were four tiles tall**, walls Berel could not get over
+  (running jump 59px, wall 64). Sixteen deaths at the first one. Stalls are two
+  tiles now, and the helper no longer takes a height. 3-1's rule, again.
+- **The gecko fled into your climb.** It bolts up its wall, and up a stall's wall
+  is where you jump: sixty-five deaths at the first stall. §6 gives geckos no
+  attack — "cling to stone walls, scurry when approached" — so a fleeing gecko is
+  harmless until it settles.
+- **The Berel-only passage was not.** One crate in three tiles of headroom left
+  32px above it; Mendy is 22px and walked over it, finishing without a swap. Two
+  crates stacked leave 16px, and standing Berel pushes both at once.
+- **The cellar under a weak floor had no way out** — a box hanging at standing
+  height and stairs climbing into the underside of the street. Four rows tall
+  now, the box set into the ceiling, the stairs opening into daylight.
+
+And three test-bot faults, each of which would have reported the level broken:
+it set the character directly instead of through the scene's swap (so crates
+never knew Berel was pushing), it would not jump at a crate (so it pushed a
+stopped cart into a wall forever), and before that it could not swap at all.
+
+Both brothers complete it with no deaths: Berel 42.1s; Mendy 41.5s, swapping once
+at the passage, which is what the sign at the shuk's entrance tells you to do.
