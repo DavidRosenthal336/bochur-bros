@@ -23,6 +23,15 @@ import { level } from '../level-builder.mjs';
  * margin, which is why 1-1 does not.
  */
 const FLOOR = 20;
+/**
+ * Where the pipes hang: on a rope from the scaffolding, with the bottom of the
+ * pipe just over head height. On this street the camera shows about ninety
+ * pixels above the pavement, so a pipe hung any higher is off the top of the
+ * screen — and on top of the plank, where they first were, they could not be
+ * seen at all until they were already falling. Hanging, a pipe is scenery you
+ * can jump into; only a falling one hurts.
+ */
+const PIPE_ROW = FLOOR - 2;
 const HEIGHT = 27;
 const WIDTH = 362;
 
@@ -73,9 +82,9 @@ L.block(110, 16, 'mystery', 'cholent');
 
 // --- Scaffolding: pipes drop as you pass under ------------------------------
 L.ground(124, 30);
-L.sign(125, ['SCAFFOLDING — WATCH THE GROUND'], 16);
+L.sign(125, ['SCAFFOLDING — WATCH FOR RATTLING PIPES'], 16);
 L.slab(124, 12, 30, 1);
-for (const x of [130, 137, 144, 150]) L.hazard('pipe', x, 12);
+for (const x of [130, 137, 144, 150]) L.hazard('pipe', x, PIPE_ROW);
 L.coinRow(132, 18, 4);
 L.checkpoint(150);
 
@@ -117,7 +126,7 @@ for (const x of [278, 284]) L.enemy(x, FLOOR, 'rat');
 // --- Scaffolding again, closer together, with pigeons under it --------------
 L.ground(293, 34);
 L.slab(293, 12, 34, 1);
-for (const x of [297, 303, 309, 315, 321]) L.hazard('pipe', x, 12);
+for (const x of [297, 303, 309, 315, 321]) L.hazard('pipe', x, PIPE_ROW);
 L.enemy(300, 16);
 L.enemy(312, 16);
 L.coinRow(305, 18, 6);

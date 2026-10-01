@@ -115,7 +115,10 @@ export const HAZARDS = {
     harmful: true,
     speed: 520,
     affectedByGravity: false,
-    faller: { warningMs: 620, triggerRange: 34, resetMs: 2600 },
+    // A full second of rattling, starting three tiles out: long enough to see
+    // it, decide, and either stop or go. It was 620ms from two tiles, with the
+    // pipe off the top of the screen, which left nothing to react to.
+    faller: { warningMs: 1000, triggerRange: 48, resetMs: 2600 },
   },
 
   /** Runaway shopping cart — "roll at you fast. Jump on top to ride one." (§6) */

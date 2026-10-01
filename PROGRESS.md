@@ -1668,3 +1668,36 @@ WebView, a flip phone's D-pad can drive a focus ring and its soft keys, Call
 and ✱ may never reach the page. A bar along the bottom of the screen labels the
 soft keys, as flip phones do. Tested by driving the game only through that
 bridge, with the codes the app sends: every button did what the guide says.
+
+## 1-2 made beatable, and falling pipes made visible
+
+Reported: 1-2 still could not be beaten, and the falling pipes gave no warning
+anyone could see. Both true, and the first had more causes than the pipes.
+
+**Falling pipes, everywhere.** They hung on top of the scaffolding plank, above
+the top of the camera, which on a street shows only about ninety pixels over the
+pavement: the pipe was invisible until it was falling, and the warning was a
+three-pixel shadow that could not be seen on these graphics, 0.6s ahead, from
+two tiles out. Now a pipe hangs on a rope with its bottom just over head height,
+always on screen; from three tiles out it rattles for a full second, shedding
+grit and flashing, with a bright red mark on the pavement where it will land,
+and then the rope goes. Hanging or spent it is scenery (no collision); only a
+falling pipe hurts. 1-1 and 1-3 keep theirs; signs say "a rattling pipe".
+
+**1-2, by the developer's decisions and by measurement** — driving the whole
+climb with a bot that picks the next board, takes a running jump at its near
+end and steers onto it, dying the game's own way:
+
+- **No falling pipes** (asked for).
+- **No pigeons** (asked, after measuring): all eight hovered over a board right
+  where the jump to the next one goes, and two sat over checkpoints and dived on
+  a player as they respawned — seventy-odd deaths in a row at one of them.
+- **The screen rises at 14px/s, not 20**: Berel's climb gains about sixteen a
+  second, and at twenty the screen caught him at the same board every time.
+- **The fork's sign said "BOTH WORK"**; the left way's four-row steps are past
+  Berel's jump. It now says the left way is Mendy's.
+
+Both brothers now finish 1-2 with no deaths: Mendy 64s, Berel 80s.
+
+And 1-1's ledge at tile 38 was three tiles tall, the first thing in the game a
+standing Berel could not climb; it is two, like every rise since World 3.

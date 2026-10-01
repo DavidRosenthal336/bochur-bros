@@ -2338,9 +2338,15 @@ export class LevelScene extends Phaser.Scene {
     // Standing on a cart or a van roof carries you; walking into its side does
     // not. §6 is explicit that the player "must climb the thing trying to kill
     // them", so which part you touch has to be the whole difference.
-    this.physics.add.collider(this.player, this.hazards, (_player, hazardObject) => {
-      this.onHazardContact(hazardObject as MovingHazard);
-    });
+    this.physics.add.collider(
+      this.player,
+      this.hazards,
+      (_player, hazardObject) => {
+        this.onHazardContact(hazardObject as MovingHazard);
+      },
+      // A pipe hanging on the scaffolding, or lying spent, is not in your way.
+      (_player, hazardObject) => (hazardObject as MovingHazard).collidesWithPlayer,
+    );
 
     /**
      * An awning is something you land on, not something you walk into.

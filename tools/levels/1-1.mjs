@@ -42,6 +42,15 @@ import { level } from '../level-builder.mjs';
  * before 1-3 says it three times at speed.
  */
 const FLOOR = 20;
+/**
+ * Where the pipes hang: on a rope from the scaffolding, with the bottom of the
+ * pipe just over head height. On this street the camera shows about ninety
+ * pixels above the pavement, so a pipe hung any higher is off the top of the
+ * screen — and on top of the plank, where they first were, they could not be
+ * seen at all until they were already falling. Hanging, a pipe is scenery you
+ * can jump into; only a falling one hurts.
+ */
+const PIPE_ROW = FLOOR - 2;
 const HEIGHT = 27;
 const WIDTH = 322;
 
@@ -69,8 +78,11 @@ L.ground(26, 22);
 L.block(30, 16, 'mystery', 'cholent');
 L.bricks(33, 16, 2);
 L.coinRow(33, 14, 2);
-L.ledge(38, 17, 4);
-L.coinRow(38, 15, 4);
+// Two tiles, not three: the game's rule since World 3 is that every rise is
+// climbable by Berel from a standing start, and at three this was the first
+// thing in the game he could not get over.
+L.ledge(38, 18, 4);
+L.coinRow(38, 16, 4);
 
 // --- One pigeon, on open ground, with room to miss ---------------------------
 L.ground(50, 28);
@@ -157,8 +169,8 @@ L.checkpoint(238);
 // --- Scaffolding, and the shadow on the pavement -----------------------------
 L.ground(242, 34);
 L.slab(242, 12, 32, 1);
-for (const x of [248, 255, 262, 268]) L.hazard('pipe', x, 12);
-L.sign(243, ['A SHADOW MEANS A PIPE'], 16);
+for (const x of [248, 255, 262, 268]) L.hazard('pipe', x, PIPE_ROW);
+L.sign(243, ['A RATTLING PIPE IS ABOUT TO FALL'], 16);
 L.coinRow(250, 18, 6);
 L.enemy(259, 16);
 L.enemy(266, 16);

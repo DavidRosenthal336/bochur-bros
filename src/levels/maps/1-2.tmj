@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 113,
+ "nextobjectid": 101,
  "tilesets": [],
  "properties": [
   {
@@ -32,7 +32,7 @@
   {
    "name": "autoScrollUp",
    "type": "string",
-   "value": "20"
+   "value": "14"
   },
   {
    "name": "backdrop",
@@ -487,24 +487,6 @@
      "id": 25,
      "name": "",
      "class": "",
-     "x": 32,
-     "y": 528,
-     "width": 144,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 26,
-     "name": "",
-     "class": "",
      "x": 320,
      "y": 576,
      "width": 128,
@@ -520,7 +502,7 @@
      ]
     },
     {
-     "id": 27,
+     "id": 26,
      "name": "",
      "class": "",
      "x": 464,
@@ -538,7 +520,7 @@
      ]
     },
     {
-     "id": 28,
+     "id": 27,
      "name": "",
      "class": "",
      "x": 320,
@@ -556,11 +538,29 @@
      ]
     },
     {
-     "id": 29,
+     "id": 28,
      "name": "",
      "class": "",
      "x": 176,
      "y": 432,
+     "width": 128,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "name": "",
+     "class": "",
+     "x": 32,
+     "y": 384,
      "width": 128,
      "height": 16,
      "rotation": 0,
@@ -577,24 +577,6 @@
      "id": 30,
      "name": "",
      "class": "",
-     "x": 32,
-     "y": 384,
-     "width": 128,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 31,
-     "name": "",
-     "class": "",
      "x": 176,
      "y": 336,
      "width": 128,
@@ -610,7 +592,7 @@
      ]
     },
     {
-     "id": 32,
+     "id": 31,
      "name": "",
      "class": "",
      "x": 32,
@@ -628,7 +610,7 @@
      ]
     },
     {
-     "id": 33,
+     "id": 32,
      "name": "",
      "class": "",
      "x": 464,
@@ -646,7 +628,7 @@
      ]
     },
     {
-     "id": 34,
+     "id": 33,
      "name": "",
      "class": "",
      "x": 320,
@@ -664,7 +646,7 @@
      ]
     },
     {
-     "id": 35,
+     "id": 34,
      "name": "",
      "class": "",
      "x": 464,
@@ -682,7 +664,7 @@
      ]
     },
     {
-     "id": 36,
+     "id": 35,
      "name": "",
      "class": "",
      "x": 320,
@@ -700,7 +682,7 @@
      ]
     },
     {
-     "id": 37,
+     "id": 36,
      "name": "",
      "class": "",
      "x": 176,
@@ -718,7 +700,7 @@
      ]
     },
     {
-     "id": 38,
+     "id": 37,
      "name": "",
      "class": "",
      "x": 320,
@@ -736,7 +718,7 @@
      ]
     },
     {
-     "id": 39,
+     "id": 38,
      "name": "",
      "class": "",
      "x": 176,
@@ -754,7 +736,7 @@
      ]
     },
     {
-     "id": 40,
+     "id": 39,
      "name": "",
      "class": "",
      "x": 320,
@@ -772,7 +754,7 @@
      ]
     },
     {
-     "id": 41,
+     "id": 40,
      "name": "",
      "class": "",
      "x": 176,
@@ -802,7 +784,7 @@
    "y": 0,
    "objects": [
     {
-     "id": 42,
+     "id": 41,
      "name": "",
      "class": "spawn",
      "x": 80,
@@ -813,7 +795,7 @@
      "visible": true
     },
     {
-     "id": 43,
+     "id": 42,
      "name": "",
      "class": "goal",
      "x": 256,
@@ -824,7 +806,7 @@
      "visible": true
     },
     {
-     "id": 44,
+     "id": 43,
      "name": "",
      "class": "checkpoint",
      "x": 384,
@@ -835,7 +817,7 @@
      "visible": true
     },
     {
-     "id": 45,
+     "id": 44,
      "name": "",
      "class": "checkpoint",
      "x": 240,
@@ -846,7 +828,7 @@
      "visible": true
     },
     {
-     "id": 46,
+     "id": 45,
      "name": "",
      "class": "checkpoint",
      "x": 384,
@@ -857,7 +839,7 @@
      "visible": true
     },
     {
-     "id": 47,
+     "id": 46,
      "name": "",
      "class": "checkpoint",
      "x": 240,
@@ -868,10 +850,21 @@
      "visible": true
     },
     {
-     "id": 48,
+     "id": 47,
      "name": "",
      "class": "coin",
      "x": 352,
+     "y": 1376,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 48,
+     "name": "",
+     "class": "coin",
+     "x": 368,
      "y": 1376,
      "width": 16,
      "height": 16,
@@ -882,7 +875,7 @@
      "id": 49,
      "name": "",
      "class": "coin",
-     "x": 368,
+     "x": 384,
      "y": 1376,
      "width": 16,
      "height": 16,
@@ -893,7 +886,7 @@
      "id": 50,
      "name": "",
      "class": "coin",
-     "x": 384,
+     "x": 400,
      "y": 1376,
      "width": 16,
      "height": 16,
@@ -904,8 +897,8 @@
      "id": 51,
      "name": "",
      "class": "coin",
-     "x": 400,
-     "y": 1376,
+     "x": 208,
+     "y": 1232,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -915,7 +908,7 @@
      "id": 52,
      "name": "",
      "class": "coin",
-     "x": 208,
+     "x": 224,
      "y": 1232,
      "width": 16,
      "height": 16,
@@ -926,7 +919,7 @@
      "id": 53,
      "name": "",
      "class": "coin",
-     "x": 224,
+     "x": 240,
      "y": 1232,
      "width": 16,
      "height": 16,
@@ -937,7 +930,7 @@
      "id": 54,
      "name": "",
      "class": "coin",
-     "x": 240,
+     "x": 256,
      "y": 1232,
      "width": 16,
      "height": 16,
@@ -948,17 +941,6 @@
      "id": 55,
      "name": "",
      "class": "coin",
-     "x": 256,
-     "y": 1232,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 56,
-     "name": "",
-     "class": "coin",
      "x": 352,
      "y": 1088,
      "width": 16,
@@ -967,7 +949,7 @@
      "visible": true
     },
     {
-     "id": 57,
+     "id": 56,
      "name": "",
      "class": "coin",
      "x": 368,
@@ -978,7 +960,7 @@
      "visible": true
     },
     {
-     "id": 58,
+     "id": 57,
      "name": "",
      "class": "coin",
      "x": 384,
@@ -989,7 +971,7 @@
      "visible": true
     },
     {
-     "id": 59,
+     "id": 58,
      "name": "",
      "class": "coin",
      "x": 400,
@@ -1000,10 +982,21 @@
      "visible": true
     },
     {
-     "id": 60,
+     "id": 59,
      "name": "",
      "class": "coin",
      "x": 208,
+     "y": 1024,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 60,
+     "name": "",
+     "class": "coin",
+     "x": 224,
      "y": 1024,
      "width": 16,
      "height": 16,
@@ -1014,7 +1007,7 @@
      "id": 61,
      "name": "",
      "class": "coin",
-     "x": 224,
+     "x": 240,
      "y": 1024,
      "width": 16,
      "height": 16,
@@ -1025,7 +1018,7 @@
      "id": 62,
      "name": "",
      "class": "coin",
-     "x": 240,
+     "x": 256,
      "y": 1024,
      "width": 16,
      "height": 16,
@@ -1036,8 +1029,8 @@
      "id": 63,
      "name": "",
      "class": "coin",
-     "x": 256,
-     "y": 1024,
+     "x": 64,
+     "y": 960,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1047,7 +1040,7 @@
      "id": 64,
      "name": "",
      "class": "coin",
-     "x": 64,
+     "x": 80,
      "y": 960,
      "width": 16,
      "height": 16,
@@ -1058,7 +1051,7 @@
      "id": 65,
      "name": "",
      "class": "coin",
-     "x": 80,
+     "x": 96,
      "y": 960,
      "width": 16,
      "height": 16,
@@ -1069,7 +1062,7 @@
      "id": 66,
      "name": "",
      "class": "coin",
-     "x": 96,
+     "x": 112,
      "y": 960,
      "width": 16,
      "height": 16,
@@ -1080,8 +1073,8 @@
      "id": 67,
      "name": "",
      "class": "coin",
-     "x": 112,
-     "y": 960,
+     "x": 208,
+     "y": 896,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1091,7 +1084,7 @@
      "id": 68,
      "name": "",
      "class": "coin",
-     "x": 208,
+     "x": 224,
      "y": 896,
      "width": 16,
      "height": 16,
@@ -1102,7 +1095,7 @@
      "id": 69,
      "name": "",
      "class": "coin",
-     "x": 224,
+     "x": 240,
      "y": 896,
      "width": 16,
      "height": 16,
@@ -1113,7 +1106,7 @@
      "id": 70,
      "name": "",
      "class": "coin",
-     "x": 240,
+     "x": 256,
      "y": 896,
      "width": 16,
      "height": 16,
@@ -1124,8 +1117,8 @@
      "id": 71,
      "name": "",
      "class": "coin",
-     "x": 256,
-     "y": 896,
+     "x": 64,
+     "y": 832,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1135,7 +1128,7 @@
      "id": 72,
      "name": "",
      "class": "coin",
-     "x": 64,
+     "x": 80,
      "y": 832,
      "width": 16,
      "height": 16,
@@ -1146,7 +1139,7 @@
      "id": 73,
      "name": "",
      "class": "coin",
-     "x": 80,
+     "x": 96,
      "y": 832,
      "width": 16,
      "height": 16,
@@ -1157,7 +1150,7 @@
      "id": 74,
      "name": "",
      "class": "coin",
-     "x": 96,
+     "x": 112,
      "y": 832,
      "width": 16,
      "height": 16,
@@ -1168,8 +1161,8 @@
      "id": 75,
      "name": "",
      "class": "coin",
-     "x": 112,
-     "y": 832,
+     "x": 208,
+     "y": 688,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1179,7 +1172,7 @@
      "id": 76,
      "name": "",
      "class": "coin",
-     "x": 208,
+     "x": 224,
      "y": 688,
      "width": 16,
      "height": 16,
@@ -1190,7 +1183,7 @@
      "id": 77,
      "name": "",
      "class": "coin",
-     "x": 224,
+     "x": 240,
      "y": 688,
      "width": 16,
      "height": 16,
@@ -1201,7 +1194,7 @@
      "id": 78,
      "name": "",
      "class": "coin",
-     "x": 240,
+     "x": 256,
      "y": 688,
      "width": 16,
      "height": 16,
@@ -1212,8 +1205,8 @@
      "id": 79,
      "name": "",
      "class": "coin",
-     "x": 256,
-     "y": 688,
+     "x": 64,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1223,7 +1216,7 @@
      "id": 80,
      "name": "",
      "class": "coin",
-     "x": 64,
+     "x": 80,
      "y": 352,
      "width": 16,
      "height": 16,
@@ -1234,7 +1227,7 @@
      "id": 81,
      "name": "",
      "class": "coin",
-     "x": 80,
+     "x": 96,
      "y": 352,
      "width": 16,
      "height": 16,
@@ -1245,7 +1238,7 @@
      "id": 82,
      "name": "",
      "class": "coin",
-     "x": 96,
+     "x": 112,
      "y": 352,
      "width": 16,
      "height": 16,
@@ -1256,17 +1249,6 @@
      "id": 83,
      "name": "",
      "class": "coin",
-     "x": 112,
-     "y": 352,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 84,
-     "name": "",
-     "class": "coin",
      "x": 64,
      "y": 256,
      "width": 16,
@@ -1275,7 +1257,7 @@
      "visible": true
     },
     {
-     "id": 85,
+     "id": 84,
      "name": "",
      "class": "coin",
      "x": 80,
@@ -1286,7 +1268,7 @@
      "visible": true
     },
     {
-     "id": 86,
+     "id": 85,
      "name": "",
      "class": "coin",
      "x": 96,
@@ -1297,7 +1279,7 @@
      "visible": true
     },
     {
-     "id": 87,
+     "id": 86,
      "name": "",
      "class": "coin",
      "x": 112,
@@ -1308,7 +1290,7 @@
      "visible": true
     },
     {
-     "id": 88,
+     "id": 87,
      "name": "",
      "class": "coin",
      "x": 192,
@@ -1319,7 +1301,7 @@
      "visible": true
     },
     {
-     "id": 89,
+     "id": 88,
      "name": "",
      "class": "coin",
      "x": 208,
@@ -1330,7 +1312,7 @@
      "visible": true
     },
     {
-     "id": 90,
+     "id": 89,
      "name": "",
      "class": "coin",
      "x": 224,
@@ -1341,7 +1323,7 @@
      "visible": true
     },
     {
-     "id": 91,
+     "id": 90,
      "name": "",
      "class": "block",
      "x": 368,
@@ -1364,7 +1346,7 @@
      ]
     },
     {
-     "id": 92,
+     "id": 91,
      "name": "",
      "class": "block",
      "x": 368,
@@ -1387,7 +1369,7 @@
      ]
     },
     {
-     "id": 93,
+     "id": 92,
      "name": "",
      "class": "block",
      "x": 64,
@@ -1410,7 +1392,7 @@
      ]
     },
     {
-     "id": 94,
+     "id": 93,
      "name": "",
      "class": "block",
      "x": 80,
@@ -1433,205 +1415,7 @@
      ]
     },
     {
-     "id": 95,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 1152,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 96,
-     "name": "",
-     "class": "enemy",
-     "x": 352,
-     "y": 864,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 97,
-     "name": "",
-     "class": "enemy",
-     "x": 208,
-     "y": 560,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 98,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 416,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 99,
-     "name": "",
-     "class": "enemy",
-     "x": 496,
-     "y": 368,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 100,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 224,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 101,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 128,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 102,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 32,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 103,
-     "name": "",
-     "class": "pipe",
-     "x": 48,
-     "y": 528,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 104,
-     "name": "",
-     "class": "pipe",
-     "x": 96,
-     "y": 528,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 105,
-     "name": "",
-     "class": "pipe",
-     "x": 144,
-     "y": 528,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 106,
+     "id": 94,
      "name": "",
      "class": "label",
      "x": 48,
@@ -1649,7 +1433,7 @@
      ]
     },
     {
-     "id": 107,
+     "id": 95,
      "name": "",
      "class": "label",
      "x": 48,
@@ -1667,7 +1451,25 @@
      ]
     },
     {
-     "id": 108,
+     "id": 96,
+     "name": "",
+     "class": "label",
+     "x": 176,
+     "y": 1040,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "TWO WAYS UP."
+      }
+     ]
+    },
+    {
+     "id": 97,
      "name": "",
      "class": "label",
      "x": 176,
@@ -1680,30 +1482,12 @@
       {
        "name": "text",
        "type": "string",
-       "value": "TWO WAYS UP. BOTH WORK."
+       "value": "LEFT: MENDY ONLY.  RIGHT: EITHER BROTHER."
       }
      ]
     },
     {
-     "id": 109,
-     "name": "",
-     "class": "label",
-     "x": 32,
-     "y": 752,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "text",
-       "type": "string",
-       "value": "A SHADOW MEANS A PIPE"
-      }
-     ]
-    },
-    {
-     "id": 110,
+     "id": 98,
      "name": "",
      "class": "label",
      "x": 256,
@@ -1721,7 +1505,7 @@
      ]
     },
     {
-     "id": 111,
+     "id": 99,
      "name": "",
      "class": "label",
      "x": 32,
@@ -1739,7 +1523,7 @@
      ]
     },
     {
-     "id": 112,
+     "id": 100,
      "name": "",
      "class": "label",
      "x": 192,

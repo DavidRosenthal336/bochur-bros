@@ -25,6 +25,10 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
   private phaseEndsAt = 0;
   /** The shadow a falling pipe casts before it drops (§6). */
   private shadow: Phaser.GameObjects.Rectangle | undefined;
+  /** Grit shaken loose from a pipe that is about to go, for as long as it rattles. */
+  private nextDustAt = 0;
+  /** The rope a pipe hangs from, up to the scaffolding above the screen. */
+  private strap: Phaser.GameObjects.Rectangle | undefined;
   private readonly art: ActorSpriteSet | undefined;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: HazardConfig, facing: -1 | 1 = -1) {
@@ -54,6 +58,14 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
 
     body.setAllowGravity(config.affectedByGravity);
     if (config.affectedByGravity) body.setGravityY(1500);
+
+    // A faller hangs low enough to be seen, so it needs something to hang from.
+    if (config.behavior === 'faller') {
+      this.strap = scene.add
+        .rectangle(x, y - config.bodyHeight, 2, 120, 0x3a3f55)
+        .setOrigin(0.5, 1)
+        .setDepth(6);
+    }
     // NOT immovable. Arcade skips separation entirely when both bodies in a
     // collision are immovable, and every solid in the level is a static body,
     // which counts as immovable — so an immovable cart simply fell through the
@@ -79,6 +91,17 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
   }
 
   /** Is it currently able to hurt you? A pipe waiting on the scaffold is not. */
+  /**
+   * Does the player bump into it at all?
+   *
+   * A pipe hangs low enough now to be seen, which puts it within a jump of the
+   * pavement, so hanging or lying spent it is scenery you pass through. Only a
+   * pipe on its way down is a thing, and that is the one that hurts.
+   */
+  get collidesWithPlayer(): boolean {
+    return this.config.behavior !== 'faller' || this.phase === 'active';
+  }
+
   get isDangerous(): boolean {
     if (!this.config.harmful) return false;
     if (this.config.behavior === 'faller') return this.phase === 'active';
@@ -126,8 +149,16 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Waits overhead. When you walk under it, a shadow appears on the ground for
-   * a beat, and then it drops. The shadow is the entire fairness of it.
+   * Hangs from the scaffolding, in plain sight. When you come near, it rattles
+   * — shaking on its clamp, grit falling off it, flashing — and a red mark
+   * lights up on the pavement where it is going to land. A second later it
+   * drops.
+   *
+   * §6 asks for "a shadow on the ground, then the pipe drops", and the first
+   * version was exactly that: a three-pixel shadow under a pipe hung above the
+   * top of the screen. On these graphics the shadow could not be seen, and the
+   * pipe could not be seen until it was already falling, so there was nothing
+   * to dodge. Something falling from the sky has to be seen first.
    */
   private tickFaller(now: number, playerX: number, groundY: number): void {
     const settings = this.config.faller;
@@ -148,8 +179,22 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
       }
 
       case 'warning':
+        // The rattle: a pipe working loose, unmistakably, from across the street.
+        this.setPosition(this.homeX + Math.sin(now / 22) * 1.6, this.homeY);
+        if (Math.floor(now / 110) % 2 === 0) this.setTint(0xff9a8a);
+        else this.art ? this.clearTint() : this.setTint(this.config.color);
+        if (now >= this.nextDustAt) {
+          this.nextDustAt = now + 80;
+          this.dropGrit();
+        }
+        this.strap?.setX(this.x);
         if (now >= this.phaseEndsAt) {
           this.phase = 'active';
+          this.setPosition(this.homeX, this.homeY);
+          // The rope snaps: the pipe goes, and so does what held it.
+          this.strap?.setVisible(false);
+          if (this.art) this.clearTint();
+          else this.setTint(this.config.color);
           body.setVelocityY(this.config.speed);
         }
         break;
@@ -172,21 +217,44 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
         if (now >= this.phaseEndsAt) {
           this.phase = 'idle';
           this.setPosition(this.homeX, this.homeY);
+          this.strap?.setVisible(true).setX(this.homeX);
         }
         break;
     }
   }
 
+  /** A fleck of rust and dust off the bottom of a rattling pipe. */
+  private dropGrit(): void {
+    const bottom = this.homeY;
+    const fleck = this.scene.add
+      .rectangle(this.homeX + Phaser.Math.Between(-5, 5), bottom, 2, 2, 0xd8c8a0)
+      .setDepth(6);
+    this.scene.tweens.add({
+      targets: fleck,
+      y: bottom + Phaser.Math.Between(28, 46),
+      alpha: 0,
+      duration: 420,
+      onComplete: () => fleck.destroy(),
+    });
+  }
+
+  /**
+   * Where it will land: a bright red bar on the pavement, flashing.
+   *
+   * Named for the shadow it replaced. A dark shadow on dark pavement was
+   * invisible; red on grey is not.
+   */
   private showShadow(groundY: number, warningMs: number): void {
     this.clearShadow();
     this.shadow = this.scene.add
-      .rectangle(this.homeX, groundY - 1, this.config.bodyWidth + 6, 3, 0x000000, 0.55)
+      .rectangle(this.homeX, groundY, this.config.bodyWidth + 14, 5, 0xff3b30, 0.95)
       .setOrigin(0.5, 1)
-      .setDepth(3);
+      .setStrokeStyle(1, 0xffe08a)
+      .setDepth(6);
     this.scene.tweens.add({
       targets: this.shadow,
-      alpha: 0.15,
-      duration: warningMs / 4,
+      alpha: 0.35,
+      duration: warningMs / 6,
       yoyo: true,
       repeat: -1,
     });
@@ -261,6 +329,7 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
 
   override destroy(fromScene?: boolean): void {
     this.clearShadow();
+    this.strap?.destroy();
     super.destroy(fromScene);
   }
 }

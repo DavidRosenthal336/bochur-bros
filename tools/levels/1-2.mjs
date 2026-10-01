@@ -11,9 +11,19 @@ import { level } from '../level-builder.mjs';
  * width of a scaffold board in about a second, on a climb where the screen is
  * already rising underneath you and the only thing to stand on is the board the
  * rat is running along. They were taken out to make 1-2 easier, and not
- * replaced — the pigeons and the falling pipes are still here, and those are
- * the telegraphed hazards the level exists to teach. Rats remain in 1-1's
- * street, where there is room to deal with them.
+ * replaced. Rats remain in 1-1's street, where there is room to deal with them.
+ *
+ * **No falling pipes either, by the same decision.** Even with the rats gone
+ * the level could not be beaten: pipes falling down the shaft you are climbing,
+ * on a screen that rises underneath you, with the pipe hung above the top of
+ * the view and nothing visible to dodge. The falling pipes are in 1-1 and 1-3,
+ * on flat streets, hung where they can be seen and rattling before they drop.
+ *
+ * **And no pigeons, by the same decision.** There were eight, each hovering
+ * four rows over a board — exactly where the jump to the next board goes — and
+ * two sat right over checkpoints and dived onto a player as they respawned. The
+ * level is the climb now: the boards, the fork, and the screen coming up
+ * underneath you. Verified both ways: without them both brothers finish.
  *
  * The screen climbs on its own now. Standing still is not a rest, it is the
  * bottom of the screen coming up to meet you, and there is nothing under a
@@ -21,8 +31,10 @@ import { level } from '../level-builder.mjs';
  * outpaced here is a death. The camera is a ratchet: it climbs on its clock,
  * climbs faster if you climb faster, and never gives back ground you made.
  *
- * Sixteen pixels a second against a climb that gains thirty-two every time you
- * land a jump. It is not a race — it is a floor that keeps rising, which is
+ * Fourteen pixels a second against a climb that gains forty-eight every time you
+ * land a jump. It was twenty, and at twenty Berel could not keep up: driving the
+ * whole climb, his shorter jump gained about sixteen a second and the screen
+ * caught him at the same board every time. It is not a race — it is a floor that keeps rising, which is
  * what lets the level fork, and forking is most of what is new here.
  *
  * ## Two numbers the whole level is built from
@@ -79,7 +91,7 @@ const L = level({
 
 L.ground(0, WIDTH);
 L.spawnAt(5, FLOOR);
-L.rises(20);
+L.rises(14);
 
 /**
  * The climb, in three numbers.
@@ -201,10 +213,12 @@ L.sign(3, ['THE SCAFFOLDING', 'the screen goes up. keep up.'], FLOOR - 7);
 const base = ladder(null, [C1, C2], FLOOR - 3, 8, (i, board) => {
   if (i % 3 === 1) L.coinRow(board.x + 2, board.row - 2, 4);
   if (i === 3) L.block(board.x + 3, board.row - 3, 'mystery', 'cholent');
-  if (i === 5) L.enemy(board.x + 4, board.row - 4);
 });
 L.checkpoint(base.x + 4, base.row);
-L.sign(C1, ['TWO WAYS UP. BOTH WORK.'], FLOOR - 28);
+// Says whose each way is. It said "BOTH WORK", which is true only for Mendy: the
+// left way's steps are past Berel's jump, and a Berel who believed the sign
+// jumped at them until the screen caught him.
+L.sign(C1, ['TWO WAYS UP.', 'LEFT: MENDY ONLY.  RIGHT: EITHER BROTHER.'], FLOOR - 29);
 
 // ---------------------------------------------------------------------------
 // Fork one — the fire escape, or the long way round.
@@ -218,7 +232,7 @@ L.sign(C1, ['TWO WAYS UP. BOTH WORK.'], FLOOR - 28);
 // standing jump of 62 and well past Berel's 48, so it is Mendy's, and it is
 // four jumps against six with the coins on it.
 //
-// RIGHT is the ordinary three-row ladder with a pigeon on it. §4
+// RIGHT is the ordinary three-row ladder. §4
 // makes the brothers a choice, so the route anybody can climb always exists.
 // ---------------------------------------------------------------------------
 let left = base;
@@ -228,7 +242,6 @@ for (let i = 0; i < 4; i += 1) {
 }
 
 const right = ladder(base, [C3, C2], FLOOR - 27, 6, (i, board) => {
-  if (i === 3) L.enemy(board.x + 2, board.row - 4);
 });
 
 /**
@@ -244,30 +257,15 @@ const rejoinA = step(left, C1, Math.max(left.row, right.row) - STEP, BOARD);
 L.checkpoint(rejoinA.x + 4, rejoinA.row);
 
 // ---------------------------------------------------------------------------
-// The pipes.
-//
-// §6's telegraphed hazard: a shadow on the boards, then the pipe. A rising
-// screen is the right place for them — you cannot outwait one, so the answer
-// has to be to read it and move.
-//
-// The gantry hangs over the left-hand column and the climb goes up underneath
-// it, so the pipes come down the shaft you are in. It is nine rows clear of
-// the highest board beneath it, because a gantry is a solid thing and a solid
-// thing three rows over a board you stand on is a box, not a hazard.
+// Up the left-hand columns. This is where the pipes were: see the note at the
+// top of the file.
 // ---------------------------------------------------------------------------
 let here = ladder(rejoinA, [C0, C1], rejoinA.row - STEP, 4, (i, board) => {
   if (i === 1) L.coinRow(board.x + 2, board.row - 2, 4);
-  if (i === 3) L.enemy(board.x + 2, board.row - 4);
 });
-const gantryRow = here.row - 6;
-L.slab(C0, gantryRow, 9, 1);
-for (const px of [C0 + 1, C0 + 4, C0 + 7]) L.hazard('pipe', px, gantryRow);
-L.sign(C0, ['A SHADOW MEANS A PIPE'], rejoinA.row - 4);
-
-// Out from under the gantry, into the right-hand columns.
+// Across into the right-hand columns.
 here = step(here, C2, here.row - STEP, BOARD);
 here = ladder(here, [C3, C2], here.row - STEP, 2, (i, board) => {
-  if (i === 1) L.enemy(board.x + 4, board.row - 4);
 });
 L.checkpoint(here.x + 4, here.row);
 L.block(here.x + 3, here.row - 3, 'mystery', 'peyos');
@@ -281,7 +279,7 @@ L.sign(here.x - 4, ['PEYOS: HOLD JUMP TO CLIMB'], here.row - 6);
 // one brother can do, and it is worth exactly one life — about the right price
 // for a swap.
 //
-// The other branch is the same climb with pigeons on it.
+// The other branch is the same climb.
 // ---------------------------------------------------------------------------
 const forkTwo = here;
 const secret = ladder(forkTwo, [C1, C0], forkTwo.row - STEP, 4, (i, board) => {
@@ -295,8 +293,6 @@ L.block(secret.x + 3, secret.row - 3, 'mystery', 'lchaim');
 L.sign(secret.x, ['BEREL BREAKS THE GREY ONE'], secret.row - 6);
 
 const plain = ladder(forkTwo, [C3, C2], forkTwo.row - STEP, 4, (i, board) => {
-  if (i === 0) L.enemy(board.x + 2, board.row - 4);
-  if (i === 3) L.enemy(board.x + 4, board.row - 4);
 });
 
 if (secret.x !== C0 || plain.x !== C2) throw new Error('1-2: fork two no longer tops out where the rejoin expects');
@@ -304,10 +300,9 @@ const rejoinB = step(secret, C1, Math.max(secret.row, plain.row) - STEP, BOARD);
 L.checkpoint(rejoinB.x + 4, rejoinB.row);
 
 // ---------------------------------------------------------------------------
-// The last stretch: a pigeon over every crossing, and no more forks.
+// The last stretch: no more forks.
 // ---------------------------------------------------------------------------
 here = ladder(rejoinB, [C2, C1], rejoinB.row - STEP, 3, (i, board) => {
-  if (i !== 1) L.enemy(board.x + 4, board.row - 4, 'pigeon');
   if (i % 2 === 1) L.coinRow(board.x + 1, board.row - 2, 3);
 });
 
