@@ -126,6 +126,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
         case 'mower':
         case 'golfCart':
         case 'canoe':
+        case 'hamsin':
           hazards.push({
             x,
             y,

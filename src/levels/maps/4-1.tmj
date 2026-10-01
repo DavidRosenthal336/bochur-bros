@@ -1,0 +1,2059 @@
+{
+ "compressionlevel": -1,
+ "width": 240,
+ "height": 30,
+ "tilewidth": 16,
+ "tileheight": 16,
+ "infinite": false,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.11.0",
+ "type": "map",
+ "version": "1.10",
+ "nextlayerid": 3,
+ "nextobjectid": 146,
+ "tilesets": [],
+ "properties": [
+  {
+   "name": "name",
+   "type": "string",
+   "value": "The Alleys"
+  },
+  {
+   "name": "backgroundColor",
+   "type": "string",
+   "value": "0xbcaa8a"
+  },
+  {
+   "name": "groundRow",
+   "type": "string",
+   "value": "22"
+  },
+  {
+   "name": "backdrop",
+   "type": "string",
+   "value": "meah_shearim_day"
+  }
+ ],
+ "layers": [
+  {
+   "id": 1,
+   "name": "solids",
+   "type": "objectgroup",
+   "draworder": "index",
+   "opacity": 1,
+   "visible": true,
+   "x": 0,
+   "y": 0,
+   "objects": [
+    {
+     "id": 1,
+     "name": "",
+     "class": "",
+     "x": 0,
+     "y": 352,
+     "width": 448,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "name": "",
+     "class": "",
+     "x": 160,
+     "y": 288,
+     "width": 96,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "arch"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "",
+     "class": "",
+     "x": 160,
+     "y": 256,
+     "width": 96,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "",
+     "class": "",
+     "x": 304,
+     "y": 320,
+     "width": 64,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "name": "",
+     "class": "",
+     "x": 448,
+     "y": 336,
+     "width": 32,
+     "height": 144,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "",
+     "class": "",
+     "x": 480,
+     "y": 320,
+     "width": 32,
+     "height": 160,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "",
+     "class": "",
+     "x": 512,
+     "y": 304,
+     "width": 32,
+     "height": 176,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "",
+     "class": "",
+     "x": 544,
+     "y": 288,
+     "width": 32,
+     "height": 192,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "",
+     "class": "",
+     "x": 576,
+     "y": 288,
+     "width": 448,
+     "height": 192,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "",
+     "class": "",
+     "x": 640,
+     "y": 224,
+     "width": 80,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "arch"
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "name": "",
+     "class": "",
+     "x": 640,
+     "y": 192,
+     "width": 80,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "name": "",
+     "class": "",
+     "x": 768,
+     "y": 256,
+     "width": 64,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "name": "",
+     "class": "",
+     "x": 896,
+     "y": 224,
+     "width": 96,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "arch"
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "name": "",
+     "class": "",
+     "x": 896,
+     "y": 192,
+     "width": 96,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "name": "",
+     "class": "",
+     "x": 1024,
+     "y": 288,
+     "width": 640,
+     "height": 192,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "name": "",
+     "class": "",
+     "x": 1664,
+     "y": 304,
+     "width": 32,
+     "height": 176,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "name": "",
+     "class": "",
+     "x": 1696,
+     "y": 320,
+     "width": 32,
+     "height": 160,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "name": "",
+     "class": "",
+     "x": 1728,
+     "y": 336,
+     "width": 32,
+     "height": 144,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "name": "",
+     "class": "",
+     "x": 1760,
+     "y": 352,
+     "width": 32,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "name": "",
+     "class": "",
+     "x": 1792,
+     "y": 352,
+     "width": 640,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "name": "",
+     "class": "",
+     "x": 1824,
+     "y": 288,
+     "width": 80,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "arch"
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "name": "",
+     "class": "",
+     "x": 1824,
+     "y": 256,
+     "width": 80,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 23,
+     "name": "",
+     "class": "",
+     "x": 2016,
+     "y": 320,
+     "width": 144,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "name": "",
+     "class": "",
+     "x": 2208,
+     "y": 288,
+     "width": 96,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "arch"
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "name": "",
+     "class": "",
+     "x": 2208,
+     "y": 256,
+     "width": 96,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    },
+    {
+     "id": 26,
+     "name": "",
+     "class": "",
+     "x": 2432,
+     "y": 352,
+     "width": 96,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "name": "",
+     "class": "",
+     "x": 2576,
+     "y": 352,
+     "width": 48,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 28,
+     "name": "",
+     "class": "",
+     "x": 2672,
+     "y": 352,
+     "width": 48,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "name": "",
+     "class": "",
+     "x": 2768,
+     "y": 352,
+     "width": 112,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 30,
+     "name": "",
+     "class": "",
+     "x": 2880,
+     "y": 352,
+     "width": 320,
+     "height": 128,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 31,
+     "name": "",
+     "class": "",
+     "x": 3200,
+     "y": 336,
+     "width": 32,
+     "height": 144,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 32,
+     "name": "",
+     "class": "",
+     "x": 3232,
+     "y": 320,
+     "width": 32,
+     "height": 160,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 33,
+     "name": "",
+     "class": "",
+     "x": 3264,
+     "y": 304,
+     "width": 32,
+     "height": 176,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 34,
+     "name": "",
+     "class": "",
+     "x": 3296,
+     "y": 288,
+     "width": 32,
+     "height": 192,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 35,
+     "name": "",
+     "class": "",
+     "x": 3328,
+     "y": 288,
+     "width": 512,
+     "height": 192,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 36,
+     "name": "",
+     "class": "",
+     "x": 3392,
+     "y": 224,
+     "width": 96,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "arch"
+      }
+     ]
+    },
+    {
+     "id": 37,
+     "name": "",
+     "class": "",
+     "x": 3392,
+     "y": 192,
+     "width": 96,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "wall"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "entities",
+   "type": "objectgroup",
+   "draworder": "index",
+   "opacity": 1,
+   "visible": true,
+   "x": 0,
+   "y": 0,
+   "objects": [
+    {
+     "id": 38,
+     "name": "",
+     "class": "spawn",
+     "x": 48,
+     "y": 352,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 39,
+     "name": "",
+     "class": "goal",
+     "x": 3744,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 40,
+     "name": "",
+     "class": "checkpoint",
+     "x": 400,
+     "y": 352,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 41,
+     "name": "",
+     "class": "checkpoint",
+     "x": 976,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 42,
+     "name": "",
+     "class": "checkpoint",
+     "x": 1600,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 43,
+     "name": "",
+     "class": "checkpoint",
+     "x": 2368,
+     "y": 352,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 44,
+     "name": "",
+     "class": "checkpoint",
+     "x": 2912,
+     "y": 352,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 45,
+     "name": "",
+     "class": "coin",
+     "x": 96,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 46,
+     "name": "",
+     "class": "coin",
+     "x": 112,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 47,
+     "name": "",
+     "class": "coin",
+     "x": 128,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 48,
+     "name": "",
+     "class": "coin",
+     "x": 144,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 49,
+     "name": "",
+     "class": "coin",
+     "x": 304,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 50,
+     "name": "",
+     "class": "coin",
+     "x": 320,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 51,
+     "name": "",
+     "class": "coin",
+     "x": 336,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 52,
+     "name": "",
+     "class": "coin",
+     "x": 352,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 53,
+     "name": "",
+     "class": "coin",
+     "x": 448,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 54,
+     "name": "",
+     "class": "coin",
+     "x": 464,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 55,
+     "name": "",
+     "class": "coin",
+     "x": 480,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 56,
+     "name": "",
+     "class": "coin",
+     "x": 496,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 57,
+     "name": "",
+     "class": "coin",
+     "x": 512,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 58,
+     "name": "",
+     "class": "coin",
+     "x": 528,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 59,
+     "name": "",
+     "class": "coin",
+     "x": 544,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 60,
+     "name": "",
+     "class": "coin",
+     "x": 560,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 61,
+     "name": "",
+     "class": "coin",
+     "x": 640,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 62,
+     "name": "",
+     "class": "coin",
+     "x": 656,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 63,
+     "name": "",
+     "class": "coin",
+     "x": 672,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 64,
+     "name": "",
+     "class": "coin",
+     "x": 688,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 65,
+     "name": "",
+     "class": "coin",
+     "x": 704,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 66,
+     "name": "",
+     "class": "coin",
+     "x": 768,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 67,
+     "name": "",
+     "class": "coin",
+     "x": 784,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 68,
+     "name": "",
+     "class": "coin",
+     "x": 800,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 69,
+     "name": "",
+     "class": "coin",
+     "x": 816,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 70,
+     "name": "",
+     "class": "coin",
+     "x": 1152,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 71,
+     "name": "",
+     "class": "coin",
+     "x": 1168,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 72,
+     "name": "",
+     "class": "coin",
+     "x": 1184,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 73,
+     "name": "",
+     "class": "coin",
+     "x": 1200,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 74,
+     "name": "",
+     "class": "coin",
+     "x": 1216,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 75,
+     "name": "",
+     "class": "coin",
+     "x": 1232,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 76,
+     "name": "",
+     "class": "coin",
+     "x": 1248,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 77,
+     "name": "",
+     "class": "coin",
+     "x": 1264,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 78,
+     "name": "",
+     "class": "coin",
+     "x": 1408,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 79,
+     "name": "",
+     "class": "coin",
+     "x": 1424,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 80,
+     "name": "",
+     "class": "coin",
+     "x": 1440,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 81,
+     "name": "",
+     "class": "coin",
+     "x": 1456,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 82,
+     "name": "",
+     "class": "coin",
+     "x": 1472,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 83,
+     "name": "",
+     "class": "coin",
+     "x": 1488,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 84,
+     "name": "",
+     "class": "coin",
+     "x": 1824,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 85,
+     "name": "",
+     "class": "coin",
+     "x": 1840,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 86,
+     "name": "",
+     "class": "coin",
+     "x": 1856,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 87,
+     "name": "",
+     "class": "coin",
+     "x": 1872,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 88,
+     "name": "",
+     "class": "coin",
+     "x": 1888,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 89,
+     "name": "",
+     "class": "coin",
+     "x": 2016,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 90,
+     "name": "",
+     "class": "coin",
+     "x": 2032,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 91,
+     "name": "",
+     "class": "coin",
+     "x": 2048,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 92,
+     "name": "",
+     "class": "coin",
+     "x": 2064,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 93,
+     "name": "",
+     "class": "coin",
+     "x": 2080,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 94,
+     "name": "",
+     "class": "coin",
+     "x": 2096,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 95,
+     "name": "",
+     "class": "coin",
+     "x": 2112,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 96,
+     "name": "",
+     "class": "coin",
+     "x": 2128,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 97,
+     "name": "",
+     "class": "coin",
+     "x": 2144,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 98,
+     "name": "",
+     "class": "coin",
+     "x": 2592,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 99,
+     "name": "",
+     "class": "coin",
+     "x": 2688,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 100,
+     "name": "",
+     "class": "coin",
+     "x": 2944,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 101,
+     "name": "",
+     "class": "coin",
+     "x": 2960,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 102,
+     "name": "",
+     "class": "coin",
+     "x": 2976,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 103,
+     "name": "",
+     "class": "coin",
+     "x": 2992,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 104,
+     "name": "",
+     "class": "coin",
+     "x": 3008,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 105,
+     "name": "",
+     "class": "coin",
+     "x": 3024,
+     "y": 336,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 106,
+     "name": "",
+     "class": "coin",
+     "x": 3200,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 107,
+     "name": "",
+     "class": "coin",
+     "x": 3216,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 108,
+     "name": "",
+     "class": "coin",
+     "x": 3232,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 109,
+     "name": "",
+     "class": "coin",
+     "x": 3248,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 110,
+     "name": "",
+     "class": "coin",
+     "x": 3264,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 111,
+     "name": "",
+     "class": "coin",
+     "x": 3280,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 112,
+     "name": "",
+     "class": "coin",
+     "x": 3296,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 113,
+     "name": "",
+     "class": "coin",
+     "x": 3312,
+     "y": 304,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 114,
+     "name": "",
+     "class": "coin",
+     "x": 3392,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 115,
+     "name": "",
+     "class": "coin",
+     "x": 3408,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 116,
+     "name": "",
+     "class": "coin",
+     "x": 3424,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 117,
+     "name": "",
+     "class": "coin",
+     "x": 3440,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 118,
+     "name": "",
+     "class": "coin",
+     "x": 3456,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 119,
+     "name": "",
+     "class": "coin",
+     "x": 3472,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 120,
+     "name": "",
+     "class": "coin",
+     "x": 3552,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 121,
+     "name": "",
+     "class": "coin",
+     "x": 3568,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 122,
+     "name": "",
+     "class": "coin",
+     "x": 3584,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 123,
+     "name": "",
+     "class": "coin",
+     "x": 3600,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 124,
+     "name": "",
+     "class": "coin",
+     "x": 3616,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 125,
+     "name": "",
+     "class": "coin",
+     "x": 3632,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 126,
+     "name": "",
+     "class": "coin",
+     "x": 3648,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 127,
+     "name": "",
+     "class": "coin",
+     "x": 3664,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 128,
+     "name": "",
+     "class": "block",
+     "x": 208,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "mystery"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "cholent"
+      }
+     ]
+    },
+    {
+     "id": 129,
+     "name": "",
+     "class": "block",
+     "x": 1344,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "mystery"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "peyos"
+      }
+     ]
+    },
+    {
+     "id": 130,
+     "name": "",
+     "class": "block",
+     "x": 2256,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "mystery"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "lulav"
+      }
+     ]
+    },
+    {
+     "id": 131,
+     "name": "",
+     "class": "enemy",
+     "x": 336,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 132,
+     "name": "",
+     "class": "enemy",
+     "x": 784,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 133,
+     "name": "",
+     "class": "enemy",
+     "x": 816,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 134,
+     "name": "",
+     "class": "enemy",
+     "x": 2032,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 135,
+     "name": "",
+     "class": "enemy",
+     "x": 2080,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 136,
+     "name": "",
+     "class": "enemy",
+     "x": 2128,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 137,
+     "name": "",
+     "class": "enemy",
+     "x": 3008,
+     "y": 352,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 138,
+     "name": "",
+     "class": "enemy",
+     "x": 3072,
+     "y": 352,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "cat"
+      }
+     ]
+    },
+    {
+     "id": 139,
+     "name": "",
+     "class": "hamsin",
+     "x": 1088,
+     "y": 208,
+     "width": 480,
+     "height": 80,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 140,
+     "name": "",
+     "class": "hamsin",
+     "x": 2464,
+     "y": 272,
+     "width": 384,
+     "height": 80,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 141,
+     "name": "",
+     "class": "label",
+     "x": 16,
+     "y": 240,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "MEAH SHEARIM"
+      }
+     ]
+    },
+    {
+     "id": 142,
+     "name": "",
+     "class": "label",
+     "x": 16,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "the cats hiss before they run."
+      }
+     ]
+    },
+    {
+     "id": 143,
+     "name": "",
+     "class": "label",
+     "x": 16,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "THE WIND HAS A RHYTHM. WAIT FOR THE CALM."
+      }
+     ]
+    },
+    {
+     "id": 144,
+     "name": "",
+     "class": "label",
+     "x": 1056,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "HAMSIN"
+      }
+     ]
+    },
+    {
+     "id": 145,
+     "name": "",
+     "class": "label",
+     "x": 2400,
+     "y": 272,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "BEREL IS IMMUNE"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

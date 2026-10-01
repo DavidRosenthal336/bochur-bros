@@ -127,6 +127,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       case 'drift':
         this.tickDrift(now, playerX, playerY);
         break;
+      case 'dart':
+        this.tickDart(now, playerX);
+        break;
     }
 
     this.updatePose();
@@ -288,6 +291,55 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       default:
         this.tickPatrol();
+    }
+  }
+
+  /**
+   * The cat (§6): sit, notice, hiss, dart, sit.
+   *
+   * The dart picks its direction once, at the hiss, towards where you were —
+   * and then goes, so standing still is how it hits you and moving is how it
+   * misses. It runs off whatever it was sitting on; a cat on a wall that darts
+   * comes down off the wall, which is exactly what one does.
+   */
+  private tickDart(now: number, playerX: number): void {
+    const dart = this.config.dart;
+    const body = this.physicsBody;
+    if (!dart) return;
+
+    switch (this.phase) {
+      case 'noticing':
+        body.setVelocityX(0);
+        if (now >= this.phaseEndsAt) {
+          this.phase = 'scurrying';
+          this.phaseEndsAt = now + dart.runMs;
+        }
+        return;
+
+      case 'scurrying':
+        body.setVelocityX(this.facing * this.config.speed);
+        // A wall ends a dart as well as the clock does: a cat pressed against
+        // stone with its legs going looks broken.
+        if (now >= this.phaseEndsAt || body.blocked.left || body.blocked.right) {
+          this.phase = 'resting';
+          this.phaseEndsAt = now + dart.restMs;
+          body.setVelocityX(0);
+        }
+        return;
+
+      case 'resting':
+        body.setVelocityX(0);
+        if (now >= this.phaseEndsAt) this.phase = 'patrol';
+        return;
+
+      default:
+        // Sitting, and watching.
+        body.setVelocityX(0);
+        if (Math.abs(playerX - this.x) <= dart.triggerRange) {
+          this.facing = playerX >= this.x ? 1 : -1;
+          this.phase = 'noticing';
+          this.phaseEndsAt = now + dart.hissMs;
+        }
     }
   }
 

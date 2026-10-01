@@ -91,7 +91,7 @@ export const WORLDS: readonly WorldEntry[] = [
     prizeIcon: 'tequila',
     color: 0xd9b26f,
     levels: [
-      { id: '4-1', name: 'The Alleys' },
+      { id: '4-1', name: 'The Alleys', map: '4-1' },
       { id: '4-2', name: 'The Shuk' },
       { id: '4-3', name: 'Rooftops' },
       { id: '4-4', name: 'The Yetzer Hara', isBoss: true },

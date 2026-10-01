@@ -38,7 +38,13 @@ export interface SolidDef {
  * the shingle has to read as differently from a porch floor as a porch floor
  * reads from the lawn — a route you can see is a route you can plan.
  */
-export type SolidKind = 'ground' | 'platform' | 'wall' | 'pool' | 'roof';
+/**
+ * `arch` is Meah Shearim's (§6: "stone, arches ... narrow alleys"): the dressed
+ * lintel an alley passes under. It is a solid like the rest — you bang your head
+ * on it — and a kind of its own because it is the one shape that says Jerusalem
+ * before anything moves.
+ */
+export type SolidKind = 'ground' | 'platform' | 'wall' | 'pool' | 'roof' | 'arch';
 
 /** A bit of in-world text. Greybox signage, so the test level explains itself. */
 export interface LabelDef {

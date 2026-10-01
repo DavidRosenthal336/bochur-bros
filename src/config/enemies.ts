@@ -12,7 +12,15 @@
  */
 import type { ActorSpriteName } from './sprites';
 
-export type EnemyBehaviorKind = 'patrol' | 'dive' | 'emerge' | 'chase' | 'thief' | 'hop' | 'drift';
+export type EnemyBehaviorKind =
+  | 'patrol'
+  | 'dive'
+  | 'emerge'
+  | 'chase'
+  | 'thief'
+  | 'hop'
+  | 'drift'
+  | 'dart';
 
 export interface EnemyConfig {
   readonly label: string;
@@ -80,6 +88,19 @@ export interface EnemyConfig {
     readonly hissMs: number;
     /** Chasing speed, px/s. */
     readonly speed: number;
+  };
+  /**
+   * Extra settings for `dart`: §6's cats, "darting across the player's path".
+   */
+  readonly dart?: {
+    /** How close you have to come, sideways, before it goes, px. */
+    readonly triggerRange: number;
+    /** The hiss before the dash, ms. The tell. */
+    readonly hissMs: number;
+    /** How long the dash lasts, ms. */
+    readonly runMs: number;
+    /** How long it sits afterwards before it will go again, ms. */
+    readonly restMs: number;
   };
   /**
    * Extra settings for `drift`: §6's mosquito swarms, which "drift toward the
@@ -380,6 +401,40 @@ export const ENEMIES = {
     // Wakes when you are within three tiles sideways — about when you are
     // passing underneath — so that it chases rather than blocks. See tickDrift.
     drift: { triggerRange: 48, wobble: 6 },
+  },
+  // --- World 4, Meah Shearim ------------------------------------------------
+
+  /**
+   * The cat — World 4's signature (§6): "Everywhere, in packs, on walls and
+   * bins, darting across the player's path."
+   *
+   * Every clause is a decision. *On walls and bins*: it sits, which is most of
+   * what a Jerusalem alley cat does, and it is placed up on things. *Darting
+   * across the path*: it waits until you are close, hisses — the tell — and
+   * then goes, flat out, in one direction, straight through where you are
+   * standing and out the other side. It does not chase. A cat has somewhere to
+   * be and you are in the way of it.
+   *
+   * *In packs* is the level's job, not this table's: three of them on one wall
+   * go one after another, and the answer to a pack is the gap between them.
+   *
+   * At 175px/s it is faster than anybody runs, so it cannot be outpaced; it can
+   * be jumped, because the hiss gives you the half-second to do it, and it can
+   * be stomped. One hit — it is a cat, not a goose.
+   */
+  cat: {
+    label: 'Cat',
+    behavior: 'dart',
+    speed: 175,
+    hits: 1,
+    stompable: true,
+    affectedByGravity: true,
+    art: 'cat',
+    bodyWidth: 18,
+    bodyHeight: 12,
+    color: 0x8a7a5a,
+    patrolRange: 0,
+    dart: { triggerRange: 80, hissMs: 460, runMs: 1000, restMs: 1700 },
   },
 } as const satisfies Record<string, EnemyConfig>;
 

@@ -78,6 +78,7 @@ const SOLID_COLORS: Record<SolidKind, number> = {
   wall: 0x2b3050,
   pool: 0x3f6f8c,
   roof: 0x7a6a5c,
+  arch: 0xc9b48a,
 };
 
 /**
@@ -100,6 +101,7 @@ const BORO_PARK: TileSet = {
   // everything else.
   pool: { top: 'tile-brick', fill: 'tile-brick' },
   roof: { top: 'tile-scaffoldPlank', fill: 'tile-brick' },
+  arch: { top: 'tile-brick', fill: 'tile-brick' },
 };
 
 /**
@@ -116,6 +118,7 @@ const FIVE_TOWNS: TileSet = {
   wall: { top: 'tile-hedge', fill: 'tile-hedge' },
   pool: { top: 'tile-poolTile', fill: 'tile-poolTile' },
   roof: { top: 'tile-shingle', fill: 'tile-siding' },
+  arch: { top: 'tile-siding', fill: 'tile-siding' },
 };
 
 /**
@@ -135,6 +138,24 @@ const CATSKILLS: TileSet = {
   wall: { top: 'tile-leaves', fill: 'tile-trunk' },
   pool: { top: 'tile-lake', fill: 'tile-lake' },
   roof: { top: 'tile-colonyShingle', fill: 'tile-bungalowWall' },
+  arch: { top: 'tile-porchWood', fill: 'tile-bungalowWall' },
+};
+
+/**
+ * Meah Shearim: worn stone underfoot, cut stone for steps, dressed stone for
+ * walls, and the arch over every alley.
+ *
+ * The floor here is not grass or pavement but the same pale stone as the
+ * walls, which is the point — §6 asks for "visually the furthest thing from
+ * Brooklyn", and Jerusalem is a city built entirely of one material.
+ */
+const MEAH_SHEARIM: TileSet = {
+  ground: { top: 'tile-msStoneWorn', fill: 'tile-msStone' },
+  platform: { top: 'tile-msStair', fill: 'tile-msStone' },
+  wall: { top: 'tile-msStone', fill: 'tile-msStone' },
+  pool: { top: 'tile-msSand', fill: 'tile-msDirt' },
+  roof: { top: 'tile-msRooftop', fill: 'tile-msStone' },
+  arch: { top: 'tile-msArch', fill: 'tile-msStone' },
 };
 
 /**
@@ -147,6 +168,7 @@ const CATSKILLS: TileSet = {
 function tilesFor(backdrop: BackdropVariant): TileSet {
   if (backdrop.startsWith('five_towns')) return FIVE_TOWNS;
   if (backdrop.startsWith('catskills')) return CATSKILLS;
+  if (backdrop.startsWith('meah_shearim')) return MEAH_SHEARIM;
   return BORO_PARK;
 }
 
@@ -1988,10 +2010,13 @@ export class LevelScene extends Phaser.Scene {
 
   /** Wind acts on a region, so it is checked by position rather than collision. */
   private applyWind(dt: number): void {
-    if (this.state !== 'playing' || this.winds.length === 0) return;
+    if (this.winds.length === 0) return;
+    const now = this.time.now;
+    for (const wind of this.winds) wind.tick(now, dt);
+    if (this.state !== 'playing') return;
     const body = this.player.physicsBody;
     for (const wind of this.winds) {
-      if (wind.contains(body)) this.player.applyWind(wind.force, dt);
+      if (wind.contains(body)) this.player.applyWind(wind.forceAt(now), dt);
     }
   }
 

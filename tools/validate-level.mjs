@@ -277,6 +277,17 @@ function findLeaps(def) {
     // Water is not a pit. You do not jump a pool, you swim it, so a column
     // with water in it needs nothing to land on.
     for (let y = 0; y < H; y += 1) if (wet[y][x]) return true;
+    /**
+     * A pit is a hole, not a hill.
+     *
+     * Solid at the floor row means the ground carries on through this column,
+     * however high it is piled above that. Meah Shearim is built on a slope,
+     * and 4-1's upper alleys are terraces four steps above the street, reached
+     * by stairs — which this check, looking only four rows up for somewhere to
+     * stand, reported as a seventy-tile pit. A stretch of ground too tall to
+     * climb is a wall, and walls are the trap analysis's business, not this.
+     */
+    if (grid[floor] && grid[floor][x] === 1) return true;
     for (let y = floor; y >= Math.max(1, floor - MAX_JUMP); y -= 1) {
       if (!grid[y][x] && grid[y + 1] && grid[y + 1][x] === 1) return true;
     }

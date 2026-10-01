@@ -21,7 +21,8 @@ export type HazardKind =
   | 'mower'
   | 'blower'
   | 'golfCart'
-  | 'canoe';
+  | 'canoe'
+  | 'hamsin';
 
 export type HazardBehavior =
   /** A region that pushes. Leaf blowers, the hamsin. */
@@ -66,6 +67,20 @@ export interface HazardConfig {
   };
   /** `wind`: sideways acceleration, px/s^2. */
   readonly force?: number;
+  /**
+   * `wind` that comes and goes (§6's hamsin, "a hot wind that gusts").
+   *
+   * Absent means it blows all the time, like a leaf blower. Present means a
+   * cycle: calm, a warning, then the gust.
+   */
+  readonly gust?: {
+    /** Still air, ms. The time to cross. */
+    readonly calmMs: number;
+    /** The papers start to lift, ms. The tell, and the last chance to brace. */
+    readonly warnMs: number;
+    /** The gust itself, ms. */
+    readonly blowMs: number;
+  };
 }
 
 export const HAZARDS = {
@@ -278,5 +293,35 @@ export const HAZARDS = {
     harmful: false,
     speed: 26,
     affectedByGravity: false,
+  },
+  // --- World 4, Meah Shearim ------------------------------------------------
+
+  /**
+   * The hamsin (§6): "a hot wind that gusts and pushes the player off narrow
+   * ledges. Berel is immune."
+   *
+   * Two numbers do the work. The force, 420, is more than Mendy's friction of
+   * 177 — so a gust moves a Mendy who is standing still, which is exactly what
+   * "pushes the player off narrow ledges" needs and what the leaf blower at 300
+   * never had to do. And the gust comes and goes: two and a quarter seconds of
+   * still air, seven hundred milliseconds of papers lifting off the walls, then
+   * thirteen hundred of wind. A wind that never stops is a wall; one with a
+   * rhythm is a crossing you time.
+   *
+   * Berel's immunity is the existing one, untouched — he walks straight through
+   * the leaf blowers of 2-2 for the same reason.
+   */
+  hamsin: {
+    label: 'Hamsin',
+    behavior: 'wind',
+    bodyWidth: 16,
+    bodyHeight: 16,
+    color: 0xe8c48a,
+    rideable: false,
+    harmful: false,
+    speed: 0,
+    affectedByGravity: false,
+    force: 420,
+    gust: { calmMs: 2250, warnMs: 700, blowMs: 1300 },
   },
 } as const satisfies Record<string, HazardConfig>;

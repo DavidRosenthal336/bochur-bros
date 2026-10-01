@@ -200,6 +200,10 @@ export const ACTOR_SPRITES = {
   clotheslinePost: actor('clothesline_post', 12, 20, { idle: 0 }),
   /** A sheet pegged to one. Also World 4's alley lines. */
   laundryLine: actor('laundry_line', 16, 8, { idle: 0 }, { originY: 0.5 }),
+  /** World 4's signature (§6): sitting, darting, and hissing first. */
+  cat: actor('cat', 22, 16, { idle: 0, sit: 0, run: [1, 2], hiss: 3, squash: 3 }, { fps: 12 }),
+  /** A pashkevil, one of the wall posters a hamsin tears loose (§6). */
+  pashkevil: actor('pashkevil', 8, 8, { idle: 0 }, { originY: 0.5 }),
   /** The bear (§6, 3-4): standing, swiping, and hurt. */
   bear: actor('bear', 34, 42, { idle: 0, walk: 0, rear: 1, swipe: 1, charge: 0, hurt: 2 }),
   /** A cloud of them. Two frames, swapped fast, so it hums. */
@@ -274,6 +278,22 @@ export const TILE_TEXTURES = {
   trunk: 'tiles/catskills_trunk.png',
   mud: 'tiles/catskills_mud.png',
   lake: 'tiles/catskills_lake.png',
+
+  // --- World 4, Meah Shearim -----------------------------------------------
+  //
+  // "Stone, arches, bright sun, narrow alleys. Visually the furthest thing from
+  // Brooklyn" (§6). Everything here is Jerusalem stone in one of its moods:
+  // worn smooth underfoot, cut into steps, dressed into walls, and turned into
+  // the arch that every alley in the neighbourhood passes under.
+  msStone: 'tiles/meah_shearim_stone.png',
+  msStoneWorn: 'tiles/meah_shearim_stone_worn.png',
+  msStair: 'tiles/meah_shearim_stone_stair.png',
+  msArch: 'tiles/meah_shearim_arch.png',
+  msRooftop: 'tiles/meah_shearim_rooftop.png',
+  msDeck: 'tiles/meah_shearim_deck.png',
+  msAwning: 'tiles/meah_shearim_awning_ms.png',
+  msSand: 'tiles/meah_shearim_sand.png',
+  msDirt: 'tiles/meah_shearim_dirt.png',
 } as const;
 
 export type TileTextureName = keyof typeof TILE_TEXTURES;

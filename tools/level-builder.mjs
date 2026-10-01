@@ -75,6 +75,14 @@ export function level({ key, name, width, height, floorTop, background = '0x151a
       hazards.push({ x, y, w, h, kind: 'blower', direction });
       return api;
     },
+    /**
+     * The hamsin (§6): a gusting hot wind over a region. Calm, papers lift, gust.
+     * Berel walks through it; Mendy waits for the calm or gets pushed.
+     */
+    hamsin(x, y, w, h, direction = -1) {
+      hazards.push({ x, y, w, h, kind: 'hamsin', direction });
+      return api;
+    },
     /** A moving hazard: pipe, cart, van, stroller. */
     hazard(kind, x, y = floorTop, direction = -1) {
       hazards.push({ x, y, w: 1, h: 1, kind, direction });
