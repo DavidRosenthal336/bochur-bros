@@ -14,7 +14,7 @@ import { level } from '../level-builder.mjs';
  * can move them (§4). So the level is a sequence of things that are better as
  * Berel, and one that *needs* him.
  *
- * **The passage at 30.** A covered way under a building, with a crate in it.
+ * **The passage at 30.** A covered way under a building, with crates in it.
  * There is no going over — the building is nine tiles high — and Mendy cannot
  * budge the crate. Berel shoves it through and out the far end, where it drops
  * into the gap there, and the way is open for both. Swapping is free and
@@ -105,7 +105,17 @@ L.checkpoint(24);
  */
 L.slab(30, FLOOR - 13, 14, 10, 'wall');
 L.slab(30, FLOOR - 4, 14, 1, 'arch');
+/**
+ * Two crates, stacked, not one.
+ *
+ * With one, the passage was not Berel's at all: three tiles of headroom less one
+ * crate leaves thirty-two pixels, Mendy is twenty-two, and a bot driving him hopped
+ * onto the crate and walked straight over it to finish the level without
+ * swapping once. Two crates leave sixteen, which nobody fits through — and Berel,
+ * standing, is tall enough to lean on both at once and push them out together.
+ */
 L.crate(33);
+L.crate(33, FLOOR - 1);
 L.label(26, on(FLOOR) - 4, 'BEREL: PUSH');
 L.coinRow(36, on(FLOOR), 6);
 
