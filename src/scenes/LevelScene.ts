@@ -1946,6 +1946,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     if (enemy.config.contact === 'steal') return;
+    if (enemy.isFleeing) return;
 
     this.hurtPlayer(enemy.x);
   }

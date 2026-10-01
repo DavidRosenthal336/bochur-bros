@@ -517,6 +517,24 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
+   * Is this gecko fleeing, and so not a threat (§6: "scurry when approached")?
+   *
+   * A gecko bolts up its wall when you come near, and on a stall you have to
+   * climb, up its wall is exactly where you jump. The first version hurt on
+   * contact the whole time, so the gecko ran from you straight into your climb:
+   * driven as either brother, the run died sixty-five times at the first stall.
+   * §6 gives the gecko no attack at all — it clings and it scurries — so a gecko
+   * that is running away is out of the fight until it has settled again. It is
+   * only a hazard while it is creeping about unaware of you.
+   */
+  get isFleeing(): boolean {
+    return (
+      this.config.behavior === 'cling' &&
+      (this.phase === 'scurrying' || this.scene.time.now < this.phaseEndsAt)
+    );
+  }
+
+  /**
    * Is there any point robbing this player?
    *
    * One thief, one pot: a raccoon already carrying something walks past you.
