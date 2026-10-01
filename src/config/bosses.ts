@@ -292,7 +292,8 @@ export interface BearStage {
 
 export interface BearConfig {
   readonly label: string;
-  readonly art: ActorSpriteName;
+  /** Absent for a bear that is somebody else wearing the shape (4-4). */
+  readonly art?: ActorSpriteName;
   readonly hits: number;
   readonly bodyWidth: number;
   readonly bodyHeight: number;
@@ -338,3 +339,91 @@ export const BEAR = {
     { paceMs: 950, rearMs: 460, chargeSpeed: 300, dazeMs: 1350, bags: 4, throwEveryMs: 520, raccoons: 2 },
   ],
 } as const satisfies BearConfig;
+
+// ------------------------------------------------------- the Yetzer Hara ---
+
+/**
+ * The final fight (§6, 4-4): "A shape-shifter with no true form. He cycles
+ * through the forms of every boss already beaten."
+ *
+ * So he is not a fourth boss with a fourth script. He is the three you have
+ * already beaten, worn one at a time, and each form is that boss's own class
+ * running these numbers — which is what §11's one-system-of-configurable-
+ * behaviours was for, and why the three earlier fights take their tuning as a
+ * parameter at all.
+ *
+ * Each borrowed form is a step easier to beat than the original and a step
+ * quicker to come at you. Easier, because these are two hits rather than three
+ * and the player has already learned every one of them; quicker, because he is
+ * not a pigeon or a car or a bear but something pretending to be, and he does
+ * not wait around the way they did.
+ */
+/** A boss's numbers without its drawing: he wears his own (see LevelScene). */
+function unpainted<T extends { readonly art?: ActorSpriteName }>(config: T): Omit<T, 'art'> {
+  const { art: _art, ...rest } = config;
+  return rest;
+}
+
+export const YETZER_HARA = {
+  /** Phase 1 (§6): "Pigeon King — summons flocks, dive-bombs." */
+  pigeon: {
+    ...unpainted(BOSSES.pigeonKing),
+    label: 'The Yetzer Hara',
+    hits: 2,
+    phases: 2,
+    openingMs: 1500,
+    perchMs: 1200,
+  },
+  /** Phase 2 (§6): "The Escalade — charges in straight lines." */
+  escalade: {
+    ...unpainted(VEHICLE_BOSSES.escalade),
+    label: 'The Yetzer Hara',
+    hits: 2,
+    phases: 2,
+    stages: [
+      { ...VEHICLE_BOSSES.escalade.stages[1], waitMs: 1200 },
+      VEHICLE_BOSSES.escalade.stages[2],
+    ],
+  },
+  /** Phase 3 (§6): "The Bear — swipes, hurls, calls minions." */
+  bear: {
+    ...unpainted(BEAR),
+    label: 'The Yetzer Hara',
+    hits: 2,
+    stages: [
+      { ...BEAR.stages[1], raccoons: 0 },
+      { ...BEAR.stages[2], raccoons: 1 },
+    ],
+  },
+  /**
+   * Phase 4 (§6): "Flickers between all three, faster and faster, never
+   * holding one form long enough to settle into a rhythm."
+   *
+   * Each appearance is one hit, and comes on at once: no opening, no long
+   * wait, straight into its attack, so it is open to a hit within about two
+   * and a half seconds of arriving. `holdMs` is how long each successive form
+   * stays before he changes — shorter every time, which is the "faster and
+   * faster". It never drops below what a form needs to offer a window, and he
+   * never changes *during* a window: "never settling into a rhythm" is the
+   * fight, and a form that left the moment it could be hit would be a fight
+   * with no answer.
+   */
+  flicker: {
+    hits: 3,
+    holdMs: [7500, 7000, 6500, 6000],
+    pigeon: { ...unpainted(BOSSES.pigeonKing), hits: 1, phases: 1, openingMs: 300, perchMs: 700 },
+    escalade: {
+      ...unpainted(VEHICLE_BOSSES.escalade),
+      hits: 1,
+      phases: 1,
+      stages: [{ ...VEHICLE_BOSSES.escalade.stages[2], waitMs: 400 }],
+    },
+    bear: {
+      ...unpainted(BEAR),
+      hits: 1,
+      stages: [{ ...BEAR.stages[2], paceMs: 500, raccoons: 0 }],
+    },
+  },
+  /** How long he is smoke between one form and the next, ms. */
+  shiftMs: 1100,
+} as const;

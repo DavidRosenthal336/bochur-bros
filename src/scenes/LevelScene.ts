@@ -41,11 +41,13 @@ import { CombinedInput } from '../input/CombinedInput';
 import { touchControls } from '../input/TouchInput';
 import type { BounceKind, LevelDef, SolidKind } from '../levels/LevelDef';
 import { DEFAULT_LEVEL, GREYBOX_LEVELS, PROLOGUE_LEVEL, LEVELS } from '../levels';
-import { findLevel, worldOf } from '../levels/catalog';
+import { findLevel, nextLevel, worldOf } from '../levels/catalog';
 import { completeLevel as recordCompletion, loadSave, writeSave } from '../systems/SaveGame';
 import type { PowerTier } from '../systems/PowerState';
 import { PowerState } from '../systems/PowerState';
 import { actorArt } from '../util/art';
+import { ACTOR_SPRITES, actorAnimKey } from '../config/sprites';
+import { YETZER_HARA } from '../config/bosses';
 import { solidTextureKey } from '../util/textures';
 import { DebugOverlay } from './DebugOverlay';
 import { Hud } from './Hud';
@@ -195,6 +197,29 @@ export interface LevelSceneData {
   readonly character?: CharacterId;
   /** Lives left, carried across a death restart. */
   readonly lives?: number;
+  /** Which phase of the final fight to come back to: each one is a checkpoint. */
+  readonly yetzerPhase?: number;
+}
+
+/** The three shapes the Yetzer Hara borrows (§6, 4-4). */
+type YetzerForm = 'pigeon' | 'escalade' | 'bear';
+
+/** Where the final fight is up to. */
+interface YetzerFight {
+  /** 1–3 are one borrowed form each; 4 is the flicker. */
+  phase: number;
+  form: YetzerForm | undefined;
+  costume: Phaser.GameObjects.Image | undefined;
+  colliders: Phaser.Physics.Arcade.Collider[];
+  /** Hits still needed in phase 4. */
+  flickerHitsLeft: number;
+  /** How many forms have come and gone in phase 4, for the shrinking hold. */
+  flickers: number;
+  holdUntil: number;
+  nextWispAt: number;
+  nextFlashAt: number;
+  shifting: boolean;
+  done: boolean;
 }
 
 /**
@@ -268,6 +293,9 @@ export class LevelScene extends Phaser.Scene {
   private escalade: Escalade | undefined;
   private bear: Bear | undefined;
   private bearPhase = 1;
+  /** The final fight, when this level is it (4-4). */
+  private yetzer: YetzerFight | undefined;
+  private carriedYetzerPhase = 1;
   private bags: Phaser.Physics.Arcade.Group | undefined;
   /** The phase the Escalade was in last frame, so a change can be noticed once. */
   private escaladePhase = 1;
@@ -332,6 +360,7 @@ export class LevelScene extends Phaser.Scene {
         ? { x: data.respawnX, y: data.respawnY }
         : null;
     this.carriedCharacter = data.character ?? DEFAULT_CHARACTER;
+    this.carriedYetzerPhase = data.yetzerPhase ?? 1;
     this.lives = data.lives ?? loadSave().lives;
     this.levelId = data.levelId;
     this.secondsLeft = this.levelId ? findLevel(this.levelId)?.timeLimit : undefined;
@@ -535,6 +564,7 @@ export class LevelScene extends Phaser.Scene {
     this.updateBoss(now);
     this.updateEscalade(now);
     this.updateBear(now);
+    this.updateYetzer(now);
     this.dismissFlock(now);
     this.thief?.tick(step, this.player.x);
     this.watchForTheGetaway();
@@ -1026,6 +1056,7 @@ export class LevelScene extends Phaser.Scene {
     this.boss = undefined;
     this.escalade = undefined;
     this.bear = undefined;
+    this.yetzer = undefined;
     this.bearPhase = 1;
     this.bags = undefined;
     this.escaladePhase = 1;
@@ -1043,6 +1074,10 @@ export class LevelScene extends Phaser.Scene {
     }
     if (this.level.boss.kind === 'bear') {
       this.buildBear(this.level.boss.x * TILE + TILE / 2, this.level.boss.y * TILE);
+      return;
+    }
+    if (this.level.boss.kind === 'yetzerHara') {
+      this.buildYetzer();
       return;
     }
 
@@ -1141,6 +1176,399 @@ export class LevelScene extends Phaser.Scene {
       if (this.state !== 'playing') return;
       this.burstBag(bag as Phaser.GameObjects.Arc);
       this.hurtPlayer((bag as Phaser.GameObjects.Arc).x);
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // The Yetzer Hara (§6, 4-4)
+  // -------------------------------------------------------------------------
+
+  /**
+   * The final fight: "a shape-shifter with no true form. He cycles through the
+   * forms of every boss already beaten."
+   *
+   * He is a director, not a body. Each form is the real Pigeon King, Escalade
+   * or Bear — the same classes, the same contact rules, the same windows the
+   * player learned in 1-4, 2-4 and 3-4 — running his numbers, with its own
+   * drawing hidden and his borrowed shape drawn over it. Between forms he is
+   * smoke, and smoke cannot be hit and cannot hurt you.
+   *
+   * Each phase is a checkpoint. A death in the bear brings you back to the
+   * bear, not to the pigeons: nine hits is a long fight, and the last level of
+   * the game is the worst place to make somebody do the first six again.
+   */
+  private buildYetzer(): void {
+    const fight: YetzerFight = {
+      phase: Phaser.Math.Clamp(this.carriedYetzerPhase, 1, 4),
+      form: undefined,
+      costume: undefined,
+      colliders: [],
+      flickerHitsLeft: YETZER_HARA.flicker.hits,
+      flickers: 0,
+      holdUntil: 0,
+      nextWispAt: 0,
+      nextFlashAt: 0,
+      shifting: false,
+      done: false,
+    };
+    this.yetzer = fight;
+
+    // The bear's bags. Made once: forms come and go and the group stays.
+    const bags = this.physics.add.group({ allowGravity: true });
+    this.bags = bags;
+    this.physics.add.collider(bags, this.solids, (bag) => this.burstBag(bag as Phaser.GameObjects.Arc));
+    this.physics.add.overlap(this.player, bags, (_player, bag) => {
+      if (this.state !== 'playing') return;
+      this.burstBag(bag as Phaser.GameObjects.Arc);
+      this.hurtPlayer((bag as Phaser.GameObjects.Arc).x);
+    });
+
+    // A frame later: the boss is built before the HUD is, and the opening
+    // shift has a banner to show.
+    const marker = this.level.boss!;
+    this.time.delayedCall(0, () => {
+      if (this.yetzer !== fight) return;
+      this.shiftYetzer(this.yetzerFormFor(fight), marker.x * TILE + TILE / 2, marker.y * TILE, 1600);
+    });
+  }
+
+  /** The shape a phase begins in. Phase 4 begins as the first one again. */
+  private yetzerFormFor(fight: YetzerFight): YetzerForm {
+    return (['pigeon', 'escalade', 'bear', 'pigeon'] as const)[fight.phase - 1]!;
+  }
+
+  /** What each phase says as it starts. */
+  private static readonly YETZER_BANNERS = [
+    'THE YETZER HARA\nHE HAS NO SHAPE OF HIS OWN',
+    'NOW HE IS THE ESCALADE',
+    'NOW HE IS THE BEAR',
+    'HE CANNOT HOLD A SHAPE',
+  ];
+
+  /**
+   * Where a form appears.
+   *
+   * The pigeon at the top of the room, where the marker is. The car and the
+   * bear on the floor a little way off from you, on the roomier side: close
+   * enough that the rev or the rear is on the screen, which is the telegraph
+   * and the whole of the fairness, and not so close that a shape materialises
+   * on top of the player.
+   */
+  private yetzerHome(form: YetzerForm): { x: number; y: number } {
+    const ground = (this.level.groundRow ?? this.level.heightInTiles - 7) * TILE;
+    const middle = (this.level.widthInTiles * TILE) / 2;
+    const away = this.player.x < middle ? 1 : -1;
+    // Between the hydrants: tiles 12 to 44 of the courtyard floor.
+    const floorLeft = 12 * TILE;
+    const floorRight = 44 * TILE;
+    switch (form) {
+      case 'pigeon':
+        return { x: middle, y: (this.level.boss?.y ?? 13) * TILE };
+      case 'escalade':
+        return { x: Phaser.Math.Clamp(this.player.x + away * 150, floorLeft + 40, floorRight - 40), y: ground };
+      case 'bear':
+        return { x: Phaser.Math.Clamp(this.player.x + away * 130, floorLeft + 16, floorRight - 16), y: ground };
+    }
+  }
+
+  /** As smoke, from where he was to where the next shape will stand, and then the shape. */
+  private shiftYetzer(next: YetzerForm, fromX: number, fromY: number, ms: number): void {
+    const fight = this.yetzer;
+    if (!fight) return;
+    fight.shifting = true;
+
+    const banner = LevelScene.YETZER_BANNERS[fight.phase - 1];
+    const announce = fight.phase === 4 ? fight.flickers === 0 : true;
+    if (banner && announce) {
+      this.hud.showBanner(banner);
+      this.time.delayedCall(2200, () => {
+        if (this.state === 'playing') this.hud.hideBanner();
+      });
+    }
+
+    const home = this.yetzerHome(next);
+    const set = ACTOR_SPRITES.yetzerHara;
+    const art = actorArt('yetzerHara');
+    const wisp = art
+      ? this.add.sprite(fromX, fromY, set.key).setOrigin(0.5, 1).play(actorAnimKey(set, 'smoke'), true)
+      : this.add.rectangle(fromX, fromY, 22, 30, 0x241a2e).setOrigin(0.5, 1);
+    wisp.setDepth(8).setAlpha(0.85);
+    this.tweens.add({
+      targets: wisp,
+      x: home.x,
+      y: home.y,
+      duration: ms,
+      ease: 'Sine.easeInOut',
+      onComplete: () => {
+        wisp.destroy();
+        if (this.yetzer !== fight || fight.done) return;
+        fight.shifting = false;
+        this.spawnYetzerForm(next);
+      },
+    });
+  }
+
+  /** Put on a shape: the real boss, its drawing hidden, his drawn over it. */
+  private spawnYetzerForm(form: YetzerForm): void {
+    const fight = this.yetzer;
+    if (!fight) return;
+    const flicker = fight.phase === 4;
+    const home = this.yetzerHome(form);
+    let body: Boss | Escalade | Bear;
+
+    switch (form) {
+      case 'pigeon': {
+        const boss = new Boss(this, home.x, home.y, flicker ? YETZER_HARA.flicker.pigeon : YETZER_HARA.pigeon);
+        const lane = this.sweepLane(boss);
+        boss.setLane(lane.left, lane.right);
+        fight.colliders.push(this.physics.add.overlap(this.player, boss, () => this.onBossContact()));
+        this.boss = boss;
+        body = boss;
+        break;
+      }
+      case 'escalade': {
+        const car = new Escalade(this, home.x, home.y, flicker ? YETZER_HARA.flicker.escalade : YETZER_HARA.escalade);
+        car.face(this.player.x < car.x ? -1 : 1);
+        const lane = this.driveLane(car);
+        car.setLane(lane.left, lane.right);
+        fight.colliders.push(this.physics.add.collider(this.player, car, () => this.onEscaladeContact()));
+        fight.colliders.push(this.physics.add.collider(this.enemies, car));
+        this.escalade = car;
+        this.escaladePhase = 1;
+        this.escaladeMode = '';
+        body = car;
+        break;
+      }
+      case 'bear': {
+        const bear = new Bear(
+          this,
+          home.x,
+          home.y,
+          (bx, by, vx, vy) => this.throwBag(bx, by, vx, vy),
+          flicker ? YETZER_HARA.flicker.bear : YETZER_HARA.bear,
+        );
+        /**
+         * The bear needs a dumpster to climb and throw from, and in Meah
+         * Shearim that is the stoop the first perch stands on. The hydrant in
+         * front of it counts as part of it, because that is the side the bear
+         * comes at it from: measured from the stoop alone it walks into the
+         * hydrant for ever, a body-width short of where it thinks the climb is.
+         * Widened a tile both ways, so it does not matter which end that is.
+         */
+        const lid = this.perches[0];
+        const stoop = lid ? this.solidUnder(lid.x, lid.y) : undefined;
+        if (stoop) bear.setDumpster(stoop.left - TILE, stoop.right + TILE, stoop.top);
+        fight.colliders.push(this.physics.add.collider(bear, this.solids));
+        fight.colliders.push(this.physics.add.overlap(this.player, bear, () => this.onBearContact()));
+        this.bear = bear;
+        this.bearPhase = 1;
+        body = bear;
+        break;
+      }
+    }
+
+    const art = actorArt('yetzerHara');
+    if (art) {
+      body.setVisible(false);
+      const frame = { pigeon: 2, escalade: 3, bear: 4 }[form];
+      // His sheet draws each shape a little small for the thing it pretends to
+      // be. Scaled to the real one's hitbox, so what you see is what hits you.
+      const scale = { pigeon: 1.3, escalade: 2, bear: 1 }[form];
+      fight.costume = this.add
+        .image(body.x, body.y, art.key, frame)
+        .setOrigin(0.5, 1)
+        .setScale(scale)
+        .setDepth(body.depth + 0.5);
+      fight.costume.setAlpha(0);
+      this.tweens.add({ targets: fight.costume, alpha: 1, duration: 260 });
+    }
+    fight.form = form;
+    if (flicker) {
+      const holds = YETZER_HARA.flicker.holdMs;
+      fight.holdUntil = this.time.now + holds[Math.min(fight.flickers, holds.length - 1)]!;
+    }
+  }
+
+  /** Take the shape off: the body, its colliders and his drawing of it. */
+  private removeYetzerForm(): { x: number; y: number } {
+    const fight = this.yetzer;
+    const sprite = this.boss ?? this.escalade ?? this.bear;
+    const at = { x: sprite?.x ?? this.player.x, y: sprite?.y ?? this.player.y };
+    if (!fight) return at;
+
+    for (const collider of fight.colliders) this.physics.world.removeCollider(collider);
+    fight.colliders = [];
+    if (sprite && this.riding === sprite) this.riding = undefined;
+    if (sprite) {
+      this.tweens.killTweensOf(sprite);
+      sprite.destroy();
+    }
+    this.boss = undefined;
+    this.escalade = undefined;
+    this.bear = undefined;
+    this.dentHint?.destroy();
+    this.dentHint = undefined;
+    fight.costume?.destroy();
+    fight.costume = undefined;
+    fight.form = undefined;
+    this.puffYetzer(at.x, at.y - 16, 10);
+
+    // What the shape brought with it goes with it: the flock he called as the
+    // pigeon leaves, and the bags he threw as the bear burst where they are.
+    // Left behind, they were what killed you in the next shape.
+    const now = this.time.now;
+    for (const enemy of this.enemies.getChildren() as Enemy[]) {
+      if (enemy.getData('leaveAt') !== undefined) enemy.setData('leaveAt', now);
+    }
+    for (const bag of [...(this.bags?.getChildren() ?? [])]) this.burstBag(bag as Phaser.GameObjects.Arc);
+    return at;
+  }
+
+  /** A burst of his smoke, for a shape coming apart. */
+  private puffYetzer(x: number, y: number, count: number): void {
+    for (let i = 0; i < count; i += 1) {
+      const puff = this.add
+        .circle(x + Phaser.Math.Between(-14, 14), y + Phaser.Math.Between(-12, 12), Phaser.Math.Between(3, 6), 0x2a2233, 0.8)
+        .setDepth(9);
+      this.tweens.add({
+        targets: puff,
+        x: puff.x + Phaser.Math.Between(-30, 30),
+        y: puff.y - Phaser.Math.Between(10, 34),
+        alpha: 0,
+        scale: 1.8,
+        duration: Phaser.Math.Between(500, 900),
+        onComplete: () => puff.destroy(),
+      });
+    }
+  }
+
+  /**
+   * A shape beaten.
+   *
+   * Deferred a frame, because it is called from inside that shape's own
+   * collision callback, and destroying a body halfway through Arcade's pass
+   * over it is how you get a crash in the last fight of the game.
+   */
+  private onYetzerFormBeaten(): void {
+    this.time.delayedCall(0, () => {
+      const fight = this.yetzer;
+      if (!fight || fight.done || fight.shifting || !fight.form) return;
+
+      const was = fight.form;
+      if (fight.phase < 4) {
+        fight.phase += 1;
+      } else {
+        fight.flickerHitsLeft -= 1;
+        fight.flickers += 1;
+      }
+      const from = this.removeYetzerForm();
+      this.cameras.main.shake(200, 0.01);
+
+      if (fight.phase === 4 && fight.flickerHitsLeft <= 0) {
+        this.defeatYetzer(from.x, from.y);
+        return;
+      }
+      const next = fight.phase < 4 ? this.yetzerFormFor(fight) : this.nextFlicker(was);
+      // Into the flicker for the first time, from the bear: the pigeon it
+      // starts on is the one shape he has not just been.
+      this.shiftYetzer(fight.phase === 4 && fight.flickers === 0 ? 'pigeon' : next, from.x, from.y - 16, YETZER_HARA.shiftMs);
+    });
+  }
+
+  /** Any shape but the one he has just been, by chance: no rhythm to learn. */
+  private nextFlicker(was: YetzerForm | undefined): YetzerForm {
+    const forms: YetzerForm[] = ['pigeon', 'escalade', 'bear'];
+    return Phaser.Math.RND.pick(forms.filter((form) => form !== was));
+  }
+
+  /**
+   * Is the shape he is wearing open to a hit right now — or about to be?
+   *
+   * The flicker never changes him in the middle of a window. These are the
+   * three windows the earlier fights taught: the pigeon low and hovering, the
+   * car stalled against a hydrant, the bear seeing stars.
+   */
+  private yetzerIsOpen(now: number): boolean {
+    if (this.boss) return this.boss.isVulnerable;
+    if (this.escalade) return this.escalade.mode === 'stalled';
+    if (this.bear) return this.bear.mode === 'dazed' || this.bear.isVulnerable(now);
+    return false;
+  }
+
+  /** How much of him is left, across all four phases, for the health bar. */
+  private yetzerHealth(): number {
+    const fight = this.yetzer;
+    if (!fight) return 0;
+    const perForm = 2;
+    const total = perForm * 3 + YETZER_HARA.flicker.hits;
+    if (fight.phase === 4) return fight.flickerHitsLeft / total;
+    const sprite = this.boss ?? this.escalade ?? this.bear;
+    const current = sprite ? Math.round(sprite.healthFraction * perForm) : perForm;
+    return ((3 - fight.phase) * perForm + current + YETZER_HARA.flicker.hits) / total;
+  }
+
+  private updateYetzer(now: number): void {
+    const fight = this.yetzer;
+    if (!fight || fight.done) return;
+    this.hud.showBossHealth(this.yetzerHealth());
+
+    const sprite = this.boss ?? this.escalade ?? this.bear;
+    const costume = fight.costume;
+    if (costume && sprite) {
+      costume.setPosition(sprite.x, sprite.y).setFlipX(sprite.flipX);
+
+      // Open to a hit: he flashes, the way every boss before him did.
+      if (this.yetzerIsOpen(now)) costume.setTint(Math.floor(now / 90) % 2 ? 0xffffff : 0xffc8f0);
+      else costume.clearTint();
+
+      // Phase 4 never quite holds: now and then, for a frame, another shape.
+      if (fight.phase === 4 && now >= fight.nextFlashAt) {
+        const others = [2, 3, 4].filter((f) => f !== Number(costume.frame.name));
+        const own = costume.frame.name;
+        costume.setFrame(Phaser.Math.RND.pick(others));
+        this.time.delayedCall(70, () => {
+          if (costume.active) costume.setFrame(own);
+        });
+        fight.nextFlashAt = now + Phaser.Math.Between(260, 520);
+      }
+    }
+
+    // Smoke coming off him, always. He is wearing these shapes, not being them.
+    if (sprite && now >= fight.nextWispAt) {
+      fight.nextWispAt = now + 110;
+      const b = sprite.body as Phaser.Physics.Arcade.Body;
+      const wisp = this.add
+        .circle(Phaser.Math.Between(Math.round(b.left), Math.round(b.right)), b.top + Phaser.Math.Between(0, 8), 2, 0x2a2233, 0.7)
+        .setDepth(9);
+      this.tweens.add({ targets: wisp, y: wisp.y - 18, alpha: 0, duration: 700, onComplete: () => wisp.destroy() });
+    }
+
+    // The flicker: out of time, and not in a window, so on to another shape.
+    if (fight.phase === 4 && fight.form && !fight.shifting && now >= fight.holdUntil && !this.yetzerIsOpen(now)) {
+      const was = fight.form;
+      fight.flickers += 1;
+      const from = this.removeYetzerForm();
+      this.shiftYetzer(this.nextFlicker(was), from.x, from.y - 16, YETZER_HARA.shiftMs * 0.6);
+    }
+  }
+
+  /**
+   * Beaten. He never resolves into a shape (§6) — the last thing he does is
+   * come apart — and the tequila is left where he was.
+   */
+  private defeatYetzer(x: number, y: number): void {
+    const fight = this.yetzer;
+    if (!fight) return;
+    fight.done = true;
+    this.hud.hideBossHealth();
+    this.puffYetzer(x, y - 20, 24);
+    this.cameras.main.shake(500, 0.012);
+    for (const enemy of this.enemies.getChildren() as Enemy[]) {
+      if (enemy.isAlive) enemy.knockAway(enemy.x < this.player.x ? -1 : 1, 220);
+    }
+    this.time.delayedCall(1100, () => {
+      if (this.state !== 'playing') return;
+      this.dropPrize(x, Math.min(y, (this.level.groundRow ?? 20) * TILE) - TILE * 2);
     });
   }
 
@@ -1248,7 +1676,9 @@ export class LevelScene extends Phaser.Scene {
       const count = bear.stageRaccoons;
       for (let i = 0; i < count; i += 1) {
         // Out on the open grass past the woodpile, not inside it.
-        const fromX = (9 + i * 3) * TILE;
+        // In 4-4 the low ground is the middle of the courtyard; in 3-4 it is
+        // the grass past the woodpile.
+        const fromX = (this.yetzer ? 26 + i * 3 : 9 + i * 3) * TILE;
         this.enemies.add(new Enemy(this, fromX, bear.y, ENEMY_TABLE.raccoon));
       }
       if (count > 0) this.hud.showBanner(count === 1 ? 'IT CALLED A RACCOON' : 'IT CALLED RACCOONS');
@@ -1257,6 +1687,10 @@ export class LevelScene extends Phaser.Scene {
 
   /** Off into the woods, and the kugel left on the dumpster where it always was. */
   private onBearDefeated(): void {
+    if (this.yetzer) {
+      this.onYetzerFormBeaten();
+      return;
+    }
     const lid = this.perches[0];
     this.time.delayedCall(1300, () => {
       if (this.state !== 'playing') return;
@@ -1306,7 +1740,8 @@ export class LevelScene extends Phaser.Scene {
 
     if (car.phase !== this.escaladePhase) {
       this.escaladePhase = car.phase;
-      if (car.phase === 2) this.scatterGeese();
+      // Geese belong to the Five Towns, not to a car he is only pretending to be.
+      if (car.phase === 2 && !this.yetzer) this.scatterGeese();
     }
 
     /**
@@ -1409,6 +1844,10 @@ export class LevelScene extends Phaser.Scene {
 
   /** The Escalade drives off, and the poppers slide out the back hatch (§6). */
   private onEscaladeDefeated(): void {
+    if (this.yetzer) {
+      this.onYetzerFormBeaten();
+      return;
+    }
     const car = this.escalade;
     if (!car) return;
     this.hud.hideBossHealth();
@@ -1684,6 +2123,10 @@ export class LevelScene extends Phaser.Scene {
    * boss arena.
    */
   private onBossDefeated(): void {
+    if (this.yetzer) {
+      this.onYetzerFormBeaten();
+      return;
+    }
     const boss = this.boss;
     if (!boss) return;
     this.hud.hideBossHealth();
@@ -2377,10 +2820,14 @@ export class LevelScene extends Phaser.Scene {
         lives: this.lives,
       });
       const world = worldOf(this.levelId);
+      // The last level of the game: the spread is whole again (§1).
+      const theEnd = entry?.isBoss === true && nextLevel(this.levelId) === undefined;
       this.hud.showBanner(
-        entry?.isBoss === true && world
-          ? `YOU GOT ${world.prize.toUpperCase()} BACK!\n${this.continueHint}`
-          : `L'CHAIM!\n${this.continueHint}`,
+        theEnd && world
+          ? `YOU GOT ${world.prize.toUpperCase()} BACK!\nTHE KIDDUSH IS WHOLE.\nL'CHAIM!\n${this.continueHint}`
+          : entry?.isBoss === true && world
+            ? `YOU GOT ${world.prize.toUpperCase()} BACK!\n${this.continueHint}`
+            : `L'CHAIM!\n${this.continueHint}`,
       );
     } else {
       this.hud.showBanner("L'CHAIM!\nR to play again");
@@ -2414,6 +2861,7 @@ export class LevelScene extends Phaser.Scene {
       respawnY: this.respawnAt.y,
       character: this.player.character,
       lives: this.lives,
+      ...(this.yetzer ? { yetzerPhase: this.yetzer.phase } : {}),
     } satisfies LevelSceneData);
   }
 

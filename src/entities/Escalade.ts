@@ -145,6 +145,12 @@ export class Escalade extends Phaser.Physics.Arcade.Sprite {
   }
 
   /** Where it can drive, in pixels: the ends are the two hydrants. */
+  /** Point it at one end of the lane before it has started (4-4's borrowed car). */
+  face(direction: -1 | 1): void {
+    this.heading = direction;
+    this.setFlipX(direction < 0);
+  }
+
   setLane(left: number, right: number): void {
     this.laneLeft = left;
     this.laneRight = right;

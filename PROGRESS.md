@@ -1583,3 +1583,47 @@ impassable.
 Both brothers finish: Mendy 30.6–32.2s with one or two deaths to sparrows,
 Berel 31.8s clean on one run and 42.5s with two on another. The thief goes over
 the wall about half a second before the flag.
+
+### 4-4 — The Yetzer Hara
+
+"A shape-shifter with no true form. He cycles through the forms of every boss
+already beaten." (§6) So he is not a fourth boss with a fourth script: each form
+is the real Pigeon King, Escalade or Bear class, running his numbers, with its
+own drawing hidden and his purple borrowed shape from the sheet drawn over it
+(scaled to the real hitbox, so what you see is what hits you), trailing smoke.
+Every contact rule and every window is the one the player learned in 1-4, 2-4
+and 3-4. That is why those three fights took their tuning as a parameter.
+
+- **Phases 1–3**: pigeon, car, bear, two hits each, a step quicker than the
+  originals. Between shapes he is smoke drifting to where the next one stands,
+  and smoke cannot hurt or be hurt.
+- **Phase 4**: three more hits, each shape worth one, coming on at once. He
+  changes shape on a shrinking hold (7.5s down to 6s) to a random *other*
+  shape — "never settling into a rhythm" — but never in the middle of a
+  window, and a frame of another shape flickers through every half-second.
+- **Each phase is a checkpoint.** Nine hits is a long fight to repeat.
+- **On defeat** he comes apart — he never resolves into a shape — and leaves
+  the tequila. The banner says the kiddush is whole.
+
+One courtyard serves all three: the hydrants are the car's lane ends and the
+bear's thing to charge into, the stoops behind them are where you wait, the
+far stoop is the bear's dumpster, and the perches are 1-4's, lowered.
+
+Found by driving it with a bot that fights each shape the way it was beaten:
+
+- The HUD is built after the boss, so the opening banner wrote to the last
+  level's destroyed HUD and crashed. The first shift waits a frame.
+- The bear's dumpster was the stoop you start and respawn on, so it climbed up
+  beside you. It is the far one now, as in 3-4.
+- The flock and the bags outlived the shape that made them and killed you in
+  the next one. They leave with it.
+- The perches were 1-4's, above where the camera reaches with you on the floor:
+  the telegraph was off the top of the screen. The car and the bear appeared
+  relative to the room, sometimes off-screen. Both now appear on screen.
+
+Both brothers beat the whole fight: Berel in 129s, Mendy in 173s.
+
+## The game is complete
+
+All sixteen levels across four worlds, plus the prologue. Not built: §6's
+crickets, which wait on §10's audio.

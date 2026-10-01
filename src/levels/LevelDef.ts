@@ -215,7 +215,7 @@ export interface LaundryDef {
 }
 
 /** Which boss a level's `boss` marker means. */
-export type BossKind = 'pigeonKing' | 'escalade' | 'bear';
+export type BossKind = 'pigeonKing' | 'escalade' | 'bear' | 'yetzerHara';
 
 export interface BossPlacement extends TilePoint {
   readonly kind?: BossKind;

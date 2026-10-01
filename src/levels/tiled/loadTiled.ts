@@ -224,7 +224,7 @@ export function levelFromTiled(key: string, map: TiledMap): LevelDef {
           boss = {
             x,
             y,
-            ...(which === 'escalade' || which === 'bear' ? { kind: which } : {}),
+            ...(which === 'escalade' || which === 'bear' || which === 'yetzerHara' ? { kind: which } : {}),
           };
           break;
         }
