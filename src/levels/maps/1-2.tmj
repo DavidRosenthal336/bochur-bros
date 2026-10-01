@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 119,
+ "nextobjectid": 113,
  "tilesets": [],
  "properties": [
   {
@@ -1455,42 +1455,6 @@
      "name": "",
      "class": "enemy",
      "x": 352,
-     "y": 1056,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 97,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 960,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 98,
-     "name": "",
-     "class": "enemy",
-     "x": 352,
      "y": 864,
      "width": 16,
      "height": 16,
@@ -1505,43 +1469,7 @@
      ]
     },
     {
-     "id": 99,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 768,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 100,
-     "name": "",
-     "class": "enemy",
-     "x": 96,
-     "y": 608,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 101,
+     "id": 97,
      "name": "",
      "class": "enemy",
      "x": 208,
@@ -1559,7 +1487,7 @@
      ]
     },
     {
-     "id": 102,
+     "id": 98,
      "name": "",
      "class": "enemy",
      "x": 384,
@@ -1577,7 +1505,7 @@
      ]
     },
     {
-     "id": 103,
+     "id": 99,
      "name": "",
      "class": "enemy",
      "x": 496,
@@ -1595,25 +1523,7 @@
      ]
     },
     {
-     "id": 104,
-     "name": "",
-     "class": "enemy",
-     "x": 384,
-     "y": 320,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 105,
+     "id": 100,
      "name": "",
      "class": "enemy",
      "x": 384,
@@ -1631,7 +1541,7 @@
      ]
     },
     {
-     "id": 106,
+     "id": 101,
      "name": "",
      "class": "enemy",
      "x": 384,
@@ -1649,25 +1559,7 @@
      ]
     },
     {
-     "id": 107,
-     "name": "",
-     "class": "enemy",
-     "x": 240,
-     "y": 80,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 108,
+     "id": 102,
      "name": "",
      "class": "enemy",
      "x": 384,
@@ -1685,7 +1577,7 @@
      ]
     },
     {
-     "id": 109,
+     "id": 103,
      "name": "",
      "class": "pipe",
      "x": 48,
@@ -1703,7 +1595,7 @@
      ]
     },
     {
-     "id": 110,
+     "id": 104,
      "name": "",
      "class": "pipe",
      "x": 96,
@@ -1721,7 +1613,7 @@
      ]
     },
     {
-     "id": 111,
+     "id": 105,
      "name": "",
      "class": "pipe",
      "x": 144,
@@ -1739,7 +1631,7 @@
      ]
     },
     {
-     "id": 112,
+     "id": 106,
      "name": "",
      "class": "label",
      "x": 48,
@@ -1757,7 +1649,7 @@
      ]
     },
     {
-     "id": 113,
+     "id": 107,
      "name": "",
      "class": "label",
      "x": 48,
@@ -1775,7 +1667,7 @@
      ]
     },
     {
-     "id": 114,
+     "id": 108,
      "name": "",
      "class": "label",
      "x": 176,
@@ -1793,7 +1685,7 @@
      ]
     },
     {
-     "id": 115,
+     "id": 109,
      "name": "",
      "class": "label",
      "x": 32,
@@ -1811,7 +1703,7 @@
      ]
     },
     {
-     "id": 116,
+     "id": 110,
      "name": "",
      "class": "label",
      "x": 256,
@@ -1829,7 +1721,7 @@
      ]
     },
     {
-     "id": 117,
+     "id": 111,
      "name": "",
      "class": "label",
      "x": 32,
@@ -1847,7 +1739,7 @@
      ]
     },
     {
-     "id": 118,
+     "id": 112,
      "name": "",
      "class": "label",
      "x": 192,

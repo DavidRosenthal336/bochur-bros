@@ -61,11 +61,24 @@ const L = level({
 
 L.spawnAt(3);
 
-/** A market stall: two tiles of stone wall with an awning over the top. */
-const stall = (x, w, height = 2) => {
-  L.slab(x, FLOOR - height, w, height, 'wall');
-  L.bounce(x, FLOOR - height - 1, w);
+/**
+ * A market stall: two tiles of stone wall with an awning over the top.
+ *
+ * Always two tiles, and there is no height argument any more, because the first
+ * draft had one and used it. Stalls four tiles tall gave the geckos a tall face
+ * to climb — and were walls across the alley that Berel could not get over: his
+ * running jump is 59px and four tiles is 64. Driven as him, the run reached the
+ * first one and died sixteen times at its foot, jumping into the gecko it could
+ * not get past. It is 3-1's lesson again, and World 3 wrote it down: every rise
+ * is two tiles. A gecko needs a wall to sit on, not a tall one.
+ */
+const stall = (x, w) => {
+  L.slab(x, FLOOR - 2, w, 2, 'wall');
+  L.bounce(x, FLOOR - 3, w);
 };
+
+/** A gecko on the near face of a stall at `x`, a tile up the stone. */
+const gecko = (x) => L.enemy(x - 1, FLOOR - 1, 'gecko');
 
 // ---------------------------------------------------------------------------
 // The way in.
@@ -103,9 +116,9 @@ L.checkpoint(50);
 // ---------------------------------------------------------------------------
 // Stalls, geckos, and a grey ceiling.
 // ---------------------------------------------------------------------------
-stall(54, 3, 4);
-L.enemy(53, FLOOR - 3, 'gecko');
-L.coinRow(54, FLOOR - 8, 3);
+stall(54, 3);
+gecko(54);
+L.coinRow(54, FLOOR - 7, 3);
 
 /**
  * Grey boxes, only Berel's head breaks them (§4), with a Lulav behind the
@@ -117,10 +130,10 @@ L.block(63, FLOOR - 4, 'reinforced', 'lulav');
 L.block(64, FLOOR - 4, 'reinforced', 'coin');
 L.label(60, FLOOR - 7, 'GREY BOXES: BEREL');
 
-stall(70, 3, 4);
-L.enemy(69, FLOOR - 3, 'gecko');
-L.enemy(73, FLOOR - 3, 'gecko');
-L.coinRow(70, FLOOR - 8, 3);
+stall(70, 3);
+gecko(70);
+L.enemy(73, FLOOR - 1, 'gecko');
+L.coinRow(70, FLOOR - 7, 3);
 L.enemy(77, FLOOR, 'cat');
 
 // ---------------------------------------------------------------------------
@@ -192,16 +205,16 @@ L.coinRow(158, FLOOR - 8, 4);
 L.coinRow(166, FLOOR - 7, 4);
 L.enemy(156, FLOOR, 'cat');
 L.enemy(164, FLOOR, 'cat');
-L.enemy(149, FLOOR - 1, 'gecko');
-L.enemy(165, FLOOR - 1, 'gecko');
+gecko(150);
+gecko(166);
 
 L.crate(178);
 L.coinRow(180, on(FLOOR), 4);
 L.ground(193, WIDTH - 193);
 L.checkpoint(196);
-stall(200, 5, 3);
-L.enemy(199, FLOOR - 2, 'gecko');
-L.coinRow(200, FLOOR - 8, 5);
+stall(200, 5);
+gecko(200);
+L.coinRow(200, FLOOR - 7, 5);
 L.coinArc(208, on(FLOOR) - 2, 8);
 L.goalAt(224);
 
