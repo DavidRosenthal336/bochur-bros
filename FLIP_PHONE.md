@@ -27,20 +27,38 @@ app for a filter to approve.
 
 A newer version installs straight over an older one and keeps the saved game.
 
-## The keys
+## The buttons
+
+The phone's own buttons are the controls:
+
+| Button | Does |
+| --- | --- |
+| D-pad left / right | walk |
+| D-pad up, or OK (the middle button) | jump — hold it for a higher jump |
+| D-pad down | duck; in mid-air, Berel's ground pound |
+| Left soft key | swap brothers |
+| Right soft key | use your form (Menorah throws, Lulav swings) |
+| Call, or ✱ | run on/off |
+| Back | from a level, the map; from the map, close the game |
+
+The labels over the two soft keys are shown along the bottom of the screen, and
+a guide to every button stays on screen under the game.
+
+The number pad works as well, for anyone who prefers it:
 
     1 jump left    2 jump          3 jump right
     4 left         5 jump          6 right
     7 run on/off   8 duck          9 use your form
                    0 swap brothers
 
-The D-pad moves too, and its up and middle buttons jump. **8 in mid-air** is
-Berel's ground pound. **Back** goes from a level to the map, and from the map
-closes the game. The key guide stays on screen under the game the whole time.
-
-Every move is one key, because a phone keypad often cannot register two at
+Every move is one button, because a phone keypad often cannot register two at
 once: that is why the diagonal jumps have keys of their own and running is a
-switch rather than something you hold.
+switch rather than something you hold. The clear key does nothing, so it can
+never wipe the saved game.
+
+The app catches every button itself and passes it to the game, rather than
+leaving it to the phone's web engine — which on a flip phone may send the D-pad
+to a focus ring and drop the soft keys, Call and ✱ altogether.
 
 ## Building it
 

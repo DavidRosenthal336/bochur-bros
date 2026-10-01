@@ -437,19 +437,19 @@
         position: fixed;
         left: 0;
         right: 0;
-        top: calc(56.25vw + 6px);
-        bottom: 0;
+        top: calc(56.25vw + 4px);
+        bottom: 26px;
         grid-template-columns: repeat(3, 1fr);
         grid-auto-rows: min-content;
-        gap: 4px;
-        padding: 4px 6px;
+        gap: 3px;
+        padding: 2px 6px;
         color: #aab3d6;
-        font-size: 11px;
-        line-height: 1.2;
+        font-size: 10px;
+        line-height: 1.15;
         text-align: center;
       }
       #flip-keys div {
-        padding: 4px 2px;
+        padding: 2px;
         border: 1px solid #262c48;
         border-radius: 4px;
         background: #141830;
@@ -457,13 +457,41 @@
       #flip-keys b {
         display: block;
         color: #ffd77a;
-        font-size: 15px;
+        font-size: 13px;
       }
       #flip-keys .wide {
         grid-column: span 3;
         border: none;
         background: none;
-        color: #6c7499;
+        font-size: 11px;
+        padding: 3px 0;
+      }
+      #flip-keys .wide b {
+        display: inline;
+        font-size: 12px;
+      }
+      #softkeys {
+        display: none;
+      }
+      body[data-flip='on'] #softkeys {
+        display: flex;
+        justify-content: space-between;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 24px;
+        align-items: center;
+        padding: 0 10px;
+        background: #1c2240;
+        color: #ffd77a;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 11;
+      }
+      /* Over the OK button, which the middle of the bar sits above. */
+      #softkeys span:nth-child(2) {
+        color: #d7def5;
       }
       /* Run is a toggle on 7, so 7 shows whether it is on. */
       body[data-run='on'] #flip-keys .run {
@@ -556,6 +584,9 @@
     </div>
 
     <div id="flip-keys">
+      <div class="wide dpad">
+        <b>&#9664; &#9654;</b> walk &nbsp; <b>&#9650;</b> or <b>OK</b> jump &nbsp; <b>&#9660;</b> duck
+      </div>
       <div><b>1</b>jump left</div>
       <div><b>2</b>jump</div>
       <div><b>3</b>jump right</div>
@@ -565,20 +596,26 @@
       <div class="run"><b>7</b>run on/off</div>
       <div><b>8</b>duck</div>
       <div><b>9</b>use form</div>
-      <div class="wide">D-pad moves too &middot; <b style="display:inline;font-size:11px">0</b> swaps brothers &middot; Back for the map</div>
+      <div class="wide">
+        <b>Call</b> or <b>&#10033;</b> run on/off &middot; <b>0</b> swap &middot; <b>Back</b> map
+      </div>
     </div>
+    <!-- Labels over the two soft keys, the way a flip phone shows what they do. -->
+    <div id="softkeys"><span>SWAP</span><span>JUMP</span><span>FORM</span></div>
 
     <div id="start">
       <h1>BOCHUR BROS</h1>
       <div id="flip-card">
         Get the kiddush back.<br />
-        <b>4 6</b> walk &middot; <b>5</b> jump<br />
-        <b>1 3</b> jump left or right<br />
-        <b>7</b> run on/off &middot; <b>0</b> swap brothers<br />
-        <b>8</b> in the air: Berel's ground pound<br />
-        The keys stay on screen under the game.<br />
+        <b>&#9664; &#9654;</b> walk &middot; <b>&#9650;</b> or <b>OK</b> jump<br />
+        <b>&#9660;</b> duck &mdash; in the air, Berel's ground pound<br />
+        <b>left soft key</b> swap brothers<br />
+        <b>right soft key</b> use your form<br />
+        <b>Call</b> run on/off &middot; <b>Back</b> to the map<br />
+        The number keys work too, and the guide<br />
+        stays on screen under the game.<br />
         <br />
-        PRESS ANY KEY
+        PRESS ANY BUTTON
       </div>
       <p class="sub">ALL FOUR WORLDS</p>
       <table id="keys">
@@ -719,6 +756,27 @@
     <script>
       // A phone should not see a single frame without its controls, and the
       // bundle is a megabyte of Phaser away. This runs now.
+      /*
+        The flip-phone app's buttons arrive here (android/.../MainActivity.java).
+
+        The app catches every button on the phone itself and passes on which
+        computer key it stands for; this turns that into an ordinary key press,
+        so the game needs no idea that it is on a phone. keyCode has to be put on
+        the event by hand: browsers will not take it in the constructor, and it
+        is what the game reads.
+      */
+      window.bochurKey = function (code, down) {
+        var names = { 13: 'Enter', 37: 'ArrowLeft', 38: 'ArrowUp', 39: 'ArrowRight', 40: 'ArrowDown' };
+        var event = new KeyboardEvent(down ? 'keydown' : 'keyup', {
+          key: names[code] || String.fromCharCode(code),
+          bubbles: true,
+          cancelable: true,
+        });
+        Object.defineProperty(event, 'keyCode', { get: function () { return code; } });
+        Object.defineProperty(event, 'which', { get: function () { return code; } });
+        window.dispatchEvent(event);
+      };
+
       // The flip-phone app says so in its user agent; ?flip tries it on a computer.
       if (/BochurBrosFlip/.test(navigator.userAgent) || /[?&]flip\b/.test(location.search)) {
         document.body.dataset.flip = 'on';

@@ -2,6 +2,7 @@ package com.bochurbros.game;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.ValueCallback;
@@ -15,7 +16,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The game, in a WebView, served out of the app's own files.
@@ -34,6 +37,8 @@ import java.util.Map;
 public class MainActivity extends Activity {
     private static final String ORIGIN = "https://bochurbros.local/";
     private WebView web;
+    /** Game keys currently held, so they can all be let go if the app is left. */
+    private final Set<Integer> held = new HashSet<Integer>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +124,83 @@ public class MainActivity extends Activity {
     }
 
     /**
+     * The phone's own buttons, every one of them, straight to the game.
+     *
+     * Left to the WebView, a phone's buttons reach a web page unreliably: the
+     * D-pad may move a focus ring instead, and the soft keys, Call, star and
+     * pound may arrive as nothing at all. So the app catches each button itself
+     * and hands the game the key it stands for (window.bochurKey in index.html,
+     * which turns it into an ordinary key press). The game cannot tell the
+     * difference, so the map, the levels and the start card all just work.
+     *
+     * Volume, Back and power are left alone, to do what they always do.
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int key = gameKey(event.getKeyCode());
+        if (key == PASS) return super.dispatchKeyEvent(event);
+        if (key == SWALLOW) return true;
+
+        int action = event.getAction();
+        if (action == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+            held.add(key);
+            send(key, true);
+        } else if (action == KeyEvent.ACTION_UP) {
+            held.remove(key);
+            send(key, false);
+        }
+        // Held-down repeats are swallowed: a held key is one press, held.
+        return true;
+    }
+
+    private static final int PASS = 0;
+    private static final int SWALLOW = -1;
+
+    /**
+     * Which key on a computer keyboard each phone button stands for. These are
+     * the codes the game already listens for (src/input/KeyboardInput.ts), so
+     * every button does exactly what the guide under the game says.
+     */
+    private static int gameKey(int code) {
+        if (code >= KeyEvent.KEYCODE_0 && code <= KeyEvent.KEYCODE_9) return 48 + code - KeyEvent.KEYCODE_0;
+        if (code >= KeyEvent.KEYCODE_NUMPAD_0 && code <= KeyEvent.KEYCODE_NUMPAD_9) {
+            return 48 + code - KeyEvent.KEYCODE_NUMPAD_0;
+        }
+        switch (code) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                return 37; // walk left
+            case KeyEvent.KEYCODE_DPAD_UP:
+                return 38; // jump
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                return 39; // walk right
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                return 40; // duck; in the air, Berel's ground pound
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_NUMPAD_ENTER:
+                return 13; // OK: jump, and play / continue on the map
+            case KeyEvent.KEYCODE_SOFT_LEFT:
+            case KeyEvent.KEYCODE_MENU: // what some flip phones send for the left soft key
+                return 48; // swap brothers, as 0
+            case KeyEvent.KEYCODE_SOFT_RIGHT:
+            case KeyEvent.KEYCODE_POUND:
+                return 57; // use your form, as 9
+            case KeyEvent.KEYCODE_CALL:
+            case KeyEvent.KEYCODE_STAR:
+                return 55; // run on/off, as 7
+            case KeyEvent.KEYCODE_DEL:
+            case KeyEvent.KEYCODE_CLEAR:
+                return SWALLOW; // the clear key: nothing, so it can never wipe a save
+            default:
+                return PASS;
+        }
+    }
+
+    private void send(int key, boolean down) {
+        web.evaluateJavascript("window.bochurKey && window.bochurKey(" + key + "," + down + ")", null);
+    }
+
+    /**
      * Back goes to the map from a level, and leaves the app from anywhere
      * else. The page decides which, through window.bochurBack (src/main.ts).
      */
@@ -136,6 +218,9 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+        // A key held while the app was left would otherwise stay held for ever.
+        for (Integer key : held) send(key, false);
+        held.clear();
         super.onPause();
         web.onPause();
         web.pauseTimers();

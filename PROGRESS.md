@@ -1655,3 +1655,16 @@ FLIP_PHONE.md for installing it and the keys.
 Not tested on a real phone: there is no Android device or emulator here. What is
 verified is the APK's structure and signatures (`aapt`, `apksigner`, v1–v3) and
 the phone build itself running in a 320×427 screen with the phone's user agent.
+
+### The phone's own buttons
+
+The app now catches every button in the activity (`dispatchKeyEvent`) and
+hands the page the computer key it stands for; `window.bochurKey` in
+`index.html` turns that into an ordinary key press, so the game needed no
+change. D-pad walks, ducks and jumps (up or OK), the left soft key swaps
+brothers, the right soft key uses your form, Call and ✱ switch run, the clear
+key does nothing, and volume, Back and power do what they always do. Left to the
+WebView, a flip phone's D-pad can drive a focus ring and its soft keys, Call
+and ✱ may never reach the page. A bar along the bottom of the screen labels the
+soft keys, as flip phones do. Tested by driving the game only through that
+bridge, with the codes the app sends: every button did what the guide says.
