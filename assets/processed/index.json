@@ -14,11 +14,67 @@
       "frameHeight": 28,
       "frames": 8
     },
+    "sprites/mendy_cholent.png": {
+      "atlas": "characters",
+      "frame": "mendy_cholent",
+      "frameWidth": 26,
+      "frameHeight": 36,
+      "frames": 8
+    },
+    "sprites/mendy_menorah.png": {
+      "atlas": "characters",
+      "frame": "mendy_menorah",
+      "frameWidth": 26,
+      "frameHeight": 36,
+      "frames": 8
+    },
+    "sprites/mendy_lulav.png": {
+      "atlas": "characters",
+      "frame": "mendy_lulav",
+      "frameWidth": 26,
+      "frameHeight": 36,
+      "frames": 8
+    },
+    "sprites/mendy_peyos.png": {
+      "atlas": "characters",
+      "frame": "mendy_peyos",
+      "frameWidth": 26,
+      "frameHeight": 36,
+      "frames": 8
+    },
     "sprites/berel_small.png": {
       "atlas": "characters",
       "frame": "berel_small",
       "frameWidth": 26,
       "frameHeight": 30,
+      "frames": 8
+    },
+    "sprites/berel_cholent.png": {
+      "atlas": "characters",
+      "frame": "berel_cholent",
+      "frameWidth": 28,
+      "frameHeight": 41,
+      "frames": 8
+    },
+    "sprites/berel_menorah.png": {
+      "atlas": "characters",
+      "frame": "berel_menorah",
+      "frameWidth": 28,
+      "frameHeight": 41,
+      "frames": 8
+    },
+    "sprites/berel_lulav.png": {
+      "atlas": "characters",
+      "frame": "berel_lulav",
+      "frameWidth": 28,
+      "frameHeight": 41,
+      "frames": 8
+    },
+    "sprites/berel_peyos.png": {
+      "atlas": "characters",
+      "frame": "berel_peyos",
+      "frameWidth": 28,
+      "frameHeight": 41,
       "frames": 8
     }
   }

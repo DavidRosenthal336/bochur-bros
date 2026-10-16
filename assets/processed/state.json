@@ -16,5 +16,77 @@
       "assets/processed/hd/sprites/berel_small.png"
     ],
     "at": "2026-10-16T01:15:19.869Z"
+  },
+  "mendy_cholent": {
+    "status": "processed",
+    "hash": "a93cd1f338cfca168463a078c027f42568bb3f5e",
+    "outputs": [
+      "assets/processed/sheets/mendy_cholent.png",
+      "assets/processed/hd/sprites/mendy_cholent.png"
+    ],
+    "at": "2026-10-16T01:23:57.368Z"
+  },
+  "mendy_menorah": {
+    "status": "processed",
+    "hash": "f5e2fc32b8bbcdba6e63630ac5c1342300b42bd7",
+    "outputs": [
+      "assets/processed/sheets/mendy_menorah.png",
+      "assets/processed/hd/sprites/mendy_menorah.png"
+    ],
+    "at": "2026-10-16T01:23:57.909Z"
+  },
+  "mendy_lulav": {
+    "status": "processed",
+    "hash": "79af4dc4989d13c63ee7d5bcc6ede78a729b9681",
+    "outputs": [
+      "assets/processed/sheets/mendy_lulav.png",
+      "assets/processed/hd/sprites/mendy_lulav.png"
+    ],
+    "at": "2026-10-16T01:23:58.293Z"
+  },
+  "mendy_peyos": {
+    "status": "processed",
+    "hash": "d4c71c7344b031726bdd8063d193c56d4ef49092",
+    "outputs": [
+      "assets/processed/sheets/mendy_peyos.png",
+      "assets/processed/hd/sprites/mendy_peyos.png"
+    ],
+    "at": "2026-10-16T01:23:58.678Z"
+  },
+  "berel_cholent": {
+    "status": "processed",
+    "hash": "575911c6724c4cc9d44dc119254df9d29484fd45",
+    "outputs": [
+      "assets/processed/sheets/berel_cholent.png",
+      "assets/processed/hd/sprites/berel_cholent.png"
+    ],
+    "at": "2026-10-16T01:23:59.150Z"
+  },
+  "berel_menorah": {
+    "status": "processed",
+    "hash": "5ad0981688c6af813ab015d26aa9289ea26d451c",
+    "outputs": [
+      "assets/processed/sheets/berel_menorah.png",
+      "assets/processed/hd/sprites/berel_menorah.png"
+    ],
+    "at": "2026-10-16T01:23:59.501Z"
+  },
+  "berel_lulav": {
+    "status": "processed",
+    "hash": "219e7a0132e3b24ef635f990d80951354026e1d4",
+    "outputs": [
+      "assets/processed/sheets/berel_lulav.png",
+      "assets/processed/hd/sprites/berel_lulav.png"
+    ],
+    "at": "2026-10-16T01:23:59.871Z"
+  },
+  "berel_peyos": {
+    "status": "processed",
+    "hash": "357edc4f0ba003fd4a4603b92f2e3bde750c25e8",
+    "outputs": [
+      "assets/processed/sheets/berel_peyos.png",
+      "assets/processed/hd/sprites/berel_peyos.png"
+    ],
+    "at": "2026-10-16T01:24:00.237Z"
   }
 }

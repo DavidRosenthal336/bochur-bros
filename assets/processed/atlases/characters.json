@@ -3,7 +3,7 @@
   "mendy_small": {
    "frame": {
     "x": 2,
-    "y": 34,
+    "y": 358,
     "w": 192,
     "h": 28
    },
@@ -20,10 +20,90 @@
     "h": 28
    }
   },
+  "mendy_cholent": {
+   "frame": {
+    "x": 2,
+    "y": 174,
+    "w": 208,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 36
+   }
+  },
+  "mendy_menorah": {
+   "frame": {
+    "x": 2,
+    "y": 212,
+    "w": 208,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 36
+   }
+  },
+  "mendy_lulav": {
+   "frame": {
+    "x": 2,
+    "y": 250,
+    "w": 208,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 36
+   }
+  },
+  "mendy_peyos": {
+   "frame": {
+    "x": 2,
+    "y": 288,
+    "w": 208,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 36
+   }
+  },
   "berel_small": {
    "frame": {
     "x": 2,
-    "y": 2,
+    "y": 326,
     "w": 208,
     "h": 30
    },
@@ -39,6 +119,86 @@
     "w": 208,
     "h": 30
    }
+  },
+  "berel_cholent": {
+   "frame": {
+    "x": 2,
+    "y": 2,
+    "w": 224,
+    "h": 41
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 41
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 41
+   }
+  },
+  "berel_menorah": {
+   "frame": {
+    "x": 2,
+    "y": 45,
+    "w": 224,
+    "h": 41
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 41
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 41
+   }
+  },
+  "berel_lulav": {
+   "frame": {
+    "x": 2,
+    "y": 88,
+    "w": 224,
+    "h": 41
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 41
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 41
+   }
+  },
+  "berel_peyos": {
+   "frame": {
+    "x": 2,
+    "y": 131,
+    "w": 224,
+    "h": 41
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 41
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 41
+   }
   }
  },
  "meta": {
@@ -46,8 +206,8 @@
   "image": "characters.png",
   "format": "RGBA8888",
   "size": {
-   "w": 212,
-   "h": 64
+   "w": 228,
+   "h": 388
   },
   "scale": "1"
  }
