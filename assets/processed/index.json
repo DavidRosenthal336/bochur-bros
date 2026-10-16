@@ -13,6 +13,13 @@
       "frameWidth": 24,
       "frameHeight": 28,
       "frames": 8
+    },
+    "sprites/berel_small.png": {
+      "atlas": "characters",
+      "frame": "berel_small",
+      "frameWidth": 26,
+      "frameHeight": 30,
+      "frames": 8
     }
   }
 }

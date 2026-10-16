@@ -7,5 +7,14 @@
       "assets/processed/hd/sprites/mendy_small.png"
     ],
     "at": "2026-10-16T01:00:07.554Z"
+  },
+  "berel_small": {
+    "status": "processed",
+    "hash": "d65a65ea49b3a2e5cbb6fc2beff8fb0090db46f7",
+    "outputs": [
+      "assets/processed/sheets/berel_small.png",
+      "assets/processed/hd/sprites/berel_small.png"
+    ],
+    "at": "2026-10-16T01:15:19.869Z"
   }
 }
