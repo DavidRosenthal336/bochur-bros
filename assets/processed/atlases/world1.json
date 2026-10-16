@@ -1,0 +1,134 @@
+{
+ "frames": {
+  "goal_meat_board": {
+   "frame": {
+    "x": 2,
+    "y": 88,
+    "w": 36,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 34
+   }
+  },
+  "cart": {
+   "frame": {
+    "x": 122,
+    "y": 88,
+    "w": 26,
+    "h": 22
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 22
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 22
+   }
+  },
+  "van": {
+   "frame": {
+    "x": 40,
+    "y": 88,
+    "w": 50,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 50,
+    "h": 32
+   }
+  },
+  "scaffold_pipe": {
+   "frame": {
+    "x": 2,
+    "y": 2,
+    "w": 16,
+    "h": 44
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 44
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 44
+   }
+  },
+  "stroller": {
+   "frame": {
+    "x": 92,
+    "y": 88,
+    "w": 28,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 30
+   }
+  },
+  "pigeon_king": {
+   "frame": {
+    "x": 2,
+    "y": 48,
+    "w": 176,
+    "h": 38
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 38
+   },
+   "sourceSize": {
+    "w": 176,
+    "h": 38
+   }
+  }
+ },
+ "meta": {
+  "app": "bochur-bros process-assets",
+  "image": "world1.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 180,
+   "h": 124
+  },
+  "scale": "1"
+ }
+}

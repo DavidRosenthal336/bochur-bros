@@ -178,5 +178,68 @@
       "assets/processed/hd/sprites/powerup_peyos.png"
     ],
     "at": "2026-10-16T01:39:10.033Z"
+  },
+  "checkpoint": {
+    "status": "processed",
+    "hash": "9fcf06646cf67448b9296f76635dee4991549aec",
+    "outputs": [
+      "assets/processed/sheets/checkpoint.png",
+      "assets/processed/hd/sprites/checkpoint.png"
+    ],
+    "at": "2026-10-16T02:50:19.870Z"
+  },
+  "goal_meat_board": {
+    "status": "processed",
+    "hash": "ecc1f017efde251a0b46911efa75ffe2197efd14",
+    "outputs": [
+      "assets/processed/sheets/goal_meat_board.png",
+      "assets/processed/hd/sprites/goal_meat_board.png"
+    ],
+    "at": "2026-10-16T02:50:20.062Z"
+  },
+  "cart": {
+    "status": "processed",
+    "hash": "0cb04c258f6a2eb8a7a0b496fdbb917477d4ca4c",
+    "outputs": [
+      "assets/processed/sheets/cart.png",
+      "assets/processed/hd/sprites/cart.png"
+    ],
+    "at": "2026-10-16T02:50:20.254Z"
+  },
+  "van": {
+    "status": "processed",
+    "hash": "7e1377219b6c953a84cd99d0d7767e554eb47db4",
+    "outputs": [
+      "assets/processed/sheets/van.png",
+      "assets/processed/hd/sprites/van.png"
+    ],
+    "at": "2026-10-16T02:50:20.505Z"
+  },
+  "scaffold_pipe": {
+    "status": "processed",
+    "hash": "660137a692d0490e2ea5c0f31775a4e04ce332fe",
+    "outputs": [
+      "assets/processed/sheets/scaffold_pipe.png",
+      "assets/processed/hd/sprites/scaffold_pipe.png"
+    ],
+    "at": "2026-10-16T02:50:20.628Z"
+  },
+  "stroller": {
+    "status": "processed",
+    "hash": "0755b915e4c592a5aa0dffe4896b99c07a51e9bf",
+    "outputs": [
+      "assets/processed/sheets/stroller.png",
+      "assets/processed/hd/sprites/stroller.png"
+    ],
+    "at": "2026-10-16T02:50:20.747Z"
+  },
+  "pigeon_king": {
+    "status": "processed",
+    "hash": "2a0086f25b093c68fe20fa49f4f116e98fa892d1",
+    "outputs": [
+      "assets/processed/sheets/pigeon_king.png",
+      "assets/processed/hd/sprites/pigeon_king.png"
+    ],
+    "at": "2026-10-16T02:50:45.875Z"
   }
 }
