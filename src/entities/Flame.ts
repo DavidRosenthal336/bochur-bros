@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
-import { ACTOR_SPRITES } from '../config/sprites';
 import { POWERS } from '../config/Tuning';
-import { applyActorArt, playPose } from '../util/art';
+import { actorArt, applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 
 /**
@@ -24,8 +23,13 @@ export class Flame extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(8);
 
     const body = this.physicsBody;
-    applyActorArt(this, ACTOR_SPRITES.flame, size, size);
-    playPose(this, ACTOR_SPRITES.flame, 'burn');
+    const art = actorArt('flame');
+    if (art) {
+      applyActorArt(this, art, size, size);
+      playPose(this, art, 'burn');
+    } else {
+      this.setTint(0xffa030);
+    }
     body.setAllowGravity(true);
     body.setGravityY(POWERS.menorah.gravity);
     body.setVelocity(direction * POWERS.menorah.speed, -60);

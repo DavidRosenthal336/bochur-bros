@@ -1,8 +1,16 @@
 import Phaser from 'phaser';
-import { ACTOR_SPRITES } from '../config/sprites';
+import type { ActorSpriteName } from '../config/sprites';
 import { GAMEPLAY, TILE } from '../config/Tuning';
 import type { PowerTier } from '../systems/PowerState';
-import { applyActorArt, playPose } from '../util/art';
+import { actorArt, applyActorArt, playPose } from '../util/art';
+
+/** Each power-up's own drawing, when the art pipeline has made one. */
+const PICKUP_ART: Partial<Record<PowerTier, ActorSpriteName>> = {
+  cholent: 'powerUpCholent',
+  menorah: 'powerUpMenorah',
+  lulav: 'powerUpLulav',
+  peyos: 'powerUpPeyos',
+};
 import { solidTextureKey } from '../util/textures';
 
 /** What a pickup gives you when you touch it. */
@@ -25,8 +33,14 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
     const body = this.physicsBody;
     body.setAllowGravity(false);
     body.setImmovable(true);
-    applyActorArt(this, ACTOR_SPRITES.coin, 8, 10);
-    playPose(this, ACTOR_SPRITES.coin, 'spin');
+    // Drawn if there is a drawing (with ?art=new there may not be); a gold box if not.
+    const coin = actorArt('coin');
+    if (coin) {
+      applyActorArt(this, coin, 8, 10);
+      playPose(this, coin, 'spin');
+    } else {
+      this.setTint(0xf2c440);
+    }
 
     // A slow bob, so coins read as collectable rather than as scenery.
     scene.tweens.add({
@@ -100,10 +114,16 @@ export class PowerUpPickup extends Phaser.Physics.Arcade.Sprite {
     // One drawing for all four power-ups, tinted to the form it grants: a
     // covered pot is a covered pot, and what is under the lid is the surprise.
     // A L'chaim is its own thing and keeps its own colours.
-    const art = givesLife ? ACTOR_SPRITES.lchaim : ACTOR_SPRITES.powerUp;
-    applyActorArt(this, art, givesLife ? 10 : 14, 14);
-    playPose(this, art, 'idle');
-    if (!givesLife) this.setTint(color);
+    //
+    // Unless the power-up has a drawing of its own (ASSETS.md), which is shown
+    // as drawn.
+    const own = givesLife ? undefined : actorArt(PICKUP_ART[grants]);
+    const art = givesLife ? actorArt('lchaim') : (own ?? actorArt('powerUp'));
+    if (art) {
+      applyActorArt(this, art, givesLife ? 10 : 14, 14);
+      playPose(this, art, 'idle');
+    }
+    if (!own && (!givesLife || !art)) this.setTint(givesLife ? 0xc8324a : color);
 
     body.setAllowGravity(true);
     body.setGravityY(1400);

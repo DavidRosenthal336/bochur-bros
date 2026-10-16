@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs';
+import { cpSync, createReadStream, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, posix, relative, sep } from 'node:path';
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vite';
@@ -78,8 +78,71 @@ function availableArt(): Plugin {
   };
 }
 
+/**
+ * The art pipeline's output (`npm run assets`, see ASSETS.md).
+ *
+ * It lives in assets/processed/ rather than public/, so the pipeline can never
+ * touch the art the game already has. This plugin is how the game sees it:
+ *
+ * - `virtual:processed-art` is assets/processed/index.json — which assets have
+ *   new art, and where (an atlas frame, or a file).
+ * - In development, /processed/... is served straight from assets/processed/.
+ * - In a build, the game-ready files are copied to processed/ in the output.
+ *   The 1080p masters (hd/) and the pipeline's bookkeeping are left behind:
+ *   the game does not draw them.
+ */
+function processedArt(): Plugin {
+  const ID = 'virtual:processed-art';
+  const ROOT = 'assets/processed';
+  const INDEX = `${ROOT}/index.json`;
+  let outDir = 'dist';
+  const TYPES: Record<string, string> = { '.png': 'image/png', '.json': 'application/json' };
+
+  return {
+    name: 'processed-art',
+    configResolved(config) {
+      outDir = config.build.outDir;
+    },
+    resolveId: (id) => (id === ID ? `\0${ID}` : null),
+    load(id) {
+      if (id !== `\0${ID}`) return null;
+      const index = existsSync(INDEX) ? readFileSync(INDEX, 'utf8') : '{"scale":6,"atlases":{},"entries":{}}';
+      return `export const PROCESSED = ${index};`;
+    },
+    configureServer(server) {
+      server.watcher.add(INDEX);
+      server.watcher.on('change', (path) => {
+        if (!path.endsWith('index.json') || !path.includes('processed')) return;
+        const module = server.moduleGraph.getModuleById(`\0${ID}`);
+        if (module) server.moduleGraph.invalidateModule(module);
+        server.ws.send({ type: 'full-reload' });
+      });
+      server.middlewares.use((req, res, next) => {
+        const url = (req.url ?? '').split('?')[0] ?? '';
+        if (!url.startsWith('/processed/')) return next();
+        const file = join(ROOT, decodeURIComponent(url.slice('/processed/'.length)));
+        if (file.includes('..') || !existsSync(file) || !statSync(file).isFile()) return next();
+        const ext = file.slice(file.lastIndexOf('.'));
+        res.setHeader('Content-Type', TYPES[ext] ?? 'application/octet-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        createReadStream(file).pipe(res);
+      });
+    },
+    closeBundle() {
+      if (!existsSync(ROOT)) return;
+      cpSync(ROOT, join(outDir, 'processed'), {
+        recursive: true,
+        filter: (src) => {
+          const rel = relative(ROOT, src).split(sep).join(posix.sep);
+          return !(rel === 'hd' || rel.startsWith('hd/') || rel === 'sheets' || rel.startsWith('sheets/') || rel === 'state.json');
+        },
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [tiledMaps(), availableArt()],
+  plugins: [tiledMaps(), availableArt(), processedArt()],
   base: './',
   server: {
     host: true,

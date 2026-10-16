@@ -1,4 +1,5 @@
 import { AVAILABLE_ART } from 'virtual:available-art';
+import { ART_MODE, processedArt } from './processedArt';
 
 /**
  * Scenery: the backdrops, the level furniture and the interface art.
@@ -10,8 +11,14 @@ import { AVAILABLE_ART } from 'virtual:available-art';
  * concerned, and whatever was drawing a rectangle before carries on doing so.
  */
 
-/** Is this file actually in `public/`? Decided at build time, not fetch time. */
-export const artExists = (url: string): boolean => AVAILABLE_ART.has(url);
+/**
+ * Is there art for this path? Decided at build time, not fetch time.
+ *
+ * Either the art pipeline has processed it (see `processedArt.ts`), or the file
+ * is in `public/`. With `?art=new` only the first counts.
+ */
+export const artExists = (url: string): boolean =>
+  processedArt(url) !== undefined || (ART_MODE !== 'new' && AVAILABLE_ART.has(url));
 
 // ------------------------------------------------------------- backdrops ---
 
@@ -159,6 +166,8 @@ export const SCENERY = {
     empty: 4,
   }),
   hudIcons: scenery('hud_icons', 'ui/hud_icons', 8, 8, { coin: 0, life: 1, clock: 2 }),
+  /** The title, drawn (ASSETS.md). The map screen writes it in text until it exists. */
+  titleLogo: scenery('title_logo', 'ui/title_logo', 160, 24),
 } as const satisfies Record<string, SceneryArt>;
 
 export type SceneryName = keyof typeof SCENERY;

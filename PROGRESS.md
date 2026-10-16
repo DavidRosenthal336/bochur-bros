@@ -1713,3 +1713,37 @@ the air; it is a second jump button for them), and a dimmed **POWER** when small
 or in the Cholent, whose power is passive. Checked on an emulated phone, form
 by form: the label and the lighting change, THROW throws, SWING swings, and
 holding FLY flew 118px. The flip phone's soft-key bar and guide say POWER too.
+
+## Side project: an art pipeline for ChatGPT art
+
+The game before this, kept as the restore point: commit `fbbf456` on this branch
+(also tagged `v1-before-art-pipeline` locally — the session cannot push tags),
+Artifact Version 37, and its Vercel deployment. Everything below is additive: with
+no new art the game is exactly what it was (1-1 played through identically).
+
+- **`tools/assets/manifest.mjs`** — every graphic the game draws, 138 of them:
+  ten character sheets, enemies, hazards, bosses, the Yetzer Hara, every tile in
+  the four worlds, every parallax layer, boxes, coins, power-ups, HUD, map UI and
+  a title logo. Sizes are game pixels; the 1080p size is 6x, because the game is
+  built on a 320x180 screen. Frame orders match the game's sheets — checked
+  every run against the existing art (all 133 that exist match).
+- **`ASSETS.md`** — generated from it: per asset the file to drop, sizes at 1080p,
+  frames and poses, the anchor, a reference image, and a ready-to-paste ChatGPT
+  prompt; grouped Mendy & Berel, then World 1, then the rest; with a status table.
+- **`npm run assets`** (`scripts/process-assets.mjs`) — for new or changed files
+  in `assets/raw/`: keeps real transparency, keys out #FF00FF, flood-fills a flat
+  background as a last resort; finds each frame (or cuts the prompt's grid),
+  trims, scales all frames by one factor, stands them on one baseline; writes a
+  1080p master and a game-size copy snapped to the pixel grid; packs atlases per
+  group; writes `assets/processed/index.json`; updates statuses in ASSETS.md.
+- **The game** loads processed art in place of the old for the same path (atlas
+  sheets cut back out under the same texture keys, so no animation code
+  changed), keeps the old art for everything else, and draws boxes where there is
+  neither. `?art=new` shows only the new art; `?art=old` ignores it.
+- **`npm run assets:generate`** — a stub for the OpenAI image API, switched off in
+  code; it lists what is missing and spends nothing. `.env` is gitignored.
+
+Tested with made-up raw images (magenta sheet, real-alpha strip, flat white
+background, opaque tile and sky, a lone frame, a misnamed file): each handled as
+intended, frames cut at the right places in the atlas, and the build ships the
+atlases but not the masters. The test images were removed afterwards.

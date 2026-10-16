@@ -101,13 +101,19 @@ export class WorldMapScene extends Phaser.Scene {
   }
 
   private drawChrome(): void {
-    this.add
-      .text(VIEW_WIDTH / 2, 6, 'BOCHUR BROS', {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: '#e8d9b0',
-      })
-      .setOrigin(0.5, 0);
+    // The drawn title (ASSETS.md) when there is one, the written one until then.
+    const logo = sceneryArt('titleLogo');
+    if (logo) {
+      this.add.image(VIEW_WIDTH / 2, 1, logo.key, 0).setOrigin(0.5, 0);
+    } else {
+      this.add
+        .text(VIEW_WIDTH / 2, 6, 'BOCHUR BROS', {
+          fontFamily: 'monospace',
+          fontSize: '16px',
+          color: '#e8d9b0',
+        })
+        .setOrigin(0.5, 0);
+    }
 
     this.add
       .text(VIEW_WIDTH / 2, 24, 'get the kiddush back', {

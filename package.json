@@ -16,13 +16,16 @@
     "art": "python3 tools/art/generate.py --out public/sprites",
     "art:scenery": "python3 tools/art/scenery.py --out public/sprites",
     "art:icon": "python3 tools/art/icon.py",
-    "build:apk": "bash scripts/build-apk.sh"
+    "build:apk": "bash scripts/build-apk.sh",
+    "assets": "node scripts/process-assets.mjs",
+    "assets:generate": "node scripts/generate-assets.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.1",
+    "sharp": "^0.34.5",
     "typescript": "^7.0.2",
     "vite": "^8.3.0"
   }

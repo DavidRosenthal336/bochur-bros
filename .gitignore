@@ -22,3 +22,8 @@ playtest/
 # The flip-phone build (scripts/build-apk.sh).
 dist-flip/
 build/
+
+# Secrets. .env holds the OpenAI key for scripts/generate-assets.mjs.
+.env
+.env.*
+!.env.example

@@ -233,6 +233,12 @@ export const ACTOR_SPRITES = {
   flame: actor('menorah_flame', 8, 8, { burn: [0, 1] }, { fps: 12, originY: 0.5 }),
   lchaim: actor('lchaim', 10, 14, { idle: 0 }),
   powerUp: actor('powerup_pickup', 14, 14, { idle: 0 }),
+  // One drawing per power-up, from the art pipeline (ASSETS.md). Until one
+  // exists, its power-up is the covered pot above, tinted.
+  powerUpCholent: actor('powerup_cholent', 14, 14, { idle: 0 }),
+  powerUpMenorah: actor('powerup_menorah', 14, 14, { idle: 0 }),
+  powerUpLulav: actor('powerup_lulav', 14, 14, { idle: 0 }),
+  powerUpPeyos: actor('powerup_peyos', 14, 14, { idle: 0 }),
   mysteryBox: actor('mystery_box', 16, 16, { idle: 0 }),
   boxUsed: actor('box_used', 16, 16, { idle: 0 }),
   crate: actor('crate', 16, 16, { idle: 0 }),
