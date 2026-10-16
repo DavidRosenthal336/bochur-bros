@@ -336,7 +336,7 @@ function gridCells(img, [cols, rows], count) {
  * commonest one in it rather than an average. This is what turns a large
  * pixel-art drawing back into clean game-size pixel art instead of a blur.
  */
-function pixelDownscale(img, k) {
+function pixelDownscale(img, k, soft = false) {
   const W = Math.floor(img.w / k), H = Math.floor(img.h / k);
   const out = blank(W, H);
   const counts = new Map();
@@ -357,7 +357,14 @@ function pixelDownscale(img, k) {
       }
       if (solid * 2 < k * k) continue;
       let best;
-      for (const c of counts.values()) if (!best || c.n > best.n) best = c;
+      if (soft) {
+        // Small things drawn with more detail than they have pixels: the
+        // average keeps their colour, where the commonest shade is the outline.
+        best = { n: 0, r: 0, g: 0, b: 0 };
+        for (const c of counts.values()) { best.n += c.n; best.r += c.r; best.g += c.g; best.b += c.b; }
+      } else {
+        for (const c of counts.values()) if (!best || c.n > best.n) best = c;
+      }
       const o = (y * W + x) * 4;
       out.d[o] = Math.round(best.r / best.n); out.d[o + 1] = Math.round(best.g / best.n); out.d[o + 2] = Math.round(best.b / best.n); out.d[o + 3] = 255;
     }
@@ -429,6 +436,18 @@ async function processSheet(asset, raws, log) {
   const missing = asset.frames.filter((f) => !drawings.has(f));
   if (missing.length) throw new Error(`missing frame(s): ${missing.join(', ')}`);
 
+  // Blocks fill their tile edge to edge, so a row of them meets with no seam.
+  if (asset.fill) {
+    const hd = blank(cw * asset.frames.length, ch);
+    for (const [i, name] of asset.frames.entries()) {
+      paste(hd, await resize(drawings.get(name), cw, ch), i * cw, 0);
+    }
+    const game = pixelDownscale(hd, SCALE, asset.soft);
+    await save(hd, join(HD, asset.url));
+    await save(game, join(SHEETS, `${asset.id}.png`));
+    return { sheet: join(SHEETS, `${asset.id}.png`), hd: join(HD, asset.url) };
+  }
+
   // One scale for every frame, so a crouch is smaller than a stand rather than
   // blown up to the same height. A one-game-pixel margin all round.
   const pad = SCALE;
@@ -444,7 +463,7 @@ async function processSheet(asset, raws, log) {
     const y = asset.anchor === 'center' ? Math.round((ch - r.h) / 2) : ch - r.h;
     paste(hd, r, x, y);
   }
-  const game = pixelDownscale(hd, SCALE);
+  const game = pixelDownscale(hd, SCALE, asset.soft);
   if (game.w !== fw * asset.frames.length || game.h !== fh) throw new Error('size mismatch after downscale');
   await save(hd, join(HD, asset.url));
   await save(game, join(SHEETS, `${asset.id}.png`));
@@ -458,7 +477,7 @@ async function processWhole(asset, raws, log) {
   const how = removeBackground(img, 'solid');
   const [w, h] = hdSize(asset);
   const hd = await resize(img, w, h, 'cover');
-  const game = pixelDownscale(hd, SCALE);
+  const game = pixelDownscale(hd, SCALE, asset.soft);
   await save(hd, join(HD, asset.url));
   await save(game, join(OUT, asset.url));
   log.push(`${raw.file}: background ${how}, ${w}x${h} master, ${game.w}x${game.h} in game`);
@@ -632,7 +651,7 @@ function writeDoc(state, unknown) {
       if (a.kind === 'sheet') {
         out.push(`- **Size:** ${w}×${h} px per frame at 1080p (${a.size[0]}×${a.size[1]} in game); whole sheet ${w * a.frames.length}×${h}`);
         out.push(`- **Frames (${a.frames.length}):** ${a.frames.map((f) => `\`${f}\``).join(', ')}${a.frames.length > 1 ? ` — drawn as a ${a.layout[0]}×${a.layout[1]} grid` : ''}`);
-        out.push(`- **Anchor:** ${a.anchor === 'center' ? 'centred in the frame' : 'bottom centre (feet on the frame\'s bottom edge)'}`);
+        out.push(`- **Anchor:** ${a.fill ? 'fills the whole tile, edge to edge' : a.anchor === 'center' ? 'centred in the frame' : 'bottom centre (feet on the frame\'s bottom edge)'}`);
       } else {
         out.push(`- **Size:** ${w}×${h} px at 1080p (${a.size[0]}×${a.size[1]} in game)${a.kind === 'tile' ? ', seamless on all sides' : ', seamless left to right'}`);
       }

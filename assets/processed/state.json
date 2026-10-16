@@ -6,7 +6,7 @@
       "assets/processed/sheets/mendy_small.png",
       "assets/processed/hd/sprites/mendy_small.png"
     ],
-    "at": "2026-10-16T01:00:07.554Z"
+    "at": "2026-10-16T01:35:33.760Z"
   },
   "berel_small": {
     "status": "processed",
@@ -15,7 +15,7 @@
       "assets/processed/sheets/berel_small.png",
       "assets/processed/hd/sprites/berel_small.png"
     ],
-    "at": "2026-10-16T01:15:19.869Z"
+    "at": "2026-10-16T01:35:35.976Z"
   },
   "mendy_cholent": {
     "status": "processed",
@@ -24,7 +24,7 @@
       "assets/processed/sheets/mendy_cholent.png",
       "assets/processed/hd/sprites/mendy_cholent.png"
     ],
-    "at": "2026-10-16T01:23:57.368Z"
+    "at": "2026-10-16T01:35:34.238Z"
   },
   "mendy_menorah": {
     "status": "processed",
@@ -33,7 +33,7 @@
       "assets/processed/sheets/mendy_menorah.png",
       "assets/processed/hd/sprites/mendy_menorah.png"
     ],
-    "at": "2026-10-16T01:23:57.909Z"
+    "at": "2026-10-16T01:35:34.734Z"
   },
   "mendy_lulav": {
     "status": "processed",
@@ -42,7 +42,7 @@
       "assets/processed/sheets/mendy_lulav.png",
       "assets/processed/hd/sprites/mendy_lulav.png"
     ],
-    "at": "2026-10-16T01:23:58.293Z"
+    "at": "2026-10-16T01:35:35.175Z"
   },
   "mendy_peyos": {
     "status": "processed",
@@ -51,7 +51,7 @@
       "assets/processed/sheets/mendy_peyos.png",
       "assets/processed/hd/sprites/mendy_peyos.png"
     ],
-    "at": "2026-10-16T01:23:58.678Z"
+    "at": "2026-10-16T01:35:35.602Z"
   },
   "berel_cholent": {
     "status": "processed",
@@ -60,7 +60,7 @@
       "assets/processed/sheets/berel_cholent.png",
       "assets/processed/hd/sprites/berel_cholent.png"
     ],
-    "at": "2026-10-16T01:23:59.150Z"
+    "at": "2026-10-16T01:35:36.318Z"
   },
   "berel_menorah": {
     "status": "processed",
@@ -69,7 +69,7 @@
       "assets/processed/sheets/berel_menorah.png",
       "assets/processed/hd/sprites/berel_menorah.png"
     ],
-    "at": "2026-10-16T01:23:59.501Z"
+    "at": "2026-10-16T01:35:36.629Z"
   },
   "berel_lulav": {
     "status": "processed",
@@ -78,7 +78,7 @@
       "assets/processed/sheets/berel_lulav.png",
       "assets/processed/hd/sprites/berel_lulav.png"
     ],
-    "at": "2026-10-16T01:23:59.871Z"
+    "at": "2026-10-16T01:35:37.020Z"
   },
   "berel_peyos": {
     "status": "processed",
@@ -87,6 +87,87 @@
       "assets/processed/sheets/berel_peyos.png",
       "assets/processed/hd/sprites/berel_peyos.png"
     ],
-    "at": "2026-10-16T01:24:00.237Z"
+    "at": "2026-10-16T01:35:37.424Z"
+  },
+  "peyos_hat": {
+    "status": "processed",
+    "hash": "e4c1d7069fab1f4f2228613910f0634340acf212",
+    "outputs": [
+      "assets/processed/sheets/peyos_hat.png",
+      "assets/processed/hd/sprites/peyos_hat.png"
+    ],
+    "at": "2026-10-16T01:35:37.653Z"
+  },
+  "menorah_flame": {
+    "status": "processed",
+    "hash": "b015fadaade4bbae0af4bb633bec69e55122e71b",
+    "outputs": [
+      "assets/processed/sheets/menorah_flame.png",
+      "assets/processed/hd/sprites/menorah_flame.png"
+    ],
+    "at": "2026-10-16T01:35:37.887Z"
+  },
+  "coin": {
+    "status": "processed",
+    "hash": "56abb1585899480846be6af27ac20a29722a2728",
+    "outputs": [
+      "assets/processed/sheets/coin.png",
+      "assets/processed/hd/sprites/coin.png"
+    ],
+    "at": "2026-10-16T01:35:38.166Z"
+  },
+  "mystery_box": {
+    "status": "processed",
+    "hash": "94db8b9b67f0aa64d6a226d70074e0ebc167b2d9",
+    "outputs": [
+      "assets/processed/sheets/mystery_box.png",
+      "assets/processed/hd/sprites/mystery_box.png"
+    ],
+    "at": "2026-10-16T01:35:38.396Z"
+  },
+  "box_used": {
+    "status": "processed",
+    "hash": "2f7f7eff47d5332892b5afbe14869b4cd2bc3834",
+    "outputs": [
+      "assets/processed/sheets/box_used.png",
+      "assets/processed/hd/sprites/box_used.png"
+    ],
+    "at": "2026-10-16T01:35:38.602Z"
+  },
+  "powerup_cholent": {
+    "status": "processed",
+    "hash": "0293f7bcfbaaacc55e3a93a205bffd313378f1f7",
+    "outputs": [
+      "assets/processed/sheets/powerup_cholent.png",
+      "assets/processed/hd/sprites/powerup_cholent.png"
+    ],
+    "at": "2026-10-16T01:35:38.814Z"
+  },
+  "powerup_menorah": {
+    "status": "processed",
+    "hash": "2c996bd9a2db6db9a16d10492ad79b7be357d311",
+    "outputs": [
+      "assets/processed/sheets/powerup_menorah.png",
+      "assets/processed/hd/sprites/powerup_menorah.png"
+    ],
+    "at": "2026-10-16T01:35:39.033Z"
+  },
+  "powerup_lulav": {
+    "status": "processed",
+    "hash": "b84beb619a92fc38d3864964eec470cdab6bd1a0",
+    "outputs": [
+      "assets/processed/sheets/powerup_lulav.png",
+      "assets/processed/hd/sprites/powerup_lulav.png"
+    ],
+    "at": "2026-10-16T01:35:39.299Z"
+  },
+  "lchaim": {
+    "status": "processed",
+    "hash": "cac4a4209675fa89022bd65d150bdba495d95b20",
+    "outputs": [
+      "assets/processed/sheets/lchaim.png",
+      "assets/processed/hd/sprites/lchaim.png"
+    ],
+    "at": "2026-10-16T01:35:39.562Z"
   }
 }

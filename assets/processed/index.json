@@ -4,6 +4,10 @@
     "characters": {
       "image": "processed/atlases/characters.png",
       "data": "processed/atlases/characters.json"
+    },
+    "shared": {
+      "image": "processed/atlases/shared.png",
+      "data": "processed/atlases/shared.json"
     }
   },
   "entries": {
@@ -76,6 +80,69 @@
       "frameWidth": 28,
       "frameHeight": 41,
       "frames": 8
+    },
+    "sprites/peyos_hat.png": {
+      "atlas": "characters",
+      "frame": "peyos_hat",
+      "frameWidth": 12,
+      "frameHeight": 6,
+      "frames": 1
+    },
+    "sprites/menorah_flame.png": {
+      "atlas": "characters",
+      "frame": "menorah_flame",
+      "frameWidth": 8,
+      "frameHeight": 8,
+      "frames": 2
+    },
+    "sprites/coin.png": {
+      "atlas": "shared",
+      "frame": "coin",
+      "frameWidth": 8,
+      "frameHeight": 10,
+      "frames": 4
+    },
+    "sprites/mystery_box.png": {
+      "atlas": "shared",
+      "frame": "mystery_box",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/box_used.png": {
+      "atlas": "shared",
+      "frame": "box_used",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/powerup_cholent.png": {
+      "atlas": "shared",
+      "frame": "powerup_cholent",
+      "frameWidth": 14,
+      "frameHeight": 14,
+      "frames": 1
+    },
+    "sprites/powerup_menorah.png": {
+      "atlas": "shared",
+      "frame": "powerup_menorah",
+      "frameWidth": 14,
+      "frameHeight": 14,
+      "frames": 1
+    },
+    "sprites/powerup_lulav.png": {
+      "atlas": "shared",
+      "frame": "powerup_lulav",
+      "frameWidth": 14,
+      "frameHeight": 14,
+      "frames": 1
+    },
+    "sprites/lchaim.png": {
+      "atlas": "shared",
+      "frame": "lchaim",
+      "frameWidth": 10,
+      "frameHeight": 14,
+      "frames": 1
     }
   }
 }

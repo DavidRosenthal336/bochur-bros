@@ -199,6 +199,46 @@
     "w": 224,
     "h": 41
    }
+  },
+  "peyos_hat": {
+   "frame": {
+    "x": 214,
+    "y": 358,
+    "w": 12,
+    "h": 6
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 6
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 6
+   }
+  },
+  "menorah_flame": {
+   "frame": {
+    "x": 196,
+    "y": 358,
+    "w": 16,
+    "h": 8
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 8
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 8
+   }
   }
  },
  "meta": {
