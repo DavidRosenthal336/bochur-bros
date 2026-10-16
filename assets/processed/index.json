@@ -169,6 +169,20 @@
       "frameHeight": 34,
       "frames": 1
     },
+    "sprites/pigeon.png": {
+      "atlas": "world1",
+      "frame": "pigeon",
+      "frameWidth": 20,
+      "frameHeight": 16,
+      "frames": 6
+    },
+    "sprites/rat.png": {
+      "atlas": "world1",
+      "frame": "rat",
+      "frameWidth": 20,
+      "frameHeight": 14,
+      "frames": 3
+    },
     "sprites/cart.png": {
       "atlas": "world1",
       "frame": "cart",

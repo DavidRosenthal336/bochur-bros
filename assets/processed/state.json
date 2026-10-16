@@ -241,5 +241,23 @@
       "assets/processed/hd/sprites/pigeon_king.png"
     ],
     "at": "2026-10-16T02:50:45.875Z"
+  },
+  "pigeon": {
+    "status": "processed",
+    "hash": "1045fa7f2a6d35ae0761e9640059fb1d345290bf",
+    "outputs": [
+      "assets/processed/sheets/pigeon.png",
+      "assets/processed/hd/sprites/pigeon.png"
+    ],
+    "at": "2026-10-16T02:58:51.938Z"
+  },
+  "rat": {
+    "status": "processed",
+    "hash": "f50588a794eff958ce07d2f93e14e02a86f9e4ee",
+    "outputs": [
+      "assets/processed/sheets/rat.png",
+      "assets/processed/hd/sprites/rat.png"
+    ],
+    "at": "2026-10-16T02:58:52.525Z"
   }
 }

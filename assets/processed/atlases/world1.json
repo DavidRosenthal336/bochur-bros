@@ -20,6 +20,46 @@
     "h": 34
    }
   },
+  "pigeon": {
+   "frame": {
+    "x": 2,
+    "y": 124,
+    "w": 120,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 120,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 120,
+    "h": 16
+   }
+  },
+  "rat": {
+   "frame": {
+    "x": 2,
+    "y": 142,
+    "w": 60,
+    "h": 14
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 14
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 14
+   }
+  },
   "cart": {
    "frame": {
     "x": 122,
@@ -127,7 +167,7 @@
   "format": "RGBA8888",
   "size": {
    "w": 180,
-   "h": 124
+   "h": 158
   },
   "scale": "1"
  }
