@@ -145,12 +145,12 @@
   },
   "powerup_menorah": {
     "status": "processed",
-    "hash": "2c996bd9a2db6db9a16d10492ad79b7be357d311",
+    "hash": "4f87522c400410b9521dda090ac2ea699a5f9f83",
     "outputs": [
       "assets/processed/sheets/powerup_menorah.png",
       "assets/processed/hd/sprites/powerup_menorah.png"
     ],
-    "at": "2026-10-16T01:35:39.033Z"
+    "at": "2026-10-16T01:39:09.834Z"
   },
   "powerup_lulav": {
     "status": "processed",
@@ -169,5 +169,14 @@
       "assets/processed/hd/sprites/lchaim.png"
     ],
     "at": "2026-10-16T01:35:39.562Z"
+  },
+  "powerup_peyos": {
+    "status": "processed",
+    "hash": "26a2dfc51dcf50965979fe688635af9dc6acf917",
+    "outputs": [
+      "assets/processed/sheets/powerup_peyos.png",
+      "assets/processed/hd/sprites/powerup_peyos.png"
+    ],
+    "at": "2026-10-16T01:39:10.033Z"
   }
 }

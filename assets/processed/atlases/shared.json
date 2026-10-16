@@ -120,9 +120,29 @@
     "h": 14
    }
   },
-  "lchaim": {
+  "powerup_peyos": {
    "frame": {
     "x": 34,
+    "y": 20,
+    "w": 14,
+    "h": 14
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 14
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 14
+   }
+  },
+  "lchaim": {
+   "frame": {
+    "x": 50,
     "y": 20,
     "w": 10,
     "h": 14

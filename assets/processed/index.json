@@ -137,6 +137,13 @@
       "frameHeight": 14,
       "frames": 1
     },
+    "sprites/powerup_peyos.png": {
+      "atlas": "shared",
+      "frame": "powerup_peyos",
+      "frameWidth": 14,
+      "frameHeight": 14,
+      "frames": 1
+    },
     "sprites/lchaim.png": {
       "atlas": "shared",
       "frame": "lchaim",
