@@ -1,1 +1,11 @@
-{}
+{
+  "mendy_small": {
+    "status": "processed",
+    "hash": "dc079ba8d7f090f270f12d2e3e265702aff46d30",
+    "outputs": [
+      "assets/processed/sheets/mendy_small.png",
+      "assets/processed/hd/sprites/mendy_small.png"
+    ],
+    "at": "2026-10-16T01:00:07.554Z"
+  }
+}

@@ -21,12 +21,24 @@ export interface ProcessedEntry {
 const params = typeof location === 'undefined' ? undefined : new URLSearchParams(location.search);
 
 /**
- * `?art=new`: only the new art, and coloured boxes for everything still to be
- * drawn — the way to see how far the art has got. `?art=old`: the game as it
- * was, ignoring the new art entirely.
+ * Is the new art switched on for everyone yet?
+ *
+ * Not yet: the live game keeps its original art until the new art is ready and
+ * the developer says so, so a half-redrawn cast never reaches players. Until
+ * then the new art is a preview, by address:
+ *
+ * - `?art=mix`: the new art where it exists, the original everywhere else.
+ * - `?art=new`: only the new art, with coloured boxes for what is still to be
+ *   drawn — the way to see how far the art has got.
+ * - `?art=old`: the original art (what everyone sees while this is false).
+ *
+ * Flip this to true to make `mix` the default.
  */
+const NEW_ART_BY_DEFAULT = false;
+
+const asked = params?.get('art');
 export const ART_MODE: 'both' | 'new' | 'old' =
-  params?.get('art') === 'new' ? 'new' : params?.get('art') === 'old' ? 'old' : 'both';
+  asked === 'new' ? 'new' : asked === 'mix' || asked === 'both' ? 'both' : asked === 'old' ? 'old' : NEW_ART_BY_DEFAULT ? 'both' : 'old';
 
 /** The pipeline's art for a path the game asks for, if there is any (and it is wanted). */
 export function processedArt(url: string): ProcessedEntry | undefined {

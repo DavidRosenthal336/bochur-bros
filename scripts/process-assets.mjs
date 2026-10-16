@@ -597,9 +597,10 @@ function writeDoc(state, unknown) {
   out.push('');
   out.push('### In the game');
   out.push('');
-  out.push('Processed art replaces the current art for the same thing. Anything without processed art keeps the');
-  out.push('current art, or a coloured box if it has none. Add `?art=new` to the address to see only the new art (boxes');
-  out.push('for the rest — what is left to draw), or `?art=old` to see the game without it.');
+  out.push('The new art is a **preview** until it is switched on for everyone (`NEW_ART_BY_DEFAULT` in');
+  out.push('`src/config/processedArt.ts`): the plain address still shows the original art. To see the new art, add to the');
+  out.push('address: `?art=mix` (new art where it exists, original for the rest) or `?art=new` (only the new art, with');
+  out.push('coloured boxes for what is still to be drawn).');
   out.push('');
   if (unknown.length) {
     out.push('### ⚠️ Files in assets/raw/ that match no asset');

@@ -1,5 +1,18 @@
 {
   "scale": 6,
-  "atlases": {},
-  "entries": {}
+  "atlases": {
+    "characters": {
+      "image": "processed/atlases/characters.png",
+      "data": "processed/atlases/characters.json"
+    }
+  },
+  "entries": {
+    "sprites/mendy_small.png": {
+      "atlas": "characters",
+      "frame": "mendy_small",
+      "frameWidth": 24,
+      "frameHeight": 28,
+      "frames": 8
+    }
+  }
 }

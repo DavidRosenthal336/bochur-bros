@@ -1,0 +1,34 @@
+{
+ "frames": {
+  "mendy_small": {
+   "frame": {
+    "x": 2,
+    "y": 2,
+    "w": 192,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 192,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 192,
+    "h": 28
+   }
+  }
+ },
+ "meta": {
+  "app": "bochur-bros process-assets",
+  "image": "characters.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 196,
+   "h": 32
+  },
+  "scale": "1"
+ }
+}
