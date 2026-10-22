@@ -5,7 +5,9 @@
  *   npm run assets -- --force  process everything again
  *   npm run assets -- --only mendy_small
  *
- * What it does, per asset in `tools/assets/manifest.mjs`:
+ * First it cuts every batch image in assets/raw/batches/ — one ChatGPT picture
+ * holding many assets, see `tools/assets/batches.mjs` and ART_BATCHES.md — into
+ * one raw file per asset. Then, per asset in `tools/assets/manifest.mjs`:
  *
  *   1. Finds its raw image(s) in assets/raw/ (see "Naming" in ASSETS.md).
  *   2. Removes the background: real transparency is kept, the #FF00FF magenta
@@ -31,6 +33,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, relative } from 'node:path';
 import sharp from 'sharp';
+import { BATCHES, batchPrompt } from '../tools/assets/batches.mjs';
 import { ASSETS, PRIORITIES, SCALE, hdSize, promptFor } from '../tools/assets/manifest.mjs';
 
 const RAW = 'assets/raw';
@@ -39,9 +42,12 @@ const HD = join(OUT, 'hd');
 const SHEETS = join(OUT, 'sheets');
 const ATLASES = join(OUT, 'atlases');
 const REFS = 'assets/reference';
+const BATCH_DIR = join(RAW, 'batches');
+const FROM_BATCHES = join(RAW, 'from-batches');
 const STATE_FILE = join(OUT, 'state.json');
 const INDEX_FILE = join(OUT, 'index.json');
 const DOC = 'ASSETS.md';
+const BATCH_DOC = 'ART_BATCHES.md';
 const IMAGE = /\.(png|jpe?g|webp)$/i;
 
 const args = process.argv.slice(2);
@@ -300,16 +306,21 @@ function findDrawings(img, expected) {
     best.area += small.area;
   }
   if (boxes.length !== expected) return undefined;
-  // Reading order: rows first (drawings whose middles are within half a height of each other), then left to right.
-  const mid = (b) => (b.y0 + b.y1) / 2;
-  const tall = boxes.reduce((s, b) => s + (b.y1 - b.y0), 0) / boxes.length;
-  boxes.sort((a, c) => mid(a) - mid(c));
+  // Reading order: rows first, then left to right. Two drawings share a row when
+  // they overlap top to bottom — comparing their middles instead put a sprinkler
+  // sitting low in the grass on a row of its own below the same sprinkler
+  // spraying, and swapped the frames.
+  boxes.sort((a, c) => a.y0 - c.y0);
   const rows = [];
   for (const b of boxes) {
-    const row = rows.find((r) => Math.abs(mid(r[0]) - mid(b)) < tall / 2);
-    if (row) row.push(b); else rows.push([b]);
+    const row = rows.find((r) => {
+      const overlap = Math.min(r.y1, b.y1) - Math.max(r.y0, b.y0);
+      return overlap > 0.3 * Math.min(r.y1 - r.y0, b.y1 - b.y0);
+    });
+    if (row) { row.items.push(b); row.y0 = Math.min(row.y0, b.y0); row.y1 = Math.max(row.y1, b.y1); }
+    else rows.push({ y0: b.y0, y1: b.y1, items: [b] });
   }
-  return rows.flatMap((r) => r.sort((a, c) => a.x0 - c.x0)).map((b) => ({
+  return rows.flatMap((r) => r.items.sort((a, c) => a.x0 - c.x0)).map((b) => ({
     x: b.x0 * step, y: b.y0 * step, w: (b.x1 - b.x0 + 1) * step, h: (b.y1 - b.y0 + 1) * step,
   }));
 }
@@ -568,6 +579,50 @@ async function writeReferences() {
     const { width, height } = await sharp(src).metadata();
     await sharp(src).resize(width * SCALE, height * SCALE, { kernel: 'nearest' }).png().toFile(dst);
   }
+  for (const batch of BATCHES) {
+    const dst = join(REFS, 'batches', `${batch.id}.png`);
+    if (!existsSync(dst)) await writeBatchReference(batch, dst);
+  }
+}
+
+/**
+ * One picture of a batch's current art, laid out the way the prompt asks for
+ * the new one — a row per asset, or three stacked panels — labelled, on a
+ * checkerboard so the see-through parts read as see-through.
+ */
+async function writeBatchReference(batch, dst) {
+  const W = 1536, GAP = 24, LABEL = 44;
+  const label = (text) => Buffer.from(
+    `<svg width="${W}" height="${LABEL}" xmlns="http://www.w3.org/2000/svg"><text x="16" y="31" font-family="DejaVu Sans, sans-serif" ` +
+      `font-weight="bold" font-size="26" fill="#ffffff">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</text></svg>`,
+  );
+  const checker = (w, h) => Buffer.from(
+    `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="p" width="32" height="32" patternUnits="userSpaceOnUse">` +
+      `<rect width="32" height="32" fill="#d0d0d0"/><rect width="16" height="16" fill="#a0a0a0"/><rect x="16" y="16" width="16" height="16" fill="#a0a0a0"/>` +
+      `</pattern></defs><rect width="${w}" height="${h}" fill="url(#p)"/></svg>`,
+  );
+  const parts = [];
+  let y = GAP;
+  for (const [i, id] of batch.rows.entries()) {
+    const a = ASSETS.find((x) => x.id === id);
+    const src = join(REFS, `${id}.png`);
+    const name = batch.kind === 'backdrops' ? ['Top panel: sky', 'Middle panel: distance', 'Bottom panel: close up'][i] : `Row ${i + 1}: ${a.title.replace(/^.*? — /, '')}`;
+    parts.push({ input: label(name), left: 0, top: y });
+    y += LABEL;
+    if (!existsSync(src)) {
+      parts.push({ input: label('   (nothing drawn yet - new)'), left: 0, top: y });
+      y += LABEL + GAP;
+      continue;
+    }
+    const { width, height } = await sharp(src).metadata();
+    const scale = Math.min((W - 32) / width, (batch.kind === 'backdrops' ? 760 : 260) / height);
+    const w = Math.round(width * scale), h = Math.round(height * scale);
+    const img = await sharp(src).resize(w, h, { kernel: 'nearest' }).png().toBuffer();
+    parts.push({ input: checker(w, h), left: 16, top: y }, { input: img, left: 16, top: y });
+    y += h + GAP;
+  }
+  await mkdir(dirname(dst), { recursive: true });
+  await sharp({ create: { width: W, height: y, channels: 4, background: '#2b2b38' } }).composite(parts).png().toFile(dst);
 }
 
 // ---------------------------------------------------------------------------
@@ -576,6 +631,39 @@ async function writeReferences() {
 
 function rawName(asset) {
   return `${asset.id}.png`;
+}
+
+/** ART_BATCHES.md: the dozen ChatGPT requests that cover the rest of the game, with what each still needs. */
+function writeBatchDoc(state) {
+  const out = [];
+  out.push('# Bochur Bros — art in batches');
+  out.push('');
+  out.push('> **Generated by `npm run assets`** from `tools/assets/batches.mjs`. Every run rewrites it with what is done.');
+  out.push('');
+  out.push('Each batch is **one ChatGPT request** that makes many pieces of art in one picture. For each one:');
+  out.push('');
+  out.push('1. Attach 3 pictures: **Mendy** (`assets/raw/mendy_small.png`), **Berel** (`assets/raw/berel_small.png`) and the');
+  out.push('   batch\'s **reference** (the current art, laid out the way the new picture should be).');
+  out.push('2. Paste the prompt.');
+  out.push('3. Save what comes back as `assets/raw/batches/<batch id>.png` and run `npm run assets`. It is cut into its pieces');
+  out.push('   on its own. If one row comes out badly, redo just that piece and save it in `assets/raw/` under its own name.');
+  out.push('');
+  const total = BATCHES.reduce((n, b) => n + b.rows.length, 0);
+  const have = BATCHES.reduce((n, b) => n + b.rows.filter((id) => state[id]?.status === 'processed').length, 0);
+  out.push(`**${have} of ${total} pieces done across ${BATCHES.length} batches.**`);
+  out.push('');
+  for (const [i, batch] of BATCHES.entries()) {
+    const done = batch.rows.filter((id) => state[id]?.status === 'processed').length;
+    out.push(`## ${done === batch.rows.length ? '✅' : done ? '🟨' : '⬜'} Batch ${i + 1} — ${batch.title}`);
+    out.push('');
+    out.push(`${done} of ${batch.rows.length} done · save as \`assets/raw/batches/${batch.id}.png\` · reference \`assets/reference/batches/${batch.id}.png\``);
+    out.push('');
+    out.push('```text');
+    out.push(batchPrompt(batch));
+    out.push('```');
+    out.push('');
+  }
+  return writeFile(BATCH_DOC, out.join('\n'));
 }
 
 function writeDoc(state, unknown) {
@@ -620,6 +708,10 @@ function writeDoc(state, unknown) {
   out.push('`src/config/processedArt.ts`): the plain address still shows the original art. To see the new art, add to the');
   out.push('address: `?art=mix` (new art where it exists, original for the rest) or `?art=new` (only the new art, with');
   out.push('coloured boxes for what is still to be drawn).');
+  out.push('');
+  out.push('## Batches');
+  out.push('');
+  out.push(`The quick way, many assets per ChatGPT image: see **[${BATCH_DOC}](${BATCH_DOC})**.`);
   out.push('');
   if (unknown.length) {
     out.push('### ⚠️ Files in assets/raw/ that match no asset');
@@ -674,6 +766,7 @@ async function listRaw(dir = RAW) {
   const out = [];
   for (const e of await readdir(dir, { withFileTypes: true })) {
     const p = join(dir, e.name);
+    if (p === BATCH_DIR) continue; // cut up by splitBatches(), not assets themselves
     if (e.isDirectory()) out.push(...(await listRaw(p)));
     else if (IMAGE.test(e.name)) out.push(relative(RAW, p));
   }
@@ -707,6 +800,76 @@ async function checkManifest() {
   return wrong.length;
 }
 
+// ---------------------------------------------------------------------------
+// Batches: one ChatGPT image holding many assets (tools/assets/batches.mjs).
+// ---------------------------------------------------------------------------
+
+/**
+ * The bands of rows with something drawn in them, merged across the narrowest
+ * gaps until there are `count` — a stray speck or a wing tip that leaves a
+ * one-pixel gap inside a row does not make a row of its own.
+ */
+function rowBands(img, count) {
+  const bands = [];
+  let start = -1;
+  for (let y = 0; y <= img.h; y += 1) {
+    let n = 0;
+    if (y < img.h) for (let x = 0; x < img.w; x += 1) if (img.d[(y * img.w + x) * 4 + 3] > 40) n += 1;
+    if (n > 1 && start < 0) start = y;
+    if (n <= 1 && start >= 0) { bands.push([start, y]); start = -1; }
+  }
+  while (bands.length > count) {
+    let best = 0;
+    for (let i = 1; i < bands.length - 1; i += 1) {
+      if (bands[i + 1][0] - bands[i][1] < bands[best + 1][0] - bands[best][1]) best = i;
+    }
+    bands.splice(best, 2, [bands[best][0], bands[best + 1][1]]);
+  }
+  if (bands.length < count) throw new Error(`expected ${count} rows, found ${bands.length}`);
+  // Each row gets the space up to halfway to its neighbours, so nothing is cut.
+  return bands.map(([a, b], i) => [
+    i === 0 ? 0 : Math.round((bands[i - 1][1] + a) / 2),
+    i === bands.length - 1 ? img.h : Math.round((b + bands[i + 1][0]) / 2),
+  ]);
+}
+
+/**
+ * Cut every batch image in assets/raw/batches/ into one raw file per asset, in
+ * assets/raw/from-batches/. Rebuilt from scratch every run; an asset that has
+ * its own raw file elsewhere in assets/raw/ keeps that instead.
+ */
+async function splitBatches(ownRaw) {
+  await rm(FROM_BATCHES, { recursive: true, force: true });
+  if (!existsSync(BATCH_DIR)) return;
+  for (const file of (await readdir(BATCH_DIR)).filter((f) => IMAGE.test(f)).sort()) {
+    const base = file.replace(IMAGE, '').toLowerCase();
+    const batch = BATCHES.find((b) => base === b.id);
+    if (!batch) { console.warn(`  ? batches/${file} matches no batch — see "Batches" in ASSETS.md`); continue; }
+    try {
+      const img = await load(join(BATCH_DIR, file));
+      let parts;
+      if (batch.kind === 'backdrops') {
+        const third = img.h / batch.rows.length;
+        parts = batch.rows.map((_, i) => [Math.round(i * third), Math.round((i + 1) * third)]);
+      } else {
+        removeBackground(img, 'sprite');
+        parts = rowBands(img, batch.rows.length);
+      }
+      const written = [];
+      for (const [i, id] of batch.rows.entries()) {
+        if (ownRaw.has(id)) continue;
+        const [y0, y1] = parts[i];
+        await save(crop(img, 0, y0, img.w, y1 - y0), join(FROM_BATCHES, `${id}.png`));
+        written.push(id);
+      }
+      console.log(`  ✂ ${file}: ${written.length} of ${batch.rows.length} rows cut out${written.length < batch.rows.length ? ' (the rest have their own raw file)' : ''}`);
+    } catch (error) {
+      console.error(`  ✗ batches/${file}: ${error.message ?? error}`);
+      process.exitCode = 1;
+    }
+  }
+}
+
 async function main() {
   await mkdir(RAW, { recursive: true });
   if (await checkManifest()) {
@@ -716,6 +879,8 @@ async function main() {
   }
   await mkdir(OUT, { recursive: true });
   const state = existsSync(STATE_FILE) ? JSON.parse(await readFile(STATE_FILE, 'utf8')) : {};
+  const own = matchRaw((await listRaw()).filter((f) => !f.startsWith('from-batches/')));
+  await splitBatches(new Set(own.byId.keys()));
   const { byId, unknown } = matchRaw(await listRaw());
   for (const f of unknown) console.warn(`  ? ${f} matches no asset in the manifest — see "Naming" in ASSETS.md`);
 
@@ -761,6 +926,7 @@ async function main() {
   await writeFile(STATE_FILE, JSON.stringify(state, null, 2) + '\n');
   await writeReferences();
   await writeDoc(state, unknown);
+  await writeBatchDoc(state);
 
   const processed = Object.values(state).filter((s) => s.status === 'processed').length;
   console.log(

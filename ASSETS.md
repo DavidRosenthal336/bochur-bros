@@ -35,6 +35,10 @@ The new art is a **preview** until it is switched on for everyone (`NEW_ART_BY_D
 address: `?art=mix` (new art where it exists, original for the rest) or `?art=new` (only the new art, with
 coloured boxes for what is still to be drawn).
 
+## Batches
+
+The quick way, many assets per ChatGPT image: see **[ART_BATCHES.md](ART_BATCHES.md)**.
+
 ## Status
 
 | Asset | Priority | Status | Drop as | 1080p frame | Frames |

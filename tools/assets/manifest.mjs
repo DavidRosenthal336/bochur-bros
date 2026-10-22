@@ -423,9 +423,9 @@ export const ASSETS = [
 // The prompts.
 // ---------------------------------------------------------------------------
 
-const OPENER = 'Match the Bochur Bros style exactly, using my reference images.';
+export const OPENER = 'Match the Bochur Bros style exactly, using my reference images.';
 
-const STYLE =
+export const STYLE =
   'Style: 16-bit SNES-era pixel art. Big, chunky, crisp square pixels, every pixel a solid block of one colour, ' +
   'dark one-pixel outlines, a limited palette, flat shading with one highlight and one shadow tone. ' +
   'No anti-aliasing, no blur, no gradients, no painterly texture, no 3D render.';
