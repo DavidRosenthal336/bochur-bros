@@ -798,7 +798,7 @@ function writeDoc(state, unknown) {
       const st = state[a.id];
       out.push(`### ${a.id}`);
       out.push('');
-      out.push(`**${a.title}** — ${icon[st?.status ?? 'missing']}${st?.error ? ` — last attempt failed: ${st.error}` : ''}`);
+      out.push(`**${a.title}** — ${icon[st?.status ?? 'missing']}${st?.derived ? ` — made from the day art (${st.derived}); a drawing of its own replaces it` : ''}${st?.error ? ` — last attempt failed: ${st.error}` : ''}`);
       out.push('');
       out.push(`- **Drop as:** \`assets/raw/${rawName(a)}\``);
       out.push(`- **Game file:** \`${a.url}\` → ${a.kind === 'sheet' ? `atlas \`assets/processed/atlases/${a.group}.png\`` : `\`assets/processed/${a.url}\``}; 1080p master \`assets/processed/hd/${a.url}\``);
@@ -860,6 +860,262 @@ async function checkManifest() {
   }
   for (const line of wrong) console.warn(`  ! ${line}`);
   return wrong.length;
+}
+
+// ---------------------------------------------------------------------------
+// Dusk, night and tall skies, made from the day art.
+// ---------------------------------------------------------------------------
+//
+// A level at dusk or at night uses the same scene as the day, so rather than
+// ask ChatGPT for every scene three times, a dusk or night backdrop with no
+// drawing of its own is made from its day one: the sky recoloured with its
+// clouds kept (and stars at night), the buildings dimmed, and windows lit.
+// The tall sky a climbing level needs is the short one with more sky above.
+// All of it works on the game-size image, where a window is a clean block.
+
+const LIGHT = {
+  dusk: {
+    sky: [[0, [74, 72, 138]], [0.5, [176, 108, 140]], [1, [244, 163, 112]]],
+    skyTop: [42, 40, 96],
+    cloud: [[0, [236, 176, 176]], [1, [255, 214, 178]]],
+    tint: [0.82, 0.7, 0.74], lift: [8, 4, 12], lit: 0.5, unlit: undefined,
+  },
+  night: {
+    sky: [[0, [10, 14, 36]], [1, [40, 48, 94]]],
+    skyTop: [5, 7, 22],
+    cloud: [[0, [34, 40, 72]], [1, [56, 62, 100]]],
+    tint: [0.3, 0.33, 0.48], lift: [4, 6, 16], lit: 0.7, unlit: [22, 26, 48],
+  },
+};
+const WINDOW_ON = [255, 213, 122], WINDOW_SILL = [232, 172, 96];
+
+const lerp = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const ramp = (stops, t) => {
+  for (let i = 1; i < stops.length; i += 1) {
+    if (t <= stops[i][0]) return lerp(stops[i - 1][1], stops[i][1], (t - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0]));
+  }
+  return stops[stops.length - 1][1];
+};
+const lum = (r, g, b) => 0.3 * r + 0.59 * g + 0.11 * b;
+/** A repeatable random number in 0..1 for a position — the same every run, with no pattern to it. */
+const hash = (x, y) => {
+  let h = Math.imul(x | 0, 0x27d4eb2d) ^ Math.imul(y | 0, 0x165667b1) ^ 0x9e3779b9;
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+};
+
+/** The day sky read as a fade plus clouds: each row's blue, and how cloudy each pixel is (0..1). */
+function readDaySky(img) {
+  const { w, h, d } = img;
+  const fade = [];
+  for (let y = 0; y < h; y += 1) {
+    const blues = [];
+    for (let x = 0; x < w; x += 1) {
+      const o = (y * w + x) * 4;
+      if (d[o + 2] > d[o] + 20) blues.push([d[o], d[o + 1], d[o + 2]]);
+    }
+    blues.sort((a, c) => lum(...a) - lum(...c));
+    fade.push(blues.length ? blues[blues.length >> 1] : fade[y - 1] ?? [110, 160, 220]);
+  }
+  const cloud = new Float32Array(w * h);
+  for (let y = 0; y < h; y += 1) {
+    const base = lum(...fade[y]);
+    for (let x = 0; x < w; x += 1) {
+      const o = (y * w + x) * 4;
+      cloud[y * w + x] = Math.max(0, Math.min(1, (lum(d[o], d[o + 1], d[o + 2]) - base) / Math.max(20, 245 - base)));
+    }
+  }
+  return { fade, cloud };
+}
+
+/**
+ * A sky for `variant`, `extra` rows taller than the day one. The bottom of a
+ * tall sky matches the short one of the same time of day exactly, so a level
+ * can swap one for the other.
+ */
+function skyFor(day, variant, extra = 0) {
+  const { w, h, d } = day;
+  const { fade, cloud } = readDaySky(day);
+  const out = blank(w, h + extra);
+  const L = LIGHT[variant];
+  for (let Y = 0; Y < h + extra; Y += 1) {
+    const y = Y - extra;
+    for (let x = 0; x < w; x += 1) {
+      // Above the day sky, the clouds come from further along it, so they do not repeat the ones below.
+      const sx = y < 0 ? (x + 137) % w : x, sy = y < 0 ? Y % h : y;
+      const c = cloud[sy * w + sx];
+      const so = (sy * w + sx) * 4;
+      let px;
+      if (!L) {
+        if (y >= 0) px = [d[so], d[so + 1], d[so + 2]];
+        else px = lerp(lerp(fade[0], [40, 70, 150], -y / h), [d[so], d[so + 1], d[so + 2]], c);
+      } else {
+        const t = y / h;
+        const sky = y >= 0 ? ramp(L.sky, t) : lerp(L.sky[0][1], L.skyTop, -t);
+        px = lerp(sky, ramp(L.cloud, Math.max(0, t)), variant === 'night' ? c * 0.7 : c);
+        if (variant === 'night' && c < 0.1 && y < h * 0.75 && hash(x, Y) < 0.006) {
+          px = lerp(px, [235, 235, 255], 0.5 + hash(Y, x) * 0.5);
+        }
+      }
+      const o = (Y * w + x) * 4;
+      out.d[o] = px[0]; out.d[o + 1] = px[1]; out.d[o + 2] = px[2]; out.d[o + 3] = 255;
+    }
+  }
+  return out;
+}
+
+/**
+ * The windows of a day layer: small, roughly rectangular blocks of glass —
+ * bluish, or clearly darker than the wall round them — set inside a building,
+ * never on its edge against the sky. The sides and bottom of the image are not
+ * edges: the layer tiles sideways, and the buildings go on below it.
+ */
+function findWindows(img) {
+  const { w, h, d } = img;
+  const solid = (x, y) => {
+    if (y < 0) return false;
+    if (y >= h) return true;
+    const xx = ((x % w) + w) % w;
+    return d[(y * w + xx) * 4 + 3] > 127;
+  };
+  const L = (x, y) => { const o = (y * w + x) * 4; return lum(d[o], d[o + 1], d[o + 2]); };
+  const kind = new Uint8Array(w * h); // 1 bluish glass, 2 dark glass
+  for (let y = 0; y < h; y += 1) {
+    for (let x = 0; x < w; x += 1) {
+      if (!solid(x, y)) continue;
+      const o = (y * w + x) * 4;
+      const [r, g, b] = [d[o], d[o + 1], d[o + 2]];
+      // Glass is a light blue; a navy sign is as blue but much darker.
+      if (b > r + 18 && b >= g - 5 && lum(r, g, b) > 90) { kind[y * w + x] = 1; continue; }
+      const around = [];
+      // Wide enough that a whole window is less than half of it, so its middle
+      // is compared with the wall, not with itself.
+      for (let j = -7; j <= 7; j += 2) {
+        for (let i = -7; i <= 7; i += 2) {
+          const nx = x + i, ny = y + j;
+          if (nx >= 0 && ny >= 0 && nx < w && ny < h && solid(nx, ny)) around.push(L(nx, ny));
+        }
+      }
+      around.sort((p, q) => p - q);
+      // On a dark sign or a shadow, a darker mark is lettering, not glass.
+      const wall = around[around.length >> 1];
+      // Navy is a shop sign or a shadow; dark glass is brown or grey.
+      if (around.length > 20 && wall >= 70 && L(x, y) < wall * 0.72 && b < r + 25) kind[y * w + x] = 2;
+    }
+  }
+  const seen = new Uint8Array(w * h);
+  const windows = [];
+  for (let p = 0; p < w * h; p += 1) {
+    if (!kind[p] || seen[p]) continue;
+    const k = kind[p], pix = [], stack = [p];
+    seen[p] = 1;
+    let x0 = w, y0 = h, x1 = 0, y1 = 0, inside = true;
+    while (stack.length) {
+      const q = stack.pop(), x = q % w, y = (q / w) | 0;
+      pix.push(q);
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      for (const [nx, ny] of [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]]) {
+        if (!solid(nx, ny)) { inside = false; continue; }
+        if (nx < 0 || nx >= w || ny >= h) continue;
+        const n = ny * w + nx;
+        if (kind[n] === k && !seen[n]) { seen[n] = 1; stack.push(n); }
+      }
+    }
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    const max = k === 1 ? [40, 28, 900] : [10, 12, 90];
+    // A dark speck of one or two pixels is a door handle or a shadow, not a window.
+    const min = k === 1 ? 2 : 4;
+    if (!inside || pix.length < min || bw < 2 || bh < 2 || bw > max[0] || bh > max[1] || pix.length > max[2] || pix.length / (bw * bh) < 0.45) continue;
+    // A window drawn as a dark frame round a lighter pane is found as the
+    // frame: take in what the frame encloses, so the pane lights, not the ring.
+    const mine = new Set(pix);
+    for (let y = y0 + 1; y < y1; y += 1) {
+      for (let x = x0 + 1; x < x1; x += 1) {
+        const q = y * w + x;
+        if (mine.has(q)) continue;
+        const hit = (dx, dy) => { for (let i = x + dx, j = y + dy; i >= x0 && i <= x1 && j >= y0 && j <= y1; i += dx, j += dy) if (mine.has(j * w + i)) return true; return false; };
+        if (hit(1, 0) && hit(-1, 0) && hit(0, 1) && hit(0, -1)) pix.push(q);
+      }
+    }
+    windows.push({ pix, x0, y0, y1 });
+  }
+  return windows;
+}
+
+/** A far or near layer at dusk or night: dimmed and tinted, with some of its windows lit. */
+function layerFor(day, variant, litShare) {
+  const L = LIGHT[variant];
+  const out = { w: day.w, h: day.h, d: new Uint8ClampedArray(day.d) };
+  const windows = findWindows(day);
+  for (let p = 0; p < day.w * day.h; p += 1) {
+    const o = p * 4;
+    if (out.d[o + 3] === 0) continue;
+    for (let i = 0; i < 3; i += 1) out.d[o + i] = Math.round(day.d[o + i] * L.tint[i] + L.lift[i]);
+  }
+  let lit = 0;
+  for (const win of windows) {
+    const on = hash(win.x0, win.y0) < litShare;
+    if (on) lit += 1;
+    for (const q of win.pix) {
+      const o = q * 4, y = (q / day.w) | 0;
+      const c = on ? (y === win.y1 && win.y1 > win.y0 ? WINDOW_SILL : WINDOW_ON) : L.unlit;
+      if (!c) continue;
+      out.d[o] = c[0]; out.d[o + 1] = c[1]; out.d[o + 2] = c[2];
+    }
+  }
+  return { img: out, windows: windows.length, lit };
+}
+
+/**
+ * Make every dusk, night and tall backdrop that has no drawing of its own
+ * from the processed day one. Returns the ids made.
+ */
+async function deriveBackdrops(state, byId) {
+  const made = [];
+  const file = (a) => join(OUT, a.url);
+  const order = ASSETS.filter((a) => a.kind === 'backdrop').sort((a, c) => a.id.includes('_tall_') - c.id.includes('_tall_'));
+  for (const asset of order) {
+    if (byId.has(asset.id)) continue; // drawn for real: that wins
+    const tall = asset.id.match(/^bg_sky_tall_(day|dusk|night)$/);
+    const timed = asset.id.match(/^(.*)_(dusk|night)$/);
+    let img, note;
+    try {
+      if (tall) {
+        const day = ASSETS.find((a) => a.id === 'bg_sky_day');
+        if (state[day.id]?.status !== 'processed') continue;
+        const short = await load(file(day));
+        img = skyFor(short, tall[1] === 'day' ? undefined : tall[1], asset.size[1] - short.h);
+        note = `the day sky, ${asset.size[1] - short.h}px taller`;
+      } else if (timed) {
+        const [, base, variant] = timed;
+        const day = ASSETS.find((a) => a.id === `${base}_day`);
+        if (!day || state[day.id]?.status !== 'processed') continue;
+        const src = await load(file(day));
+        if (asset.layer === 'sky') {
+          img = skyFor(src, variant);
+          note = 'the day sky, recoloured';
+        } else {
+          // The far hills of the Catskills have no houses to light.
+          const share = asset.id.includes('catskills') ? (asset.layer === 'far' ? 0 : 0.5) : LIGHT[variant].lit;
+          const r = layerFor(src, variant, share);
+          img = r.img;
+          note = `the day layer, ${r.lit} of ${r.windows} windows lit`;
+        }
+      } else continue;
+    } catch (error) {
+      state[asset.id] = { status: 'raw', error: `made from the day art: ${error.message ?? error}` };
+      console.error(`  ✗ ${asset.id}: ${error.message ?? error}`);
+      process.exitCode = 1;
+      continue;
+    }
+    const hdImg = await toSharp(img).resize(img.w * SCALE, img.h * SCALE, { kernel: 'nearest' }).raw().toBuffer({ resolveWithObject: true });
+    await save({ w: hdImg.info.width, h: hdImg.info.height, d: new Uint8ClampedArray(hdImg.data.buffer, hdImg.data.byteOffset, hdImg.data.length) }, join(HD, asset.url));
+    await save(img, file(asset));
+    state[asset.id] = { status: 'processed', derived: note, outputs: [file(asset), join(HD, asset.url)], at: new Date().toISOString() };
+    made.push(asset.id);
+  }
+  return made;
 }
 
 // ---------------------------------------------------------------------------
@@ -991,6 +1247,9 @@ async function main() {
       console.error(`  ✗ ${asset.id}: ${error.message ?? error}`);
     }
   }
+
+  const derived = await deriveBackdrops(state, byId);
+  if (derived.length) console.log(`  ☾ made from the day art: ${derived.join(', ')}`);
 
   // Outputs of assets whose raw files are gone.
   for (const asset of ASSETS) {

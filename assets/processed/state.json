@@ -727,5 +727,167 @@
       "assets/processed/hd/sprites/gate.png"
     ],
     "at": "2026-10-23T01:00:25.218Z"
+  },
+  "bg_sky_dusk": {
+    "status": "processed",
+    "derived": "the day sky, recoloured",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:28.078Z"
+  },
+  "bg_skyline_dusk": {
+    "status": "processed",
+    "derived": "the day layer, 8 of 19 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_skyline_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_skyline_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:28.516Z"
+  },
+  "bg_street_dusk": {
+    "status": "processed",
+    "derived": "the day layer, 35 of 79 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_street_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_street_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:28.891Z"
+  },
+  "bg_sky_night": {
+    "status": "processed",
+    "derived": "the day sky, recoloured",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_night.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_night.png"
+    ],
+    "at": "2026-10-23T01:10:28.982Z"
+  },
+  "bg_skyline_night": {
+    "status": "processed",
+    "derived": "the day layer, 14 of 19 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_skyline_night.png",
+      "assets/processed/hd/sprites/backdrops/bg_skyline_night.png"
+    ],
+    "at": "2026-10-23T01:10:29.458Z"
+  },
+  "bg_street_night": {
+    "status": "processed",
+    "derived": "the day layer, 47 of 79 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_street_night.png",
+      "assets/processed/hd/sprites/backdrops/bg_street_night.png"
+    ],
+    "at": "2026-10-23T01:10:29.774Z"
+  },
+  "bg_sky_five_towns_dusk": {
+    "status": "processed",
+    "derived": "the day sky, recoloured",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_five_towns_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_five_towns_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:29.921Z"
+  },
+  "bg_far_five_towns_dusk": {
+    "status": "processed",
+    "derived": "the day layer, 5 of 11 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_far_five_towns_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_far_five_towns_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:30.194Z"
+  },
+  "bg_near_five_towns_dusk": {
+    "status": "processed",
+    "derived": "the day layer, 11 of 24 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_near_five_towns_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_near_five_towns_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:30.464Z"
+  },
+  "bg_sky_catskills_night": {
+    "status": "processed",
+    "derived": "the day sky, recoloured",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_catskills_night.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_catskills_night.png"
+    ],
+    "at": "2026-10-23T01:10:30.564Z"
+  },
+  "bg_far_catskills_night": {
+    "status": "processed",
+    "derived": "the day layer, 0 of 0 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_far_catskills_night.png",
+      "assets/processed/hd/sprites/backdrops/bg_far_catskills_night.png"
+    ],
+    "at": "2026-10-23T01:10:30.837Z"
+  },
+  "bg_near_catskills_night": {
+    "status": "processed",
+    "derived": "the day layer, 20 of 36 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_near_catskills_night.png",
+      "assets/processed/hd/sprites/backdrops/bg_near_catskills_night.png"
+    ],
+    "at": "2026-10-23T01:10:31.102Z"
+  },
+  "bg_sky_meah_shearim_dusk": {
+    "status": "processed",
+    "derived": "the day sky, recoloured",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_meah_shearim_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_meah_shearim_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:31.196Z"
+  },
+  "bg_far_meah_shearim_dusk": {
+    "status": "processed",
+    "derived": "the day layer, 33 of 60 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_far_meah_shearim_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_far_meah_shearim_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:31.359Z"
+  },
+  "bg_near_meah_shearim_dusk": {
+    "status": "processed",
+    "derived": "the day layer, 26 of 61 windows lit",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_near_meah_shearim_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_near_meah_shearim_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:31.694Z"
+  },
+  "bg_sky_tall_day": {
+    "status": "processed",
+    "derived": "the day sky, 180px taller",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_tall_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_tall_day.png"
+    ],
+    "at": "2026-10-23T01:10:31.855Z"
+  },
+  "bg_sky_tall_dusk": {
+    "status": "processed",
+    "derived": "the day sky, 180px taller",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_tall_dusk.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_tall_dusk.png"
+    ],
+    "at": "2026-10-23T01:10:32.026Z"
+  },
+  "bg_sky_tall_night": {
+    "status": "processed",
+    "derived": "the day sky, 180px taller",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_tall_night.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_tall_night.png"
+    ],
+    "at": "2026-10-23T01:10:32.199Z"
   }
 }

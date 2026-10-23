@@ -517,11 +517,38 @@
     "sprites/backdrops/bg_sky_day.png": {
       "file": "processed/sprites/backdrops/bg_sky_day.png"
     },
+    "sprites/backdrops/bg_sky_tall_day.png": {
+      "file": "processed/sprites/backdrops/bg_sky_tall_day.png"
+    },
     "sprites/backdrops/bg_skyline_day.png": {
       "file": "processed/sprites/backdrops/bg_skyline_day.png"
     },
     "sprites/backdrops/bg_street_day.png": {
       "file": "processed/sprites/backdrops/bg_street_day.png"
+    },
+    "sprites/backdrops/bg_sky_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_sky_dusk.png"
+    },
+    "sprites/backdrops/bg_sky_tall_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_sky_tall_dusk.png"
+    },
+    "sprites/backdrops/bg_skyline_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_skyline_dusk.png"
+    },
+    "sprites/backdrops/bg_street_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_street_dusk.png"
+    },
+    "sprites/backdrops/bg_sky_night.png": {
+      "file": "processed/sprites/backdrops/bg_sky_night.png"
+    },
+    "sprites/backdrops/bg_sky_tall_night.png": {
+      "file": "processed/sprites/backdrops/bg_sky_tall_night.png"
+    },
+    "sprites/backdrops/bg_skyline_night.png": {
+      "file": "processed/sprites/backdrops/bg_skyline_night.png"
+    },
+    "sprites/backdrops/bg_street_night.png": {
+      "file": "processed/sprites/backdrops/bg_street_night.png"
     },
     "sprites/backdrops/bg_sky_five_towns_day.png": {
       "file": "processed/sprites/backdrops/bg_sky_five_towns_day.png"
@@ -532,6 +559,15 @@
     "sprites/backdrops/bg_near_five_towns_day.png": {
       "file": "processed/sprites/backdrops/bg_near_five_towns_day.png"
     },
+    "sprites/backdrops/bg_sky_five_towns_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_sky_five_towns_dusk.png"
+    },
+    "sprites/backdrops/bg_far_five_towns_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_far_five_towns_dusk.png"
+    },
+    "sprites/backdrops/bg_near_five_towns_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_near_five_towns_dusk.png"
+    },
     "sprites/backdrops/bg_sky_catskills_day.png": {
       "file": "processed/sprites/backdrops/bg_sky_catskills_day.png"
     },
@@ -541,6 +577,15 @@
     "sprites/backdrops/bg_near_catskills_day.png": {
       "file": "processed/sprites/backdrops/bg_near_catskills_day.png"
     },
+    "sprites/backdrops/bg_sky_catskills_night.png": {
+      "file": "processed/sprites/backdrops/bg_sky_catskills_night.png"
+    },
+    "sprites/backdrops/bg_far_catskills_night.png": {
+      "file": "processed/sprites/backdrops/bg_far_catskills_night.png"
+    },
+    "sprites/backdrops/bg_near_catskills_night.png": {
+      "file": "processed/sprites/backdrops/bg_near_catskills_night.png"
+    },
     "sprites/backdrops/bg_sky_meah_shearim_day.png": {
       "file": "processed/sprites/backdrops/bg_sky_meah_shearim_day.png"
     },
@@ -549,6 +594,15 @@
     },
     "sprites/backdrops/bg_near_meah_shearim_day.png": {
       "file": "processed/sprites/backdrops/bg_near_meah_shearim_day.png"
+    },
+    "sprites/backdrops/bg_sky_meah_shearim_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_sky_meah_shearim_dusk.png"
+    },
+    "sprites/backdrops/bg_far_meah_shearim_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_far_meah_shearim_dusk.png"
+    },
+    "sprites/backdrops/bg_near_meah_shearim_dusk.png": {
+      "file": "processed/sprites/backdrops/bg_near_meah_shearim_dusk.png"
     }
   }
 }
