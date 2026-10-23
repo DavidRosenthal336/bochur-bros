@@ -56,13 +56,29 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private loot: PowerTier | undefined;
   /** The pot on its back, drawn so a carrying raccoon is worth chasing. */
   private lootMark: Phaser.GameObjects.Rectangle | undefined;
+  /**
+   * A ground patroller sleeps until the player is near, the way the classic
+   * ground grunt does: it is where it was put when you arrive, facing you,
+   * rather than wherever a minute of wandering took it.
+   */
+  private awake: boolean;
+  /** Is there something solid at a point, in pixels? The level answers. */
+  private readonly solidAt: (x: number, y: number) => boolean;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    config: EnemyConfig,
+    solidAt: (x: number, y: number) => boolean = () => true,
+  ) {
     super(scene, x, y, solidTextureKey(scene, config.bodyWidth, config.bodyHeight));
     this.config = config;
     this.hitsLeft = config.hits;
     this.homeX = x;
     this.homeY = y;
+    this.solidAt = solidAt;
+    this.awake = config.behavior !== 'patrol';
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -83,7 +99,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     body.setAllowGravity(config.affectedByGravity);
     if (config.affectedByGravity) body.setGravityY(1400);
-    body.setVelocityX(this.facing * config.speed);
+    body.setVelocityX(this.awake ? this.facing * config.speed : 0);
 
     /**
      * A gecko climbs: the drawing is turned upright, and the hitbox is set
@@ -126,6 +142,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     switch (this.config.behavior) {
       case 'patrol':
+        if (!this.awake) {
+          this.physicsBody.setVelocityX(0);
+          if (Math.abs(playerX - this.x) > GAMEPLAY.wakeRange) break;
+          this.awake = true;
+          this.facing = playerX < this.x ? -1 : 1;
+        }
         this.tickPatrol();
         break;
       case 'dive':
@@ -632,8 +654,16 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const body = this.physicsBody;
     const strayed = Math.abs(this.x - this.homeX) >= this.config.patrolRange;
     const walled = body.blocked.left || body.blocked.right;
-    if (strayed || walled) this.turnAround();
+    const ledge = this.config.turnsAtLedges === true && body.blocked.down && this.ledgeAhead();
+    if (strayed || walled || ledge) this.turnAround();
     body.setVelocityX(this.facing * this.config.speed);
+  }
+
+  /** Is the floor about to run out in the direction it is walking? */
+  private ledgeAhead(): boolean {
+    const body = this.physicsBody;
+    const aheadX = this.facing > 0 ? body.right + 2 : body.left - 2;
+    return !this.solidAt(aheadX, body.bottom + 2);
   }
 
   /**

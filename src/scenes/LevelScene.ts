@@ -61,6 +61,16 @@ const BOUNCE_VELOCITY: Record<BounceKind, number> = {
   sprinkler: GAMEPLAY.sprinklerVelocity,
 };
 
+/**
+ * How far behind the player the stroller is put on a resumed life, in tiles.
+ *
+ * Nine is the level's own head start. It also waits out the respawn grace
+ * before it moves, so a player who comes back and takes a moment is not
+ * caught the instant the grace ends; and it is put on floor, not wherever
+ * nine tiles back happens to land.
+ */
+const CHASER_LEAD = 9;
+
 /** Placeholder colours for the three things that throw you upward. */
 const BOUNCE_COLORS = {
   awning: 0xd06a8a,
@@ -194,6 +204,11 @@ export interface LevelSceneData {
   /** The checkpoint to come back to, in pixels. Omitted means the level start. */
   readonly respawnX?: number;
   readonly respawnY?: number;
+  /**
+   * Which checkpoint that is, by its place in the level's list. The list is
+   * the order they are reached in, which on a climb is not left to right.
+   */
+  readonly respawnIndex?: number;
   /** Who was being controlled when the last life ended. */
   readonly character?: CharacterId;
   /** Lives left, carried across a death restart. */
@@ -341,7 +356,17 @@ export class LevelScene extends Phaser.Scene {
   private coinCount = 0;
   private state: 'playing' | 'dying' | 'complete' = 'playing';
   /** Where the checkpoint was when this attempt started, carried in from the last one. */
-  private carriedRespawn: { x: number; y: number } | null = null;
+  private carriedRespawn: { x: number; y: number; index: number } | null = null;
+  /**
+   * The checkpoint the player will come back to, as its place in the level's
+   * list; -1 is the level start.
+   *
+   * By place and not by position, because the first version compared x and
+   * accepted a checkpoint only if it was further right than the last — which
+   * on 1-2, a climb whose checkpoints zigzag, meant three of the four could
+   * never be taken and every death went back to the first.
+   */
+  private respawnIndex = -1;
   /** §7 stores "character last used", so a death does not silently swap you back. */
   private carriedCharacter: CharacterId = DEFAULT_CHARACTER;
   /** Which catalog entry this play counts towards, if any. */
@@ -358,8 +383,9 @@ export class LevelScene extends Phaser.Scene {
     this.coinCount = data.coins ?? 0;
     this.carriedRespawn =
       data.respawnX !== undefined && data.respawnY !== undefined
-        ? { x: data.respawnX, y: data.respawnY }
+        ? { x: data.respawnX, y: data.respawnY, index: data.respawnIndex ?? -1 }
         : null;
+    this.respawnIndex = this.carriedRespawn?.index ?? -1;
     this.carriedCharacter = data.character ?? DEFAULT_CHARACTER;
     this.carriedYetzerPhase = data.yetzerPhase ?? 1;
     this.lives = data.lives ?? loadSave().lives;
@@ -404,6 +430,9 @@ export class LevelScene extends Phaser.Scene {
       this.carriedRespawn?.y ?? this.level.spawn.y * TILE,
     );
     this.player = new Player(this, this.respawnAt.x, this.respawnAt.y, this.carriedCharacter);
+    // A life that begins at a checkpoint begins among whatever was placed
+    // there. The level start is kept clear by design; a checkpoint gets grace.
+    if (this.carriedRespawn) this.power.protect(this.time.now + GAMEPLAY.spawnGraceMs);
 
     /**
      * How far into the level this life begins, compared with the level's own
@@ -671,7 +700,9 @@ export class LevelScene extends Phaser.Scene {
     this.enemies = this.add.group();
     for (const def of this.level.enemies ?? []) {
       const config = ENEMIES[def.kind];
-      this.enemies.add(new Enemy(this, def.x * TILE + TILE / 2, def.y * TILE, config));
+      this.enemies.add(
+        new Enemy(this, def.x * TILE + TILE / 2, def.y * TILE, config, (px, py) => this.isSolidAt(px, py)),
+      );
     }
   }
 
@@ -941,18 +972,50 @@ export class LevelScene extends Phaser.Scene {
 
       // A chaser is positioned relative to the player rather than to the
       // level: the stroller's whole job is to be just behind you, and after a
-      // checkpoint restart "just behind you" is not where it was placed.
-      const offset = config.behavior === 'chaser' ? this.hazardOffsetX : 0;
-      this.hazards.add(
-        new MovingHazard(
-          this,
-          placement.x * TILE + TILE / 2 + offset,
-          placement.y * TILE,
-          config,
-          placement.direction,
-        ),
-      );
+      // checkpoint restart "just behind you" is not where it was placed. Nor
+      // is it necessarily ground: at 1-3's first checkpoint, nine tiles back
+      // was the last tile of a pit, so it is put on the nearest floor instead.
+      let x = placement.x * TILE + TILE / 2;
+      const resumed = config.behavior === 'chaser' && this.hazardOffsetX > 0;
+      if (resumed) x = this.groundBehind(this.respawnAt.x - CHASER_LEAD * TILE, placement.y * TILE, config.bodyWidth);
+      const hazard = new MovingHazard(this, x, placement.y * TILE, config, placement.direction, (px, py) => this.isSolidAt(px, py));
+      if (resumed) hazard.holdUntil = this.time.now + GAMEPLAY.spawnGraceMs;
+      this.hazards.add(hazard);
     }
+  }
+
+  /**
+   * Is there something solid at this point, in pixels? The level's own
+   * geometry — solids, blocks, porch steps — rather than the physics world,
+   * which cannot be asked about a point without a body to put there.
+   *
+   * What a thing on wheels uses to see a ledge coming: the pavement ends, and
+   * a shopping cart that rolls off the end of it is a shopping cart the player
+   * never meets.
+   */
+  isSolidAt(px: number, py: number): boolean {
+    const tx = Math.floor(px / TILE);
+    const ty = Math.floor(py / TILE);
+    if (ty >= this.level.heightInTiles) return false;
+    for (const s of this.level.solids) {
+      if (tx >= s.x && tx < s.x + s.w && ty >= s.y && ty < s.y + s.h) return true;
+    }
+    for (const b of this.level.blocks ?? []) if (b.x === tx && b.y === ty) return true;
+    for (const s of this.level.steps ?? []) if (s.x === tx && s.y === ty) return true;
+    return false;
+  }
+
+  /**
+   * The nearest x at or to the left of `x` where something `width` wide can
+   * stand on the floor at `y`, in pixels. Falls back to `x` if the whole level
+   * to the left is air, which no level does.
+   */
+  groundBehind(x: number, y: number, width: number): number {
+    const half = width / 2;
+    for (let px = x; px > half; px -= TILE / 2) {
+      if (this.isSolidAt(px - half + 1, y + 1) && this.isSolidAt(px + half - 1, y + 1)) return px;
+    }
+    return x;
   }
 
   /** Awnings and rubbish bags: land on one and you are launched (§6). */
@@ -2237,14 +2300,18 @@ export class LevelScene extends Phaser.Scene {
   private buildCheckpointsAndGoal(): void {
     const checkpointArt = sceneryArt('checkpoint');
 
-    for (const point of this.level.checkpoints ?? []) {
+    (this.level.checkpoints ?? []).forEach((point, index) => {
       const x = point.x * TILE + TILE / 2;
       // A checkpoint carried in from a previous life shows as already taken.
-      const alreadyTaken = this.respawnAt.x >= x;
+      const alreadyTaken = index <= this.respawnIndex;
       const post = this.add
         .rectangle(x, point.y * TILE - 20, 4, 40, 0x6ee7a0, alreadyTaken ? 1 : 0.55)
         .setDepth(3);
-      this.physics.add.existing(post, true);
+      // The trigger is a tile wide and three tall, so a jump over the post
+      // still takes it: on 1-2 the posts stand on boards you leave by jumping,
+      // and a 4px post could be cleared without ever being touched.
+      const trigger = this.add.zone(x, point.y * TILE - TILE * 1.5, TILE, TILE * 3);
+      this.physics.add.existing(trigger, true);
 
       let pushke: Phaser.GameObjects.Image | undefined;
       if (checkpointArt) {
@@ -2255,13 +2322,14 @@ export class LevelScene extends Phaser.Scene {
           .setDepth(3);
       }
 
-      this.physics.add.overlap(this.player, post, () => {
-        if (this.respawnAt.x >= x) return;
+      this.physics.add.overlap(this.player, trigger, () => {
+        if (index <= this.respawnIndex) return;
+        this.respawnIndex = index;
         this.respawnAt.set(x, point.y * TILE);
         post.setFillStyle(0x6ee7a0, 1);
         if (checkpointArt && pushke) pushke.setFrame(checkpointArt.frames.on ?? 0);
       });
-    }
+    });
 
     const goal = this.level.goal;
     if (!goal) return;
@@ -2333,6 +2401,14 @@ export class LevelScene extends Phaser.Scene {
       undefined,
       (hazardObject) => (hazardObject as MovingHazard).collidesWithSolids,
     );
+    // Blocks are floor to a thing on wheels as much as to the player: the
+    // planks over 1-1's trench are blocks, and a cart dropped through them.
+    this.physics.add.collider(
+      this.hazards,
+      this.blocks,
+      undefined,
+      (hazardObject) => (hazardObject as MovingHazard).collidesWithSolids,
+    );
     this.physics.add.collider(this.enemies, this.hazards);
     this.physics.add.collider(this.flames, this.solids);
 
@@ -2346,7 +2422,18 @@ export class LevelScene extends Phaser.Scene {
         this.onHazardContact(hazardObject as MovingHazard);
       },
       // A pipe hanging on the scaffolding, or lying spent, is not in your way.
-      (_player, hazardObject) => (hazardObject as MovingHazard).collidesWithPlayer,
+      // Neither is anything else while you are blinking: a hazard that hurts
+      // you and then goes on shoving you is a hazard that hurts you twice. A
+      // cart that had already cost a tier bulldozed the player along the
+      // pavement and off the end of it; now it rolls through you until the
+      // grace is up, unless you are standing on it, which is still a ride.
+      (_player, hazardObject) => {
+        const hazard = hazardObject as MovingHazard;
+        if (!hazard.collidesWithPlayer) return false;
+        if (!this.power.isInvulnerable(this.time.now)) return true;
+        const body = this.player.physicsBody;
+        return hazard.config.rideable && body.bottom <= hazard.physicsBody.top + 6 && body.velocity.y >= 0;
+      },
     );
 
     /**
@@ -2882,6 +2969,7 @@ export class LevelScene extends Phaser.Scene {
       coins: this.coinCount,
       respawnX: this.respawnAt.x,
       respawnY: this.respawnAt.y,
+      respawnIndex: this.respawnIndex,
       character: this.player.character,
       lives: this.lives,
       ...(this.yetzer ? { yetzerPhase: this.yetzer.phase } : {}),

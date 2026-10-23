@@ -251,8 +251,8 @@
     "sprites/rat.png": {
       "atlas": "world1",
       "frame": "rat",
-      "frameWidth": 20,
-      "frameHeight": 14,
+      "frameWidth": 24,
+      "frameHeight": 16,
       "frames": 3
     },
     "sprites/cart.png": {

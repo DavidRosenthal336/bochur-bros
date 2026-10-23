@@ -693,7 +693,9 @@ PIGEON_SQUASH = [
 ]
 
 # ================================================================== RAT =====
-# Hitbox 16 x 10. Frame 20 x 14.
+# Hitbox 20 x 12. Frame 24 x 16: the rat became the ground grunt and grew a
+# little so it can be seen coming; the drawing is the same, padded (see
+# `pad_frame`). Redraw it bigger when there is time.
 
 RAT_1 = [
     "..............uu",
@@ -716,6 +718,14 @@ RAT_2 = [
     ".uuuuuuuuuu.....",
     "...uu..uu.......",
 ]
+
+def pad_frame(grid, w, h):
+    """The grid centred at the bottom of a w x h frame of blank cells."""
+    gw = len(grid[0])
+    left = (w - gw) // 2
+    rows = ['.' * w] * (h - len(grid))
+    return rows + ['.' * left + row + '.' * (w - gw - left) for row in grid]
+
 
 RAT_SQUASH = [
     "................",
@@ -1354,12 +1364,12 @@ def main():
     manifest['pigeon'] = {'frameWidth': 20, 'frameHeight': 16, 'frames': names,
                           'anchor': 'bottom-centre', 'hitbox': [16, 12]}
 
-    rat = {'run1': RAT_1, 'run2': RAT_2, 'squash': RAT_SQUASH}
+    rat = {'run1': pad_frame(RAT_1, 24, 16), 'run2': pad_frame(RAT_2, 24, 16), 'squash': pad_frame(RAT_SQUASH, 24, 16)}
     for n, g in rat.items():
         validate(f'rat.{n}', g)
     img, names = sheet_from(rat, (20, 14), list(rat))
     img.save(os.path.join(args.out, 'rat.png'))
-    manifest['rat'] = {'frameWidth': 20, 'frameHeight': 14, 'frames': names,
+    manifest['rat'] = {'frameWidth': 24, 'frameHeight': 16, 'frames': names,
                        'anchor': 'bottom-centre', 'hitbox': [16, 10]}
 
     # boss -------------------------------------------------------------------

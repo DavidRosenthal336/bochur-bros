@@ -75,7 +75,7 @@ The quick way, many assets per ChatGPT image: see **[ART_BATCHES.md](ART_BATCHES
 | [Checkpoint](#checkpoint) | 2 | ✅ processed | `checkpoint.png` | 120×216 | 2 |
 | [World 1 prize — the meat board](#goal_meat_board) | 2 | ✅ processed | `goal_meat_board.png` | 216×204 | 1 |
 | [Pigeon](#pigeon) | 2 | ✅ processed | `pigeon.png` | 120×96 | 6 |
-| [Rat](#rat) | 2 | ✅ processed | `rat.png` | 120×84 | 3 |
+| [Rat](#rat) | 2 | ✅ processed | `rat.png` | 144×96 | 3 |
 | [Shopping cart](#cart) | 2 | ✅ processed | `cart.png` | 156×132 | 1 |
 | [Delivery van](#van) | 2 | ✅ processed | `van.png` | 300×192 | 1 |
 | [Falling scaffolding pipe](#scaffold_pipe) | 2 | ✅ processed | `scaffold_pipe.png` | 96×264 | 1 |
@@ -1085,7 +1085,7 @@ Background rules: a PNG with a real transparent background (alpha channel). Noth
 
 - **Drop as:** `assets/raw/rat.png`
 - **Game file:** `sprites/rat.png` → atlas `assets/processed/atlases/world1.png`; 1080p master `assets/processed/hd/sprites/rat.png`
-- **Size:** 120×84 px per frame at 1080p (20×14 in game); whole sheet 360×84
+- **Size:** 144×96 px per frame at 1080p (24×16 in game); whole sheet 432×96
 - **Frames (3):** `run-1`, `run-2`, `squash` — drawn as a 3×1 grid
 - **Anchor:** bottom centre (feet on the frame's bottom edge)
 - **Reference (current art, 6x):** `assets/reference/rat.png`
@@ -1102,7 +1102,7 @@ Make ONE image that is a sprite sheet of 3 frames, laid out in a grid of 3 colum
 2. run-2 — scurrying, legs bunched
 3. squash — flattened, stomped
 
-Every frame shows the same subject at exactly the same scale, side view facing right, whole and uncropped, with the feet (or base) on the same invisible baseline in every frame. Leave clear empty space between frames so no two frames touch. Each frame should fit a 20:14 box — each will be scaled to 120x84 px at 1920x1080.
+Every frame shows the same subject at exactly the same scale, side view facing right, whole and uncropped, with the feet (or base) on the same invisible baseline in every frame. Leave clear empty space between frames so no two frames touch. Each frame should fit a 24:16 box — each will be scaled to 144x96 px at 1920x1080.
 
 Background rules: a PNG with a real transparent background (alpha channel). Nothing behind the subject — no floor, no ground shadow, no scenery, no frame or border, no text, labels, numbers or watermark. If you cannot make the background transparent, fill the entire background with one flat solid pure magenta, #FF00FF (no gradient, no shading, no shadow), and do not use that magenta anywhere in the artwork itself.
 ```

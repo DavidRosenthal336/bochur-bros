@@ -68,6 +68,16 @@ export class PowerState extends Phaser.Events.EventEmitter {
   }
 
   /**
+   * A grace period that is not the aftermath of a hit: the moment after a
+   * respawn. Everything that was placed near a checkpoint is back and awake on
+   * the first frame, and a player who has not yet pressed anything should not
+   * be paying for that.
+   */
+  protect(until: number): void {
+    this.invulnerableUntil = Math.max(this.invulnerableUntil, until);
+  }
+
+  /**
    * Award a tier from a pickup.
    *
    * A pickup never demotes you — collecting a Cholent while in a power form

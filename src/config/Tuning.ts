@@ -380,6 +380,26 @@ export const GAMEPLAY = {
   hurtKnockbackY: -150,
   /** How long the level pauses on death before respawning, ms. */
   deathPauseMs: 900,
+  /**
+   * Invulnerability after a respawn, ms. Blinking, like the grace after a hit.
+   *
+   * A death rebuilds the level, so everything near the checkpoint is back and
+   * awake on the first frame, and you come back Small: the first touch was
+   * the next life. Long enough to see what is there and move; short enough
+   * that it is not a free pass through it.
+   */
+  spawnGraceMs: 1500,
+  /**
+   * How close the player has to come before a sleeping enemy or hazard starts
+   * moving, px.
+   *
+   * The view is 320px wide and the player sits near its middle, so this is a
+   * little beyond the edge of the screen: things start as you arrive, not
+   * minutes before. Without it a shopping cart placed for you to ride had
+   * rolled off into a pit before you were anywhere near it, and every rat in
+   * a level surfaced together on a clock that started with the level.
+   */
+  wakeRange: 260,
   /** Upward velocity of the player's death flop, px/s. */
   deathLaunchY: -320,
   /** How far a bumped block rises before settling, px. */

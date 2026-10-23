@@ -64,8 +64,15 @@ export interface EnemyConfig {
   readonly bodyWidth: number;
   readonly bodyHeight: number;
   readonly color: number;
-  /** How far either side of its spawn it patrols, px. */
+  /** How far either side of its spawn it patrols, px. `Infinity` is "until a wall". */
   readonly patrolRange: number;
+  /**
+   * Does a patroller turn round at the end of its floor, or walk off it?
+   *
+   * The rats do: a rat that walks off the pavement into a pit is a rat the
+   * player never meets, and it was put there to be met.
+   */
+  readonly turnsAtLedges?: boolean;
   /** Extra settings for `emerge`: hiding, then scurrying out on a timer (§6). */
   readonly emerge?: {
     /** How long it stays out of sight between appearances, ms. */
@@ -206,29 +213,35 @@ export const ENEMIES = {
     dive: { triggerRange: 120, windUpMs: 500, speed: 105, recoverSpeed: 70, cooldownMs: 1400 },
   },
   /**
-   * The rat — "emerge from sewer grates and garbage bags on a timer, scurry
-   * fast in one direction" (§6).
+   * The rat — World 1's ground grunt.
    *
-   * Fast enough to be a problem and short-lived enough not to be a siege. It
-   * climbs out visibly before it moves, for the same reason the pigeon rears
-   * up: an enemy that simply appears underneath you is a coin toss.
+   * §6 has it emerging from a grate on a timer and scurrying "fast in one
+   * direction", and that is how it was built: 120px/s, a third faster than a
+   * walk, out of the ground on a clock that ran from the start of the level.
+   * Played, it was the thing that made World 1 unfair — every rat in a level
+   * surfaced together after each respawn and ran at you from across the
+   * screen, and on 1-2's boards it crossed the whole board in a second.
+   *
+   * By the developer's decision it is now the classic ground grunt instead:
+   * it walks, slowly, turns at walls and at the ends of its floor, and does
+   * nothing until you are near. Something you step on, not something you
+   * survive. It is also a little bigger, so it can be seen coming.
    */
   rat: {
     label: 'Rat',
-    behavior: 'emerge',
-    speed: 120,
+    behavior: 'patrol',
+    // Under half a walk. Slow enough to be timed, which is the whole game of
+    // a ground grunt.
+    speed: 40,
     hits: 1,
     stompable: true,
     affectedByGravity: true,
     art: 'rat',
-    // 16 x 10 rather than the 14 x 9 it was greyboxed at: the drawn rat's body
-    // is 16 wide before the tail, and a hitbox narrower than the animal means
-    // stomps that visibly connect do nothing.
-    bodyWidth: 16,
-    bodyHeight: 10,
+    bodyWidth: 20,
+    bodyHeight: 12,
     color: 0x6f6257,
-    patrolRange: 0,
-    emerge: { hiddenMs: 1800, risingMs: 420, runMs: 3200 },
+    patrolRange: Infinity,
+    turnsAtLedges: true,
   },
 
   // --- World 2, The Five Towns ----------------------------------------------

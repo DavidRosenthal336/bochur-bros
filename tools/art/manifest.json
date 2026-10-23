@@ -175,8 +175,8 @@
     ]
   },
   "rat": {
-    "frameWidth": 20,
-    "frameHeight": 14,
+    "frameWidth": 24,
+    "frameHeight": 16,
     "frames": [
       "run1",
       "run2",

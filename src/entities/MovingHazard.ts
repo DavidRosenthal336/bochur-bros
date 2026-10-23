@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { HazardConfig } from '../config/hazards';
 import type { ActorSpriteSet } from '../config/sprites';
+import { GAMEPLAY } from '../config/Tuning';
 import { actorArt, applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 
@@ -30,13 +31,38 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
   /** The rope a pipe hangs from, up to the scaffolding above the screen. */
   private strap: Phaser.GameObjects.Rectangle | undefined;
   private readonly art: ActorSpriteSet | undefined;
+  /**
+   * Is there something solid at a point, in pixels? The level answers; this
+   * is how a thing on wheels sees the end of the pavement coming.
+   */
+  private readonly solidAt: (x: number, y: number) => boolean;
+  /**
+   * A roller sleeps until the player is near, so it is where it was put when
+   * they get there. Nothing else has a before and an after.
+   */
+  private awake: boolean;
+  /**
+   * A chaser stands still until this time. Set by the scene on a resumed
+   * life, so the stroller does not arrive while the respawn grace is still
+   * running and catch a player who has not moved yet the moment it ends.
+   */
+  holdUntil = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, config: HazardConfig, facing: -1 | 1 = -1) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    config: HazardConfig,
+    facing: -1 | 1 = -1,
+    solidAt: (x: number, y: number) => boolean = () => true,
+  ) {
     super(scene, x, y, solidTextureKey(scene, config.bodyWidth, config.bodyHeight));
     this.config = config;
     this.homeX = x;
     this.homeY = y;
     this.facing = facing;
+    this.solidAt = solidAt;
+    this.awake = config.behavior !== 'roller';
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -114,13 +140,13 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
         this.tickFaller(now, playerX, groundY);
         break;
       case 'roller':
-        this.tickRoller();
+        this.tickRoller(playerX);
         break;
       case 'lurcher':
         this.tickLurcher(now, playerX);
         break;
       case 'chaser':
-        this.tickChaser(playerX, playerY);
+        this.tickChaser(now, playerX, playerY);
         break;
       default:
         break;
@@ -267,11 +293,49 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
     this.shadow = undefined;
   }
 
-  /** Rolls in one direction, turning at walls so it stays in its stretch. */
-  private tickRoller(): void {
+  /**
+   * Rolls in one direction, turning at walls and at the ends of its ground so
+   * it stays in its stretch, and not at all until the player is near.
+   *
+   * Both halves are the same lesson. A cart was placed in 1-1 for the player
+   * to ride, and rolled off the end of its pavement into a pit two and a half
+   * seconds after the level began — long before anyone reached it. Turning at
+   * a ledge keeps it on its stretch; sleeping keeps it where it was put until
+   * there is someone there to roll at.
+   */
+  private tickRoller(playerX: number): void {
     const body = this.physicsBody;
-    if (body.blocked.left || body.blocked.right) this.facing = this.facing === 1 ? -1 : 1;
+    if (!this.awake) {
+      body.setVelocityX(0);
+      if (Math.abs(playerX - this.x) > GAMEPLAY.wakeRange) return;
+      this.awake = true;
+      // It rolls at you: whichever side you come from.
+      this.facing = playerX < this.x ? -1 : 1;
+    }
+    const walled = body.blocked.left || body.blocked.right;
+    if (walled || (body.blocked.down && this.ledgeAhead())) this.facing = this.facing === 1 ? -1 : 1;
     body.setVelocityX(this.facing * this.config.speed);
+  }
+
+  /** Is the ground about to run out in the direction it is going? */
+  private ledgeAhead(): boolean {
+    const body = this.physicsBody;
+    const aheadX = this.facing > 0 ? body.right + 2 : body.left - 2;
+    return !this.solidAt(aheadX, body.bottom + 2);
+  }
+
+  /**
+   * How wide a hole it is driving at, in tiles, or 0 for none. Looks across
+   * the floor ahead for the next solid tile.
+   */
+  private gapAhead(): number {
+    const body = this.physicsBody;
+    const edge = this.facing > 0 ? body.right : body.left;
+    for (let tiles = 0; tiles < 6; tiles += 1) {
+      const px = edge + this.facing * (2 + tiles * 16);
+      if (this.solidAt(px, body.bottom + 2)) return tiles;
+    }
+    return 6;
   }
 
   /** Sits still, then lurches forward with no warning at all. That is the joke. */
@@ -314,16 +378,67 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  /** Follows, relentlessly, and hops a little when it meets a step. */
-  private tickChaser(playerX: number, playerY: number): void {
+  /**
+   * Follows, relentlessly: hops a step it meets, jumps a gap it comes to, and
+   * if it is ever lost down one anyway, comes back behind you.
+   *
+   * The first version only hopped at walls, and rolled into the first pit of
+   * 1-3 six seconds into a level whose whole premise is that it "pursues the
+   * whole way" (§6). A chaser has to be able to go everywhere the player can.
+   */
+  private tickChaser(now: number, playerX: number, playerY: number): void {
     const body = this.physicsBody;
     const direction = playerX < this.x ? -1 : 1;
+    this.facing = direction;
+
+    if (now < this.holdUntil) {
+      body.setVelocityX(0);
+      return;
+    }
+
+    // Fallen out of the level: back on the floor behind the player, so the
+    // chase goes on. Out of sight, so it looks like it caught up.
+    if (this.y > this.homeY + 160) {
+      this.resetBehind(playerX, playerY);
+      return;
+    }
+
+    // In the air, keep the speed the jump was made at: a hop that slows down
+    // halfway across is a hop into the hole.
+    if (!body.blocked.down) return;
+
     body.setVelocityX(direction * this.config.speed);
 
-    // A wall in the way is a step to be hopped, not a reason to stop: the
-    // stroller is supposed to follow you the length of the level.
+    // A wall in the way is a step to be hopped, not a reason to stop.
     const blocked = direction > 0 ? body.blocked.right : body.blocked.left;
-    if (blocked && body.blocked.down) body.setVelocityY(-430);
+    if (blocked) {
+      body.setVelocityY(-430);
+      return;
+    }
+
+    // A gap in the way is jumped — with a run at it, because the arc it gets
+    // only clears a little over three tiles at its own speed.
+    const gap = this.gapAhead();
+    if (gap > 0 && gap <= 4) {
+      body.setVelocityY(-430);
+      body.setVelocityX(direction * Math.max(this.config.speed, (gap + 1.5) * 16 / 0.57));
+    }
+  }
+
+  /** Back onto the floor a lead behind the player. */
+  private resetBehind(playerX: number, playerY: number): void {
+    const body = this.physicsBody;
+    const lead = 7 * 16;
+    let x = playerX - lead;
+    // Walk left until there is floor under the whole body.
+    for (let tries = 0; tries < 40; tries += 1) {
+      const half = this.config.bodyWidth / 2;
+      if (this.solidAt(x - half + 1, this.homeY + 1) && this.solidAt(x + half - 1, this.homeY + 1)) break;
+      x -= 8;
+    }
+    this.setPosition(Math.max(this.config.bodyWidth, x), this.homeY);
+    body.reset(this.x, this.y);
+    body.setVelocity(0, 0);
     void playerY;
   }
 

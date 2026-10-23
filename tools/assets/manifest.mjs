@@ -260,7 +260,7 @@ export const ASSETS = [
     'a grimy grey Brooklyn city pigeon',
     { perch: 'standing, puffed up', rear: 'rearing back, wings half open, about to dive', 'fly-1': 'flying, wings up', 'fly-2': 'flying, wings down', swoop: 'diving forward and down, wings swept back', squash: 'flattened, stomped, dizzy' },
     { title: 'Pigeon' }),
-  sheet('rat', P2, 'world1', [20, 14],
+  sheet('rat', P2, 'world1', [24, 16],
     'a scruffy brown sewer rat with a long pink tail',
     { 'run-1': 'scurrying, legs stretched', 'run-2': 'scurrying, legs bunched', squash: 'flattened, stomped' },
     { title: 'Rat' }),

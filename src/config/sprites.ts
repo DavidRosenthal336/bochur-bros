@@ -142,7 +142,7 @@ export const ACTOR_SPRITES = {
     { perch: 0, rear: 1, fly: [2, 3], swoop: 4, squash: 5 },
     { fps: 8 },
   ),
-  rat: actor('rat', 20, 14, { run: [0, 1], squash: 2 }, { fps: 12 }),
+  rat: actor('rat', 24, 16, { run: [0, 1], squash: 2 }, { fps: 8 }),
   pigeonKing: actor('pigeon_king', 44, 38, { idle: 0, wings: 1, dive: 2, hurt: 3 }),
 
   /**
