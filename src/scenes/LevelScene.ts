@@ -70,6 +70,20 @@ const BOUNCE_VELOCITY: Record<BounceKind, number> = {
  * nine tiles back happens to land.
  */
 const CHASER_LEAD = 9;
+/**
+ * Two kindnesses at the corners of platforms, in pixels.
+ *
+ * Hit the side of a ledge with your feet this close under its top, and you
+ * are stood on it. Clip a ceiling by this much of your width at its edge, and
+ * you are slid past it with your jump intact. Neither is a mechanic — the
+ * jump the player made is the jump they get — but on 1-2's climb, where every
+ * board is three rows up and one tile over with the next board of your own
+ * column six rows overhead, a running Mendy reached the far board's side a
+ * few pixels early and clipped the ceiling a few pixels late on the same
+ * jump, and "the gap is too tight" was the whole experience of the level.
+ */
+const LEDGE_FORGIVE = 10;
+const CORNER_FORGIVE = 8;
 
 /** Placeholder colours for the three things that throw you upward. */
 const BOUNCE_COLORS = {
@@ -349,6 +363,8 @@ export class LevelScene extends Phaser.Scene {
    * before the first frame and the camera rose from the off.
    */
   private riseGraceLeft = 0;
+  /** The player's vertical speed at the end of the last frame, for corner correction. */
+  private lastPlayerVy = 0;
   /**
    * How far to move a pursuing hazard along, so it resumes the same distance
    * behind the player as it started. Only ever non-zero on a chase level
@@ -602,6 +618,7 @@ export class LevelScene extends Phaser.Scene {
     this.updateWater();
     this.updateMud();
     this.player.tick(step, this.controls.current);
+    this.forgiveCorners();
     this.applyWind(step / 1000);
     this.updateTanks(step / 1000);
     this.updateCrates();
@@ -2893,12 +2910,76 @@ export class LevelScene extends Phaser.Scene {
 
     const wantX = Phaser.Math.Clamp(this.player.x - VIEW_WIDTH / 2, 0, Math.max(0, widthPx - VIEW_WIDTH));
     camera.stopFollow();
-    camera.setScroll(Phaser.Math.Linear(camera.scrollX, wantX, CAMERA.lerpX), this.autoScrollY);
+    // `autoScrollY` is where the screen is owed; the screen eases up to it.
+    // Snapping there the frame you land — a board's height in one step —
+    // read as the screen glitching upwards. The ease only ever goes up, so
+    // the ratchet holds, and the clock's own rise is slow enough to be
+    // followed exactly.
+    const shownY = Math.min(
+      camera.scrollY,
+      Phaser.Math.Linear(camera.scrollY, this.autoScrollY, CAMERA.lerpY),
+    );
+    camera.setScroll(Phaser.Math.Linear(camera.scrollX, wantX, CAMERA.lerpX), shownY);
 
     // Left below the screen with nothing under you. There is no shoving a
     // player upwards the way the horizontal chase shoves them along, so this
     // is the one place being outpaced is fatal.
     if (this.player.physicsBody.top > camera.scrollY + VIEW_HEIGHT) this.killPlayer();
+  }
+
+  /**
+   * The corner kindnesses (LEDGE_FORGIVE, CORNER_FORGIVE). Runs after the
+   * physics step has resolved this frame's collisions, so `blocked` is fresh.
+   */
+  private forgiveCorners(): void {
+    const body = this.player.physicsBody;
+    if (this.state !== 'playing') {
+      this.lastPlayerVy = body.velocity.y;
+      return;
+    }
+
+    // Into the side of a ledge, feet just under its top: step up onto it.
+    const side = body.blocked.right ? 1 : body.blocked.left ? -1 : 0;
+    if (side !== 0 && !body.blocked.down) {
+      const probeX = side > 0 ? body.right + 1 : body.left - 1;
+      const ledgeTop = Math.floor((body.bottom - 1) / TILE) * TILE;
+      const rise = body.bottom - ledgeTop;
+      if (
+        rise <= LEDGE_FORGIVE &&
+        this.isSolidAt(probeX, body.bottom - 1) &&
+        !this.isSolidAt(probeX, ledgeTop - 1) &&
+        !this.isSolidAt(body.x + body.width / 2, body.top - rise)
+      ) {
+        body.position.y -= rise;
+        body.position.x += side * 2;
+        body.setVelocityY(0);
+        if (Math.abs(body.velocity.x) < 60) body.setVelocityX(side * 60);
+      }
+    }
+
+    // Head into the edge of a ceiling by a sliver: slide past it, jump intact.
+    // Only when the slide is with the player's own motion (or they have
+    // none): sliding a player who is running into the corner just put them
+    // back into it next frame, and the two corrections held them in mid-air.
+    if (body.blocked.up && this.lastPlayerVy < 0) {
+      const y = body.top - 1;
+      const leftHit = this.isSolidAt(body.left + 1, y);
+      const rightHit = this.isSolidAt(body.right - 1, y);
+      if (leftHit !== rightHit) {
+        const overlap = rightHit
+          ? body.right - Math.floor((body.right - 1) / TILE) * TILE
+          : Math.ceil(body.left / TILE) * TILE - body.left;
+        const shift = rightHit ? -(overlap + 1) : overlap + 1;
+        const withMotion = body.velocity.x === 0 || Math.sign(body.velocity.x) === Math.sign(shift);
+        const clearX = rightHit ? body.left + shift : body.right + shift;
+        if (overlap <= CORNER_FORGIVE && withMotion && !this.isSolidAt(clearX, y)) {
+          body.position.x += shift;
+          body.setVelocityY(this.lastPlayerVy);
+        }
+      }
+    }
+
+    this.lastPlayerVy = body.velocity.y;
   }
 
   private hurtPlayer(fromX: number): void {

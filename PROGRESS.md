@@ -1813,3 +1813,27 @@ checkpoints a respawn that stands still for three seconds is still alive.
 
 **Deviations from the design document (§13):** 1-3 has no clock; 1-2 has no
 falling pipes; rats patrol instead of emerging on a timer.
+
+## 1-2 felt wrong to play: the screen jerked, and the slot was too tight
+
+Played by the developer right after the rebuild. Two things, both engine:
+
+- **The rising camera eased.** Pulling it to your footing was right; snapping
+  it there the frame you land — a board's height in one step — read as the
+  screen glitching upwards. The screen now eases up to where it is owed
+  (`CAMERA.lerpY`), only ever upwards, so the ratchet holds.
+- **Corner forgiveness** (`LEDGE_FORGIVE` 10 px, `CORNER_FORGIVE` 8 px). The
+  climb's geometry is forced: Berel's jump needs the columns one tile apart,
+  Mendy's height needs the board above six rows up, so every jump threads a
+  one-tile slot. Measured, a running Mendy reached the far board's side a few
+  pixels early and clipped the ceiling a few pixels late on the same jump.
+  Now a player who hits the side of a ledge with their feet within 10 px of
+  its top is stood on it, and one who clips a ceiling's edge by up to 8 px of
+  their width slides past with the jump intact (only when the slide is with
+  their motion — against it, the two corrections held the player frozen in
+  mid-air at 1-1's awning until that was found). Jump-window test, first
+  board pair of 1-2: both brothers land from any launch in the last two
+  tiles, running or walking; before, the window was about half a tile.
+
+Verified again: 1-1 Mendy 45 s, 0 deaths; 1-2 Mendy finished; 1-3 Berel
+finished; 1-2 Berel to the third checkpoint (the bot, not the level).
