@@ -259,5 +259,464 @@
       "assets/processed/hd/sprites/rat.png"
     ],
     "at": "2026-10-16T02:58:52.525Z"
+  },
+  "title_logo": {
+    "status": "processed",
+    "hash": "52f23ab81251e4e5535ae183e6fab649b8418768",
+    "outputs": [
+      "assets/processed/sheets/title_logo.png",
+      "assets/processed/hd/sprites/ui/title_logo.png"
+    ],
+    "at": "2026-10-23T00:38:00.291Z"
+  },
+  "map_node": {
+    "status": "processed",
+    "hash": "9d0ede431d3f1ee17f2f926c202790f73a430222",
+    "outputs": [
+      "assets/processed/sheets/map_node.png",
+      "assets/processed/hd/sprites/ui/map_node.png"
+    ],
+    "at": "2026-10-23T00:38:00.347Z"
+  },
+  "kiddush_table": {
+    "status": "processed",
+    "hash": "eccf3c88535f326016f43fbe600e3af968ebaa0b",
+    "outputs": [
+      "assets/processed/sheets/kiddush_table.png",
+      "assets/processed/hd/sprites/ui/kiddush_table.png"
+    ],
+    "at": "2026-10-23T00:38:00.456Z"
+  },
+  "prize_icons": {
+    "status": "processed",
+    "hash": "5eba8a5d24436fd5513576ecda15205803d03778",
+    "outputs": [
+      "assets/processed/sheets/prize_icons.png",
+      "assets/processed/hd/sprites/ui/prize_icons.png"
+    ],
+    "at": "2026-10-23T00:53:05.021Z"
+  },
+  "reinforced_block": {
+    "status": "processed",
+    "hash": "84558b3173a64b1e694222d8ad13cab0ac95e9d9",
+    "outputs": [
+      "assets/processed/sheets/reinforced_block.png",
+      "assets/processed/hd/sprites/reinforced_block.png"
+    ],
+    "at": "2026-10-23T00:38:00.681Z"
+  },
+  "weak_floor": {
+    "status": "processed",
+    "hash": "1640d2291750c90fe54f5ad34d5474779572b7ba",
+    "outputs": [
+      "assets/processed/sheets/weak_floor.png",
+      "assets/processed/hd/sprites/weak_floor.png"
+    ],
+    "at": "2026-10-23T00:38:00.723Z"
+  },
+  "crate": {
+    "status": "processed",
+    "hash": "51dc3e28baa56dbdeed832daf681d1f15fe06f7b",
+    "outputs": [
+      "assets/processed/sheets/crate.png",
+      "assets/processed/hd/sprites/crate.png"
+    ],
+    "at": "2026-10-23T00:38:00.763Z"
+  },
+  "powerup_pickup": {
+    "status": "processed",
+    "hash": "6bc833093201c2e68ecc09ec84f08eca91fc8670",
+    "outputs": [
+      "assets/processed/sheets/powerup_pickup.png",
+      "assets/processed/hd/sprites/powerup_pickup.png"
+    ],
+    "at": "2026-10-23T00:38:00.816Z"
+  },
+  "bg_sky_day": {
+    "status": "processed",
+    "hash": "fae6f9fa0049c77d15d85f3271681feaa52a2839",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_day.png"
+    ],
+    "at": "2026-10-23T00:51:26.281Z"
+  },
+  "bg_skyline_day": {
+    "status": "processed",
+    "hash": "f756e3e77a1475169c6866162f0de0ec732fa825",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_skyline_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_skyline_day.png"
+    ],
+    "at": "2026-10-23T00:38:02.204Z"
+  },
+  "bg_street_day": {
+    "status": "processed",
+    "hash": "48e71b108a54b5e910676bea7975b109fff621df",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_street_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_street_day.png"
+    ],
+    "at": "2026-10-23T00:38:02.744Z"
+  },
+  "goose": {
+    "status": "processed",
+    "hash": "4fee4e852f61eb67cf92eb281e7a243358f18341",
+    "outputs": [
+      "assets/processed/sheets/goose.png",
+      "assets/processed/hd/sprites/goose.png"
+    ],
+    "at": "2026-10-23T00:38:02.830Z"
+  },
+  "chipmunk": {
+    "status": "processed",
+    "hash": "af8861d1299d5c2c135562bc6145becbb1d2765d",
+    "outputs": [
+      "assets/processed/sheets/chipmunk.png",
+      "assets/processed/hd/sprites/chipmunk.png"
+    ],
+    "at": "2026-10-23T00:38:02.864Z"
+  },
+  "dog": {
+    "status": "processed",
+    "hash": "fa083fe245fb82b21278e8698f756ff50b897f79",
+    "outputs": [
+      "assets/processed/sheets/dog.png",
+      "assets/processed/hd/sprites/dog.png"
+    ],
+    "at": "2026-10-23T00:38:02.904Z"
+  },
+  "mower": {
+    "status": "processed",
+    "hash": "05ddfc2b4715031c304eac977bf53beb0b869d8a",
+    "outputs": [
+      "assets/processed/sheets/mower.png",
+      "assets/processed/hd/sprites/mower.png"
+    ],
+    "at": "2026-10-23T00:38:02.968Z"
+  },
+  "blower": {
+    "status": "processed",
+    "hash": "c98d49ed5a516064d9e66a5ec65b5d793fd8799a",
+    "outputs": [
+      "assets/processed/sheets/blower.png",
+      "assets/processed/hd/sprites/blower.png"
+    ],
+    "at": "2026-10-23T00:38:02.997Z"
+  },
+  "wind_puff": {
+    "status": "processed",
+    "hash": "e3cc0cfdfd9b4c7e7a839f0eaae6acee521f9844",
+    "outputs": [
+      "assets/processed/sheets/wind_puff.png",
+      "assets/processed/hd/sprites/wind_puff.png"
+    ],
+    "at": "2026-10-23T00:38:03.027Z"
+  },
+  "trampoline": {
+    "status": "processed",
+    "hash": "2b108705427e3b3f3b5e9a5b26598c425cd79dc1",
+    "outputs": [
+      "assets/processed/sheets/trampoline.png",
+      "assets/processed/hd/sprites/trampoline.png"
+    ],
+    "at": "2026-10-23T00:38:03.060Z"
+  },
+  "minivan": {
+    "status": "processed",
+    "hash": "6afe3309a7641f1649ae5030e0c467b9e297c4c1",
+    "outputs": [
+      "assets/processed/sheets/minivan.png",
+      "assets/processed/hd/sprites/minivan.png"
+    ],
+    "at": "2026-10-23T00:38:03.135Z"
+  },
+  "escalade": {
+    "status": "processed",
+    "hash": "5c2cc0053d2d5d4e8fd475868f0a911e6b4d7b45",
+    "outputs": [
+      "assets/processed/sheets/escalade.png",
+      "assets/processed/hd/sprites/escalade.png"
+    ],
+    "at": "2026-10-23T00:38:03.286Z"
+  },
+  "goal_poppers": {
+    "status": "processed",
+    "hash": "2078cac62f31edacf88594c236e75241f1daae6c",
+    "outputs": [
+      "assets/processed/sheets/goal_poppers.png",
+      "assets/processed/hd/sprites/goal_poppers.png"
+    ],
+    "at": "2026-10-23T00:38:03.317Z"
+  },
+  "bg_sky_five_towns_day": {
+    "status": "processed",
+    "hash": "764e642ac623bdf399d40b778722a506aa8334aa",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_five_towns_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_five_towns_day.png"
+    ],
+    "at": "2026-10-23T00:51:33.586Z"
+  },
+  "bg_far_five_towns_day": {
+    "status": "processed",
+    "hash": "abba714dc9c6bd22e9c72b2817578b5d850f1f66",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_far_five_towns_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_far_five_towns_day.png"
+    ],
+    "at": "2026-10-23T00:38:04.696Z"
+  },
+  "bg_near_five_towns_day": {
+    "status": "processed",
+    "hash": "69dc5a877e83c58f23006118abc4baaf8bd581a4",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_near_five_towns_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_near_five_towns_day.png"
+    ],
+    "at": "2026-10-23T00:38:05.142Z"
+  },
+  "raccoon": {
+    "status": "processed",
+    "hash": "e3d6a0f3eb70536876b2a16aed65e54c673343e1",
+    "outputs": [
+      "assets/processed/sheets/raccoon.png",
+      "assets/processed/hd/sprites/raccoon.png"
+    ],
+    "at": "2026-10-23T00:38:05.180Z"
+  },
+  "wasp": {
+    "status": "processed",
+    "hash": "a6a12447f6ed55e42eeba992ed688e8224265a12",
+    "outputs": [
+      "assets/processed/sheets/wasp.png",
+      "assets/processed/hd/sprites/wasp.png"
+    ],
+    "at": "2026-10-23T00:38:05.213Z"
+  },
+  "frog": {
+    "status": "processed",
+    "hash": "48ce25f0738a39850532d07d6c1577405f5d37fe",
+    "outputs": [
+      "assets/processed/sheets/frog.png",
+      "assets/processed/hd/sprites/frog.png"
+    ],
+    "at": "2026-10-23T00:38:05.247Z"
+  },
+  "mosquito_swarm": {
+    "status": "processed",
+    "hash": "36ff81584f7aa1137cb6fa558ea24c25da2f618e",
+    "outputs": [
+      "assets/processed/sheets/mosquito_swarm.png",
+      "assets/processed/hd/sprites/mosquito_swarm.png"
+    ],
+    "at": "2026-10-23T00:38:05.290Z"
+  },
+  "golf_cart": {
+    "status": "processed",
+    "hash": "4235698c359e8f26ffa83640c7739bfb3b8d7823",
+    "outputs": [
+      "assets/processed/sheets/golf_cart.png",
+      "assets/processed/hd/sprites/golf_cart.png"
+    ],
+    "at": "2026-10-23T00:38:05.325Z"
+  },
+  "canoe": {
+    "status": "processed",
+    "hash": "408b95f0342c8b1963abc4d2a54c16fd9bd25bf8",
+    "outputs": [
+      "assets/processed/sheets/canoe.png",
+      "assets/processed/hd/sprites/canoe.png"
+    ],
+    "at": "2026-10-23T00:38:05.353Z"
+  },
+  "clothesline_post": {
+    "status": "processed",
+    "hash": "3b7398ee0dfc4fa759279e4858aa3ae5c52fdb58",
+    "outputs": [
+      "assets/processed/sheets/clothesline_post.png",
+      "assets/processed/hd/sprites/clothesline_post.png"
+    ],
+    "at": "2026-10-23T00:38:05.386Z"
+  },
+  "porch_step": {
+    "status": "processed",
+    "hash": "5232ee209f44c5bbb768d6f8c822a7ce5bfcd692",
+    "outputs": [
+      "assets/processed/sheets/porch_step.png",
+      "assets/processed/hd/sprites/porch_step.png"
+    ],
+    "at": "2026-10-23T00:38:05.418Z"
+  },
+  "rope_swing": {
+    "status": "processed",
+    "hash": "5c28973986ef3bafa8d598ea1946d0fac151de2c",
+    "outputs": [
+      "assets/processed/sheets/rope_swing.png",
+      "assets/processed/hd/sprites/rope_swing.png"
+    ],
+    "at": "2026-10-23T00:38:05.454Z"
+  },
+  "bear": {
+    "status": "processed",
+    "hash": "162eeba8cbde2d977c00e8ed5d194a8608295d5f",
+    "outputs": [
+      "assets/processed/sheets/bear.png",
+      "assets/processed/hd/sprites/bear.png"
+    ],
+    "at": "2026-10-23T00:38:05.522Z"
+  },
+  "goal_kugel": {
+    "status": "processed",
+    "hash": "4f2c49db15a7e1126ac748a1b8b238f8d9008283",
+    "outputs": [
+      "assets/processed/sheets/goal_kugel.png",
+      "assets/processed/hd/sprites/goal_kugel.png"
+    ],
+    "at": "2026-10-23T00:38:05.571Z"
+  },
+  "bg_sky_catskills_day": {
+    "status": "processed",
+    "hash": "c9f8b742c19ebbddb281f13e3bc975d0515c3b1b",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_catskills_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_catskills_day.png"
+    ],
+    "at": "2026-10-23T00:51:40.620Z"
+  },
+  "bg_far_catskills_day": {
+    "status": "processed",
+    "hash": "7a4deed7ad1165a8d49972436ef99d25946acc67",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_far_catskills_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_far_catskills_day.png"
+    ],
+    "at": "2026-10-23T00:38:07.000Z"
+  },
+  "bg_near_catskills_day": {
+    "status": "processed",
+    "hash": "5f92e90cb75db845d91fcf918077e76c1c5672e7",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_near_catskills_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_near_catskills_day.png"
+    ],
+    "at": "2026-10-23T00:38:07.661Z"
+  },
+  "cat": {
+    "status": "processed",
+    "hash": "70afe7a9dc478a5ae462c7c160cab808dfc2505d",
+    "outputs": [
+      "assets/processed/sheets/cat.png",
+      "assets/processed/hd/sprites/cat.png"
+    ],
+    "at": "2026-10-23T00:38:07.720Z"
+  },
+  "gecko": {
+    "status": "processed",
+    "hash": "7ae1d404816a73adddc93e8abb5dc5ab2b28fc11",
+    "outputs": [
+      "assets/processed/sheets/gecko.png",
+      "assets/processed/hd/sprites/gecko.png"
+    ],
+    "at": "2026-10-23T00:38:07.757Z"
+  },
+  "sparrow": {
+    "status": "processed",
+    "hash": "56fb2b855793c293b37b615d296dd575a3e67a1c",
+    "outputs": [
+      "assets/processed/sheets/sparrow.png",
+      "assets/processed/hd/sprites/sparrow.png"
+    ],
+    "at": "2026-10-23T00:38:07.815Z"
+  },
+  "pashkevil": {
+    "status": "processed",
+    "hash": "9930f91fb09bbfba3d597b3c335a5124ffb5b934",
+    "outputs": [
+      "assets/processed/sheets/pashkevil.png",
+      "assets/processed/hd/sprites/pashkevil.png"
+    ],
+    "at": "2026-10-23T00:38:07.847Z"
+  },
+  "laundry_line": {
+    "status": "processed",
+    "hash": "1997e71563483d85be651058512a9e3f87f34f87",
+    "outputs": [
+      "assets/processed/sheets/laundry_line.png",
+      "assets/processed/hd/sprites/laundry_line.png"
+    ],
+    "at": "2026-10-23T00:38:07.885Z"
+  },
+  "solar_tank": {
+    "status": "processed",
+    "hash": "c416a7446e2c390ee181db27f296ff741aef8a3c",
+    "outputs": [
+      "assets/processed/sheets/solar_tank.png",
+      "assets/processed/hd/sprites/solar_tank.png"
+    ],
+    "at": "2026-10-23T00:38:07.924Z"
+  },
+  "shuk_cart": {
+    "status": "processed",
+    "hash": "ddaf8d8949f05654dce7163df56eef6e9061c6db",
+    "outputs": [
+      "assets/processed/sheets/shuk_cart.png",
+      "assets/processed/hd/sprites/shuk_cart.png"
+    ],
+    "at": "2026-10-23T00:38:07.961Z"
+  },
+  "shuk_crate": {
+    "status": "processed",
+    "hash": "3ff9f50baad378eb02fcff302294f4bf23fc2538",
+    "outputs": [
+      "assets/processed/sheets/shuk_crate.png",
+      "assets/processed/hd/sprites/shuk_crate.png"
+    ],
+    "at": "2026-10-23T00:38:08.000Z"
+  },
+  "yetzer_hara": {
+    "status": "processed",
+    "hash": "13d984039db136dedb7792c3f9237d567df35ca7",
+    "outputs": [
+      "assets/processed/sheets/yetzer_hara.png",
+      "assets/processed/hd/sprites/yetzer_hara.png"
+    ],
+    "at": "2026-10-23T00:38:08.117Z"
+  },
+  "goal_tequila": {
+    "status": "processed",
+    "hash": "168851f3328e5bc25731d0f363135217556678fb",
+    "outputs": [
+      "assets/processed/sheets/goal_tequila.png",
+      "assets/processed/hd/sprites/goal_tequila.png"
+    ],
+    "at": "2026-10-23T00:38:08.156Z"
+  },
+  "bg_sky_meah_shearim_day": {
+    "status": "processed",
+    "hash": "1a779d50ea77da8f5869bb30e82842e5421ff28a",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_sky_meah_shearim_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_sky_meah_shearim_day.png"
+    ],
+    "at": "2026-10-23T00:51:47.357Z"
+  },
+  "bg_far_meah_shearim_day": {
+    "status": "processed",
+    "hash": "83d581ee2638cedc5c815e7b923f9328fd5a3ec1",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_far_meah_shearim_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_far_meah_shearim_day.png"
+    ],
+    "at": "2026-10-23T00:38:09.133Z"
+  },
+  "bg_near_meah_shearim_day": {
+    "status": "processed",
+    "hash": "9f440bd47aded8cfed2e8c2254ab05b5a25b46f0",
+    "outputs": [
+      "assets/processed/sprites/backdrops/bg_near_meah_shearim_day.png",
+      "assets/processed/hd/sprites/backdrops/bg_near_meah_shearim_day.png"
+    ],
+    "at": "2026-10-23T00:38:09.634Z"
   }
 }

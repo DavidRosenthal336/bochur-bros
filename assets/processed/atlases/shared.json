@@ -3,7 +3,7 @@
   "coin": {
    "frame": {
     "x": 2,
-    "y": 74,
+    "y": 92,
     "w": 32,
     "h": 10
    },
@@ -60,10 +60,90 @@
     "h": 16
    }
   },
-  "powerup_cholent": {
+  "reinforced_block": {
    "frame": {
     "x": 20,
     "y": 40,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   }
+  },
+  "weak_floor": {
+   "frame": {
+    "x": 38,
+    "y": 40,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   }
+  },
+  "crate": {
+   "frame": {
+    "x": 2,
+    "y": 58,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   }
+  },
+  "powerup_pickup": {
+   "frame": {
+    "x": 20,
+    "y": 58,
+    "w": 14,
+    "h": 14
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 14
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 14
+   }
+  },
+  "powerup_cholent": {
+   "frame": {
+    "x": 36,
+    "y": 58,
     "w": 14,
     "h": 14
    },
@@ -82,8 +162,8 @@
   },
   "powerup_menorah": {
    "frame": {
-    "x": 36,
-    "y": 40,
+    "x": 2,
+    "y": 76,
     "w": 14,
     "h": 14
    },
@@ -102,8 +182,8 @@
   },
   "powerup_lulav": {
    "frame": {
-    "x": 2,
-    "y": 58,
+    "x": 18,
+    "y": 76,
     "w": 14,
     "h": 14
    },
@@ -122,8 +202,8 @@
   },
   "powerup_peyos": {
    "frame": {
-    "x": 18,
-    "y": 58,
+    "x": 34,
+    "y": 76,
     "w": 14,
     "h": 14
    },
@@ -142,8 +222,8 @@
   },
   "lchaim": {
    "frame": {
-    "x": 34,
-    "y": 58,
+    "x": 50,
+    "y": 76,
     "w": 10,
     "h": 14
    },
@@ -187,7 +267,7 @@
   "format": "RGBA8888",
   "size": {
    "w": 64,
-   "h": 86
+   "h": 104
   },
   "scale": "1"
  }

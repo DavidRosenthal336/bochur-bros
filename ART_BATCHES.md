@@ -10,11 +10,11 @@ Each batch is **one ChatGPT request** that makes many pieces of art in one pictu
 3. Save what comes back as `assets/raw/batches/<batch id>.png` and run `npm run assets`. It is cut into its pieces
    on its own. If one row comes out badly, redo just that piece and save it in `assets/raw/` under its own name.
 
-**0 of 53 pieces done across 12 batches.**
+**51 of 53 pieces done across 12 batches.**
 
-## ⬜ Batch 1 — Map screen and title
+## ✅ Batch 1 — Map screen and title
 
-0 of 4 done · save as `assets/raw/batches/batch_menus.png` · reference `assets/reference/batches/batch_menus.png`
+4 of 4 done · save as `assets/raw/batches/batch_menus.png` · reference `assets/reference/batches/batch_menus.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -29,9 +29,9 @@ Row 3: Prize icons. Five tiny icons of the kiddush prizes. 5 frames: a wooden bo
 Row 4: World map node. A round level marker for the world map. 3 frames: grey, with a small padlock · gold, glowing, ready to play · green with a white check mark.
 ```
 
-## ⬜ Batch 2 — Blocks and the plain power-up
+## ✅ Batch 2 — Blocks and the plain power-up
 
-0 of 4 done · save as `assets/raw/batches/batch_blocks.png` · reference `assets/reference/batches/batch_blocks.png`
+4 of 4 done · save as `assets/raw/batches/batch_blocks.png` · reference `assets/reference/batches/batch_blocks.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -48,9 +48,9 @@ Row 4: Power-up (generic pot). A covered cholent pot with a lid, a generic power
 The three blocks are perfect squares that fill their square edge to edge.
 ```
 
-## ⬜ Batch 3 — World 1 background (Boro Park, day)
+## ✅ Batch 3 — World 1 background (Boro Park, day)
 
-0 of 3 done · save as `assets/raw/batches/batch_w1_background.png` · reference `assets/reference/batches/batch_w1_background.png`
+3 of 3 done · save as `assets/raw/batches/batch_w1_background.png` · reference `assets/reference/batches/batch_w1_background.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the game's current background: redraw each of its layers in the better style, keeping the same layout.
@@ -68,9 +68,9 @@ Bottom panel, close up: a Boro Park street of brownstones and shopfronts with He
 Keep the colours calm and slightly muted, so the characters stand out in front.
 ```
 
-## ⬜ Batch 4 — World 2 creatures and traps
+## 🟨 Batch 4 — World 2 creatures and traps
 
-0 of 6 done · save as `assets/raw/batches/batch_w2_creatures.png` · reference `assets/reference/batches/batch_w2_creatures.png`
+4 of 6 done · save as `assets/raw/batches/batch_w2_creatures.png` · reference `assets/reference/batches/batch_w2_creatures.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -87,9 +87,9 @@ Row 5: Trampoline. A round backyard trampoline, side view. 2 frames: at rest · 
 Row 6: Backyard gate. A white picket backyard gate. 2 frames: swung open · closed and latched.
 ```
 
-## ⬜ Batch 5 — World 2 vehicles, boss and prize
+## ✅ Batch 5 — World 2 vehicles, boss and prize
 
-0 of 6 done · save as `assets/raw/batches/batch_w2_things.png` · reference `assets/reference/batches/batch_w2_things.png`
+6 of 6 done · save as `assets/raw/batches/batch_w2_things.png` · reference `assets/reference/batches/batch_w2_things.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -106,9 +106,9 @@ Row 5: Wind puff. A small white puff of blown wind with a couple of leaves. 1 fr
 Row 6: poppers. A foil pan of golden potato poppers — World 2's stolen kiddush prize. 1 frame.
 ```
 
-## ⬜ Batch 6 — World 2 background (Five Towns, day)
+## ✅ Batch 6 — World 2 background (Five Towns, day)
 
-0 of 3 done · save as `assets/raw/batches/batch_w2_background.png` · reference `assets/reference/batches/batch_w2_background.png`
+3 of 3 done · save as `assets/raw/batches/batch_w2_background.png` · reference `assets/reference/batches/batch_w2_background.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the game's current background: redraw each of its layers in the better style, keeping the same layout.
@@ -126,9 +126,9 @@ Bottom panel, close up: big suburban houses with lawns and two-car garages, brig
 Keep the colours calm and slightly muted, so the characters stand out in front.
 ```
 
-## ⬜ Batch 7 — World 3 creatures and boss
+## ✅ Batch 7 — World 3 creatures and boss
 
-0 of 5 done · save as `assets/raw/batches/batch_w3_creatures.png` · reference `assets/reference/batches/batch_w3_creatures.png`
+5 of 5 done · save as `assets/raw/batches/batch_w3_creatures.png` · reference `assets/reference/batches/batch_w3_creatures.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -144,9 +144,9 @@ Row 4: Wasp. A fat angry yellow-and-black wasp. 1 frame.
 Row 5: Mosquito swarm. A small dark cloud of mosquitoes. 2 frames: the swarm bunched up · the swarm spread out.
 ```
 
-## ⬜ Batch 8 — World 3 objects and prize
+## ✅ Batch 8 — World 3 objects and prize
 
-0 of 6 done · save as `assets/raw/batches/batch_w3_things.png` · reference `assets/reference/batches/batch_w3_things.png`
+6 of 6 done · save as `assets/raw/batches/batch_w3_things.png` · reference `assets/reference/batches/batch_w3_things.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -163,9 +163,9 @@ Row 5: Porch step. A rotting wooden porch step. 2 frames: old but whole · crack
 Row 6: kugel. A pan of golden-brown kugel — World 3's stolen kiddush prize. 1 frame.
 ```
 
-## ⬜ Batch 9 — World 3 background (Catskills, day)
+## ✅ Batch 9 — World 3 background (Catskills, day)
 
-0 of 3 done · save as `assets/raw/batches/batch_w3_background.png` · reference `assets/reference/batches/batch_w3_background.png`
+3 of 3 done · save as `assets/raw/batches/batch_w3_background.png` · reference `assets/reference/batches/batch_w3_background.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the game's current background: redraw each of its layers in the better style, keeping the same layout.
@@ -183,9 +183,9 @@ Bottom panel, close up: a row of little white summer-colony bungalows among pine
 Keep the colours calm and slightly muted, so the characters stand out in front.
 ```
 
-## ⬜ Batch 10 — World 4 creatures and the final boss
+## ✅ Batch 10 — World 4 creatures and the final boss
 
-0 of 4 done · save as `assets/raw/batches/batch_w4_creatures.png` · reference `assets/reference/batches/batch_w4_creatures.png`
+4 of 4 done · save as `assets/raw/batches/batch_w4_creatures.png` · reference `assets/reference/batches/batch_w4_creatures.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -200,9 +200,9 @@ Row 3: Sparrow. A quick little brown house sparrow. 2 frames: wings up · wings 
 Row 4: Gecko. A small sandy-coloured gecko seen from the side, lying flat (the game turns it to climb walls). 2 frames: legs out one way · legs out the other way.
 ```
 
-## ⬜ Batch 11 — World 4 objects and prize
+## ✅ Batch 11 — World 4 objects and prize
 
-0 of 6 done · save as `assets/raw/batches/batch_w4_things.png` · reference `assets/reference/batches/batch_w4_things.png`
+6 of 6 done · save as `assets/raw/batches/batch_w4_things.png` · reference `assets/reference/batches/batch_w4_things.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.
@@ -219,9 +219,9 @@ Row 5: Pashkevil. A small crumpled paper poster (a pashkevil) blowing in the win
 Row 6: tequila. A bottle of tequila with a red cap — the final stolen kiddush prize. 1 frame.
 ```
 
-## ⬜ Batch 12 — World 4 background (Meah Shearim, day)
+## ✅ Batch 12 — World 4 background (Meah Shearim, day)
 
-0 of 3 done · save as `assets/raw/batches/batch_w4_background.png` · reference `assets/reference/batches/batch_w4_background.png`
+3 of 3 done · save as `assets/raw/batches/batch_w4_background.png` · reference `assets/reference/batches/batch_w4_background.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the game's current background: redraw each of its layers in the better style, keeping the same layout.

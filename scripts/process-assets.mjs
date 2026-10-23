@@ -481,11 +481,73 @@ async function processSheet(asset, raws, log) {
   return { sheet: join(SHEETS, `${asset.id}.png`), hd: join(HD, asset.url) };
 }
 
+/**
+ * A sky is the back layer and must be solid, but ChatGPT likes to fade its top
+ * into a dark see-through haze, which left holes the level's flat colour showed
+ * through, and dark smudges and halos round the clouds where it did not.
+ *
+ * So the sky is rebuilt: a top-to-bottom fade taken from its own clean blue
+ * pixels (the median of each row's, smoothed), with the clouds and the pixels
+ * that are already sky-coloured kept, and everything else — see-through,
+ * smudged or haloed — painted with the fade. Returns the share of the image
+ * repainted, in percent.
+ */
+function fillSky(img) {
+  const { w, h, d } = img;
+  const med = (a) => a.sort((p, q) => p - q)[a.length >> 1];
+  const rows = new Array(h).fill(undefined);
+  for (let y = 0; y < h; y += 1) {
+    const rs = [], gs = [], bs = [];
+    for (let x = 0; x < w; x += 1) {
+      const o = (y * w + x) * 4;
+      const [r, g, b, a] = [d[o], d[o + 1], d[o + 2], d[o + 3]];
+      if (a >= 240 && b > 110 && b > r + 25) { rs.push(r); gs.push(g); bs.push(b); }
+    }
+    if (rs.length > w * 0.05) rows[y] = [med(rs), med(gs), med(bs)];
+  }
+  const known = rows.map((c, y) => (c ? y : -1)).filter((y) => y >= 0);
+  if (!known.length) return 0;
+  // Rows with no clean blue (all cloud, or all haze) take the colour between the nearest rows that have it.
+  const fade = rows.map((c, y) => {
+    if (c) return c;
+    const above = known.filter((k) => k < y).pop(), below = known.find((k) => k > y);
+    if (above === undefined) return rows[below];
+    if (below === undefined) return rows[above];
+    const t = (y - above) / (below - above);
+    return rows[above].map((v, i) => v + (rows[below][i] - v) * t);
+  });
+  // Smoothed, so one odd row does not leave a stripe across the sky.
+  const R = Math.max(2, Math.round(h * 0.03));
+  const smooth = fade.map((_, y) => {
+    const s = [0, 0, 0]; let n = 0;
+    for (let j = Math.max(0, y - R); j <= Math.min(h - 1, y + R); j += 1) { s[0] += fade[j][0]; s[1] += fade[j][1]; s[2] += fade[j][2]; n += 1; }
+    return s.map((v) => Math.round(v / n));
+  });
+  let painted = 0;
+  for (let y = 0; y < h; y += 1) {
+    const [fr, fg, fb] = smooth[y];
+    for (let x = 0; x < w; x += 1) {
+      const o = (y * w + x) * 4;
+      const [r, g, b, a] = [d[o], d[o + 1], d[o + 2], d[o + 3]];
+      const cloud = a >= 240 && Math.min(r, g, b) > 185;
+      const sky = a >= 240 && Math.abs(r - fr) + Math.abs(g - fg) + Math.abs(b - fb) < 32;
+      if (cloud || sky) { d[o + 3] = 255; continue; }
+      d[o] = fr; d[o + 1] = fg; d[o + 2] = fb; d[o + 3] = 255;
+      painted += 1;
+    }
+  }
+  return Math.round((painted / (w * h)) * 100);
+}
+
 async function processWhole(asset, raws, log) {
   // Tiles and backdrops: one image, filled edge to edge, never trimmed.
   const raw = raws.find((r) => r.frames.length === asset.frames.length) ?? raws[0];
   const img = await load(join(RAW, raw.file));
-  const how = removeBackground(img, 'solid');
+  let how = removeBackground(img, 'solid');
+  if (asset.layer === 'sky') {
+    const filled = fillSky(img);
+    if (filled) how += `, ${filled}% of the sky repainted`;
+  }
   const [w, h] = hdSize(asset);
   const hd = await resize(img, w, h, 'cover');
   const game = pixelDownscale(hd, SCALE, asset.soft);
@@ -836,11 +898,19 @@ function rowBands(img, count) {
 /**
  * Cut every batch image in assets/raw/batches/ into one raw file per asset, in
  * assets/raw/from-batches/. Rebuilt from scratch every run; an asset that has
- * its own raw file elsewhere in assets/raw/ keeps that instead.
+ * its own raw file elsewhere in assets/raw/ keeps that instead, and one listed
+ * in assets/raw/batches/skip.txt (a row that came out badly) is left out, so
+ * the game keeps its original art until it is redrawn.
  */
 async function splitBatches(ownRaw) {
   await rm(FROM_BATCHES, { recursive: true, force: true });
   if (!existsSync(BATCH_DIR)) return;
+  const skipFile = join(BATCH_DIR, 'skip.txt');
+  const skip = new Set(
+    existsSync(skipFile)
+      ? (await readFile(skipFile, 'utf8')).split('\n').map((l) => l.replace(/#.*/, '').trim()).filter(Boolean)
+      : [],
+  );
   for (const file of (await readdir(BATCH_DIR)).filter((f) => IMAGE.test(f)).sort()) {
     const base = file.replace(IMAGE, '').toLowerCase();
     const batch = BATCHES.find((b) => base === b.id);
@@ -857,12 +927,18 @@ async function splitBatches(ownRaw) {
       }
       const written = [];
       for (const [i, id] of batch.rows.entries()) {
-        if (ownRaw.has(id)) continue;
+        if (ownRaw.has(id) || skip.has(id)) continue;
         const [y0, y1] = parts[i];
         await save(crop(img, 0, y0, img.w, y1 - y0), join(FROM_BATCHES, `${id}.png`));
         written.push(id);
       }
-      console.log(`  ✂ ${file}: ${written.length} of ${batch.rows.length} rows cut out${written.length < batch.rows.length ? ' (the rest have their own raw file)' : ''}`);
+      const skipped = batch.rows.filter((id) => skip.has(id) && !ownRaw.has(id));
+      const own = batch.rows.filter((id) => ownRaw.has(id));
+      console.log(
+        `  ✂ ${file}: ${written.length} of ${batch.rows.length} rows cut out` +
+          (own.length ? `; own raw file: ${own.join(', ')}` : '') +
+          (skipped.length ? `; skipped (skip.txt): ${skipped.join(', ')}` : ''),
+      );
     } catch (error) {
       console.error(`  ✗ batches/${file}: ${error.message ?? error}`);
       process.exitCode = 1;
@@ -880,7 +956,10 @@ async function main() {
   await mkdir(OUT, { recursive: true });
   const state = existsSync(STATE_FILE) ? JSON.parse(await readFile(STATE_FILE, 'utf8')) : {};
   const own = matchRaw((await listRaw()).filter((f) => !f.startsWith('from-batches/')));
-  await splitBatches(new Set(own.byId.keys()));
+  // Only a whole drawing of an asset replaces its batch row; a one-frame or
+  // one-pose fix is laid over the row like any other override.
+  const whole = [...own.byId].filter(([id, list]) => list.some((r) => r.frames.length === ASSETS.find((a) => a.id === id).frames.length));
+  await splitBatches(new Set(whole.map(([id]) => id)));
   const { byId, unknown } = matchRaw(await listRaw());
   for (const f of unknown) console.warn(`  ? ${f} matches no asset in the manifest — see "Naming" in ASSETS.md`);
 

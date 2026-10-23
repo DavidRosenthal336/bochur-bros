@@ -5,6 +5,10 @@
       "image": "processed/atlases/characters.png",
       "data": "processed/atlases/characters.json"
     },
+    "ui": {
+      "image": "processed/atlases/ui.png",
+      "data": "processed/atlases/ui.json"
+    },
     "shared": {
       "image": "processed/atlases/shared.png",
       "data": "processed/atlases/shared.json"
@@ -12,6 +16,18 @@
     "world1": {
       "image": "processed/atlases/world1.png",
       "data": "processed/atlases/world1.json"
+    },
+    "world2": {
+      "image": "processed/atlases/world2.png",
+      "data": "processed/atlases/world2.json"
+    },
+    "world3": {
+      "image": "processed/atlases/world3.png",
+      "data": "processed/atlases/world3.json"
+    },
+    "world4": {
+      "image": "processed/atlases/world4.png",
+      "data": "processed/atlases/world4.json"
     }
   },
   "entries": {
@@ -99,6 +115,34 @@
       "frameHeight": 8,
       "frames": 2
     },
+    "sprites/ui/title_logo.png": {
+      "atlas": "ui",
+      "frame": "title_logo",
+      "frameWidth": 160,
+      "frameHeight": 24,
+      "frames": 1
+    },
+    "sprites/ui/map_node.png": {
+      "atlas": "ui",
+      "frame": "map_node",
+      "frameWidth": 12,
+      "frameHeight": 12,
+      "frames": 3
+    },
+    "sprites/ui/kiddush_table.png": {
+      "atlas": "ui",
+      "frame": "kiddush_table",
+      "frameWidth": 64,
+      "frameHeight": 32,
+      "frames": 1
+    },
+    "sprites/ui/prize_icons.png": {
+      "atlas": "ui",
+      "frame": "prize_icons",
+      "frameWidth": 12,
+      "frameHeight": 12,
+      "frames": 5
+    },
     "sprites/coin.png": {
       "atlas": "shared",
       "frame": "coin",
@@ -118,6 +162,34 @@
       "frame": "box_used",
       "frameWidth": 16,
       "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/reinforced_block.png": {
+      "atlas": "shared",
+      "frame": "reinforced_block",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/weak_floor.png": {
+      "atlas": "shared",
+      "frame": "weak_floor",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/crate.png": {
+      "atlas": "shared",
+      "frame": "crate",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/powerup_pickup.png": {
+      "atlas": "shared",
+      "frame": "powerup_pickup",
+      "frameWidth": 14,
+      "frameHeight": 14,
       "frames": 1
     },
     "sprites/powerup_cholent.png": {
@@ -217,6 +289,259 @@
       "frameWidth": 44,
       "frameHeight": 38,
       "frames": 4
+    },
+    "sprites/goose.png": {
+      "atlas": "world2",
+      "frame": "goose",
+      "frameWidth": 24,
+      "frameHeight": 26,
+      "frames": 5
+    },
+    "sprites/chipmunk.png": {
+      "atlas": "world2",
+      "frame": "chipmunk",
+      "frameWidth": 16,
+      "frameHeight": 14,
+      "frames": 3
+    },
+    "sprites/dog.png": {
+      "atlas": "world2",
+      "frame": "dog",
+      "frameWidth": 24,
+      "frameHeight": 22,
+      "frames": 2
+    },
+    "sprites/mower.png": {
+      "atlas": "world2",
+      "frame": "mower",
+      "frameWidth": 28,
+      "frameHeight": 20,
+      "frames": 1
+    },
+    "sprites/blower.png": {
+      "atlas": "world2",
+      "frame": "blower",
+      "frameWidth": 20,
+      "frameHeight": 20,
+      "frames": 1
+    },
+    "sprites/wind_puff.png": {
+      "atlas": "world2",
+      "frame": "wind_puff",
+      "frameWidth": 16,
+      "frameHeight": 8,
+      "frames": 1
+    },
+    "sprites/trampoline.png": {
+      "atlas": "world2",
+      "frame": "trampoline",
+      "frameWidth": 36,
+      "frameHeight": 16,
+      "frames": 2
+    },
+    "sprites/minivan.png": {
+      "atlas": "world2",
+      "frame": "minivan",
+      "frameWidth": 56,
+      "frameHeight": 34,
+      "frames": 1
+    },
+    "sprites/escalade.png": {
+      "atlas": "world2",
+      "frame": "escalade",
+      "frameWidth": 88,
+      "frameHeight": 46,
+      "frames": 4
+    },
+    "sprites/goal_poppers.png": {
+      "atlas": "world2",
+      "frame": "goal_poppers",
+      "frameWidth": 36,
+      "frameHeight": 28,
+      "frames": 1
+    },
+    "sprites/raccoon.png": {
+      "atlas": "world3",
+      "frame": "raccoon",
+      "frameWidth": 22,
+      "frameHeight": 15,
+      "frames": 2
+    },
+    "sprites/wasp.png": {
+      "atlas": "world3",
+      "frame": "wasp",
+      "frameWidth": 12,
+      "frameHeight": 12,
+      "frames": 1
+    },
+    "sprites/frog.png": {
+      "atlas": "world3",
+      "frame": "frog",
+      "frameWidth": 16,
+      "frameHeight": 12,
+      "frames": 2
+    },
+    "sprites/mosquito_swarm.png": {
+      "atlas": "world3",
+      "frame": "mosquito_swarm",
+      "frameWidth": 20,
+      "frameHeight": 12,
+      "frames": 2
+    },
+    "sprites/golf_cart.png": {
+      "atlas": "world3",
+      "frame": "golf_cart",
+      "frameWidth": 28,
+      "frameHeight": 20,
+      "frames": 1
+    },
+    "sprites/canoe.png": {
+      "atlas": "world3",
+      "frame": "canoe",
+      "frameWidth": 32,
+      "frameHeight": 11,
+      "frames": 1
+    },
+    "sprites/clothesline_post.png": {
+      "atlas": "world3",
+      "frame": "clothesline_post",
+      "frameWidth": 12,
+      "frameHeight": 20,
+      "frames": 1
+    },
+    "sprites/porch_step.png": {
+      "atlas": "world3",
+      "frame": "porch_step",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 2
+    },
+    "sprites/rope_swing.png": {
+      "atlas": "world3",
+      "frame": "rope_swing",
+      "frameWidth": 10,
+      "frameHeight": 22,
+      "frames": 1
+    },
+    "sprites/bear.png": {
+      "atlas": "world3",
+      "frame": "bear",
+      "frameWidth": 34,
+      "frameHeight": 42,
+      "frames": 3
+    },
+    "sprites/goal_kugel.png": {
+      "atlas": "world3",
+      "frame": "goal_kugel",
+      "frameWidth": 28,
+      "frameHeight": 28,
+      "frames": 1
+    },
+    "sprites/cat.png": {
+      "atlas": "world4",
+      "frame": "cat",
+      "frameWidth": 22,
+      "frameHeight": 16,
+      "frames": 4
+    },
+    "sprites/gecko.png": {
+      "atlas": "world4",
+      "frame": "gecko",
+      "frameWidth": 16,
+      "frameHeight": 9,
+      "frames": 2
+    },
+    "sprites/sparrow.png": {
+      "atlas": "world4",
+      "frame": "sparrow",
+      "frameWidth": 16,
+      "frameHeight": 11,
+      "frames": 2
+    },
+    "sprites/pashkevil.png": {
+      "atlas": "world4",
+      "frame": "pashkevil",
+      "frameWidth": 8,
+      "frameHeight": 8,
+      "frames": 1
+    },
+    "sprites/laundry_line.png": {
+      "atlas": "world4",
+      "frame": "laundry_line",
+      "frameWidth": 16,
+      "frameHeight": 8,
+      "frames": 1
+    },
+    "sprites/solar_tank.png": {
+      "atlas": "world4",
+      "frame": "solar_tank",
+      "frameWidth": 24,
+      "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/shuk_cart.png": {
+      "atlas": "world4",
+      "frame": "shuk_cart",
+      "frameWidth": 28,
+      "frameHeight": 17,
+      "frames": 1
+    },
+    "sprites/shuk_crate.png": {
+      "atlas": "world4",
+      "frame": "shuk_crate",
+      "frameWidth": 16,
+      "frameHeight": 16,
+      "frames": 1
+    },
+    "sprites/yetzer_hara.png": {
+      "atlas": "world4",
+      "frame": "yetzer_hara",
+      "frameWidth": 44,
+      "frameHeight": 46,
+      "frames": 5
+    },
+    "sprites/goal_tequila.png": {
+      "atlas": "world4",
+      "frame": "goal_tequila",
+      "frameWidth": 24,
+      "frameHeight": 26,
+      "frames": 1
+    },
+    "sprites/backdrops/bg_sky_day.png": {
+      "file": "processed/sprites/backdrops/bg_sky_day.png"
+    },
+    "sprites/backdrops/bg_skyline_day.png": {
+      "file": "processed/sprites/backdrops/bg_skyline_day.png"
+    },
+    "sprites/backdrops/bg_street_day.png": {
+      "file": "processed/sprites/backdrops/bg_street_day.png"
+    },
+    "sprites/backdrops/bg_sky_five_towns_day.png": {
+      "file": "processed/sprites/backdrops/bg_sky_five_towns_day.png"
+    },
+    "sprites/backdrops/bg_far_five_towns_day.png": {
+      "file": "processed/sprites/backdrops/bg_far_five_towns_day.png"
+    },
+    "sprites/backdrops/bg_near_five_towns_day.png": {
+      "file": "processed/sprites/backdrops/bg_near_five_towns_day.png"
+    },
+    "sprites/backdrops/bg_sky_catskills_day.png": {
+      "file": "processed/sprites/backdrops/bg_sky_catskills_day.png"
+    },
+    "sprites/backdrops/bg_far_catskills_day.png": {
+      "file": "processed/sprites/backdrops/bg_far_catskills_day.png"
+    },
+    "sprites/backdrops/bg_near_catskills_day.png": {
+      "file": "processed/sprites/backdrops/bg_near_catskills_day.png"
+    },
+    "sprites/backdrops/bg_sky_meah_shearim_day.png": {
+      "file": "processed/sprites/backdrops/bg_sky_meah_shearim_day.png"
+    },
+    "sprites/backdrops/bg_far_meah_shearim_day.png": {
+      "file": "processed/sprites/backdrops/bg_far_meah_shearim_day.png"
+    },
+    "sprites/backdrops/bg_near_meah_shearim_day.png": {
+      "file": "processed/sprites/backdrops/bg_near_meah_shearim_day.png"
     }
   }
 }

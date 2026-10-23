@@ -1,0 +1,214 @@
+{
+ "frames": {
+  "cat": {
+   "frame": {
+    "x": 58,
+    "y": 50,
+    "w": 88,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 16
+   }
+  },
+  "gecko": {
+   "frame": {
+    "x": 36,
+    "y": 78,
+    "w": 32,
+    "h": 9
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 9
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 9
+   }
+  },
+  "sparrow": {
+   "frame": {
+    "x": 2,
+    "y": 78,
+    "w": 32,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 11
+   }
+  },
+  "pashkevil": {
+   "frame": {
+    "x": 88,
+    "y": 78,
+    "w": 8,
+    "h": 8
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 8,
+    "h": 8
+   },
+   "sourceSize": {
+    "w": 8,
+    "h": 8
+   }
+  },
+  "laundry_line": {
+   "frame": {
+    "x": 70,
+    "y": 78,
+    "w": 16,
+    "h": 8
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 8
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 8
+   }
+  },
+  "solar_tank": {
+   "frame": {
+    "x": 148,
+    "y": 50,
+    "w": 24,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 16
+   }
+  },
+  "shuk_cart": {
+   "frame": {
+    "x": 28,
+    "y": 50,
+    "w": 28,
+    "h": 17
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 17
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 17
+   }
+  },
+  "shuk_crate": {
+   "frame": {
+    "x": 174,
+    "y": 50,
+    "w": 16,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 16
+   }
+  },
+  "yetzer_hara": {
+   "frame": {
+    "x": 2,
+    "y": 2,
+    "w": 220,
+    "h": 46
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 220,
+    "h": 46
+   },
+   "sourceSize": {
+    "w": 220,
+    "h": 46
+   }
+  },
+  "goal_tequila": {
+   "frame": {
+    "x": 2,
+    "y": 50,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  }
+ },
+ "meta": {
+  "app": "bochur-bros process-assets",
+  "image": "world4.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 224,
+   "h": 91
+  },
+  "scale": "1"
+ }
+}

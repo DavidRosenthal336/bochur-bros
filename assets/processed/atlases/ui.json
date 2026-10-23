@@ -1,0 +1,94 @@
+{
+ "frames": {
+  "title_logo": {
+   "frame": {
+    "x": 2,
+    "y": 36,
+    "w": 160,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 24
+   }
+  },
+  "map_node": {
+   "frame": {
+    "x": 64,
+    "y": 62,
+    "w": 36,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 12
+   }
+  },
+  "kiddush_table": {
+   "frame": {
+    "x": 2,
+    "y": 2,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   }
+  },
+  "prize_icons": {
+   "frame": {
+    "x": 2,
+    "y": 62,
+    "w": 60,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 60,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 60,
+    "h": 12
+   }
+  }
+ },
+ "meta": {
+  "app": "bochur-bros process-assets",
+  "image": "ui.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 164,
+   "h": 76
+  },
+  "scale": "1"
+ }
+}
