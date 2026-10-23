@@ -1111,7 +1111,8 @@ async function deriveBackdrops(state, byId) {
     const hdImg = await toSharp(img).resize(img.w * SCALE, img.h * SCALE, { kernel: 'nearest' }).raw().toBuffer({ resolveWithObject: true });
     await save({ w: hdImg.info.width, h: hdImg.info.height, d: new Uint8ClampedArray(hdImg.data.buffer, hdImg.data.byteOffset, hdImg.data.length) }, join(HD, asset.url));
     await save(img, file(asset));
-    state[asset.id] = { status: 'processed', derived: note, outputs: [file(asset), join(HD, asset.url)], at: new Date().toISOString() };
+    // No timestamp: these are remade on every run, and a time would change the file every time.
+    state[asset.id] = { status: 'processed', derived: note, outputs: [file(asset), join(HD, asset.url)] };
     made.push(asset.id);
   }
   return made;
