@@ -6,24 +6,31 @@ import { level } from '../level-builder.mjs';
  * "Vertical climb. Falling pipes, fire escapes, rats. Teaches telegraphed
  * hazards." (§6)
  *
- * **No rats, by the developer's decision.** §6 lists them, and there were six,
- * on the boards of every ladder. Played, the level was too hard: a rat runs the
- * width of a scaffold board in about a second, on a climb where the screen is
- * already rising underneath you and the only thing to stand on is the board the
- * rat is running along. They were taken out to make 1-2 easier, and not
- * replaced. Rats remain in 1-1's street, where there is room to deal with them.
+ * ## The cast, and what was learned about it
  *
- * **No falling pipes either, by the same decision.** Even with the rats gone
- * the level could not be beaten: pipes falling down the shaft you are climbing,
- * on a screen that rises underneath you, with the pipe hung above the top of
- * the view and nothing visible to dodge. The falling pipes are in 1-1 and 1-3,
- * on flat streets, hung where they can be seen and rattling before they drop.
+ * The first version had six rats, three pipes and eight pigeons, and could
+ * not be beaten; they were taken out one kind at a time until it could, and
+ * nothing was put back. That was overcompensation, and the developer said so.
+ * Rebuilt against LEVELS.md, the climb has its enemies again, placed by the
+ * rules that were missing the first time:
  *
- * **And no pigeons, by the same decision.** There were eight, each hovering
- * four rows over a board — exactly where the jump to the next board goes — and
- * two sat right over checkpoints and dived onto a player as they respawned. The
- * level is the climb now: the boards, the fork, and the screen coming up
- * underneath you. Verified both ways: without them both brothers finish.
+ * - **Rats** are the ground grunt now — a slow walk, turning at the ends of
+ *   the board — so a rat on an eight-wide board is a thing to time or step
+ *   on, not a thing that crosses the board in a second. One per board, never
+ *   on a checkpoint's board, never within six rows of one.
+ * - **Pigeons** perch in an empty column *beside* the ladder, two rows over
+ *   the board they threaten and on the side the route is leaving, so the dive
+ *   comes in nearly flat when you land there and the jump up to the next
+ *   board takes you out of it. (A pigeon only dives at a player below it, so
+ *   one at the board's own height never dives at all.)
+ *   The first version put them directly over the boards, exactly where the
+ *   jump goes, and two of them over checkpoints; a rebuild put them four rows
+ *   up beside the boards, and from there they dived down into the arc of the
+ *   next jump, which was the same mistake from the other side.
+ * - **No pipes.** §6 lists them, but a pipe falling down a ninety-row shaft
+ *   cannot show where it will land, and a hazard you cannot read is not a
+ *   telegraphed hazard. They are taught in 1-1 and used in 1-3, on flat
+ *   streets where the mark on the pavement means something.
  *
  * The screen climbs on its own now. Standing still is not a rest, it is the
  * bottom of the screen coming up to meet you, and there is nothing under a
@@ -213,6 +220,12 @@ L.sign(3, ['THE SCAFFOLDING', 'the screen goes up. keep up.'], FLOOR - 7);
 const base = ladder(null, [C1, C2], FLOOR - 3, 8, (i, board) => {
   if (i % 3 === 1) L.coinRow(board.x + 2, board.row - 2, 4);
   if (i === 3) L.block(board.x + 3, board.row - 3, 'mystery', 'cholent');
+  // The first rat, on the third board: alone, with the whole board to see it on.
+  if (i === 2) L.enemy(board.x + 4, board.row, 'rat');
+  // A pigeon off to the left of the fifth board, two rows up, in the empty
+  // column: it dives across when you land, and the next board is to the
+  // right, away from it.
+  if (i === 4) L.enemy(C0 + 4, board.row - 2);
 });
 L.checkpoint(base.x + 4, base.row);
 // Says whose each way is. It said "BOTH WORK", which is true only for Mendy: the
@@ -242,7 +255,20 @@ for (let i = 0; i < 4; i += 1) {
 }
 
 const right = ladder(base, [C3, C2], FLOOR - 27, 6, (i, board) => {
+  if (i === 3) L.enemy(board.x + 4, board.row, 'rat');
 });
+// Beside the right-hand ladder's first board, in the empty columns past it,
+// two rows up: a pigeon only dives at a player below it, and from two rows
+// the dive comes in nearly flat from the right as you land, while the jump
+// up to the next board — leftwards, away from it — takes you out of its
+// path. It sat ON the third board at first, and Berel could not get past it;
+// four rows up, it dived down into the arc of the jump instead; and beside
+// the third board it was in play on the board before the rat's, which is two
+// things at once on the route either brother takes. Now it is the first
+// thing on this branch, the rat is the second, and there is a clean board
+// between them. Four tiles past the board's end, not three: a perched pigeon
+// drifts three tiles either way, and at three it drifted into the landing.
+L.enemy(C3 + BOARD + 4, FLOOR - 29);
 
 /**
  * The rejoin goes in the column both branch tops have as a neighbour.
@@ -254,6 +280,9 @@ const right = ladder(base, [C3, C2], FLOOR - 27, 6, (i, board) => {
  */
 if (left.x !== C0 || right.x !== C2) throw new Error('1-2: fork one no longer tops out where the rejoin expects');
 const rejoinA = step(left, C1, Math.max(left.row, right.row) - STEP, BOARD);
+// The other branch reaches it too — a row or two up, a tile sideways — and the
+// harness that drives the climb needs to be told so, or its route ends here.
+EDGES.push({ from: right, to: rejoinA });
 L.checkpoint(rejoinA.x + 4, rejoinA.row);
 
 // ---------------------------------------------------------------------------
@@ -262,6 +291,7 @@ L.checkpoint(rejoinA.x + 4, rejoinA.row);
 // ---------------------------------------------------------------------------
 let here = ladder(rejoinA, [C0, C1], rejoinA.row - STEP, 4, (i, board) => {
   if (i === 1) L.coinRow(board.x + 2, board.row - 2, 4);
+  if (i === 2) L.enemy(board.x + 4, board.row, 'rat');
 });
 // Across into the right-hand columns.
 here = step(here, C2, here.row - STEP, BOARD);
@@ -293,10 +323,17 @@ L.block(secret.x + 3, secret.row - 3, 'mystery', 'lchaim');
 L.sign(secret.x, ['BEREL BREAKS THE GREY ONE'], secret.row - 6);
 
 const plain = ladder(forkTwo, [C3, C2], forkTwo.row - STEP, 4, (i, board) => {
+  if (i === 2) L.enemy(board.x + 4, board.row, 'rat');
 });
+// Past the end of the plain branch's third board, in the open columns on the
+// right. The one-tile slot between two columns is never a perch: the boards
+// alternate every three rows, so anything in the slot is at head height of
+// the board beside it, and the validator says so.
+L.enemy(C3 + BOARD + 4, forkTwo.row - 11);
 
 if (secret.x !== C0 || plain.x !== C2) throw new Error('1-2: fork two no longer tops out where the rejoin expects');
 const rejoinB = step(secret, C1, Math.max(secret.row, plain.row) - STEP, BOARD);
+EDGES.push({ from: plain, to: rejoinB });
 L.checkpoint(rejoinB.x + 4, rejoinB.row);
 
 // ---------------------------------------------------------------------------
@@ -304,6 +341,8 @@ L.checkpoint(rejoinB.x + 4, rejoinB.row);
 // ---------------------------------------------------------------------------
 here = ladder(rejoinB, [C2, C1], rejoinB.row - STEP, 3, (i, board) => {
   if (i % 2 === 1) L.coinRow(board.x + 1, board.row - 2, 3);
+  // The last rat, on the last board before the landing.
+  if (i === 2) L.enemy(board.x + 4, board.row, 'rat');
 });
 
 /**

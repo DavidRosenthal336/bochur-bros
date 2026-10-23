@@ -1,6 +1,6 @@
 {
  "compressionlevel": -1,
- "width": 322,
+ "width": 426,
  "height": 27,
  "tilewidth": 16,
  "tileheight": 16,
@@ -11,7 +11,7 @@
  "type": "map",
  "version": "1.10",
  "nextlayerid": 3,
- "nextobjectid": 147,
+ "nextobjectid": 183,
  "tilesets": [],
  "properties": [
   {
@@ -68,9 +68,9 @@
      "id": 2,
      "name": "",
      "class": "",
-     "x": 416,
+     "x": 448,
      "y": 320,
-     "width": 352,
+     "width": 384,
      "height": 112,
      "rotation": 0,
      "visible": true,
@@ -86,7 +86,7 @@
      "id": 3,
      "name": "",
      "class": "",
-     "x": 608,
+     "x": 672,
      "y": 288,
      "width": 64,
      "height": 32,
@@ -104,9 +104,9 @@
      "id": 4,
      "name": "",
      "class": "",
-     "x": 800,
+     "x": 864,
      "y": 320,
-     "width": 448,
+     "width": 480,
      "height": 112,
      "rotation": 0,
      "visible": true,
@@ -122,9 +122,9 @@
      "id": 5,
      "name": "",
      "class": "",
-     "x": 1280,
+     "x": 1376,
      "y": 320,
-     "width": 512,
+     "width": 544,
      "height": 112,
      "rotation": 0,
      "visible": true,
@@ -140,7 +140,43 @@
      "id": 6,
      "name": "",
      "class": "",
-     "x": 1824,
+     "x": 1664,
+     "y": 288,
+     "width": 48,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "",
+     "class": "",
+     "x": 1952,
+     "y": 320,
+     "width": 608,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "",
+     "class": "",
+     "x": 2592,
      "y": 320,
      "width": 736,
      "height": 112,
@@ -155,46 +191,10 @@
      ]
     },
     {
-     "id": 7,
-     "name": "",
-     "class": "",
-     "x": 2016,
-     "y": 240,
-     "width": 80,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
-     "id": 8,
-     "name": "",
-     "class": "",
-     "x": 2144,
-     "y": 224,
-     "width": 80,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "kind",
-       "type": "string",
-       "value": "platform"
-      }
-     ]
-    },
-    {
      "id": 9,
      "name": "",
      "class": "",
-     "x": 2272,
+     "x": 2816,
      "y": 240,
      "width": 80,
      "height": 16,
@@ -212,9 +212,9 @@
      "id": 10,
      "name": "",
      "class": "",
-     "x": 2400,
-     "y": 256,
-     "width": 64,
+     "x": 2944,
+     "y": 224,
+     "width": 80,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -230,17 +230,17 @@
      "id": 11,
      "name": "",
      "class": "",
-     "x": 2592,
-     "y": 320,
-     "width": 96,
-     "height": 112,
+     "x": 3072,
+     "y": 240,
+     "width": 80,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
       {
        "name": "kind",
        "type": "string",
-       "value": "ground"
+       "value": "platform"
       }
      ]
     },
@@ -248,10 +248,10 @@
      "id": 12,
      "name": "",
      "class": "",
-     "x": 2688,
-     "y": 368,
-     "width": 128,
-     "height": 64,
+     "x": 3168,
+     "y": 256,
+     "width": 64,
+     "height": 16,
      "rotation": 0,
      "visible": true,
      "properties": [
@@ -266,7 +266,7 @@
      "id": 13,
      "name": "",
      "class": "",
-     "x": 2816,
+     "x": 3360,
      "y": 320,
      "width": 128,
      "height": 112,
@@ -284,17 +284,17 @@
      "id": 14,
      "name": "",
      "class": "",
-     "x": 2976,
-     "y": 320,
-     "width": 448,
-     "height": 112,
+     "x": 3488,
+     "y": 368,
+     "width": 128,
+     "height": 64,
      "rotation": 0,
      "visible": true,
      "properties": [
       {
        "name": "kind",
        "type": "string",
-       "value": "ground"
+       "value": "platform"
       }
      ]
     },
@@ -302,9 +302,9 @@
      "id": 15,
      "name": "",
      "class": "",
-     "x": 3456,
+     "x": 3616,
      "y": 320,
-     "width": 384,
+     "width": 160,
      "height": 112,
      "rotation": 0,
      "visible": true,
@@ -320,9 +320,9 @@
      "id": 16,
      "name": "",
      "class": "",
-     "x": 3872,
+     "x": 3808,
      "y": 320,
-     "width": 544,
+     "width": 480,
      "height": 112,
      "rotation": 0,
      "visible": true,
@@ -338,9 +338,63 @@
      "id": 17,
      "name": "",
      "class": "",
-     "x": 3872,
+     "x": 4320,
+     "y": 320,
+     "width": 416,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "name": "",
+     "class": "",
+     "x": 4768,
+     "y": 320,
+     "width": 416,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "name": "",
+     "class": "",
+     "x": 5216,
+     "y": 320,
+     "width": 640,
+     "height": 112,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "name": "",
+     "class": "",
+     "x": 5408,
      "y": 192,
-     "width": 512,
+     "width": 448,
      "height": 16,
      "rotation": 0,
      "visible": true,
@@ -353,12 +407,12 @@
      ]
     },
     {
-     "id": 18,
+     "id": 21,
      "name": "",
      "class": "",
-     "x": 4448,
+     "x": 5888,
      "y": 320,
-     "width": 704,
+     "width": 928,
      "height": 112,
      "rotation": 0,
      "visible": true,
@@ -367,6 +421,24 @@
        "name": "kind",
        "type": "string",
        "value": "ground"
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "name": "",
+     "class": "",
+     "x": 6432,
+     "y": 288,
+     "width": 64,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "kind",
+       "type": "string",
+       "value": "platform"
       }
      ]
     }
@@ -383,7 +455,7 @@
    "y": 0,
    "objects": [
     {
-     "id": 19,
+     "id": 23,
      "name": "",
      "class": "spawn",
      "x": 48,
@@ -394,10 +466,10 @@
      "visible": true
     },
     {
-     "id": 20,
+     "id": 24,
      "name": "",
      "class": "goal",
-     "x": 5056,
+     "x": 6688,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -405,10 +477,10 @@
      "visible": true
     },
     {
-     "id": 21,
+     "id": 25,
      "name": "",
      "class": "checkpoint",
-     "x": 1024,
+     "x": 1216,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -416,10 +488,10 @@
      "visible": true
     },
     {
-     "id": 22,
+     "id": 26,
      "name": "",
      "class": "checkpoint",
-     "x": 2528,
+     "x": 2656,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -427,10 +499,10 @@
      "visible": true
     },
     {
-     "id": 23,
+     "id": 27,
      "name": "",
      "class": "checkpoint",
-     "x": 3808,
+     "x": 3872,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -438,7 +510,18 @@
      "visible": true
     },
     {
-     "id": 24,
+     "id": 28,
+     "name": "",
+     "class": "checkpoint",
+     "x": 5280,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 29,
      "name": "",
      "class": "coin",
      "x": 112,
@@ -449,7 +532,7 @@
      "visible": true
     },
     {
-     "id": 25,
+     "id": 30,
      "name": "",
      "class": "coin",
      "x": 128,
@@ -460,7 +543,7 @@
      "visible": true
     },
     {
-     "id": 26,
+     "id": 31,
      "name": "",
      "class": "coin",
      "x": 144,
@@ -471,7 +554,7 @@
      "visible": true
     },
     {
-     "id": 27,
+     "id": 32,
      "name": "",
      "class": "coin",
      "x": 208,
@@ -482,7 +565,7 @@
      "visible": true
     },
     {
-     "id": 28,
+     "id": 33,
      "name": "",
      "class": "coin",
      "x": 224,
@@ -493,7 +576,7 @@
      "visible": true
     },
     {
-     "id": 29,
+     "id": 34,
      "name": "",
      "class": "coin",
      "x": 240,
@@ -504,7 +587,7 @@
      "visible": true
     },
     {
-     "id": 30,
+     "id": 35,
      "name": "",
      "class": "coin",
      "x": 256,
@@ -515,7 +598,7 @@
      "visible": true
     },
     {
-     "id": 31,
+     "id": 36,
      "name": "",
      "class": "coin",
      "x": 272,
@@ -526,7 +609,7 @@
      "visible": true
     },
     {
-     "id": 32,
+     "id": 37,
      "name": "",
      "class": "coin",
      "x": 288,
@@ -537,66 +620,11 @@
      "visible": true
     },
     {
-     "id": 33,
-     "name": "",
-     "class": "coin",
-     "x": 528,
-     "y": 224,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 34,
-     "name": "",
-     "class": "coin",
-     "x": 544,
-     "y": 224,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 35,
-     "name": "",
-     "class": "coin",
-     "x": 608,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 36,
-     "name": "",
-     "class": "coin",
-     "x": 624,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 37,
-     "name": "",
-     "class": "coin",
-     "x": 640,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
      "id": 38,
      "name": "",
      "class": "coin",
-     "x": 656,
-     "y": 256,
+     "x": 560,
+     "y": 224,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -606,8 +634,8 @@
      "id": 39,
      "name": "",
      "class": "coin",
-     "x": 880,
-     "y": 288,
+     "x": 576,
+     "y": 224,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -617,8 +645,8 @@
      "id": 40,
      "name": "",
      "class": "coin",
-     "x": 896,
-     "y": 288,
+     "x": 672,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -628,8 +656,8 @@
      "id": 41,
      "name": "",
      "class": "coin",
-     "x": 912,
-     "y": 288,
+     "x": 688,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -639,8 +667,8 @@
      "id": 42,
      "name": "",
      "class": "coin",
-     "x": 1376,
-     "y": 288,
+     "x": 704,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -650,8 +678,8 @@
      "id": 43,
      "name": "",
      "class": "coin",
-     "x": 1392,
-     "y": 288,
+     "x": 720,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -661,7 +689,7 @@
      "id": 44,
      "name": "",
      "class": "coin",
-     "x": 1408,
+     "x": 928,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -672,7 +700,7 @@
      "id": 45,
      "name": "",
      "class": "coin",
-     "x": 1424,
+     "x": 944,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -683,7 +711,7 @@
      "id": 46,
      "name": "",
      "class": "coin",
-     "x": 1440,
+     "x": 960,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -694,8 +722,8 @@
      "id": 47,
      "name": "",
      "class": "coin",
-     "x": 2016,
-     "y": 208,
+     "x": 1152,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -705,8 +733,8 @@
      "id": 48,
      "name": "",
      "class": "coin",
-     "x": 2032,
-     "y": 208,
+     "x": 1168,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -716,8 +744,8 @@
      "id": 49,
      "name": "",
      "class": "coin",
-     "x": 2048,
-     "y": 208,
+     "x": 1184,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -727,8 +755,8 @@
      "id": 50,
      "name": "",
      "class": "coin",
-     "x": 2064,
-     "y": 208,
+     "x": 1200,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -738,8 +766,8 @@
      "id": 51,
      "name": "",
      "class": "coin",
-     "x": 2080,
-     "y": 208,
+     "x": 1472,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -749,8 +777,8 @@
      "id": 52,
      "name": "",
      "class": "coin",
-     "x": 2144,
-     "y": 192,
+     "x": 1488,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -760,8 +788,8 @@
      "id": 53,
      "name": "",
      "class": "coin",
-     "x": 2160,
-     "y": 192,
+     "x": 1504,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -771,8 +799,8 @@
      "id": 54,
      "name": "",
      "class": "coin",
-     "x": 2176,
-     "y": 192,
+     "x": 1520,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -782,8 +810,8 @@
      "id": 55,
      "name": "",
      "class": "coin",
-     "x": 2192,
-     "y": 192,
+     "x": 1664,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -793,8 +821,8 @@
      "id": 56,
      "name": "",
      "class": "coin",
-     "x": 2208,
-     "y": 192,
+     "x": 1680,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -804,8 +832,8 @@
      "id": 57,
      "name": "",
      "class": "coin",
-     "x": 2272,
-     "y": 208,
+     "x": 1696,
+     "y": 256,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -813,50 +841,6 @@
     },
     {
      "id": 58,
-     "name": "",
-     "class": "coin",
-     "x": 2288,
-     "y": 208,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 59,
-     "name": "",
-     "class": "coin",
-     "x": 2304,
-     "y": 208,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 60,
-     "name": "",
-     "class": "coin",
-     "x": 2320,
-     "y": 208,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 61,
-     "name": "",
-     "class": "coin",
-     "x": 2336,
-     "y": 208,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 62,
      "name": "",
      "class": "coin",
      "x": 2048,
@@ -867,7 +851,7 @@
      "visible": true
     },
     {
-     "id": 63,
+     "id": 59,
      "name": "",
      "class": "coin",
      "x": 2064,
@@ -878,7 +862,7 @@
      "visible": true
     },
     {
-     "id": 64,
+     "id": 60,
      "name": "",
      "class": "coin",
      "x": 2080,
@@ -889,7 +873,7 @@
      "visible": true
     },
     {
-     "id": 65,
+     "id": 61,
      "name": "",
      "class": "coin",
      "x": 2096,
@@ -900,11 +884,55 @@
      "visible": true
     },
     {
+     "id": 62,
+     "name": "",
+     "class": "coin",
+     "x": 2112,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 63,
+     "name": "",
+     "class": "coin",
+     "x": 2816,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 64,
+     "name": "",
+     "class": "coin",
+     "x": 2832,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 65,
+     "name": "",
+     "class": "coin",
+     "x": 2848,
+     "y": 208,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
      "id": 66,
      "name": "",
      "class": "coin",
-     "x": 2304,
-     "y": 288,
+     "x": 2864,
+     "y": 208,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -914,8 +942,8 @@
      "id": 67,
      "name": "",
      "class": "coin",
-     "x": 2320,
-     "y": 288,
+     "x": 2880,
+     "y": 208,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -925,8 +953,8 @@
      "id": 68,
      "name": "",
      "class": "coin",
-     "x": 2336,
-     "y": 288,
+     "x": 2944,
+     "y": 192,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -936,8 +964,8 @@
      "id": 69,
      "name": "",
      "class": "coin",
-     "x": 2352,
-     "y": 288,
+     "x": 2960,
+     "y": 192,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -947,8 +975,8 @@
      "id": 70,
      "name": "",
      "class": "coin",
-     "x": 2704,
-     "y": 352,
+     "x": 2976,
+     "y": 192,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -958,8 +986,8 @@
      "id": 71,
      "name": "",
      "class": "coin",
-     "x": 2720,
-     "y": 352,
+     "x": 2992,
+     "y": 192,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -969,8 +997,8 @@
      "id": 72,
      "name": "",
      "class": "coin",
-     "x": 2736,
-     "y": 352,
+     "x": 3008,
+     "y": 192,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -980,8 +1008,8 @@
      "id": 73,
      "name": "",
      "class": "coin",
-     "x": 2752,
-     "y": 352,
+     "x": 3072,
+     "y": 208,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -991,8 +1019,8 @@
      "id": 74,
      "name": "",
      "class": "coin",
-     "x": 2768,
-     "y": 352,
+     "x": 3088,
+     "y": 208,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1002,8 +1030,8 @@
      "id": 75,
      "name": "",
      "class": "coin",
-     "x": 2784,
-     "y": 352,
+     "x": 3104,
+     "y": 208,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1013,8 +1041,8 @@
      "id": 76,
      "name": "",
      "class": "coin",
-     "x": 3104,
-     "y": 224,
+     "x": 3120,
+     "y": 208,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1024,8 +1052,8 @@
      "id": 77,
      "name": "",
      "class": "coin",
-     "x": 3120,
-     "y": 224,
+     "x": 3136,
+     "y": 208,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1035,8 +1063,8 @@
      "id": 78,
      "name": "",
      "class": "coin",
-     "x": 3136,
-     "y": 224,
+     "x": 2912,
+     "y": 288,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1046,7 +1074,7 @@
      "id": 79,
      "name": "",
      "class": "coin",
-     "x": 3520,
+     "x": 2928,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1057,7 +1085,7 @@
      "id": 80,
      "name": "",
      "class": "coin",
-     "x": 3536,
+     "x": 2944,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1068,7 +1096,7 @@
      "id": 81,
      "name": "",
      "class": "coin",
-     "x": 3552,
+     "x": 2960,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1079,7 +1107,7 @@
      "id": 82,
      "name": "",
      "class": "coin",
-     "x": 3568,
+     "x": 3136,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1090,7 +1118,7 @@
      "id": 83,
      "name": "",
      "class": "coin",
-     "x": 4000,
+     "x": 3152,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1101,7 +1129,7 @@
      "id": 84,
      "name": "",
      "class": "coin",
-     "x": 4016,
+     "x": 3168,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1112,7 +1140,7 @@
      "id": 85,
      "name": "",
      "class": "coin",
-     "x": 4032,
+     "x": 3184,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1123,8 +1151,8 @@
      "id": 86,
      "name": "",
      "class": "coin",
-     "x": 4048,
-     "y": 288,
+     "x": 3504,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1134,8 +1162,8 @@
      "id": 87,
      "name": "",
      "class": "coin",
-     "x": 4064,
-     "y": 288,
+     "x": 3520,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1145,8 +1173,8 @@
      "id": 88,
      "name": "",
      "class": "coin",
-     "x": 4080,
-     "y": 288,
+     "x": 3536,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1156,8 +1184,8 @@
      "id": 89,
      "name": "",
      "class": "coin",
-     "x": 4704,
-     "y": 288,
+     "x": 3552,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1167,8 +1195,8 @@
      "id": 90,
      "name": "",
      "class": "coin",
-     "x": 4720,
-     "y": 288,
+     "x": 3568,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1178,8 +1206,8 @@
      "id": 91,
      "name": "",
      "class": "coin",
-     "x": 4736,
-     "y": 288,
+     "x": 3584,
+     "y": 352,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1189,8 +1217,8 @@
      "id": 92,
      "name": "",
      "class": "coin",
-     "x": 4752,
-     "y": 288,
+     "x": 3968,
+     "y": 224,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1200,8 +1228,8 @@
      "id": 93,
      "name": "",
      "class": "coin",
-     "x": 4768,
-     "y": 288,
+     "x": 3984,
+     "y": 224,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1211,8 +1239,8 @@
      "id": 94,
      "name": "",
      "class": "coin",
-     "x": 4784,
-     "y": 288,
+     "x": 4000,
+     "y": 224,
      "width": 16,
      "height": 16,
      "rotation": 0,
@@ -1222,7 +1250,7 @@
      "id": 95,
      "name": "",
      "class": "coin",
-     "x": 4800,
+     "x": 4384,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1233,7 +1261,7 @@
      "id": 96,
      "name": "",
      "class": "coin",
-     "x": 4816,
+     "x": 4400,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -1242,6 +1270,347 @@
     },
     {
      "id": 97,
+     "name": "",
+     "class": "coin",
+     "x": 4416,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 98,
+     "name": "",
+     "class": "coin",
+     "x": 4432,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 99,
+     "name": "",
+     "class": "coin",
+     "x": 4448,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 100,
+     "name": "",
+     "class": "coin",
+     "x": 4480,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 101,
+     "name": "",
+     "class": "coin",
+     "x": 4496,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 102,
+     "name": "",
+     "class": "coin",
+     "x": 4512,
+     "y": 224,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 103,
+     "name": "",
+     "class": "coin",
+     "x": 4832,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 104,
+     "name": "",
+     "class": "coin",
+     "x": 4848,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 105,
+     "name": "",
+     "class": "coin",
+     "x": 4864,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 106,
+     "name": "",
+     "class": "coin",
+     "x": 4880,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 107,
+     "name": "",
+     "class": "coin",
+     "x": 5312,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 108,
+     "name": "",
+     "class": "coin",
+     "x": 5328,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 109,
+     "name": "",
+     "class": "coin",
+     "x": 5344,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 110,
+     "name": "",
+     "class": "coin",
+     "x": 5536,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 111,
+     "name": "",
+     "class": "coin",
+     "x": 5552,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 112,
+     "name": "",
+     "class": "coin",
+     "x": 5568,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 113,
+     "name": "",
+     "class": "coin",
+     "x": 5584,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 114,
+     "name": "",
+     "class": "coin",
+     "x": 5600,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 115,
+     "name": "",
+     "class": "coin",
+     "x": 5616,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 116,
+     "name": "",
+     "class": "coin",
+     "x": 6176,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 117,
+     "name": "",
+     "class": "coin",
+     "x": 6192,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 118,
+     "name": "",
+     "class": "coin",
+     "x": 6208,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 119,
+     "name": "",
+     "class": "coin",
+     "x": 6224,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 120,
+     "name": "",
+     "class": "coin",
+     "x": 6240,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 121,
+     "name": "",
+     "class": "coin",
+     "x": 6256,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 122,
+     "name": "",
+     "class": "coin",
+     "x": 6272,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 123,
+     "name": "",
+     "class": "coin",
+     "x": 6288,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 124,
+     "name": "",
+     "class": "coin",
+     "x": 6432,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 125,
+     "name": "",
+     "class": "coin",
+     "x": 6448,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 126,
+     "name": "",
+     "class": "coin",
+     "x": 6464,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 127,
+     "name": "",
+     "class": "coin",
+     "x": 6480,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 128,
      "name": "",
      "class": "block",
      "x": 352,
@@ -1264,10 +1633,10 @@
      ]
     },
     {
-     "id": 98,
+     "id": 129,
      "name": "",
      "class": "block",
-     "x": 480,
+     "x": 512,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1287,10 +1656,10 @@
      ]
     },
     {
-     "id": 99,
+     "id": 130,
      "name": "",
      "class": "block",
-     "x": 528,
+     "x": 560,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1310,10 +1679,10 @@
      ]
     },
     {
-     "id": 100,
+     "id": 131,
      "name": "",
      "class": "block",
-     "x": 544,
+     "x": 576,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1333,10 +1702,10 @@
      ]
     },
     {
-     "id": 101,
+     "id": 132,
      "name": "",
      "class": "block",
-     "x": 1488,
+     "x": 1600,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1351,15 +1720,38 @@
       {
        "name": "contents",
        "type": "string",
-       "value": "lchaim"
+       "value": "coin"
       }
      ]
     },
     {
-     "id": 102,
+     "id": 133,
      "name": "",
      "class": "block",
-     "x": 2368,
+     "x": 2176,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "mystery"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "cholent"
+      }
+     ]
+    },
+    {
+     "id": 134,
+     "name": "",
+     "class": "block",
+     "x": 3168,
      "y": 208,
      "width": 16,
      "height": 16,
@@ -1379,10 +1771,10 @@
      ]
     },
     {
-     "id": 103,
+     "id": 135,
      "name": "",
      "class": "block",
-     "x": 2688,
+     "x": 3488,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1402,10 +1794,10 @@
      ]
     },
     {
-     "id": 104,
+     "id": 136,
      "name": "",
      "class": "block",
-     "x": 2704,
+     "x": 3504,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1425,10 +1817,10 @@
      ]
     },
     {
-     "id": 105,
+     "id": 137,
      "name": "",
      "class": "block",
-     "x": 2720,
+     "x": 3520,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1448,10 +1840,10 @@
      ]
     },
     {
-     "id": 106,
+     "id": 138,
      "name": "",
      "class": "block",
-     "x": 2736,
+     "x": 3536,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1471,10 +1863,10 @@
      ]
     },
     {
-     "id": 107,
+     "id": 139,
      "name": "",
      "class": "block",
-     "x": 2752,
+     "x": 3552,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1494,10 +1886,10 @@
      ]
     },
     {
-     "id": 108,
+     "id": 140,
      "name": "",
      "class": "block",
-     "x": 2768,
+     "x": 3568,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1517,10 +1909,10 @@
      ]
     },
     {
-     "id": 109,
+     "id": 141,
      "name": "",
      "class": "block",
-     "x": 2784,
+     "x": 3584,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1540,10 +1932,10 @@
      ]
     },
     {
-     "id": 110,
+     "id": 142,
      "name": "",
      "class": "block",
-     "x": 2800,
+     "x": 3600,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1563,10 +1955,10 @@
      ]
     },
     {
-     "id": 111,
+     "id": 143,
      "name": "",
      "class": "block",
-     "x": 2752,
+     "x": 3552,
      "y": 336,
      "width": 16,
      "height": 16,
@@ -1586,10 +1978,10 @@
      ]
     },
     {
-     "id": 112,
+     "id": 144,
      "name": "",
      "class": "block",
-     "x": 3232,
+     "x": 4096,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1609,10 +2001,79 @@
      ]
     },
     {
-     "id": 113,
+     "id": 145,
      "name": "",
      "class": "block",
-     "x": 4544,
+     "x": 4480,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "brick"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "coin"
+      }
+     ]
+    },
+    {
+     "id": 146,
+     "name": "",
+     "class": "block",
+     "x": 4496,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "brick"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "coin"
+      }
+     ]
+    },
+    {
+     "id": 147,
+     "name": "",
+     "class": "block",
+     "x": 4512,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "block",
+       "type": "string",
+       "value": "brick"
+      },
+      {
+       "name": "contents",
+       "type": "string",
+       "value": "coin"
+      }
+     ]
+    },
+    {
+     "id": 148,
+     "name": "",
+     "class": "block",
+     "x": 5984,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1632,10 +2093,10 @@
      ]
     },
     {
-     "id": 114,
+     "id": 149,
      "name": "",
      "class": "enemy",
-     "x": 928,
+     "x": 1056,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -1650,10 +2111,64 @@
      ]
     },
     {
-     "id": 115,
+     "id": 150,
      "name": "",
      "class": "enemy",
-     "x": 2208,
+     "x": 1536,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 151,
+     "name": "",
+     "class": "enemy",
+     "x": 1792,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 152,
+     "name": "",
+     "class": "enemy",
+     "x": 1888,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 153,
+     "name": "",
+     "class": "enemy",
+     "x": 3024,
      "y": 176,
      "width": 16,
      "height": 16,
@@ -1668,10 +2183,10 @@
      ]
     },
     {
-     "id": 116,
+     "id": 154,
      "name": "",
      "class": "enemy",
-     "x": 1984,
+     "x": 2880,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1686,10 +2201,10 @@
      ]
     },
     {
-     "id": 117,
+     "id": 155,
      "name": "",
      "class": "enemy",
-     "x": 2192,
+     "x": 3072,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1704,9 +2219,153 @@
      ]
     },
     {
-     "id": 118,
+     "id": 156,
      "name": "",
      "class": "enemy",
+     "x": 3264,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 157,
+     "name": "",
+     "class": "enemy",
+     "x": 4032,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 158,
+     "name": "",
+     "class": "enemy",
+     "x": 4160,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 159,
+     "name": "",
+     "class": "enemy",
+     "x": 5568,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 160,
+     "name": "",
+     "class": "enemy",
+     "x": 5696,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 161,
+     "name": "",
+     "class": "enemy",
+     "x": 6144,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 162,
+     "name": "",
+     "class": "enemy",
+     "x": 6240,
+     "y": 320,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "rat"
+      }
+     ]
+    },
+    {
+     "id": 163,
+     "name": "",
+     "class": "enemy",
+     "x": 6336,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "enemy",
+       "type": "string",
+       "value": "pigeon"
+      }
+     ]
+    },
+    {
+     "id": 164,
+     "name": "",
+     "class": "cart",
      "x": 2400,
      "y": 320,
      "width": 16,
@@ -1715,197 +2374,17 @@
      "visible": true,
      "properties": [
       {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
+       "name": "direction",
+       "type": "int",
+       "value": -1
       }
      ]
     },
     {
-     "id": 119,
-     "name": "",
-     "class": "enemy",
-     "x": 3040,
-     "y": 320,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 120,
-     "name": "",
-     "class": "enemy",
-     "x": 3168,
-     "y": 320,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 121,
-     "name": "",
-     "class": "enemy",
-     "x": 3296,
-     "y": 320,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 122,
-     "name": "",
-     "class": "enemy",
-     "x": 4144,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 123,
-     "name": "",
-     "class": "enemy",
-     "x": 4256,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 124,
-     "name": "",
-     "class": "enemy",
-     "x": 4672,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 125,
-     "name": "",
-     "class": "enemy",
-     "x": 4768,
-     "y": 272,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 126,
-     "name": "",
-     "class": "enemy",
-     "x": 4864,
-     "y": 256,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "pigeon"
-      }
-     ]
-    },
-    {
-     "id": 127,
-     "name": "",
-     "class": "enemy",
-     "x": 4736,
-     "y": 320,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 128,
-     "name": "",
-     "class": "enemy",
-     "x": 4832,
-     "y": 320,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "enemy",
-       "type": "string",
-       "value": "rat"
-      }
-     ]
-    },
-    {
-     "id": 129,
+     "id": 165,
      "name": "",
      "class": "cart",
-     "x": 1664,
+     "x": 4640,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1920,28 +2399,10 @@
      ]
     },
     {
-     "id": 130,
-     "name": "",
-     "class": "cart",
-     "x": 3360,
-     "y": 320,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 131,
+     "id": 166,
      "name": "",
      "class": "van",
-     "x": 3648,
+     "x": 4960,
      "y": 320,
      "width": 16,
      "height": 16,
@@ -1956,82 +2417,75 @@
      ]
     },
     {
-     "id": 132,
+     "id": 167,
      "name": "",
      "class": "pipe",
+     "x": 5504,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 168,
+     "name": "",
+     "class": "pipe",
+     "x": 5616,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 169,
+     "name": "",
+     "class": "pipe",
+     "x": 5728,
+     "y": 288,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "direction",
+       "type": "int",
+       "value": -1
+      }
+     ]
+    },
+    {
+     "id": 170,
+     "name": "",
+     "class": "bounce",
+     "x": 2752,
+     "y": 272,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 171,
+     "name": "",
+     "class": "bounce",
      "x": 3968,
-     "y": 288,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 133,
-     "name": "",
-     "class": "pipe",
-     "x": 4080,
-     "y": 288,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 134,
-     "name": "",
-     "class": "pipe",
-     "x": 4192,
-     "y": 288,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 135,
-     "name": "",
-     "class": "pipe",
-     "x": 4288,
-     "y": 288,
-     "width": 16,
-     "height": 16,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "direction",
-       "type": "int",
-       "value": -1
-      }
-     ]
-    },
-    {
-     "id": 136,
-     "name": "",
-     "class": "bounce",
-     "x": 1920,
      "y": 272,
      "width": 48,
      "height": 16,
@@ -2039,18 +2493,7 @@
      "visible": true
     },
     {
-     "id": 137,
-     "name": "",
-     "class": "bounce",
-     "x": 3104,
-     "y": 272,
-     "width": 48,
-     "height": 16,
-     "rotation": 0,
-     "visible": true
-    },
-    {
-     "id": 138,
+     "id": 172,
      "name": "",
      "class": "label",
      "x": 48,
@@ -2068,10 +2511,28 @@
      ]
     },
     {
-     "id": 139,
+     "id": 173,
      "name": "",
      "class": "label",
-     "x": 848,
+     "x": 464,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "HIT THE BOX FROM BELOW"
+      }
+     ]
+    },
+    {
+     "id": 174,
+     "name": "",
+     "class": "label",
+     "x": 896,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -2086,10 +2547,28 @@
      ]
     },
     {
-     "id": 140,
+     "id": 175,
      "name": "",
      "class": "label",
-     "x": 1296,
+     "x": 1408,
+     "y": 256,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "STEP ON A RAT"
+      }
+     ]
+    },
+    {
+     "id": 176,
+     "name": "",
+     "class": "label",
+     "x": 1984,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -2104,10 +2583,10 @@
      ]
     },
     {
-     "id": 141,
+     "id": 177,
      "name": "",
      "class": "label",
-     "x": 1840,
+     "x": 2688,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -2122,10 +2601,10 @@
      ]
     },
     {
-     "id": 142,
+     "id": 178,
      "name": "",
      "class": "label",
-     "x": 2608,
+     "x": 3376,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -2140,10 +2619,10 @@
      ]
     },
     {
-     "id": 143,
+     "id": 179,
      "name": "",
      "class": "label",
-     "x": 3472,
+     "x": 4784,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -2158,10 +2637,10 @@
      ]
     },
     {
-     "id": 144,
+     "id": 180,
      "name": "",
      "class": "label",
-     "x": 3888,
+     "x": 5424,
      "y": 256,
      "width": 16,
      "height": 16,
@@ -2176,10 +2655,10 @@
      ]
     },
     {
-     "id": 145,
+     "id": 181,
      "name": "",
      "class": "label",
-     "x": 4512,
+     "x": 5952,
      "y": 288,
      "width": 16,
      "height": 16,
@@ -2194,10 +2673,10 @@
      ]
     },
     {
-     "id": 146,
+     "id": 182,
      "name": "",
      "class": "label",
-     "x": 4928,
+     "x": 6528,
      "y": 256,
      "width": 16,
      "height": 16,

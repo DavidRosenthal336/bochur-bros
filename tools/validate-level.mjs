@@ -384,3 +384,213 @@ export function describeTraps(key, traps) {
     )
     .join('\n');
 }
+
+// ---------------------------------------------------------------------------
+// Design rules.
+//
+// Everything above is geometry: can the level be finished at all. These are
+// the rules that decide whether it is fair, and they exist because the first
+// playtest of World 1 found every one of them broken somewhere — a pigeon two
+// tiles from a checkpoint, a pipe hung directly over one, carts rolling off
+// into pits before anyone arrived, a climb whose checkpoints could not be
+// taken, and a level with no enemies in it at all. LEVELS.md explains the
+// numbers; this is what enforces them.
+// ---------------------------------------------------------------------------
+
+/**
+ * Levels the design rules are errors for. The rest get warnings, until each
+ * world is rebuilt against the rules and added here. World by world, with the
+ * developer playing each one before the next.
+ */
+export const STRICT_LEVELS = new Set(['1-1', '1-2', '1-3', '1-4']);
+
+/** Tiles either side of a spawn or checkpoint that nothing hostile may be in. */
+export const CLEAR_TILES = 8;
+/** The furthest apart two checkpoints may be, in tiles along the route. */
+export const MAX_CHECKPOINT_GAP = 90;
+/** On a climb, the same in rows. */
+export const MAX_CHECKPOINT_RISE = 32;
+/** How far into the route the first Cholent box must appear, as a share of it. */
+export const EARLY_CHOLENT = 0.45;
+/** Hostile things per tile of route, at least. One every forty tiles. */
+export const MIN_HOSTILE_DENSITY = 1 / 40;
+/** Mystery boxes a level must have, at least. */
+export const MIN_BOXES = 3;
+
+/** Things that are placed in a level but cannot hurt anyone. */
+const HARMLESS_ENEMIES = new Set(['raccoon']);
+const HARMLESS_HAZARDS = new Set(['canoe', 'stroller']);
+/** Hazards that are a region rather than a thing: wind. Their whole width counts. */
+const REGION_HAZARDS = new Set(['wind', 'blower', 'hamsin']);
+/** Hazards that patrol the whole stretch of floor they stand on. */
+const ROLLERS = new Set(['cart', 'mower', 'golfCart']);
+/** Enemies that hold a line in the air, where a jump goes. */
+const FLIERS = new Set(['pigeon', 'sparrow', 'wasp', 'mosquito']);
+/** How far a perched flier drifts along its line, tiles (patrolRange 48px), plus one. */
+const PERCH_DRIFT = 4;
+/**
+ * Tiles after a gap's far edge (or a bounce pad) that a jump's arc is still
+ * passing through, and tiles before a gap's near edge that it has already
+ * begun. A pigeon perched in either is a pigeon you jump into.
+ */
+export const ARC_AFTER = 8;
+export const ARC_BEFORE = 6;
+/** An awning throws you nine tiles up; at a run that is fourteen tiles along before you are down. */
+export const ARC_AFTER_PAD = 14;
+
+/**
+ * Every way a level is unfair, as a list of faults. Empty is a pass.
+ *
+ * Expects a LevelDef (the level builder's output); `check-maps.mjs` builds the
+ * same shape from a .tmj.
+ */
+export function findDesignFaults(def) {
+  const faults = [];
+  const W = def.widthInTiles;
+  const H = def.heightInTiles;
+  const grid = buildGrid(def, { includeBlocks: true });
+  const runs = floorRuns(grid, W, H);
+  const runAt = (x, cellRow) => runs.find((r) => r.y === cellRow && x >= r.x0 && x <= r.x1);
+  const rising = def.autoScrollUp !== undefined;
+  const boss = def.boss !== undefined;
+  const prologue = def.key === 'intro';
+  const greybox = /greybox/i.test(def.name ?? '');
+  const spawn = def.spawn;
+  const goal = def.goal;
+
+  const hostiles = [];
+  for (const e of def.enemies ?? []) {
+    if (!HARMLESS_ENEMIES.has(e.kind)) hostiles.push({ what: e.kind, x0: e.x, x1: e.x, y: e.y });
+  }
+  for (const h of def.hazards ?? []) {
+    if (HARMLESS_HAZARDS.has(h.kind)) continue;
+    const w = REGION_HAZARDS.has(h.kind) ? h.w || 1 : 1;
+    hostiles.push({ what: h.kind, x0: h.x, x1: h.x + w - 1, y: h.y, roller: ROLLERS.has(h.kind) });
+  }
+
+  // --- Spawn and checkpoints: nothing hostile near, and on the floor -------
+  const points = [{ label: 'the spawn', x: spawn.x, y: spawn.y }];
+  (def.checkpoints ?? []).forEach((c, i) => points.push({ label: `checkpoint ${i + 1}`, x: c.x, y: c.y, index: i }));
+
+  for (const p of points) {
+    if (!(grid[p.y] && grid[p.y][p.x] === 1) || (grid[p.y - 1] && grid[p.y - 1][p.x] === 1)) {
+      faults.push({ kind: 'floor', message: `${p.label} at (${p.x},${p.y}) is not standing on a floor` });
+    }
+    for (const h of hostiles) {
+      const dx = h.x0 > p.x ? h.x0 - p.x : h.x1 < p.x ? p.x - h.x1 : 0;
+      // A climb's boards are a few rows apart: only what is near in height counts.
+      const near = dx <= CLEAR_TILES && (!rising || Math.abs(h.y - p.y) <= 6);
+      if (near) {
+        faults.push({
+          kind: 'clearance',
+          message: `${h.what} at (${h.x0},${h.y}) is ${dx} tile(s) from ${p.label} at (${p.x},${p.y}); nothing hostile within ${CLEAR_TILES}`,
+        });
+      }
+      // A roller patrols its whole stretch of floor, so distance is not enough.
+      if (h.roller) {
+        const run = runAt(h.x0, h.y - 1);
+        if (run && run === runAt(p.x, p.y - 1)) {
+          faults.push({ kind: 'roller', message: `${h.what} at (${h.x0},${h.y}) rolls along the floor ${p.label} stands on (tiles ${run.x0}-${run.x1})` });
+        }
+      }
+    }
+  }
+
+  // --- Nothing perched in a jump's arc ----------------------------------------
+  //
+  // Found twice in one playtest: a pigeon on row 16 five tiles past a gap,
+  // and one four tiles past an awning. A running jump over a two-tile gap
+  // reaches four tiles high and lands five or six tiles on, and an awning
+  // throws you nine; the perch line was in the middle of both.
+  if (!rising && def.groundRow !== undefined) {
+    const floor = def.groundRow;
+    const fliers = (def.enemies ?? []).filter((e) => FLIERS.has(e.kind) && e.y <= floor - 2);
+    const launches = [];
+    // Gaps along the floor: columns with nothing to stand on near the floor row.
+    const standable = (x) => { for (let y = floor; y >= Math.max(1, floor - MAX_JUMP); y -= 1) if (grid[y] && grid[y][x] && !grid[y - 1][x]) return true; return grid[floor] && grid[floor][x] === 1; };
+    let gapFrom = -1;
+    for (let x = 0; x <= W; x += 1) {
+      const ok = x < W && standable(x);
+      if (!ok && gapFrom < 0) gapFrom = x;
+      if (ok && gapFrom >= 0) { if (gapFrom > 0 && x < W) launches.push({ what: 'gap', from: gapFrom, to: x - 1 }); gapFrom = -1; }
+    }
+    for (const b of def.bouncers ?? []) if (b.y >= floor - 4) launches.push({ what: b.kind ?? 'awning', from: b.x, to: b.x + (b.w || 1) - 1 });
+    for (const l of launches) {
+      for (const f of fliers) {
+        const reach = l.what === 'gap' ? ARC_AFTER : ARC_AFTER_PAD;
+        const after = f.x > l.to && f.x - l.to <= reach;
+        const before = l.what === 'gap' && f.x < l.from && l.from - f.x <= ARC_BEFORE;
+        if (after || before) {
+          faults.push({ kind: 'arc', message: `${f.kind} at (${f.x},${f.y}) is perched in the jump over the ${l.what} at ${l.from}-${l.to} (keep ${ARC_BEFORE} tiles before a gap, ${ARC_AFTER} after one and ${ARC_AFTER_PAD} after a pad clear)` });
+        }
+      }
+    }
+  }
+
+  // --- A flier does not perch on a landing ---------------------------------
+  //
+  // A pigeon a row above a board is standing on it, and if the board is one
+  // the route lands on, so is the player — into the pigeon. 1-2 had one on
+  // the right-hand ladder's third board, and Berel could not get past it.
+  // Perches go in the empty column beside the boards, or well above them —
+  // and a perched flier drifts three tiles either way, so the whole drift
+  // has to clear the landing, not just the perch.
+  for (const f of (def.enemies ?? []).filter((e) => FLIERS.has(e.kind))) {
+    let under = null;
+    for (let dy = 1; dy <= 2 && !under; dy += 1) {
+      for (let dx = -PERCH_DRIFT; dx <= PERCH_DRIFT; dx += 1) {
+        const row = grid[f.y + dy];
+        if (row && row[f.x + dx] && !(grid[f.y + dy - 1] && grid[f.y + dy - 1][f.x + dx])) under = { x: f.x + dx, y: f.y + dy };
+      }
+    }
+    if (under && (def.groundRow === undefined || under.y !== def.groundRow)) {
+      faults.push({ kind: 'perch', message: `${f.kind} at (${f.x},${f.y}) is perched on the landing at (${under.x},${under.y}); put it further out (it drifts ${PERCH_DRIFT - 1} tiles) or three rows up` });
+    }
+  }
+
+  // --- Rollers stand on a floor to begin with ------------------------------
+  for (const h of hostiles) {
+    if (h.roller && !runAt(h.x0, h.y - 1)) {
+      faults.push({ kind: 'roller', message: `${h.what} at (${h.x0},${h.y}) is not on a floor` });
+    }
+  }
+
+  // --- Checkpoints come in the order they are reached ----------------------
+  const cps = def.checkpoints ?? [];
+  for (let i = 1; i < cps.length; i += 1) {
+    const ok = rising ? cps[i].y < cps[i - 1].y : cps[i].x > cps[i - 1].x;
+    if (!ok) {
+      faults.push({ kind: 'order', message: `checkpoint ${i + 1} at (${cps[i].x},${cps[i].y}) is not ${rising ? 'above' : 'right of'} checkpoint ${i} at (${cps[i - 1].x},${cps[i - 1].y})` });
+    }
+  }
+
+  // --- The rest is about a level's content, which a boss arena or an
+  //     instrument is not measured on.
+  if (boss || prologue || greybox || !goal) return faults;
+
+  const along = (p) => (rising ? spawn.y - p.y : p.x - spawn.x);
+  const length = along(goal);
+  const maxGap = rising ? MAX_CHECKPOINT_RISE : MAX_CHECKPOINT_GAP;
+  let last = 0;
+  for (const [i, c] of cps.entries()) {
+    const gap = along(c) - last;
+    if (gap > maxGap) faults.push({ kind: 'spacing', message: `checkpoint ${i + 1} is ${gap} ${rising ? 'rows' : 'tiles'} after the last; at most ${maxGap}` });
+    last = along(c);
+  }
+  if (length - last > maxGap) faults.push({ kind: 'spacing', message: `the goal is ${length - last} ${rising ? 'rows' : 'tiles'} after the last checkpoint; at most ${maxGap}` });
+
+  const boxes = (def.blocks ?? []).filter((b) => b.kind === 'mystery');
+  if (boxes.length < MIN_BOXES) faults.push({ kind: 'content', message: `${boxes.length} mystery box(es); at least ${MIN_BOXES}` });
+  const cholent = boxes.filter((b) => b.contents === 'cholent').map(along);
+  if (!cholent.some((d) => d <= length * EARLY_CHOLENT)) {
+    faults.push({ kind: 'content', message: `no Cholent box in the first ${Math.round(EARLY_CHOLENT * 100)}% of the route (${Math.round(length * EARLY_CHOLENT)} of ${length} ${rising ? 'rows' : 'tiles'})` });
+  }
+  const need = Math.ceil(length * MIN_HOSTILE_DENSITY);
+  if (hostiles.length < need) faults.push({ kind: 'content', message: `${hostiles.length} enemies and hazards over ${length} ${rising ? 'rows' : 'tiles'}; at least ${need}` });
+
+  return faults;
+}
+
+export function describeFaults(key, faults) {
+  return faults.map((f) => `  ${key}: ${f.message}`).join('\n');
+}

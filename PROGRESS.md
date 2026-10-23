@@ -1747,3 +1747,69 @@ Tested with made-up raw images (magenta sheet, real-alpha strip, flat white
 background, opaque tile and sky, a lone frame, a misnamed file): each handled as
 intended, frames cut at the right places in the atlas, and the build ships the
 atlases but not the masters. The test images were removed afterwards.
+
+## World 1 rebuilt against a level standard
+
+The first real playtest of World 1 (1-1 to 1-3) found structural faults, not
+tuning: a respawn was often hit before you could move, 1-2's checkpoints could
+not be taken, 1-2 had no enemies at all, the stroller fell into the first gap
+of 1-3 and was never seen again, and 1-1 felt short. Those are the symptoms
+of levels being built without rules and checked only for geometry. Three
+things were done, in order: engine fixes (A), a validator that enforces design
+rules (B), a written standard and World 1 rebuilt against it (C). Worlds 2–4
+are untouched and get the same treatment after World 1 has been played.
+
+**A — engine.**
+- A life that starts at a checkpoint gets 1.5 s of blinking grace
+  (`spawnGraceMs`); while blinking you are rolled through by carts, not shoved
+  into pits. The stroller is placed nine tiles behind on the floor and waits
+  2.5 s (`chaseHoldMs`); the horizontal scroll waits out the grace too and
+  frames the respawn at mid-screen.
+- Checkpoints are counted in list order (`respawnIndex`), not matched by x —
+  that is what broke every checkpoint on the climb.
+- The stroller jumps gaps and hops walls, and is put back on the floor behind
+  you if it ever falls out.
+- Carts and mowers sleep until you are within 260 px and turn at the ends of
+  their floor, so they are where the level put them when you arrive.
+- Rats are goomba-like: 40 px/s patrol (was 120 on a timer out of a grate),
+  24×16 art, turn at ledges, stomped from above.
+- The rising camera (1-2) is pulled up by where you *stand*, not by the top of
+  your jump. Pulled on the apex, the bottom of the screen ended up 29 px under
+  your feet after every jump, so one missed jump was always a death.
+
+**B — validator** (`tools/validate-level.mjs`, errors for `STRICT_LEVELS` =
+World 1, warnings elsewhere): nothing hostile within 8 tiles of a spawn or
+checkpoint (and 6 rows on a climb); a roller never shares a floor with a
+checkpoint and starts on a floor; checkpoints in route order, ≤ 90 tiles
+apart, on a floor; a Cholent box in the first 45 %; ≥ 3 boxes; ≥ 1 thing to
+deal with per 40 tiles; no flier perched in the jump arc after a gap or pad;
+no flier perched within 2 rows of a landing (its 3-tile drift counted).
+`check:maps` parses all of it back out of the .tmj.
+
+**C — the standard and World 1.** `LEVELS.md` has the measured jump table,
+the enforced numbers, the judgement rules (teach → test → use; one new
+pressure at a time; a checkpoint is a quiet place; ~400 tiles; density every
+15–25 tiles; what gets harder per world) and the definition of done.
+- 1-1: 426 tiles (was 322), four checkpoints, something every ~20 tiles, every
+  enemy met alone with a sign first; a two-way split; the Menorah before the
+  last three.
+- 1-2: same concept, enemies back by the rules — five rats, one per board,
+  never on a checkpoint's board; three pigeons perched two rows up in the open
+  columns beside the ladder, on the side the route leaves. No pipes (see the
+  file's header). The harness is told both rejoin edges.
+- 1-3: stroller follows the whole way; quiet checkpoints; two-tile gaps before
+  the first checkpoint, three after; never a cart and rats on one stretch;
+  **the visible clock is gone** — the moving screen is the clock (LEVELS.md:
+  only 3-3 and 4-3 keep one). This supersedes §6's "timed".
+
+**Verified** with a bot driving the real game (`scripts/*.tmp.mjs`, gitignored):
+1-1 finished as Mendy (45 s) and Berel (57 s), 0 deaths; 1-3 as Mendy (37 s)
+and Berel (46 s), 0 deaths; 1-2 as Mendy (50 s), 0 deaths. 1-2 as Berel
+reaches the third checkpoint; the bot's remaining deaths are all at rats on
+landings, where its stomp timing with Berel's shorter jump is poor — the
+developer's play-through decides that one. At every one of the twelve
+checkpoints a respawn that stands still for three seconds is still alive.
+`npm run build:maps` is clean for World 1 (Worlds 2–4 emit warnings).
+
+**Deviations from the design document (§13):** 1-3 has no clock; 1-2 has no
+falling pipes; rats patrol instead of emerging on a timer.

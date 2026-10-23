@@ -326,6 +326,13 @@ export class LevelScene extends Phaser.Scene {
   private secondsLeft: number | undefined;
   /** How far the level has scrolled itself along, px. */
   private autoScrollX = 0;
+  /**
+   * When the horizontal scroll is allowed to move again, ms. A resumed life
+   * holds it for the spawn grace, the way the stroller is held: a screen that
+   * starts shoving you the frame you appear is the ambush the grace exists to
+   * prevent.
+   */
+  private scrollHoldUntil = 0;
   /** Where the rising camera has got to, px. Only ever decreases. */
   private autoScrollY = 0;
   /**
@@ -392,6 +399,7 @@ export class LevelScene extends Phaser.Scene {
     this.levelId = data.levelId;
     this.secondsLeft = this.levelId ? findLevel(this.levelId)?.timeLimit : undefined;
     this.autoScrollX = 0;
+    this.scrollHoldUntil = 0;
     this.autoScrollY = 0;
     this.greybox = data.greybox ?? GREYBOX_LEVELS.includes(key);
     this.prologue = data.prologue ?? key === PROLOGUE_LEVEL;
@@ -448,14 +456,18 @@ export class LevelScene extends Phaser.Scene {
       ? this.respawnAt.x - (this.level.spawn.x * TILE + TILE / 2)
       : 0;
     if (this.level.autoScroll && resumedAt > 0) {
-      // A quarter of a screen in from the left, which is where the chase has
-      // you at the level's own start. Only on a resumed life: a first attempt
-      // must open where the level was designed to open.
+      // Half a screen in from the left, which is where the chase has you at
+      // the level's own start, with the stroller in frame behind you. A
+      // quarter put the left edge eighty pixels from a player who had not
+      // moved yet — one second — and the shove carried them into the next
+      // gap. Only on a resumed life: a first attempt must open where the
+      // level was designed to open. The scroll itself waits out the grace.
       this.autoScrollX = Phaser.Math.Clamp(
-        this.respawnAt.x - VIEW_WIDTH * 0.25,
+        this.respawnAt.x - VIEW_WIDTH * 0.5,
         0,
         Math.max(0, widthPx - VIEW_WIDTH),
       );
+      this.scrollHoldUntil = this.time.now + GAMEPLAY.spawnGraceMs;
     }
     this.hazardOffsetX = this.level.autoScroll ? resumedAt : 0;
 
@@ -979,7 +991,7 @@ export class LevelScene extends Phaser.Scene {
       const resumed = config.behavior === 'chaser' && this.hazardOffsetX > 0;
       if (resumed) x = this.groundBehind(this.respawnAt.x - CHASER_LEAD * TILE, placement.y * TILE, config.bodyWidth);
       const hazard = new MovingHazard(this, x, placement.y * TILE, config, placement.direction, (px, py) => this.isSolidAt(px, py));
-      if (resumed) hazard.holdUntil = this.time.now + GAMEPLAY.spawnGraceMs;
+      if (resumed) hazard.holdUntil = this.time.now + GAMEPLAY.chaseHoldMs;
       this.hazards.add(hazard);
     }
   }
@@ -2823,7 +2835,9 @@ export class LevelScene extends Phaser.Scene {
     if (!this.level.autoScroll || this.state !== 'playing') return;
 
     const camera = this.cameras.main;
-    this.autoScrollX += (this.level.autoScroll * delta) / 1000;
+    if (this.time.now >= this.scrollHoldUntil) {
+      this.autoScrollX += (this.level.autoScroll * delta) / 1000;
+    }
     camera.stopFollow();
     camera.setScroll(
       Math.min(this.autoScrollX, this.level.widthInTiles * TILE - VIEW_WIDTH),
@@ -2862,9 +2876,20 @@ export class LevelScene extends Phaser.Scene {
     if (this.riseGraceLeft > 0) this.riseGraceLeft -= delta;
     else this.autoScrollY = Math.max(0, this.autoScrollY - (this.level.autoScrollUp * delta) / 1000);
 
-    // Pulled up by a fast climber, on top of its own clock.
-    const pulled = Phaser.Math.Clamp(this.player.y - VIEW_HEIGHT * CAMERA.risingFollow, 0, lowest);
-    this.autoScrollY = Math.min(this.autoScrollY, pulled);
+    // Pulled up by a fast climber, on top of its own clock — by where they
+    // stand, not by the top of a jump. Pulled on the apex, the bottom of the
+    // screen ended up a board's height under the feet after every jump, so
+    // the board below was already gone and a missed jump was a death. Pulled
+    // on footing, the board below is still there to land on, and the clock
+    // is what makes the second miss cost.
+    if (this.player.physicsBody.blocked.down) {
+      const pulled = Phaser.Math.Clamp(
+        this.player.y - VIEW_HEIGHT * CAMERA.risingFollow,
+        0,
+        lowest,
+      );
+      this.autoScrollY = Math.min(this.autoScrollY, pulled);
+    }
 
     const wantX = Phaser.Math.Clamp(this.player.x - VIEW_WIDTH / 2, 0, Math.max(0, widthPx - VIEW_WIDTH));
     camera.stopFollow();

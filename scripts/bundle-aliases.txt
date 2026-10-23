@@ -10,6 +10,7 @@
 assets/index-0pJ69l0f.js
 assets/index-B93cxfec.js
 assets/index-BC4aH_y2.js
+assets/index-BOsrrCgq.js
 assets/index-BTAmLyvg.js
 assets/index-BU1vqW9g.js
 assets/index-BXcu2k1o.js

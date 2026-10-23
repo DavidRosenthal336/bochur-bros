@@ -12,7 +12,7 @@ import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { levelDefToTiled } from './to-tiled.mjs';
-import { describeTraps, findTraps } from './validate-level.mjs';
+import { STRICT_LEVELS, describeFaults, describeTraps, findDesignFaults, findTraps } from './validate-level.mjs';
 
 const SOURCE_DIR = new URL('./levels/', import.meta.url);
 const OUT_DIR = 'src/levels/maps';
@@ -45,6 +45,16 @@ for (const file of files) {
     console.error(describeTraps(def.key, traps));
   }
 
+  // The design rules: errors for the worlds rebuilt against them, warnings
+  // for the rest, so the debt is visible without blocking the build.
+  const faults = findDesignFaults(def);
+  if (faults.length) {
+    const strict = STRICT_LEVELS.has(def.key);
+    if (strict) trapped += faults.length;
+    console[strict ? 'error' : 'warn'](`\n${strict ? 'UNFAIR' : 'unfair (warning)'} in ${def.key}:`);
+    console[strict ? 'error' : 'warn'](describeFaults(def.key, faults));
+  }
+
   const tiled = levelDefToTiled(def);
   const path = join(OUT_DIR, `${def.key}.tmj`);
   await writeFile(path, `${JSON.stringify(tiled, null, 1)}\n`);
@@ -54,7 +64,7 @@ for (const file of files) {
   );
 }
 if (trapped > 0) {
-  console.error(`\n${trapped} trap(s) found. Maps were written, but fix these before playing.`);
+  console.error(`\n${trapped} problem(s) found. Maps were written, but fix these before playing.`);
   process.exit(1);
 }
 
