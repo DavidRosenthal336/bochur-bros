@@ -10,7 +10,7 @@ Each batch is **one ChatGPT request** that makes many pieces of art in one pictu
 3. Save what comes back as `assets/raw/batches/<batch id>.png` and run `npm run assets`. It is cut into its pieces
    on its own. If one row comes out badly, redo just that piece and save it in `assets/raw/` under its own name.
 
-**51 of 53 pieces done across 12 batches.**
+**52 of 53 pieces done across 12 batches.**
 
 ## ✅ Batch 1 — Map screen and title
 
@@ -70,7 +70,7 @@ Keep the colours calm and slightly muted, so the characters stand out in front.
 
 ## 🟨 Batch 4 — World 2 creatures and traps
 
-4 of 6 done · save as `assets/raw/batches/batch_w2_creatures.png` · reference `assets/reference/batches/batch_w2_creatures.png`
+5 of 6 done · save as `assets/raw/batches/batch_w2_creatures.png` · reference `assets/reference/batches/batch_w2_creatures.png`
 
 ```text
 Match the Bochur Bros style exactly, using my reference images. The last reference image shows the current version of each row: redraw them in the better style.

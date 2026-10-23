@@ -339,6 +339,13 @@
       "frameHeight": 16,
       "frames": 2
     },
+    "sprites/gate.png": {
+      "atlas": "world2",
+      "frame": "gate",
+      "frameWidth": 20,
+      "frameHeight": 36,
+      "frames": 2
+    },
     "sprites/minivan.png": {
       "atlas": "world2",
       "frame": "minivan",

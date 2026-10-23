@@ -316,7 +316,7 @@ export const ASSETS = [
   sheet('gate', P3, 'world2', [20, 36],
     'a white picket backyard gate',
     { open: 'swung open', shut: 'closed and latched' },
-    { title: 'Backyard gate' }),
+    { title: 'Backyard gate', soft: true }),
   still('minivan', P3, 'world2', [56, 34], 'a silver family minivan, side view, facing right', { title: 'Minivan' }),
   sheet('escalade', P3, 'world2', [88, 46],
     'the Escalade: a huge black luxury SUV, side view facing right, a driver on the phone visible through the window — boss of World 2',

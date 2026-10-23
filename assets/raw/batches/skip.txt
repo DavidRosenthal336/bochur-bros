@@ -1,4 +1,3 @@
 # Rows of a batch to leave out, one asset id per line. The game keeps the
 # original art for these until they are redrawn on their own.
-sprinkler   # drawn spraying sideways, so it shrank to a speck
-gate        # drawn with posts either side, so it shrank to a speck
+sprinkler   # you ride them up, and a thin jet does not read as something to stand on; the original's fan does

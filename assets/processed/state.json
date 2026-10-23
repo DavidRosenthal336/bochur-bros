@@ -718,5 +718,14 @@
       "assets/processed/hd/sprites/backdrops/bg_near_meah_shearim_day.png"
     ],
     "at": "2026-10-23T00:38:09.634Z"
+  },
+  "gate": {
+    "status": "processed",
+    "hash": "04c64da58995d6e60e78fee272b2ce606e51dcc9",
+    "outputs": [
+      "assets/processed/sheets/gate.png",
+      "assets/processed/hd/sprites/gate.png"
+    ],
+    "at": "2026-10-23T01:00:25.218Z"
   }
 }
