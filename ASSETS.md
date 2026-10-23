@@ -30,10 +30,9 @@ pipeline trims and scales.
 
 ### In the game
 
-The new art is a **preview** until it is switched on for everyone (`NEW_ART_BY_DEFAULT` in
-`src/config/processedArt.ts`): the plain address still shows the original art. To see the new art, add to the
-address: `?art=mix` (new art where it exists, original for the rest) or `?art=new` (only the new art, with
-coloured boxes for what is still to be drawn).
+The new art is **on for everyone** (`NEW_ART_BY_DEFAULT` in `src/config/processedArt.ts`): the game shows the
+new art where it exists and the original everywhere else. To compare, add to the address: `?art=old` (the
+original art) or `?art=new` (only the new art, with coloured boxes for what was never redrawn).
 
 ## Batches
 

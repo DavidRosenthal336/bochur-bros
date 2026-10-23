@@ -766,10 +766,9 @@ function writeDoc(state, unknown) {
   out.push('');
   out.push('### In the game');
   out.push('');
-  out.push('The new art is a **preview** until it is switched on for everyone (`NEW_ART_BY_DEFAULT` in');
-  out.push('`src/config/processedArt.ts`): the plain address still shows the original art. To see the new art, add to the');
-  out.push('address: `?art=mix` (new art where it exists, original for the rest) or `?art=new` (only the new art, with');
-  out.push('coloured boxes for what is still to be drawn).');
+  out.push('The new art is **on for everyone** (`NEW_ART_BY_DEFAULT` in `src/config/processedArt.ts`): the game shows the');
+  out.push('new art where it exists and the original everywhere else. To compare, add to the address: `?art=old` (the');
+  out.push('original art) or `?art=new` (only the new art, with coloured boxes for what was never redrawn).');
   out.push('');
   out.push('## Batches');
   out.push('');

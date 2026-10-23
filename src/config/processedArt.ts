@@ -21,20 +21,19 @@ export interface ProcessedEntry {
 const params = typeof location === 'undefined' ? undefined : new URLSearchParams(location.search);
 
 /**
- * Is the new art switched on for everyone yet?
+ * Is the new art switched on for everyone?
  *
- * Not yet: the live game keeps its original art until the new art is ready and
- * the developer says so, so a half-redrawn cast never reaches players. Until
- * then the new art is a preview, by address:
+ * Yes: everyone sees the new art where it exists and the original everywhere
+ * else (the tiles, which stayed original on purpose). By address:
  *
- * - `?art=mix`: the new art where it exists, the original everywhere else.
- * - `?art=new`: only the new art, with coloured boxes for what is still to be
- *   drawn — the way to see how far the art has got.
- * - `?art=old`: the original art (what everyone sees while this is false).
+ * - `?art=mix`: the same as the default.
+ * - `?art=new`: only the new art, with coloured boxes for what was never
+ *   redrawn — the way to see what is left.
+ * - `?art=old`: the original art, as the game looked before the redraw.
  *
- * Flip this to true to make `mix` the default.
+ * Set this to false to put the original art back for everyone.
  */
-const NEW_ART_BY_DEFAULT = false;
+const NEW_ART_BY_DEFAULT = true;
 
 const asked = params?.get('art');
 export const ART_MODE: 'both' | 'new' | 'old' =
