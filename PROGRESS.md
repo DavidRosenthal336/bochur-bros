@@ -1847,7 +1847,7 @@ rest of the level. And a hit did not end the catch: it rolled on through the
 blinking player and came out in front, and the level became a squeeze between
 the left edge of the screen and a stroller you could not pass.
 
-Now 96 (a walker loses six pixels a second, so somewhere you run), and a
+Now 88 — just over the screen, just under a walk, after 96 still caught a walker — and a
 chaser that hits you drops back seven tiles and waits a second
 (`MovingHazard.stumble`). Measured: a Big Mendy who stops is caught, loses a
 tier, and has the stroller seven tiles behind him again; stop again and it is

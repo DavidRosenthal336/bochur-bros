@@ -243,11 +243,12 @@ export const HAZARDS = {
     color: 0xc46a8a,
     rideable: false,
     harmful: true,
-    // Faster than 1-3's screen (86) and a little faster than a walk (90):
-    // walking the whole way, it closes a nine-tile head start in about
-    // twenty-five seconds, so somewhere you have to run. At 104 it closed it
-    // in ten, and from then on it was at your heels the whole level.
-    speed: 96,
+    // Just over 1-3's screen (86) and just under a walk (90): it stays in
+    // frame behind you and gains only on a player who stops. At 104 it
+    // closed a nine-tile head start in ten seconds and sat at your heels for
+    // the whole level; at 96 it still caught a walker, and the developer
+    // said so twice. The screen is the clock; the stroller is the threat.
+    speed: 88,
     affectedByGravity: true,
   },
   // --- World 3, The Catskills -----------------------------------------------
