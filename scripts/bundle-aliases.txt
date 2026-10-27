@@ -32,3 +32,4 @@ assets/index-Drpq7_pe.js
 assets/index-DsE--_So.js
 assets/index-T1QFpzbu.js
 assets/index-VGcvJrjh.js
+assets/index-uA4-4uw3.js
