@@ -425,6 +425,19 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * It caught you. It drops back and waits a moment before it comes again.
+   *
+   * Without this, a chaser that had hit you rolled on through the blinking
+   * player and came out in front, and the level became a squeeze between the
+   * screen's left edge shoving you forwards and a stroller you could not get
+   * past. One hit is the price of being caught; being caught is not a trap.
+   */
+  stumble(now: number, playerX: number, playerY: number): void {
+    this.resetBehind(playerX, playerY);
+    this.holdUntil = now + 1000;
+  }
+
   /** Back onto the floor a lead behind the player. */
   private resetBehind(playerX: number, playerY: number): void {
     const body = this.physicsBody;

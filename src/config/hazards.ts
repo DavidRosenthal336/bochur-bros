@@ -243,7 +243,11 @@ export const HAZARDS = {
     color: 0xc46a8a,
     rideable: false,
     harmful: true,
-    speed: 104,
+    // Faster than 1-3's screen (86) and a little faster than a walk (90):
+    // walking the whole way, it closes a nine-tile head start in about
+    // twenty-five seconds, so somewhere you have to run. At 104 it closed it
+    // in ten, and from then on it was at your heels the whole level.
+    speed: 96,
     affectedByGravity: true,
   },
   // --- World 3, The Catskills -----------------------------------------------

@@ -2820,7 +2820,12 @@ export class LevelScene extends Phaser.Scene {
       this.riding = hazard;
       return;
     }
-    if (hazard.isDangerous) this.hurtPlayer(hazard.x);
+    if (hazard.isDangerous) {
+      this.hurtPlayer(hazard.x);
+      if (hazard.config.behavior === 'chaser' && this.state === 'playing') {
+        hazard.stumble(this.time.now, this.player.x, this.player.y);
+      }
+    }
   }
 
   /** Landing on an awning or a bag of rubbish launches you (§6). */

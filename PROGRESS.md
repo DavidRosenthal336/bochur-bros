@@ -1837,3 +1837,18 @@ Played by the developer right after the rebuild. Two things, both engine:
 
 Verified again: 1-1 Mendy 45 s, 0 deaths; 1-2 Mendy finished; 1-3 Berel
 finished; 1-2 Berel to the third checkpoint (the bot, not the level).
+
+## 1-3: caught by the stroller is not trapped by it
+
+Played: the stroller closed on you faster than the screen and you were
+"trapped up against it". Two causes. Its speed was 104 — a walk is 90 — so it
+closed a nine-tile head start in ten seconds and sat at your heels for the
+rest of the level. And a hit did not end the catch: it rolled on through the
+blinking player and came out in front, and the level became a squeeze between
+the left edge of the screen and a stroller you could not pass.
+
+Now 96 (a walker loses six pixels a second, so somewhere you run), and a
+chaser that hits you drops back seven tiles and waits a second
+(`MovingHazard.stumble`). Measured: a Big Mendy who stops is caught, loses a
+tier, and has the stroller seven tiles behind him again; stop again and it is
+on him in two seconds, which is the chase.
