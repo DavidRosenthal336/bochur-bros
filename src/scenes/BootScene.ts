@@ -1,3 +1,4 @@
+import { ALL_LEVELS_OPEN } from '../config/playtest';
 import Phaser from 'phaser';
 import {
   ACTOR_SPRITES,
@@ -195,7 +196,9 @@ export class BootScene extends Phaser.Scene {
      * explanation. Once it has been watched the game opens where it used to,
      * and it can be watched again from the map.
      */
-    if (loadSave().introSeen) {
+    // The playtest build goes straight to the map: the prologue is on the
+    // map to watch, and a fresh save on every build was playing it each time.
+    if (loadSave().introSeen || ALL_LEVELS_OPEN) {
       this.scene.start(SceneKey.WorldMap);
       return;
     }
