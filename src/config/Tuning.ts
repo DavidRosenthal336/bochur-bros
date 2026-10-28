@@ -391,11 +391,11 @@ export const GAMEPLAY = {
   spawnGraceMs: 1500,
   /**
    * How long a chaser (the stroller) waits after a respawn before it comes,
-   * ms. Longer than the grace: it is placed nine tiles back and covers that in
-   * a second and a half, and a respawn that stands still for three seconds
-   * must still be alive (LEVELS.md). You see it start rolling.
+   * ms. A beat after the screen starts (the grace is 1500): it rides a lane
+   * at the screen's own speed, and a respawn that stands still for three
+   * seconds must still be alive (LEVELS.md). You see it start rolling.
    */
-  chaseHoldMs: 2500,
+  chaseHoldMs: 2000,
   /**
    * How close the player has to come before a sleeping enemy or hazard starts
    * moving, px.

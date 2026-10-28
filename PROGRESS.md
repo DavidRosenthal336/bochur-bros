@@ -1852,3 +1852,22 @@ chaser that hits you drops back seven tiles and waits a second
 (`MovingHazard.stumble`). Measured: a Big Mendy who stops is caught, loses a
 tier, and has the stroller seven tiles behind him again; stop again and it is
 on him in two seconds, which is the chase.
+
+## The stroller rides the screen
+
+Played again: at 88 it still caught you, about halfway, and after a respawn
+it "didn't start". The mechanism was wrong, not the number: a chaser with a
+speed of its own catches everyone whose average over the level falls below
+it — jumps, boxes, a wait for a pipe — which is everyone, somewhere.
+
+On a level whose screen moves by itself, a chaser now rides a lane just
+inside the left edge of the screen (`CHASE_LANE`, 8 px) at the screen's own
+speed (`MovingHazard.lane`): behind the lane it catches up at up to 140 px/s,
+ahead of it (after a gap jump) it eases off, in it it keeps exact pace. It is
+the left edge of the screen with wheels: a player pinned there by the shove
+is caught (about a tile and a half from the edge), anyone two tiles in is
+not. A catch still costs a tier and drops it back seven tiles; a respawn
+holds it two seconds, a beat after the screen starts. Measured: a walker
+stays ~140 px ahead at a steady 85 px/s lane; a stopped Big Mendy is pinned,
+caught, and has the stroller off-screen behind him and returning. Both
+brothers finish; every checkpoint survives three seconds standing still.

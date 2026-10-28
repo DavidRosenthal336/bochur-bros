@@ -5,6 +5,11 @@ import { GAMEPLAY } from '../config/Tuning';
 import { actorArt, applyActorArt, playPose } from '../util/art';
 import { solidTextureKey } from '../util/textures';
 
+/** How hard a chaser pulls back toward its lane, px/s per px behind it. */
+const CHASE_PULL = 2.5;
+/** The most a chaser does catching up to its lane, px/s. A run is 150. */
+const CHASE_CATCH_UP = 140;
+
 /**
  * A hazard that moves: a falling pipe, a runaway cart, a lurching van, the
  * stroller.
@@ -47,6 +52,17 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
    * running and catch a player who has not moved yet the moment it ends.
    */
   holdUntil = 0;
+  /**
+   * Where a chaser is meant to be on a level whose screen moves by itself:
+   * a lane just inside the left edge, moving at the screen's speed. Set by
+   * the scene every frame. Behind the lane it catches up fast; ahead of it,
+   * it eases off; in the lane, it keeps exact pace with the screen. So it is
+   * the left edge of the screen with wheels, and it reaches exactly the
+   * player the screen has pinned there — not, as it did with a speed of its
+   * own, everyone whose average over the level fell below that speed, which
+   * is everyone, about halfway through.
+   */
+  lane: { x: number; speed: number } | undefined;
 
   constructor(
     scene: Phaser.Scene,
@@ -407,7 +423,12 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
     // halfway across is a hop into the hole.
     if (!body.blocked.down) return;
 
-    body.setVelocityX(direction * this.config.speed);
+    if (this.lane) {
+      const behind = this.lane.x - this.x;
+      body.setVelocityX(Phaser.Math.Clamp(this.lane.speed + behind * CHASE_PULL, 0, CHASE_CATCH_UP));
+    } else {
+      body.setVelocityX(direction * this.config.speed);
+    }
 
     // A wall in the way is a step to be hopped, not a reason to stop.
     const blocked = direction > 0 ? body.blocked.right : body.blocked.left;
@@ -421,7 +442,7 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
     const gap = this.gapAhead();
     if (gap > 0 && gap <= 4) {
       body.setVelocityY(-430);
-      body.setVelocityX(direction * Math.max(this.config.speed, (gap + 1.5) * 16 / 0.57));
+      body.setVelocityX(direction * Math.max(Math.abs(body.velocity.x), (gap + 1.5) * 16 / 0.57));
     }
   }
 

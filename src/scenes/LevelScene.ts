@@ -71,6 +71,13 @@ const BOUNCE_VELOCITY: Record<BounceKind, number> = {
  */
 const CHASER_LEAD = 9;
 /**
+ * Where a chaser rides on a level whose screen moves by itself: its centre
+ * this far past the left edge of the screen, px. Its body is 24 wide, so its
+ * front is at 20 — and a player the screen has pinned at the edge (centre at
+ * 6, right side at 13) is caught. Anyone two tiles in from the edge is not.
+ */
+const CHASE_LANE = 8;
+/**
  * Two kindnesses at the corners of platforms, in pixels.
  *
  * Hit the side of a ledge with your feet this close under its top, and you
@@ -2785,7 +2792,11 @@ export class LevelScene extends Phaser.Scene {
   /** Move every hazard, and carry the player if they are riding one. */
   private updateHazards(now: number): void {
     const groundY = (this.level.groundRow ?? this.level.heightInTiles - 7) * TILE;
+    const lane = this.level.autoScroll
+      ? { x: this.cameras.main.scrollX + CHASE_LANE, speed: this.level.autoScroll }
+      : undefined;
     for (const hazard of this.hazards.getChildren() as MovingHazard[]) {
+      if (hazard.config.behavior === 'chaser') hazard.lane = lane;
       hazard.tick(now, this.player.x, this.player.y, groundY);
     }
 

@@ -243,11 +243,11 @@ export const HAZARDS = {
     color: 0xc46a8a,
     rideable: false,
     harmful: true,
-    // Just over 1-3's screen (86) and just under a walk (90): it stays in
-    // frame behind you and gains only on a player who stops. At 104 it
-    // closed a nine-tile head start in ten seconds and sat at your heels for
-    // the whole level; at 96 it still caught a walker, and the developer
-    // said so twice. The screen is the clock; the stroller is the threat.
+    // On a level whose screen moves by itself it does not use this: it rides
+    // a lane at the screen's own speed (MovingHazard.lane). A speed of its
+    // own was tried at 104, 96 and 88, and every one of them caught everyone
+    // somewhere, because a player's average over a level is below their
+    // walk. This is what it does on a level with no moving screen.
     speed: 88,
     affectedByGravity: true,
   },
