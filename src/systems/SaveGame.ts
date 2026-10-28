@@ -1,3 +1,4 @@
+import { ALL_LEVELS_OPEN } from '../config/playtest';
 import type { CharacterId } from '../config/Tuning';
 import { DEFAULT_CHARACTER, GAMEPLAY } from '../config/Tuning';
 import { LEVEL_ORDER, WORLDS, worldOf } from '../levels/catalog';
@@ -114,6 +115,7 @@ export function completeLevel(save: SaveData, levelId: string): SaveData {
  * boss, which is §6's rule that beating a boss unlocks the next world.
  */
 export function isUnlocked(save: SaveData, levelId: string): boolean {
+  if (ALL_LEVELS_OPEN) return true;
   const index = LEVEL_ORDER.findIndex((level) => level.id === levelId);
   if (index <= 0) return index === 0;
 

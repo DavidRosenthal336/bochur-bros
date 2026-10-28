@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { sceneryArt } from '../config/scenery';
+import { ALL_LEVELS_OPEN } from '../config/playtest';
 import { VIEW_WIDTH } from '../config/Tuning';
 import type { LevelEntry, WorldEntry } from '../levels/catalog';
 import { LEVEL_ORDER, WORLDS } from '../levels/catalog';
@@ -146,6 +147,16 @@ export class WorldMapScene extends Phaser.Scene {
         { fontFamily: 'monospace', fontSize: '8px', color: '#4c5478' },
       )
       .setOrigin(0.5, 0);
+
+    if (ALL_LEVELS_OPEN) {
+      this.add
+        .text(VIEW_WIDTH / 2, 174, 'PLAYTEST: EVERY LEVEL IS OPEN', {
+          fontFamily: 'monospace',
+          fontSize: '8px',
+          color: '#c9a84a',
+        })
+        .setOrigin(0.5, 1);
+    }
 
     if (thumbs) this.drawTouchButtons();
   }
