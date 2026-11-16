@@ -20,6 +20,7 @@ assets/index-BdPY5TXh.js
 assets/index-CCSPZeTw.js
 assets/index-CDI6ramp.js
 assets/index-CDPfhEAx.js
+assets/index-CIXOg6zL.js
 assets/index-CKqiS5bo.js
 assets/index-CLJyvNjL.js
 assets/index-CQxSbgAV.js
