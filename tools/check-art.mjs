@@ -119,6 +119,67 @@ for (const [, url] of spritesSource.matchAll(/'(tiles\/[\w.]+\.png)'/g)) {
   }
 }
 
+// 7. HD sheets (public/hd/, see ART_SPEC.md): the same files at ART_SCALE
+//    times the size, frame for frame. Checked against the same registries, so
+//    an HD sheet cut to the wrong frame size is a build error like any other.
+const ART_SCALE = 6;
+const HD_ROOT = join(PUBLIC, 'hd');
+const hdFiles = new Set();
+(function walk(dir) {
+  let entries = [];
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) walk(full);
+    else if (entry.name.endsWith('.png')) hdFiles.add(full.slice(HD_ROOT.length + 1).split('\\').join('/'));
+  }
+})(HD_ROOT);
+function checkHdSheet(label, url, frameWidth, frameHeight, expectedFrames) {
+  if (!hdFiles.has(url)) return;
+  hdFiles.delete(url);
+  const size = sizeOrNull(join(HD_ROOT, url));
+  if (!size) return;
+  const fw = frameWidth * ART_SCALE;
+  const fh = frameHeight * ART_SCALE;
+  if (size.height !== fh) {
+    problems.push(`hd/${url}: ${size.height}px tall; an HD sheet of ${label} is ${fh} (${frameHeight} x ${ART_SCALE})`);
+    return;
+  }
+  const frames = size.width / fw;
+  if (!Number.isInteger(frames)) {
+    problems.push(`hd/${url}: ${size.width}px wide is not a whole number of ${fw}px frames (${frameWidth} x ${ART_SCALE})`);
+  } else if (expectedFrames !== undefined && frames !== expectedFrames) {
+    problems.push(`hd/${url}: holds ${frames} frames, ${expectedFrames} were expected`);
+  }
+}
+for (const [key, spec] of Object.entries(manifest)) {
+  if (key.startsWith('bg_') || spec.frames === undefined) continue;
+  checkHdSheet(key, `sprites/${key}.png`, spec.frameWidth, spec.frameHeight, spec.frames.length);
+}
+for (const [, , path, w, h] of scenerySource.matchAll(/scenery\(\s*'([\w]+)',\s*'([\w/]+)',\s*(\d+),\s*(\d+)/g)) {
+  checkHdSheet(path, `sprites/${path}.png`, Number(w), Number(h));
+}
+for (const url of [...hdFiles]) {
+  if (url.startsWith('sprites/backdrops/')) {
+    hdFiles.delete(url);
+    const size = sizeOrNull(join(HD_ROOT, url));
+    if (size && size.width !== VIEW_WIDTH * ART_SCALE) {
+      problems.push(`hd/${url}: ${size.width}px wide; an HD backdrop layer must be ${VIEW_WIDTH * ART_SCALE} to tile`);
+    }
+  } else if (url.startsWith('tiles/')) {
+    hdFiles.delete(url);
+    const size = sizeOrNull(join(HD_ROOT, url));
+    if (size && (size.width !== 16 * ART_SCALE || size.height !== 16 * ART_SCALE)) {
+      problems.push(`hd/${url}: ${size.width}x${size.height}; HD tiles are ${16 * ART_SCALE}x${16 * ART_SCALE}`);
+    }
+  }
+}
+for (const url of hdFiles) problems.push(`hd/${url}: on disk but in no registry`);
+
 // 6. Nothing sitting in public/sprites that nothing knows about.
 for (const file of readdirSync(SPRITES)) {
   if (!file.endsWith('.png')) continue;

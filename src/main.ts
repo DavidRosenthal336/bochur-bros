@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { PHYSICS_FPS, VIEW_HEIGHT, VIEW_WIDTH } from './config/Tuning';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, HD } from './config/render';
+import { PHYSICS_FPS } from './config/Tuning';
 import { fullScreenAvailable } from './input/TouchInput';
 import { BootScene } from './scenes/BootScene';
 import { LevelScene } from './scenes/LevelScene';
@@ -8,15 +9,19 @@ import { WorldMapScene } from './scenes/WorldMapScene';
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game',
-  width: VIEW_WIDTH,
-  height: VIEW_HEIGHT,
-  pixelArt: true,
-  roundPixels: true,
+  width: CANVAS_WIDTH,
+  height: CANVAS_HEIGHT,
+  // Pixel mode: nearest-neighbour, so the 320x180 canvas scales up blocky.
+  // HD mode: a 1920x1080 canvas that art drawn at that size is sampled into
+  // smoothly (config/render.ts).
+  pixelArt: !HD,
+  roundPixels: !HD,
   backgroundColor: '#0d0f1a',
   scale: {
-    // The game renders at VIEW_WIDTH x VIEW_HEIGHT and is scaled up to the
-    // window. Everything in the game therefore works in one fixed coordinate
-    // space, on a desktop monitor and a phone alike.
+    // The game renders at the canvas size and is scaled to fit the window.
+    // Every camera is zoomed so that the view is VIEW_WIDTH x VIEW_HEIGHT of
+    // world whatever the canvas, so everything in the game works in one fixed
+    // coordinate space, on a desktop monitor and a phone alike.
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
@@ -75,6 +80,8 @@ if (fullScreenAvailable()) {
 }
 
 const stage = document.getElementById('game');
+// The page scales the canvas crisp-edged for pixel art and smoothly for HD.
+stage?.classList.toggle('hd', HD);
 if (stage && 'ResizeObserver' in window) {
   new ResizeObserver(() => game.scale.refresh()).observe(stage);
 }

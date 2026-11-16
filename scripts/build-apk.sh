@@ -43,7 +43,9 @@ mkdir -p "$OUT/assets/www" "$OUT/classes" "$(dirname "$APK")"
 # 1. The game, built for an old WebView (see vite.config.ts).
 npm run typecheck
 npm run build:maps
-BOCHUR_FLIP=1 npx vite build --outDir dist-flip --emptyOutDir
+# Pixel art, drawn at 320x180: the phone has a 240px screen and an old WebView,
+# and the 1080p masters would be fourteen megabytes of app for nothing.
+BOCHUR_FLIP=1 VITE_RENDER=pixel npx vite build --outDir dist-flip --emptyOutDir
 cp -r dist-flip/. "$OUT/assets/www/"
 # Never an APK inside the APK.
 rm -rf "$OUT/assets/www/downloads"

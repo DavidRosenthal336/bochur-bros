@@ -1,3 +1,4 @@
+import { shake } from '../util/hd';
 import Phaser from 'phaser';
 import type { CharacterAbilities, CharacterId, CharacterStats, JumpBracket } from '../config/Tuning';
 import { CHARACTERS, GAMEPLAY, MUD, POWERS, SWIM, SWING, TIERS, TILE, ZIPLINE } from '../config/Tuning';
@@ -464,7 +465,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.groundPounding) {
       if (grounded) {
         this.groundPounding = false;
-        this.scene.cameras.main.shake(140, 0.008);
+        shake(this.scene.cameras.main, 140, 0.008);
       }
       return;
     }

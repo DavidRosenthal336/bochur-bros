@@ -1,3 +1,4 @@
+import { PIN, viewLeft, viewTop } from '../util/hd';
 import Phaser from 'phaser';
 import { TILE, VIEW_HEIGHT, VIEW_WIDTH } from '../config/Tuning';
 
@@ -63,8 +64,9 @@ export class Darkness {
     this.lanternKey = Darkness.glowTexture(scene, radius, 1);
     this.fireflyKey = Darkness.glowTexture(scene, FIREFLY_LIGHT, FIREFLY_STRENGTH);
 
+    // Pinned to the screen, so placed at the pinned origin (util/hd.ts).
     this.night = scene.add
-      .renderTexture(0, 0, VIEW_WIDTH, VIEW_HEIGHT)
+      .renderTexture(PIN.x, PIN.y, VIEW_WIDTH, VIEW_HEIGHT)
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(DARK_DEPTH);
@@ -141,8 +143,8 @@ export class Darkness {
    */
   update(now: number, lightX: number, lightY: number): void {
     const camera = this.scene.cameras.main;
-    const sx = camera.scrollX;
-    const sy = camera.scrollY;
+    const sx = viewLeft(camera);
+    const sy = viewTop(camera);
 
     this.night.clear();
     this.night.fill(NIGHT, NIGHT_ALPHA);

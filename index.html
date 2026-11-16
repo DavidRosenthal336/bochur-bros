@@ -56,6 +56,10 @@
         align-items: center;
         justify-content: center;
       }
+      /* HD mode: a 1920x1080 canvas, scaled smoothly. */
+      #game.hd canvas {
+        image-rendering: auto;
+      }
       #game canvas {
         display: block;
         image-rendering: pixelated;

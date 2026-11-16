@@ -1,4 +1,6 @@
 import { PROCESSED } from 'virtual:processed-art';
+import { AVAILABLE_ART, PROCESSED_HD } from 'virtual:available-art';
+import { ART_SCALE, HD } from './render';
 
 /**
  * Art from the pipeline (`npm run assets`, see ASSETS.md).
@@ -47,3 +49,29 @@ export function processedArt(url: string): ProcessedEntry | undefined {
 
 /** The texture atlases the pipeline packed, by name. */
 export const PROCESSED_ATLASES = PROCESSED.atlases;
+
+/**
+ * HD art for a path the game asks for, if there is any and the game is drawn
+ * in HD (config/render.ts). The file is `ART_SCALE` times the size of the one
+ * the path names, frame for frame.
+ *
+ * Two places are looked in, in this order:
+ *
+ * 1. `public/hd/<path>` — art drawn for HD in its own right. This is where
+ *    sheets from a design tool go: the same file name as the pixel sheet, the
+ *    same frame order, every frame six times the size (ART_SPEC.md).
+ * 2. `assets/processed/hd/<path>` — the art pipeline's 1080p master of the
+ *    ChatGPT art (`npm run assets`), which it keeps alongside the game-size
+ *    copy it snaps to the pixel grid. Served as `/processed/hd/<path>`.
+ *
+ * Under `?art=old` there is none, so that mode still shows the original game.
+ */
+export function hdArt(url: string): string | undefined {
+  if (!HD || ART_MODE === 'old') return undefined;
+  if (AVAILABLE_ART.has(`hd/${url}`)) return `hd/${url}`;
+  if (PROCESSED_HD.has(url)) return `processed/hd/${url}`;
+  return undefined;
+}
+
+/** The size an HD sheet's frames must be, for a registry frame size. */
+export const hdFrame = (size: number): number => size * ART_SCALE;

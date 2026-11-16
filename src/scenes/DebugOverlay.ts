@@ -1,3 +1,5 @@
+import { TEXT_RESOLUTION } from '../config/render';
+import { PIN } from '../util/hd';
 import Phaser from 'phaser';
 import type { Player } from '../entities/Player';
 import { TILE, VIEW_HEIGHT } from '../config/Tuning';
@@ -21,8 +23,8 @@ export class DebugOverlay {
     this.text = scene.add
       // Anchored bottom-left: the top of the screen is where the level's own
       // signage lives, and the bottom is solid ground with nothing to hide.
-      .text(4, VIEW_HEIGHT - 4, '', {
-        fontFamily: 'monospace',
+      .text(PIN.x + 4, PIN.y + VIEW_HEIGHT - 4, '', {
+        fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
         fontSize: '8px',
         color: '#c8ffd4',
         backgroundColor: '#000000a0',

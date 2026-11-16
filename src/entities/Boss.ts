@@ -1,3 +1,4 @@
+import { shake } from '../util/hd';
 import Phaser from 'phaser';
 import { BOSSES } from '../config/bosses';
 import type { BossConfig } from '../config/bosses';
@@ -379,7 +380,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
 
     this.hitsLeft -= 1;
     this.invulnerableUntil = now + 600;
-    this.scene.cameras.main.shake(220, 0.01);
+    shake(this.scene.cameras.main, 220, 0.01);
 
     if (this.hitsLeft > 0) {
       this.setTint(0xffffff);
@@ -426,7 +427,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     this.clearTell();
     this.physicsBody.setVelocity(0, 0);
     this.physicsBody.enable = false;
-    this.scene.cameras.main.shake(500, 0.014);
+    shake(this.scene.cameras.main, 500, 0.014);
 
     this.scene.tweens.add({
       targets: this,

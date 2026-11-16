@@ -4,6 +4,8 @@
  */
 declare module 'virtual:available-art' {
   export const AVAILABLE_ART: ReadonlySet<string>;
+  /** The art pipeline's 1080p masters, by the game's own path (see config/render.ts). */
+  export const PROCESSED_HD: ReadonlySet<string>;
 }
 
 /** The art pipeline's index: see vite.config.ts and scripts/process-assets.mjs. */

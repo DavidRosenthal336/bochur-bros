@@ -1,3 +1,4 @@
+import { shake } from '../util/hd';
 import Phaser from 'phaser';
 import type { HazardConfig } from '../config/hazards';
 import type { ActorSpriteSet } from '../config/sprites';
@@ -251,7 +252,7 @@ export class MovingHazard extends Phaser.Physics.Arcade.Sprite {
           this.setPosition(this.x, Math.min(this.y, groundY));
           body.setVelocity(0, 0);
           this.clearShadow();
-          this.scene.cameras.main.shake(120, 0.005);
+          shake(this.scene.cameras.main, 120, 0.005);
         }
         break;
 

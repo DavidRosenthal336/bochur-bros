@@ -1,3 +1,4 @@
+import { tiling } from '../util/hd';
 import Phaser from 'phaser';
 import { TILE } from '../config/Tuning';
 
@@ -25,7 +26,7 @@ export class Mud {
     // the lake shore, it is just churned up. Depth 2 puts it above the ground
     // tiles and below anything standing on them.
     if (scene.textures.exists('tile-mud')) {
-      scene.add.tileSprite(x, y, w, h, 'tile-mud').setOrigin(0, 0).setDepth(2);
+      tiling(scene, x, y, w, h, 'tile-mud').setOrigin(0, 0).setDepth(2);
     } else {
       scene.add.rectangle(x + w / 2, y + h / 2, w, h, 0x4a3b2a).setDepth(2);
     }

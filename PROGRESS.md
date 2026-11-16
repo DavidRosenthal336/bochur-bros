@@ -1871,3 +1871,30 @@ holds it two seconds, a beat after the screen starts. Measured: a walker
 stays ~140 px ahead at a steady 85 px/s lane; a stopped Big Mendy is pinned,
 caught, and has the stroller off-screen behind him and returning. Both
 brothers finish; every checkpoint survives three seconds standing still.
+
+## Drawn in HD
+
+The game can now be drawn on a 1920x1080 canvas (`src/config/render.ts`,
+`?render=hd` / `?render=pixel`, HD by default except in the flip-phone build).
+Nothing about the game changed: the world is still 320x180 in 16px tiles, every
+number in Tuning.ts is the same, the physics and the level files are untouched,
+and 1-1 finishes by bot for both brothers exactly as before. Only drawing did:
+
+- The camera is zoomed six times (`fitCamera`). Phaser zooms about the centre,
+  so the game's own camera maths goes through `viewLeft` / `viewTop` /
+  `setView` (util/hd.ts), and anything pinned to the screen — HUD, backdrops,
+  the night — is placed at `PIN`, the view's corner. Shake intensities are
+  divided by thirty-six, which is what the same number is worth on a six-times
+  canvas at six-times zoom. Text is rasterised at six times (`resolution`).
+- HD art is the same sheet at six times the size, frame for frame, in
+  `public/hd/<same path>` — or, failing that, the art pipeline's 1080p master
+  in `assets/processed/hd/`, which it had kept all along. A sheet loaded at HD
+  has its *frames* told they are the original size while keeping the HD
+  pixels (`shrinkFrames`), so no sprite is scaled and no body with it; tiles
+  and backdrops keep HD frames and the tiling sprite is scaled instead. Pixel
+  sheets with no HD version are drawn as they were, nearest-neighbour.
+- `npm run check:art` holds `public/hd/` to six-times sizes; ART_SPEC.md lists
+  every sheet's HD frame size.
+
+Headless Chromium (software GL) draws the HD canvas at 17fps, so the test
+harness runs the game in pixel mode unless told otherwise.

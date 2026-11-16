@@ -1,3 +1,5 @@
+import { TEXT_RESOLUTION } from '../config/render';
+import { PIN } from '../util/hd';
 import Phaser from 'phaser';
 import { sceneryArt } from '../config/scenery';
 import { VIEW_WIDTH } from '../config/Tuning';
@@ -13,7 +15,9 @@ interface Row {
   readonly word: string;
 }
 
-const RIGHT = VIEW_WIDTH - 4;
+// Every position here is a view position plus PIN: the HUD is pinned to the
+// screen, and on a zoomed camera the screen's corner is not the origin.
+const RIGHT = PIN.x + VIEW_WIDTH - 4;
 const ROW_HEIGHT = 10;
 /**
  * Where a counter's icon sits, and where its number starts.
@@ -48,13 +52,13 @@ export class Hud {
     const row = (frame: string, word: string): Row => ({
       icon: icons
         ? scene.add
-            .image(ICON_X, 0, icons.key, icons.frames[frame])
+            .image(ICON_X, PIN.y, icons.key, icons.frames[frame])
             .setOrigin(0, 0)
             .setScrollFactor(0)
             .setDepth(1000)
         : undefined,
       value: scene.add
-        .text(0, 0, '', { fontFamily: 'monospace', fontSize: '8px', color: '#f2e6c8' })
+        .text(0, 0, '', { fontFamily: 'monospace', resolution: TEXT_RESOLUTION, fontSize: '8px', color: '#f2e6c8' })
         .setShadow(1, 1, '#0d0f1a', 0, true, true)
         .setOrigin(icons ? 0 : 1, 0)
         .setScrollFactor(0)
@@ -77,15 +81,15 @@ export class Hud {
      * take up more of the game than they are worth.
      */
     this.form = scene.add
-      .text(RIGHT, 0, '', { fontFamily: 'monospace', fontSize: '8px', color: '#f2e6c8' })
+      .text(RIGHT, 0, '', { fontFamily: 'monospace', resolution: TEXT_RESOLUTION, fontSize: '8px', color: '#f2e6c8' })
       .setShadow(1, 1, '#0d0f1a', 0, true, true)
       .setOrigin(1, 0)
       .setScrollFactor(0)
       .setDepth(1000);
 
     this.banner = scene.add
-      .text(VIEW_WIDTH / 2, 74, '', {
-        fontFamily: 'monospace',
+      .text(PIN.x + VIEW_WIDTH / 2, PIN.y + 74, '', {
+        fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
         fontSize: '16px',
         color: '#ffffff',
         align: 'center',
@@ -98,13 +102,13 @@ export class Hud {
 
     const barWidth = VIEW_WIDTH - 80;
     this.bossBar = scene.add
-      .rectangle(VIEW_WIDTH / 2, 12, barWidth, 6, 0x2b2f44)
+      .rectangle(PIN.x + VIEW_WIDTH / 2, PIN.y + 12, barWidth, 6, 0x2b2f44)
       .setStrokeStyle(1, 0x8d97c9)
       .setScrollFactor(0)
       .setDepth(1000)
       .setVisible(false);
     this.bossBarFill = scene.add
-      .rectangle(VIEW_WIDTH / 2 - barWidth / 2 + 1, 12, barWidth - 2, 4, 0xd05a6a)
+      .rectangle(PIN.x + VIEW_WIDTH / 2 - barWidth / 2 + 1, PIN.y + 12, barWidth - 2, 4, 0xd05a6a)
       .setOrigin(0, 0.5)
       .setScrollFactor(0)
       .setDepth(1001)
@@ -112,7 +116,7 @@ export class Hud {
   }
 
   private place(row: Row, index: number, value: string, visible = true): void {
-    const y = 4 + index * ROW_HEIGHT;
+    const y = PIN.y + 4 + index * ROW_HEIGHT;
     row.value.setVisible(visible).setPosition(row.icon ? VALUE_X : RIGHT, y);
     row.value.setText(row.icon ? value : `${row.word} ${value}`);
     row.icon?.setVisible(visible).setY(y);
@@ -131,7 +135,7 @@ export class Hud {
     this.place(this.lives, timed ? 1 : 0, String(lives));
     this.place(this.coins, timed ? 2 : 1, String(coins));
     this.form
-      .setPosition(RIGHT, 4 + (timed ? 3 : 2) * ROW_HEIGHT)
+      .setPosition(RIGHT, PIN.y + 4 + (timed ? 3 : 2) * ROW_HEIGHT)
       .setText(`${CHARACTERS[character].label.toUpperCase()} / ${tier.toUpperCase()}`);
 
     // The last ten seconds go red, because a clock you have to read is not a

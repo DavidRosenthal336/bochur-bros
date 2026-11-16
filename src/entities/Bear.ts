@@ -1,3 +1,5 @@
+import { shake } from '../util/hd';
+import { TEXT_RESOLUTION } from '../config/render';
 import Phaser from 'phaser';
 import type { BearConfig, BearStage } from '../config/bosses';
 import { BEAR } from '../config/bosses';
@@ -369,12 +371,12 @@ export class Bear extends Phaser.Physics.Arcade.Sprite {
     this.dazedFrom = now;
     this.enter('dazed', now + this.stage.dazeMs);
     this.physicsBody.setVelocityX(0);
-    this.scene.cameras.main.shake(140, 0.006);
+    shake(this.scene.cameras.main, 140, 0.006);
     this.clearStars();
     // Stars over its head: the window, drawn where the player is looking.
     this.stars = this.scene.add
       .text(this.x, this.y - this.config.bodyHeight - 6, '* * *', {
-        fontFamily: 'monospace',
+        fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
         fontSize: '8px',
         color: '#ffe680',
       })

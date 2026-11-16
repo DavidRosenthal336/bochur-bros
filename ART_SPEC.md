@@ -324,3 +324,102 @@ Enemy, hazard and boss hitboxes are `bodyWidth` / `bodyHeight` in
 `src/config/enemies.ts`, `src/config/hazards.ts` and `src/config/bosses.ts`.
 Frame sizes are in `tools/art/manifest.json`, which `npm run check:art` holds
 the PNGs and `src/config/sprites.ts` to.
+
+## HD art
+
+The game can also be drawn in HD (`src/config/render.ts`): a 1920x1080 canvas
+with the camera zoomed six times, so the same 320x180 of world fills it. HD art
+is the **same sheets at six times the size** — the same file name, the same
+frame order, every frame `6 x` the size in the registry — dropped into
+`public/hd/` under the same path (`public/hd/sprites/mendy_small.png`,
+`public/hd/tiles/brick.png`, `public/hd/sprites/backdrops/bg_sky_day.png`).
+The game shows each HD frame at a sixth, so it takes up exactly the space the
+pixel art did; nothing about hitboxes, speeds or levels changes. Where there is
+no HD sheet the pixel sheet is drawn, scaled, crisp; `?render=pixel` on the
+address shows the whole game the old way, and `?render=hd` the new.
+
+The art pipeline's 1080p masters (`assets/processed/hd/`, from the ChatGPT
+art) are also used when `public/hd/` has nothing for a path.
+
+Draw HD sheets with real transparency, anchored like the pixel sheet
+(bottom-centre for anything that stands, centre for anything that floats).
+Tiles are 96x96 and seamless on all sides; backdrop layers are 1920 wide
+(1080 tall, or 2160 for the tall sky) and seamless left to right.
+
+| Sheet | Frame at 1x | Frame in HD | Frames | Sheet in HD |
+|---|---|---|---|---|
+| `mendy_small` | 24x28 | **144x168** | 8 | 1152x168 |
+| `mendy_cholent` | 26x36 | **156x216** | 8 | 1248x216 |
+| `mendy_menorah` | 26x36 | **156x216** | 8 | 1248x216 |
+| `mendy_lulav` | 26x36 | **156x216** | 8 | 1248x216 |
+| `mendy_peyos` | 26x36 | **156x216** | 8 | 1248x216 |
+| `berel_small` | 26x30 | **156x180** | 8 | 1248x180 |
+| `berel_cholent` | 28x41 | **168x246** | 8 | 1344x246 |
+| `berel_menorah` | 28x41 | **168x246** | 8 | 1344x246 |
+| `berel_lulav` | 28x41 | **168x246** | 8 | 1344x246 |
+| `berel_peyos` | 28x41 | **168x246** | 8 | 1344x246 |
+| `peyos_hat` | 12x6 | **72x36** | 1 | 72x36 |
+| `pigeon` | 20x16 | **120x96** | 6 | 720x96 |
+| `rat` | 24x16 | **144x96** | 3 | 432x96 |
+| `pigeon_king` | 44x38 | **264x228** | 4 | 1056x228 |
+| `yetzer_hara` | 44x46 | **264x276** | 5 | 1320x276 |
+| `cart` | 26x22 | **156x132** | 1 | 156x132 |
+| `goose` | 24x26 | **144x156** | 5 | 720x156 |
+| `chipmunk` | 16x14 | **96x84** | 3 | 288x84 |
+| `dog` | 24x22 | **144x132** | 2 | 288x132 |
+| `sprinkler` | 16x28 | **96x168** | 2 | 192x168 |
+| `mower` | 28x20 | **168x120** | 1 | 168x120 |
+| `blower` | 20x20 | **120x120** | 1 | 120x120 |
+| `wind_puff` | 16x8 | **96x48** | 1 | 96x48 |
+| `trampoline` | 36x16 | **216x96** | 2 | 432x96 |
+| `gate` | 20x36 | **120x216** | 2 | 240x216 |
+| `minivan` | 56x34 | **336x204** | 1 | 336x204 |
+| `golf_cart` | 28x20 | **168x120** | 1 | 168x120 |
+| `escalade` | 88x46 | **528x276** | 4 | 2112x276 |
+| `scaffold_pipe` | 16x44 | **96x264** | 1 | 96x264 |
+| `stroller` | 28x30 | **168x180** | 1 | 168x180 |
+| `van` | 50x32 | **300x192** | 1 | 300x192 |
+| `raccoon` | 22x15 | **132x90** | 2 | 264x90 |
+| `clothesline_post` | 12x20 | **72x120** | 1 | 72x120 |
+| `laundry_line` | 16x8 | **96x48** | 1 | 96x48 |
+| `solar_tank` | 24x16 | **144x96** | 1 | 144x96 |
+| `sparrow` | 16x11 | **96x66** | 2 | 192x66 |
+| `shuk_cart` | 28x17 | **168x102** | 1 | 168x102 |
+| `shuk_crate` | 16x16 | **96x96** | 1 | 96x96 |
+| `gecko` | 16x9 | **96x54** | 2 | 192x54 |
+| `cat` | 22x16 | **132x96** | 4 | 528x96 |
+| `pashkevil` | 8x8 | **48x48** | 1 | 48x48 |
+| `bear` | 34x42 | **204x252** | 3 | 612x252 |
+| `mosquito_swarm` | 20x12 | **120x72** | 2 | 240x72 |
+| `frog` | 16x12 | **96x72** | 2 | 192x72 |
+| `rope_swing` | 10x22 | **60x132** | 1 | 60x132 |
+| `canoe` | 32x11 | **192x66** | 1 | 192x66 |
+| `wasp` | 12x12 | **72x72** | 1 | 72x72 |
+| `porch_step` | 16x16 | **96x96** | 2 | 192x96 |
+| `coin` | 8x10 | **48x60** | 4 | 192x60 |
+| `menorah_flame` | 8x8 | **48x48** | 2 | 96x48 |
+| `lchaim` | 10x14 | **60x84** | 1 | 60x84 |
+| `powerup_pickup` | 14x14 | **84x84** | 1 | 84x84 |
+| `powerup_cholent` | 14x14 | **84x84** | 1 | 84x84 |
+| `powerup_menorah` | 14x14 | **84x84** | 1 | 84x84 |
+| `powerup_lulav` | 14x14 | **84x84** | 1 | 84x84 |
+| `powerup_peyos` | 14x14 | **84x84** | 1 | 84x84 |
+| `mystery_box` | 16x16 | **96x96** | 1 | 96x96 |
+| `box_used` | 16x16 | **96x96** | 1 | 96x96 |
+| `crate` | 16x16 | **96x96** | 1 | 96x96 |
+| `goal_meat_board` | 36x34 | **216x204** | 1 | 216x204 |
+| `goal_poppers` | 36x28 | **216x168** | 1 | 216x168 |
+| `goal_kugel` | 28x28 | **168x168** | 1 | 168x168 |
+| `goal_tequila` | 24x26 | **144x156** | 1 | 144x156 |
+| `checkpoint` | 20x36 | **120x216** | 2 | 240x216 |
+| `reinforced_block` | 16x16 | **96x96** | 1 | 96x96 |
+| `weak_floor` | 16x16 | **96x96** | 1 | 96x96 |
+| `ui/map_node` | 12x12 | **72x72** | 3 | 216x72 |
+| `ui/map_path_dot` | 4x4 | **24x24** | 1 | 24x24 |
+| `ui/kiddush_table` | 64x32 | **384x192** | 1 | 384x192 |
+| `ui/prize_icons` | 12x12 | **72x72** | 5 | 360x72 |
+| `ui/hud_icons` | 8x8 | **48x48** | 3 | 144x48 |
+| `ui/title_logo` | 160x24 | **960x144** | 1 | 960x144 |
+| tiles (each) | 16x16 | **96x96** | 1 | 96x96 |
+| backdrop layers | 320x180 | **1920x1080** | 1 | 1920x1080 |
+| `bg_sky_tall_*` | 320x360 | **1920x2160** | 1 | 1920x2160 |

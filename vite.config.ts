@@ -58,13 +58,25 @@ function availableArt(): Plugin {
       } catch {
         // No public directory at all: every piece of art falls back.
       }
-      return `export const AVAILABLE_ART = new Set(${JSON.stringify(files)});`;
+      // The art pipeline's 1080p masters (assets/processed/hd/), keyed by the
+      // same path the game asks for, so HD mode can draw them (config/render.ts).
+      let hd: string[] = [];
+      try {
+        hd = walk('assets/processed/hd', 'assets/processed/hd').sort();
+      } catch {
+        // No pipeline output: HD mode shows the pixel art, scaled.
+      }
+      return (
+        `export const AVAILABLE_ART = new Set(${JSON.stringify(files)});\n` +
+        `export const PROCESSED_HD = new Set(${JSON.stringify(hd)});`
+      );
     },
     // The listing is baked into a module, so adding a sheet while the dev
     // server is running would otherwise do nothing until a restart — or worse,
     // removing one would leave the game asking for a file that is gone.
     configureServer(server) {
       server.watcher.add('public');
+      server.watcher.add('assets/processed/hd');
       const refresh = (path: string) => {
         if (!path.endsWith('.png')) return;
         const module = server.moduleGraph.getModuleById(`\0${ID}`);
@@ -87,9 +99,10 @@ function availableArt(): Plugin {
  * - `virtual:processed-art` is assets/processed/index.json — which assets have
  *   new art, and where (an atlas frame, or a file).
  * - In development, /processed/... is served straight from assets/processed/.
- * - In a build, the game-ready files are copied to processed/ in the output.
- *   The 1080p masters (hd/) and the pipeline's bookkeeping are left behind:
- *   the game does not draw them.
+ * - In a build, the game-ready files are copied to processed/ in the output,
+ *   and so are the 1080p masters (hd/), which HD mode draws (config/render.ts)
+ *   — except in the flip-phone build, which is pixel-only and small. The
+ *   pipeline's bookkeeping is left behind.
  */
 function processedArt(): Plugin {
   const ID = 'virtual:processed-art';
@@ -134,7 +147,9 @@ function processedArt(): Plugin {
         recursive: true,
         filter: (src) => {
           const rel = relative(ROOT, src).split(sep).join(posix.sep);
-          return !(rel === 'hd' || rel.startsWith('hd/') || rel === 'sheets' || rel.startsWith('sheets/') || rel === 'state.json');
+          const hd = rel === 'hd' || rel.startsWith('hd/');
+          if (hd && process.env.BOCHUR_FLIP) return false;
+          return !(rel === 'sheets' || rel.startsWith('sheets/') || rel === 'state.json');
         },
       });
     },

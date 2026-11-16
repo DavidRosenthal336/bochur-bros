@@ -1,3 +1,5 @@
+import { fitCamera, layerHeight, PIN, setView, shake, tileScaleFor, tiling, viewLeft, viewTop } from '../util/hd';
+import { TEXT_RESOLUTION } from '../config/render';
 import Phaser from 'phaser';
 import { ENEMIES } from '../config/enemies';
 import type { CharacterId } from '../config/Tuning';
@@ -430,6 +432,7 @@ export class LevelScene extends Phaser.Scene {
   }
 
   create(): void {
+    fitCamera(this.cameras.main);
     const widthPx = this.level.widthInTiles * TILE;
     const heightPx = this.level.heightInTiles * TILE;
 
@@ -699,9 +702,9 @@ export class LevelScene extends Phaser.Scene {
       if (this.textures.exists(tiles.top) && this.textures.exists(tiles.fill)) {
         rect.setVisible(false);
         if (h > TILE) {
-          this.add.tileSprite(x, y + TILE, w, h - TILE, tiles.fill).setOrigin(0, 0).setDepth(0);
+          tiling(this, x, y + TILE, w, h - TILE, tiles.fill).setOrigin(0, 0).setDepth(0);
         }
-        this.add.tileSprite(x, y, w, Math.min(TILE, h), tiles.top).setOrigin(0, 0).setDepth(1);
+        tiling(this, x, y, w, Math.min(TILE, h), tiles.top).setOrigin(0, 0).setDepth(1);
       } else {
         // A lighter top edge, so the surface you can land on reads clearly.
         this.add.rectangle(x + w / 2, y + 1, w, 2, 0x8d97c9).setDepth(1);
@@ -1075,7 +1078,7 @@ export class LevelScene extends Phaser.Scene {
       const awning = (this.level.backdrop ?? '').startsWith('meah_shearim') ? 'tile-msAwning' : 'tile-awning';
       if (kind === 'awning' && this.textures.exists(awning)) {
         pad.setVisible(false);
-        this.add.tileSprite(x, y, w, TILE, awning).setOrigin(0, 0).setDepth(4);
+        tiling(this, x, y, w, TILE, awning).setOrigin(0, 0).setDepth(4);
       }
 
       if (kind === 'trampoline') {
@@ -1578,7 +1581,7 @@ export class LevelScene extends Phaser.Scene {
         fight.flickers += 1;
       }
       const from = this.removeYetzerForm();
-      this.cameras.main.shake(200, 0.01);
+      shake(this.cameras.main, 200, 0.01);
 
       if (fight.phase === 4 && fight.flickerHitsLeft <= 0) {
         this.defeatYetzer(from.x, from.y);
@@ -1678,7 +1681,7 @@ export class LevelScene extends Phaser.Scene {
     fight.done = true;
     this.hud.hideBossHealth();
     this.puffYetzer(x, y - 20, 24);
-    this.cameras.main.shake(500, 0.012);
+    shake(this.cameras.main, 500, 0.012);
     for (const enemy of this.enemies.getChildren() as Enemy[]) {
       if (enemy.isAlive) enemy.knockAway(enemy.x < this.player.x ? -1 : 1, 220);
     }
@@ -1897,7 +1900,7 @@ export class LevelScene extends Phaser.Scene {
     if (wantHint && !this.dentHint) {
       this.dentHint = this.add
         .text(0, 0, 'SWAP TO BEREL\nJUMP, THEN DOWN', {
-          fontFamily: 'monospace',
+          fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
           fontSize: '8px',
           color: '#ffd77a',
           align: 'center',
@@ -1955,7 +1958,7 @@ export class LevelScene extends Phaser.Scene {
         repeat: 9,
       });
     }
-    camera.shake(120, 0.003);
+    shake(camera, 120, 0.003);
   }
 
   /** The Escalade drives off, and the poppers slide out the back hatch (§6). */
@@ -2092,7 +2095,7 @@ export class LevelScene extends Phaser.Scene {
     this.time.delayedCall(1500, () => {
       if (!this.thief || this.state !== 'playing') return;
       this.thief.release();
-      this.cameras.main.shake(260, 0.006);
+      shake(this.cameras.main, 260, 0.006);
     });
   }
 
@@ -2133,7 +2136,7 @@ export class LevelScene extends Phaser.Scene {
     // Chest height on the pavement, and a rise that stops short of the top of
     // the view whatever the camera is doing.
     const fromY = this.player.y - TILE;
-    const headroom = Math.max(TILE * 2, fromY - camera.scrollY - TILE);
+    const headroom = Math.max(TILE * 2, fromY - viewTop(camera) - TILE);
 
     spread.forEach((item, i) => {
       const piece = icons
@@ -2304,7 +2307,7 @@ export class LevelScene extends Phaser.Scene {
         // sky is full does nothing.
         const alive = (this.enemies.getChildren() as Enemy[]).filter((e) => e.isAlive).length;
         const room = Math.max(0, GAMEPLAY.maxFlock - alive);
-        const y = this.cameras.main.scrollY + VIEW_HEIGHT * 0.3;
+        const y = viewTop(this.cameras.main) + VIEW_HEIGHT * 0.3;
         for (let i = 0; i < Math.min(boss.config.summonCount, room); i += 1) {
           const x = Phaser.Math.Clamp(
             boss.x + (i % 2 === 0 ? -70 : 70),
@@ -2318,7 +2321,7 @@ export class LevelScene extends Phaser.Scene {
         break;
       }
       case 'shockwave':
-        this.cameras.main.shake(160, 0.006);
+        shake(this.cameras.main, 160, 0.006);
         break;
       case 'none':
         break;
@@ -2622,7 +2625,7 @@ export class LevelScene extends Phaser.Scene {
       if (taken) {
         enemy.takeLoot(taken, this.time.now, this.player.x);
         this.hud.showBanner('IT TOOK YOUR POT');
-        this.cameras.main.shake(120, 0.004);
+        shake(this.cameras.main, 120, 0.004);
       }
       return;
     }
@@ -2684,7 +2687,7 @@ export class LevelScene extends Phaser.Scene {
   private swapCharacter(): void {
     const next: CharacterId = this.player.character === 'mendy' ? 'berel' : 'mendy';
     if (!this.player.setCharacter(next)) {
-      this.cameras.main.shake(70, 0.004);
+      shake(this.cameras.main, 70, 0.004);
       return;
     }
     this.applyCharacterToWorld();
@@ -2727,7 +2730,7 @@ export class LevelScene extends Phaser.Scene {
         this.fireFlame();
         break;
       case 'swing':
-        this.cameras.main.shake(60, 0.002);
+        shake(this.cameras.main, 60, 0.002);
         break;
       case 'none':
         break;
@@ -2772,7 +2775,7 @@ export class LevelScene extends Phaser.Scene {
       enemy.stun(this.time.now, POWERS.cholent.stunMs);
       stunned += 1;
     }
-    if (stunned > 0) this.cameras.main.shake(180, 0.006);
+    if (stunned > 0) shake(this.cameras.main, 180, 0.006);
   }
 
   /** §5: 100 tzedakah coins buy a life, and the counter starts again. */
@@ -2793,7 +2796,7 @@ export class LevelScene extends Phaser.Scene {
   private updateHazards(now: number): void {
     const groundY = (this.level.groundRow ?? this.level.heightInTiles - 7) * TILE;
     const lane = this.level.autoScroll
-      ? { x: this.cameras.main.scrollX + CHASE_LANE, speed: this.level.autoScroll }
+      ? { x: viewLeft(this.cameras.main) + CHASE_LANE, speed: this.level.autoScroll }
       : undefined;
     for (const hazard of this.hazards.getChildren() as MovingHazard[]) {
       if (hazard.config.behavior === 'chaser') hazard.lane = lane;
@@ -2872,14 +2875,11 @@ export class LevelScene extends Phaser.Scene {
       this.autoScrollX += (this.level.autoScroll * delta) / 1000;
     }
     camera.stopFollow();
-    camera.setScroll(
-      Math.min(this.autoScrollX, this.level.widthInTiles * TILE - VIEW_WIDTH),
-      camera.scrollY,
-    );
+    setView(camera, Math.min(this.autoScrollX, this.level.widthInTiles * TILE - VIEW_WIDTH), viewTop(camera));
 
     // Shove the player along rather than letting them be left behind: being
     // scrolled off the back is the chase, not a death.
-    const leftEdge = camera.scrollX + 6;
+    const leftEdge = viewLeft(camera) + 6;
     if (this.player.x < leftEdge) this.player.x = leftEdge;
   }
 
@@ -2932,15 +2932,15 @@ export class LevelScene extends Phaser.Scene {
     // the ratchet holds, and the clock's own rise is slow enough to be
     // followed exactly.
     const shownY = Math.min(
-      camera.scrollY,
-      Phaser.Math.Linear(camera.scrollY, this.autoScrollY, CAMERA.lerpY),
+      viewTop(camera),
+      Phaser.Math.Linear(viewTop(camera), this.autoScrollY, CAMERA.lerpY),
     );
-    camera.setScroll(Phaser.Math.Linear(camera.scrollX, wantX, CAMERA.lerpX), shownY);
+    setView(camera, Phaser.Math.Linear(viewLeft(camera), wantX, CAMERA.lerpX), shownY);
 
     // Left below the screen with nothing under you. There is no shoving a
     // player upwards the way the horizontal chase shoves them along, so this
     // is the one place being outpaced is fatal.
-    if (this.player.physicsBody.top > camera.scrollY + VIEW_HEIGHT) this.killPlayer();
+    if (this.player.physicsBody.top > viewTop(camera) + VIEW_HEIGHT) this.killPlayer();
   }
 
   /**
@@ -3006,7 +3006,7 @@ export class LevelScene extends Phaser.Scene {
       return;
     }
     this.player.recoil(fromX);
-    this.cameras.main.shake(140, 0.007);
+    shake(this.cameras.main, 140, 0.007);
   }
 
   private killPlayer(): void {
@@ -3234,9 +3234,7 @@ export class LevelScene extends Phaser.Scene {
 
     for (const layer of layers) {
       if (!this.textures.exists(layer.key)) continue;
-      const source = this.textures.get(layer.key).getSourceImage();
-      const sprite = this.add
-        .tileSprite(0, VIEW_HEIGHT, VIEW_WIDTH, source.height, layer.key)
+      const sprite = tiling(this, PIN.x, PIN.y + VIEW_HEIGHT, VIEW_WIDTH, layerHeight(this, layer.key), layer.key)
         .setOrigin(0, 1)
         .setScrollFactor(0)
         .setDepth(-10 + this.backdrop.length);
@@ -3244,8 +3242,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     if (this.backdrop.length === 0 && this.textures.exists('tile-brick')) {
-      const wall = this.add
-        .tileSprite(0, VIEW_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT * 2, 'tile-brick')
+      const wall = tiling(this, PIN.x, PIN.y + VIEW_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT * 2, 'tile-brick')
         .setOrigin(0, 1)
         .setScrollFactor(0)
         .setDepth(-10)
@@ -3279,11 +3276,12 @@ export class LevelScene extends Phaser.Scene {
   private updateBackdrop(): void {
     if (this.backdrop.length === 0) return;
     const camera = this.cameras.main;
-    const strayed = this.backdropRestScrollY - camera.scrollY;
+    const strayed = this.backdropRestScrollY - viewTop(camera);
 
     for (const { sprite, layer } of this.backdrop) {
-      sprite.tilePositionX = camera.scrollX * layer.scrollX;
-      sprite.y = this.backdropRestY + strayed * layer.scrollY;
+      // The texture's own pixels, of which an HD layer has six per world unit.
+      sprite.tilePositionX = (viewLeft(camera) * layer.scrollX) / tileScaleFor(layer.key);
+      sprite.y = PIN.y + this.backdropRestY + strayed * layer.scrollY;
     }
   }
 
@@ -3318,7 +3316,7 @@ export class LevelScene extends Phaser.Scene {
     for (const label of this.level.labels) {
       const text = this.add
         .text(label.x * TILE, label.y * TILE, label.text, {
-          fontFamily: 'monospace',
+          fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
           fontSize: '8px',
           color: '#e8ecff',
         })

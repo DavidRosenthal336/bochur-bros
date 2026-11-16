@@ -9,7 +9,9 @@ import {
 } from '../config/sprites';
 import type { CharacterPose } from '../config/sprites';
 import { artExists, BACKDROPS, SCENERY, tallSky } from '../config/scenery';
-import { PROCESSED_ATLASES, processedArt } from '../config/processedArt';
+import { hdArt, hdFrame, PROCESSED_ATLASES, processedArt } from '../config/processedArt';
+import { HD } from '../config/render';
+import { markHdTiling, shrinkFrames } from '../util/hd';
 import { AVAILABLE_ART as AVAILABLE_URLS } from 'virtual:available-art';
 import type { BackdropVariant } from '../config/scenery';
 import { SceneKey } from './SceneKey';
@@ -34,6 +36,14 @@ interface AtlasSheet {
 export class BootScene extends Phaser.Scene {
   /** Sheets that come from the art pipeline's atlases (ASSETS.md). */
   private atlasSheets: AtlasSheet[] = [];
+  /** Sheets loaded at HD size, to be shown at world size (util/hd.ts). */
+  private hdSheets: string[] = [];
+  /**
+   * Textures that are pixel art in an HD game. Drawn with nearest-neighbour
+   * sampling, so they stay the crisp blocks they always were rather than
+   * blurring into the smooth filtering the HD art wants.
+   */
+  private pixelKeys: string[] = [];
 
   constructor() {
     super(SceneKey.Boot);
@@ -41,6 +51,8 @@ export class BootScene extends Phaser.Scene {
 
   preload(): void {
     this.atlasSheets = [];
+    this.hdSheets = [];
+    this.pixelKeys = [];
     const atlases = new Set<string>();
     // Only ever ask for a file that is there. The registries list everything
     // the game knows how to draw, drawn or not, and the Vite plugins behind
@@ -52,7 +64,20 @@ export class BootScene extends Phaser.Scene {
     // in `create`, under the same key the game has always used.
     const sheet = (set: { key: string; url: string; frameWidth: number; frameHeight: number }) => {
       if (!artExists(set.url)) return;
+      // In HD, a six-times sheet where there is one (config/render.ts), cut
+      // to six-times frames and shown at world size once it has loaded.
+      const hd = hdArt(set.url);
+      if (hd) {
+        this.load.spritesheet(set.key, hd, {
+          frameWidth: hdFrame(set.frameWidth),
+          frameHeight: hdFrame(set.frameHeight),
+        });
+        this.hdSheets.push(set.key);
+        return;
+      }
+      this.pixelKeys.push(set.key);
       const processed = processedArt(set.url);
+      if (!processed && !AVAILABLE_URLS.has(set.url)) return;
       if (processed?.atlas && processed.frame) {
         if (processed.frameWidth === set.frameWidth && processed.frameHeight === set.frameHeight) {
           atlases.add(processed.atlas);
@@ -82,7 +107,18 @@ export class BootScene extends Phaser.Scene {
     };
     const image = (key: string, url: string) => {
       if (!artExists(url)) return;
-      this.load.image(key, processedArt(url)?.file ?? url);
+      // Tiles and backdrops repeat, so an HD one keeps its HD frame and the
+      // tiling sprite that draws it is scaled instead (util/hd.ts).
+      const hd = hdArt(url);
+      if (hd) {
+        this.load.image(key, hd);
+        markHdTiling(key);
+        return;
+      }
+      this.pixelKeys.push(key);
+      const processed = processedArt(url);
+      if (!processed && !AVAILABLE_URLS.has(url)) return;
+      this.load.image(key, processed?.file ?? url);
     };
 
     for (const set of Object.values(SPRITE_SETS)) sheet(set);
@@ -128,8 +164,21 @@ export class BootScene extends Phaser.Scene {
     }
   }
 
+  /** Every HD sheet shown at world size; every pixel sheet kept crisp. */
+  private fitTextures(): void {
+    const webgl = this.game.renderer.type === Phaser.WEBGL;
+    for (const key of this.hdSheets) {
+      if (this.textures.exists(key)) shrinkFrames(this.textures.get(key), webgl);
+    }
+    if (!HD) return;
+    for (const key of [...this.pixelKeys, ...this.atlasSheets.map((s) => `atlas-${s.atlas}`)]) {
+      if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+    }
+  }
+
   create(): void {
     this.cutAtlasSheets();
+    this.fitTextures();
     /**
      * Build animations only for sheets that actually arrived.
      *

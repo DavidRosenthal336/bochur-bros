@@ -1,3 +1,4 @@
+import { tiling } from '../util/hd';
 import Phaser from 'phaser';
 import { TILE } from '../config/Tuning';
 import type { CurrentDef, WaterDef } from '../levels/LevelDef';
@@ -47,7 +48,7 @@ export class Water {
     this.top = y;
 
     const body = scene.textures.exists('tile-poolWater')
-      ? scene.add.tileSprite(x, y, w, h, 'tile-poolWater').setOrigin(0, 0)
+      ? tiling(scene, x, y, w, h, 'tile-poolWater').setOrigin(0, 0)
       : scene.add.rectangle(x + w / 2, y + h / 2, w, h, WATER, 0.75);
     // Behind the solids, not in front of them. The floor of a pool and the
     // shelves in it are terrain drawn at depth 0 and 1, and a pane of water

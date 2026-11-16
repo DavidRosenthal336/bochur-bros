@@ -1,3 +1,4 @@
+import { shake } from '../util/hd';
 import Phaser from 'phaser';
 import type { VehicleBossConfig, VehicleBossStage } from '../config/bosses';
 import { VEHICLE_BOSSES } from '../config/bosses';
@@ -266,7 +267,7 @@ export class Escalade extends Phaser.Physics.Arcade.Sprite {
     this.modeEndsAt = now + this.stage.stallMs;
     this.dentableFrom = now + this.config.settleMs;
 
-    this.scene.cameras.main.shake(220, 0.011);
+    shake(this.scene.cameras.main, 220, 0.011);
     this.steam();
     this.flashHazards(this.stage.stallMs);
   }
@@ -281,7 +282,7 @@ export class Escalade extends Phaser.Physics.Arcade.Sprite {
   takeDent(now: number): boolean {
     if (!this.isVulnerable) return false;
     this.hitsLeft -= 1;
-    this.scene.cameras.main.shake(300, 0.016);
+    shake(this.scene.cameras.main, 300, 0.016);
     this.scene.cameras.main.flash(90, 255, 255, 255);
 
     if (this.hitsLeft <= 0) {

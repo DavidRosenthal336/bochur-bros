@@ -1,5 +1,5 @@
 import { AVAILABLE_ART } from 'virtual:available-art';
-import { ART_MODE, processedArt } from './processedArt';
+import { ART_MODE, hdArt, processedArt } from './processedArt';
 
 /**
  * Scenery: the backdrops, the level furniture and the interface art.
@@ -18,7 +18,9 @@ import { ART_MODE, processedArt } from './processedArt';
  * is in `public/`. With `?art=new` only the first counts.
  */
 export const artExists = (url: string): boolean =>
-  processedArt(url) !== undefined || (ART_MODE !== 'new' && AVAILABLE_ART.has(url));
+  hdArt(url) !== undefined ||
+  processedArt(url) !== undefined ||
+  (ART_MODE !== 'new' && AVAILABLE_ART.has(url));
 
 // ------------------------------------------------------------- backdrops ---
 

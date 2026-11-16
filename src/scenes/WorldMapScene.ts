@@ -1,3 +1,5 @@
+import { fitCamera, shake } from '../util/hd';
+import { TEXT_RESOLUTION } from '../config/render';
 import Phaser from 'phaser';
 import { sceneryArt } from '../config/scenery';
 import { ALL_LEVELS_OPEN } from '../config/playtest';
@@ -56,6 +58,7 @@ export class WorldMapScene extends Phaser.Scene {
   }
 
   create(): void {
+    fitCamera(this.cameras.main);
     this.save = loadSave();
     this.selected = Math.max(
       0,
@@ -109,7 +112,7 @@ export class WorldMapScene extends Phaser.Scene {
     } else {
       this.add
         .text(VIEW_WIDTH / 2, 6, 'BOCHUR BROS', {
-          fontFamily: 'monospace',
+          fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
           fontSize: '16px',
           color: '#e8d9b0',
         })
@@ -118,7 +121,7 @@ export class WorldMapScene extends Phaser.Scene {
 
     this.add
       .text(VIEW_WIDTH / 2, 24, 'get the kiddush back', {
-        fontFamily: 'monospace',
+        fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
         fontSize: '8px',
         color: '#6f7aa8',
       })
@@ -126,7 +129,7 @@ export class WorldMapScene extends Phaser.Scene {
 
     this.detail = this.add
       .text(VIEW_WIDTH / 2, 142, '', {
-        fontFamily: 'monospace',
+        fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
         fontSize: '8px',
         color: '#c8d0f0',
         align: 'center',
@@ -144,18 +147,19 @@ export class WorldMapScene extends Phaser.Scene {
           : thumbs
             ? 'TAP A LEVEL, THEN TAP IT AGAIN TO PLAY'
             : 'ARROWS choose   SPACE play   G greybox   BKSP wipe save',
-        { fontFamily: 'monospace', fontSize: '8px', color: '#4c5478' },
+        { fontFamily: 'monospace', resolution: TEXT_RESOLUTION, fontSize: '8px', color: '#4c5478' },
       )
       .setOrigin(0.5, 0);
 
     if (ALL_LEVELS_OPEN) {
+      // Top left, where nothing else is: the bottom line is the key help.
       this.add
-        .text(VIEW_WIDTH / 2, 174, 'PLAYTEST: EVERY LEVEL IS OPEN', {
-          fontFamily: 'monospace',
+        .text(4, 3, 'PLAYTEST: EVERY LEVEL IS OPEN', {
+          fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
           fontSize: '8px',
           color: '#c9a84a',
         })
-        .setOrigin(0.5, 1);
+        .setOrigin(0, 0);
     }
 
     if (thumbs) this.drawTouchButtons();
@@ -179,7 +183,7 @@ export class WorldMapScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
         .on('pointerup', onTap);
       this.add
-        .text(x, y, label, { fontFamily: 'monospace', fontSize: '8px', color: '#9fd0ef' })
+        .text(x, y, label, { fontFamily: 'monospace', resolution: TEXT_RESOLUTION, fontSize: '8px', color: '#9fd0ef' })
         .setOrigin(0.5)
         .setDepth(7);
     };
@@ -206,7 +210,7 @@ export class WorldMapScene extends Phaser.Scene {
 
       this.add
         .text(8, y, `${world.number}  ${world.name.toUpperCase()}`, {
-          fontFamily: 'monospace',
+          fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
           fontSize: '8px',
           color: worldOpen ? '#a9b4e0' : '#3a4060',
         })
@@ -338,7 +342,7 @@ export class WorldMapScene extends Phaser.Scene {
         .setStrokeStyle(1, recovered ? 0xffffff : 0x333a52);
       this.add
         .text(x, y + 10, recovered ? world.prize.replace(/^the /, '') : '?', {
-          fontFamily: 'monospace',
+          fontFamily: 'monospace', resolution: TEXT_RESOLUTION,
           fontSize: '8px',
           color: recovered ? '#e8d9b0' : '#3a4060',
         })
@@ -397,7 +401,7 @@ export class WorldMapScene extends Phaser.Scene {
   private enter(): void {
     const level = LEVEL_ORDER[this.selected];
     if (!level?.map || !isUnlocked(this.save, level.id)) {
-      this.cameras.main.shake(90, 0.004);
+      shake(this.cameras.main, 90, 0.004);
       return;
     }
     this.scene.start(SceneKey.Level, { levelKey: level.map, levelId: level.id });
