@@ -1898,3 +1898,14 @@ and 1-1 finishes by bot for both brothers exactly as before. Only drawing did:
 
 Headless Chromium (software GL) draws the HD canvas at 17fps, so the test
 harness runs the game in pixel mode unless told otherwise.
+
+## HD on a phone: a black screen, and why
+
+The first HD build opened to nothing on an iPhone. Boot loaded every backdrop
+layer of every time of day in every world — thirty of them — and at HD those
+are 285MB of texture between them; the phone's WebGL gave up before the map
+appeared. Backdrops are now loaded by the level that uses them (three layers,
+four with the tall sky, ~25MB), and the previous level's are dropped when
+another time of day starts. Nothing is loaded at boot but sprites and tiles
+(23MB). The start card also has a GRAPHICS: HD / PIXEL switch, remembered in
+the browser, for a phone that would rather have the lighter game.

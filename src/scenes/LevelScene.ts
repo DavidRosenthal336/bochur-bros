@@ -1,4 +1,4 @@
-import { fitCamera, layerHeight, PIN, setView, shake, tileScaleFor, tiling, viewLeft, viewTop } from '../util/hd';
+import { finishImage, fitCamera, layerHeight, loadImage, PIN, setView, shake, tileScaleFor, tiling, viewLeft, viewTop } from '../util/hd';
 import { TEXT_RESOLUTION } from '../config/render';
 import Phaser from 'phaser';
 import { ENEMIES } from '../config/enemies';
@@ -374,6 +374,8 @@ export class LevelScene extends Phaser.Scene {
   private riseGraceLeft = 0;
   /** The player's vertical speed at the end of the last frame, for corner correction. */
   private lastPlayerVy = 0;
+  /** Backdrop layers queued in `preload`, with whether each is HD or pixel art. */
+  private backdropImages: [string, 'hd' | 'pixel'][] = [];
   /**
    * How far to move a pursuing hazard along, so it resumes the same distance
    * behind the player as it started. Only ever non-zero on a chase level
@@ -431,8 +433,32 @@ export class LevelScene extends Phaser.Scene {
     this.state = 'playing';
   }
 
+  /**
+   * The level's own backdrop, loaded as it starts.
+   *
+   * Three layers (four with the tall sky), not the thirty of every time of
+   * day in every world: at HD those are 285MB of texture between them, and
+   * loading the lot at boot was more than a phone's WebGL would hold.
+   */
+  preload(): void {
+    this.backdropImages = [];
+    const variant = this.level.backdrop ?? DEFAULT_BACKDROP;
+    const layers = [...BACKDROPS[variant], tallSky(variant)];
+    // Another time of day's layers, left over from the last level, go: one
+    // variant in memory at a time. A restart of the same level keeps its own.
+    const keep = new Set(layers.flatMap((layer) => [layer.key, `${layer.key}-sprite`]));
+    for (const key of this.textures.getTextureKeys()) {
+      if (key.startsWith('bg_') && !keep.has(key)) this.textures.remove(key);
+    }
+    for (const layer of layers) {
+      const kind = loadImage(this, layer.key, layer.url);
+      if (kind) this.backdropImages.push([layer.key, kind]);
+    }
+  }
+
   create(): void {
     fitCamera(this.cameras.main);
+    for (const [key, kind] of this.backdropImages) finishImage(this, key, kind);
     const widthPx = this.level.widthInTiles * TILE;
     const heightPx = this.level.heightInTiles * TILE;
 

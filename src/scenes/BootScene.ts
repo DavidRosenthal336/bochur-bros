@@ -8,12 +8,11 @@ import {
   TILE_TEXTURES,
 } from '../config/sprites';
 import type { CharacterPose } from '../config/sprites';
-import { artExists, BACKDROPS, SCENERY, tallSky } from '../config/scenery';
+import { artExists, SCENERY } from '../config/scenery';
 import { hdArt, hdFrame, PROCESSED_ATLASES, processedArt } from '../config/processedArt';
 import { HD } from '../config/render';
-import { markHdTiling, shrinkFrames, spriteKeyFor } from '../util/hd';
+import { finishImage, loadImage, shrinkFrames } from '../util/hd';
 import { AVAILABLE_ART as AVAILABLE_URLS } from 'virtual:available-art';
-import type { BackdropVariant } from '../config/scenery';
 import { SceneKey } from './SceneKey';
 import { PROLOGUE_LEVEL } from '../levels';
 import { loadSave } from '../systems/SaveGame';
@@ -38,8 +37,8 @@ export class BootScene extends Phaser.Scene {
   private atlasSheets: AtlasSheet[] = [];
   /** Sheets loaded at HD size, to be shown at world size (util/hd.ts). */
   private hdSheets: string[] = [];
-  /** Tiles loaded at HD size, which keep it for tiling and get a shrunk copy for sprites. */
-  private hdTiles: string[] = [];
+  /** Tiles queued, with whether each is HD or pixel art, for finishing. */
+  private images: [string, 'hd' | 'pixel'][] = [];
   /**
    * Textures that are pixel art in an HD game. Drawn with nearest-neighbour
    * sampling, so they stay the crisp blocks they always were rather than
@@ -54,7 +53,7 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     this.atlasSheets = [];
     this.hdSheets = [];
-    this.hdTiles = [];
+    this.images = [];
     this.pixelKeys = [];
     const atlases = new Set<string>();
     // Only ever ask for a file that is there. The registries list everything
@@ -108,31 +107,17 @@ export class BootScene extends Phaser.Scene {
         frameHeight: set.frameHeight,
       });
     };
-    const image = (key: string, url: string) => {
-      if (!artExists(url)) return;
-      // Tiles and backdrops repeat, so an HD one keeps its HD frame and the
-      // tiling sprite that draws it is scaled instead (util/hd.ts).
-      const hd = hdArt(url);
-      if (hd) {
-        this.load.image(key, hd);
-        markHdTiling(key);
-        this.hdTiles.push(key);
-        return;
-      }
-      this.pixelKeys.push(key);
-      const processed = processedArt(url);
-      if (!processed && !AVAILABLE_URLS.has(url)) return;
-      this.load.image(key, processed?.file ?? url);
-    };
-
     for (const set of Object.values(SPRITE_SETS)) sheet(set);
     for (const set of Object.values(ACTOR_SPRITES)) sheet(set);
     for (const set of Object.values(SCENERY)) sheet(set);
 
-    for (const [name, url] of Object.entries(TILE_TEXTURES)) image(`tile-${name}`, url);
-
-    for (const variant of Object.keys(BACKDROPS) as BackdropVariant[]) {
-      for (const layer of [...BACKDROPS[variant], tallSky(variant)]) image(layer.key, layer.url);
+    // Tiles repeat, so an HD one keeps its HD frame and the tiling sprite
+    // that draws it is scaled instead (util/hd.ts). Backdrops are not loaded
+    // here: a level loads its own three layers. All thirty at HD came to
+    // 285MB of texture, and a phone's WebGL gave up before the map appeared.
+    for (const [name, url] of Object.entries(TILE_TEXTURES)) {
+      const kind = loadImage(this, `tile-${name}`, url);
+      if (kind) this.images.push([`tile-${name}`, kind]);
     }
 
     for (const name of atlases) {
@@ -174,11 +159,7 @@ export class BootScene extends Phaser.Scene {
     for (const key of this.hdSheets) {
       if (this.textures.exists(key)) shrinkFrames(this.textures.get(key), webgl);
     }
-    for (const key of this.hdTiles) {
-      if (!this.textures.exists(key)) continue;
-      const copy = this.textures.addImage(spriteKeyFor(key), this.textures.get(key).getSourceImage() as HTMLImageElement);
-      if (copy) shrinkFrames(copy, webgl);
-    }
+    for (const [key, kind] of this.images) finishImage(this, key, kind);
     if (!HD) return;
     for (const key of [...this.pixelKeys, ...this.atlasSheets.map((s) => `atlas-${s.atlas}`)]) {
       if (this.textures.exists(key)) this.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);

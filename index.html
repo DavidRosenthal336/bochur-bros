@@ -109,6 +109,25 @@
         letter-spacing: 0.14em;
         color: #4ea8de;
       }
+      #graphics button {
+        font: inherit;
+        color: inherit;
+        background: #1c2238;
+        border: 1px solid #4c5478;
+        border-radius: 4px;
+        padding: 2px 10px;
+        margin: 0 2px;
+        cursor: pointer;
+      }
+      #graphics button.on {
+        background: #c9a84a;
+        color: #121726;
+        border-color: #c9a84a;
+      }
+      #graphics-note {
+        opacity: 0.7;
+        margin-left: 6px;
+      }
       #start .sub {
         margin: -8px 0 0;
         font-size: 12px;
@@ -636,6 +655,12 @@
         PRESS ANY BUTTON
       </div>
       <p class="sub">ALL FOUR WORLDS</p>
+      <p class="sub" id="graphics">
+        GRAPHICS:
+        <button type="button" data-render="hd">HD</button>
+        <button type="button" data-render="pixel">PIXEL</button>
+        <span id="graphics-note"></span>
+      </p>
       <table id="keys">
         <tr><td colspan="2" class="group">ON THE MAP</td></tr>
         <tr><td>Arrows</td><td>Choose a level</td></tr>
@@ -819,6 +844,39 @@
         }
         card.addEventListener('click', start);
         window.addEventListener('keydown', start);
+      })();
+
+      // HD or pixel graphics, remembered in this browser (src/config/render.ts).
+      // A choice reloads the page: the game is already booting behind the card.
+      (function () {
+        var KEY = 'bochur-bros/render';
+        var saved = null;
+        try {
+          saved = localStorage.getItem(KEY);
+        } catch (e) {
+          /* no storage: the default stands */
+        }
+        var current = saved || 'hd';
+        var buttons = document.querySelectorAll('#graphics button');
+        for (var i = 0; i < buttons.length; i += 1) {
+          var button = buttons[i];
+          if (button.dataset.render === current) button.classList.add('on');
+          button.addEventListener('click', function (event) {
+            event.stopPropagation();
+            var mode = event.currentTarget.dataset.render;
+            if (mode === current) return;
+            try {
+              localStorage.setItem(KEY, mode);
+            } catch (e) {
+              /* then it is for this page load only */
+            }
+            location.search = location.search ? location.search + '&render=' + mode : '?render=' + mode;
+          });
+        }
+        var note = document.getElementById('graphics-note');
+        if (note && window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+          note.textContent = 'on a phone, pixel is lighter';
+        }
       })();
     </script>
   </body>

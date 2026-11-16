@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
+import { AVAILABLE_ART } from 'virtual:available-art';
+import { hdArt, processedArt } from '../config/processedArt';
 import { ART_SCALE, CAMERA_ZOOM, CANVAS_HEIGHT, CANVAS_WIDTH, HD } from '../config/render';
+import { artExists } from '../config/scenery';
 import { VIEW_HEIGHT, VIEW_WIDTH } from '../config/Tuning';
 
 /**
@@ -67,6 +70,47 @@ const HD_TILING = new Set<string>();
 
 export function markHdTiling(key: string): void {
   HD_TILING.add(key);
+}
+
+/**
+ * Queue an image the game draws by tiling — a tile or a backdrop layer — in
+ * HD where there is HD (config/processedArt.ts) and as it is otherwise.
+ * Returns what was queued, for `finishImage` once it has loaded; nothing if
+ * there is no such art at all.
+ */
+export function loadImage(
+  scene: Phaser.Scene,
+  key: string,
+  url: string,
+): 'hd' | 'pixel' | undefined {
+  if (scene.textures.exists(key) || !artExists(url)) return undefined;
+  const hd = hdArt(url);
+  if (hd) {
+    scene.load.image(key, hd);
+    return 'hd';
+  }
+  const processed = processedArt(url);
+  if (!processed && !AVAILABLE_ART.has(url)) return undefined;
+  scene.load.image(key, processed?.file ?? url);
+  return 'pixel';
+}
+
+/**
+ * Once an image has loaded: an HD one keeps its frame for tiling, is marked
+ * so tiling sprites of it shrink, and gets a shrunk copy for sprites of it;
+ * a pixel one in an HD game is kept crisp.
+ */
+export function finishImage(scene: Phaser.Scene, key: string, kind: 'hd' | 'pixel'): void {
+  if (!scene.textures.exists(key)) return;
+  if (kind === 'hd') {
+    markHdTiling(key);
+    if (!scene.textures.exists(spriteKeyFor(key))) {
+      const copy = scene.textures.addImage(spriteKeyFor(key), scene.textures.get(key).getSourceImage() as HTMLImageElement);
+      if (copy) shrinkFrames(copy, scene.game.renderer.type === Phaser.WEBGL);
+    }
+  } else if (HD) {
+    scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+  }
 }
 
 /** The tile scale that makes a tiling sprite of this texture repeat at world size. */

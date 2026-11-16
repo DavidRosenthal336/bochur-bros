@@ -22,7 +22,15 @@ export const ART_SCALE = 6;
 const HD_BY_DEFAULT = (import.meta.env.VITE_RENDER ?? 'hd') !== 'pixel';
 
 const params = typeof location === 'undefined' ? undefined : new URLSearchParams(location.search);
-const asked = params?.get('render');
+/** The start card's choice, kept in the browser: HD is a lot for a phone. */
+const saved = ((): string | null => {
+  try {
+    return localStorage.getItem('bochur-bros/render');
+  } catch {
+    return null;
+  }
+})();
+const asked = params?.get('render') ?? saved;
 
 export const RENDER_MODE: 'hd' | 'pixel' =
   asked === 'hd' ? 'hd' : asked === 'pixel' ? 'pixel' : HD_BY_DEFAULT ? 'hd' : 'pixel';
