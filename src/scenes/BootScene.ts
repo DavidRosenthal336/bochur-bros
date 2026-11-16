@@ -11,7 +11,7 @@ import type { CharacterPose } from '../config/sprites';
 import { artExists, BACKDROPS, SCENERY, tallSky } from '../config/scenery';
 import { hdArt, hdFrame, PROCESSED_ATLASES, processedArt } from '../config/processedArt';
 import { HD } from '../config/render';
-import { markHdTiling, shrinkFrames } from '../util/hd';
+import { markHdTiling, shrinkFrames, spriteKeyFor } from '../util/hd';
 import { AVAILABLE_ART as AVAILABLE_URLS } from 'virtual:available-art';
 import type { BackdropVariant } from '../config/scenery';
 import { SceneKey } from './SceneKey';
@@ -38,6 +38,8 @@ export class BootScene extends Phaser.Scene {
   private atlasSheets: AtlasSheet[] = [];
   /** Sheets loaded at HD size, to be shown at world size (util/hd.ts). */
   private hdSheets: string[] = [];
+  /** Tiles loaded at HD size, which keep it for tiling and get a shrunk copy for sprites. */
+  private hdTiles: string[] = [];
   /**
    * Textures that are pixel art in an HD game. Drawn with nearest-neighbour
    * sampling, so they stay the crisp blocks they always were rather than
@@ -52,6 +54,7 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     this.atlasSheets = [];
     this.hdSheets = [];
+    this.hdTiles = [];
     this.pixelKeys = [];
     const atlases = new Set<string>();
     // Only ever ask for a file that is there. The registries list everything
@@ -113,6 +116,7 @@ export class BootScene extends Phaser.Scene {
       if (hd) {
         this.load.image(key, hd);
         markHdTiling(key);
+        this.hdTiles.push(key);
         return;
       }
       this.pixelKeys.push(key);
@@ -169,6 +173,11 @@ export class BootScene extends Phaser.Scene {
     const webgl = this.game.renderer.type === Phaser.WEBGL;
     for (const key of this.hdSheets) {
       if (this.textures.exists(key)) shrinkFrames(this.textures.get(key), webgl);
+    }
+    for (const key of this.hdTiles) {
+      if (!this.textures.exists(key)) continue;
+      const copy = this.textures.addImage(spriteKeyFor(key), this.textures.get(key).getSourceImage() as HTMLImageElement);
+      if (copy) shrinkFrames(copy, webgl);
     }
     if (!HD) return;
     for (const key of [...this.pixelKeys, ...this.atlasSheets.map((s) => `atlas-${s.atlas}`)]) {

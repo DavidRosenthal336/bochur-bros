@@ -1,3 +1,4 @@
+import { spriteKeyFor } from '../util/hd';
 import Phaser from 'phaser';
 import { sceneryArt } from '../config/scenery';
 import { GAMEPLAY, TILE } from '../config/Tuning';
@@ -40,11 +41,11 @@ function blockTexture(kind: BlockKind): string {
     case 'mystery':
       return 'mystery_box';
     case 'brick':
-      return 'tile-brick';
+      return spriteKeyFor('tile-brick');
     case 'reinforced':
-      return sceneryArt('reinforcedBlock')?.key ?? 'tile-sewerGrate';
+      return sceneryArt('reinforcedBlock')?.key ?? spriteKeyFor('tile-sewerGrate');
     case 'weak':
-      return sceneryArt('weakFloor')?.key ?? 'tile-scaffoldPlank';
+      return sceneryArt('weakFloor')?.key ?? spriteKeyFor('tile-scaffoldPlank');
   }
 }
 

@@ -72,6 +72,14 @@ export function markHdTiling(key: string): void {
 /** The tile scale that makes a tiling sprite of this texture repeat at world size. */
 export const tileScaleFor = (key: string): number => (HD_TILING.has(key) ? 1 / ART_SCALE : 1);
 
+/**
+ * The texture to give a *sprite* of a tile — a brick block, say. A tile's own
+ * texture keeps its HD frame for tiling, so a sprite of it would be six
+ * times too big; in HD each tile also has a copy whose frame is shrunk, under
+ * this key, and that is what a sprite uses.
+ */
+export const spriteKeyFor = (key: string): string => (HD_TILING.has(key) ? `${key}-sprite` : key);
+
 /** A tiling sprite, repeating at world size whatever its texture's resolution. */
 export function tiling(
   scene: Phaser.Scene,
